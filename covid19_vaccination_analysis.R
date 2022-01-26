@@ -295,11 +295,12 @@ c_vxrate_sept <-
 
 #### Calculate cov_total_fv at end of September 2021
 c_vxrate_sept <- c_vxrate_sept %>%
-  mutate(cov_total_fv = if_else(adm_a1d == 0 & adm_fv == 0,
-                                ((adm_td / 2) / a_pop),
-                                if_else(adm_a1d != 0 & adm_fv == 0,
-                                        ((adm_td - adm_a1d - adm_booster) / a_pop),
-                                        (adm_fv / a_pop))))
+  mutate(cov_total_fv = if_else(
+    adm_a1d == 0 & adm_fv == 0 & adm_booster == 0, ((adm_td / 2) / a_pop),
+    if_else(adm_a1d == 0 & adm_fv == 0 & adm_booster != 0, (((adm_td - adm_booster)/ 2) / a_pop),
+            if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster == 0, ((adm_td - adm_a1d) / a_pop),
+                    if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster != 0, ((adm_td - adm_a1d - adm_booster) / a_pop),
+                            (adm_fv / a_pop))))))
 
 #### Indicate if cov_total_fv is greater than or equal to 10%
 c_vxrate_sept <- c_vxrate_sept %>%
@@ -319,11 +320,12 @@ c_vxrate_dec <-
 
 #### Calculate cov_total_fv at end of December 2021
 c_vxrate_dec <- c_vxrate_dec %>%
-  mutate(cov_total_fv = if_else(adm_a1d == 0 & adm_fv == 0,
-                                ((adm_td / 2) / a_pop),
-                                if_else(adm_a1d != 0 & adm_fv == 0,
-                                        ((adm_td - adm_a1d) / a_pop),
-                                        (adm_fv / a_pop))))
+  mutate(cov_total_fv = if_else(
+    adm_a1d == 0 & adm_fv == 0 & adm_booster == 0, ((adm_td / 2) / a_pop),
+    if_else(adm_a1d == 0 & adm_fv == 0 & adm_booster != 0, (((adm_td - adm_booster)/ 2) / a_pop),
+            if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster == 0, ((adm_td - adm_a1d) / a_pop),
+                    if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster != 0, ((adm_td - adm_a1d - adm_booster) / a_pop),
+                            (adm_fv / a_pop))))))
 
 #### Indicate if cov_total_fv is greater than or equal to 20%
 c_vxrate_dec <- c_vxrate_dec %>%
@@ -509,7 +511,7 @@ d_absorption <- d_absorption %>%
 c_vxrate_latest <- filter(b_vxrate, adm_latest == "Yes")
 
 ### Remove is_latest column
-c_vxrate_latest <- select(c_vxrate_latest,-c("adm_latest"))
+c_vxrate_latest <- select(c_vxrate_latest, -c("adm_latest"))
 
 
 
@@ -570,8 +572,8 @@ c_vxrate_latest <-
 ## Select relevant columns and rename
 b_vxrate_lm_sum <-
   select(b_vxrate_lm_sum,
-         c("iso_code", "total_doses", "fully_vaccinated"))
-colnames(b_vxrate_lm_sum) <- c("a_iso", "adm_td_lm", "adm_fv_lm")
+         c("iso_code", "total_doses", "fully_vaccinated", "at_least_one_dose","persons_booster_add_dose"))
+colnames(b_vxrate_lm_sum) <- c("a_iso", "adm_td_lm", "adm_fv_lm","adm_a1d_lm","adm_booster_lm")
 
 ## Merge with current summary dataset
 c_vxrate_latest <-
@@ -583,8 +585,8 @@ c_vxrate_latest <-
 ## Select relevant columns and rename
 b_vxrate_2m_sum <-
   select(b_vxrate_2m_sum,
-         c("iso_code", "total_doses", "fully_vaccinated"))
-colnames(b_vxrate_2m_sum) <- c("a_iso", "adm_td_2m", "adm_fv_2m")
+         c("iso_code", "total_doses", "fully_vaccinated", "at_least_one_dose"))
+colnames(b_vxrate_2m_sum) <- c("a_iso", "adm_td_2m", "adm_fv_2m","adm_a1d_2m")
 
 ## Merge with current summary dataset
 c_vxrate_latest <-
@@ -602,8 +604,9 @@ c_vxrate_latest <-
 # Supply secured and/or expected ------------------------------------------
 
 # Load summary and forecast datasets
-b_sec <- data.frame(read_excel("input/base_supply_secured_summary.xlsx",
-                               sheet = "supply_tracker"))
+b_sec <-
+  data.frame(read_excel("input/base_supply_secured_summary.xlsx",
+                        sheet = "supply_tracker"))
 
 b_sec_forecast <-
   data.frame(read_excel("input/base_supply_secured_forecasts.xlsx",
@@ -627,6 +630,7 @@ c_sec_cour <-
       "Domestic.Supply..millions.of.courses."
     )
   )
+
 colnames(c_sec_cour) <-
   c(
     "iso",
@@ -831,14 +835,17 @@ c_sec_forecast_totals <- c_sec_forecast_totals %>%
 # Supply received ---------------------------------------------------------
 
 # Load current, lm, and 2m datasets
-b_mdb <- data.frame(read_excel("input/base_supply_received_current.xlsx",
-                               sheet = "Delivery_Table"))
+b_mdb <-
+  data.frame(read_excel("input/base_supply_received_current.xlsx",
+                        sheet = "Delivery_Table"))
 
-b_mdb_lm <- data.frame(read_excel("input/base_supply_received_lastmonth.xlsx",
-                                  sheet = "Delivery_Table"))
+b_mdb_lm <-
+  data.frame(read_excel("input/base_supply_received_lastmonth.xlsx",
+                        sheet = "Delivery_Table"))
 
-b_mdb_2m <- data.frame(read_excel("input/base_supply_received_twomonth.xlsx",
-                                  sheet = "Delivery_Table"))
+b_mdb_2m <-
+  data.frame(read_excel("input/base_supply_received_twomonth.xlsx",
+                        sheet = "Delivery_Table"))
 
 # Add ISO codes, remove entries without ISO codes, and rename columns
 ## Current
@@ -851,8 +858,8 @@ b_mdb$iso <-
   )
 b_mdb <-
   b_mdb %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
-b_mdb <- b_mdb[!(is.na(b_mdb$iso)), ]
-b_mdb <- select(b_mdb,-c("Country.territory"))
+b_mdb <- b_mdb[!(is.na(b_mdb$iso)),]
+b_mdb <- select(b_mdb, -c("Country.territory"))
 b_mdb$del_date <- as.Date("2022-01-17")
 colnames(b_mdb) <- c(
   "product",
@@ -876,8 +883,8 @@ b_mdb_lm$iso <-
   )
 b_mdb_lm <-
   b_mdb_lm %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
-b_mdb_lm <- b_mdb_lm[!(is.na(b_mdb_lm$iso)), ]
-b_mdb_lm <- select(b_mdb_lm,-c("Country.territory"))
+b_mdb_lm <- b_mdb_lm[!(is.na(b_mdb_lm$iso)),]
+b_mdb_lm <- select(b_mdb_lm, -c("Country.territory"))
 colnames(b_mdb_lm) <-
   c(
     "product",
@@ -900,8 +907,8 @@ b_mdb_2m$iso <-
   )
 b_mdb_2m <-
   b_mdb_2m %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
-b_mdb_2m <- b_mdb_2m[!(is.na(b_mdb_2m$iso)), ]
-b_mdb_2m <- select(b_mdb_2m,-c("Country.territory"))
+b_mdb_2m <- b_mdb_2m[!(is.na(b_mdb_2m$iso)),]
+b_mdb_2m <- select(b_mdb_2m, -c("Country.territory"))
 colnames(b_mdb_2m) <-
   c(
     "product",
@@ -1284,52 +1291,21 @@ c_smartsheet_red <-
       "NDVP...Coverage.target..",
       "NDVP...Coverage.deadline",
       "NDVP.Target.Population",
-      "Watchlist.countries",
-      "watchlist_category",
       "At.risk.for.expiry",
       "Driving.factors"
     )
   )
+
 colnames(c_smartsheet_red) <-
   c(
     "iso",
     "ndvp_target",
     "ndvp_deadline",
     "ndvp_tarpop",
-    "watchlist_status",
-    "watchlist_category",
     "expiry_risk",
     "note_ss_drivers"
   )
 
-## Rename priority country status
-c_smartsheet_red <- c_smartsheet_red %>%
-  mutate(
-    watchlist_status = if_else(
-      watchlist_status == "Red" | watchlist_status == "Yellow",
-      "Yes",
-      NA_character_
-    )
-  )
-
-
-## Rename priority country category
-c_smartsheet_red <- c_smartsheet_red %>%
-  mutate(
-    watchlist_category = if_else(
-      watchlist_category == 1,
-      "Countries with fragile, conflict, chronic or systemic circumstances",
-      if_else(
-        watchlist_category == 2,
-        "Countries with time-limited problems or discrete event",
-        if_else(
-          watchlist_category == 3,
-          "Countries with high population/impact",
-          NA_character_
-        )
-      )
-    )
-  )
 
 ## Rename expiry risk
 c_smartsheet_red <- c_smartsheet_red %>%
@@ -1364,8 +1340,7 @@ colnames(c_whodb_red) <- c("iso", "prod_inuse", "intro_date")
 # Remove duplicative base details from latest vxrate summary
 c_vxrate_latest_red <-
   select(
-    c_vxrate_latest,
-    -c(
+    c_vxrate_latest,-c(
       "a_continent",
       "a_who_region",
       "a_income_group",
@@ -1411,20 +1386,24 @@ a_data <- a_data %>%
 
 # Calculate theoretical fully vaccinated for non-reporters for current, lm, and 2m
 a_data <- a_data %>%
-  mutate(adm_fv_homo = if_else(adm_a1d == 0 & adm_fv == 0,
-                               adm_td / 2,
-                               if_else(adm_a1d != 0 & adm_fv == 0,
-                                       adm_td - adm_a1d,
-                               adm_fv))) %>%
+  mutate(adm_fv_homo = if_else(
+    adm_a1d == 0 & adm_fv == 0 & adm_booster == 0, (adm_td / 2),
+    if_else(adm_a1d == 0 & adm_fv == 0 & adm_booster != 0, ((adm_td - adm_booster)/ 2),
+            if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster == 0, (adm_td - adm_a1d),
+                    if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster != 0, (adm_td - adm_a1d - adm_booster),
+                            (adm_fv)))))) %>%
   
-  mutate(adm_fv_lm_homo = if_else(adm_fv_lm == 0,
-                                  adm_td_lm / 2,
-                                  adm_fv_lm)) %>%
+  mutate(adm_fv_lm_homo = if_else(
+    adm_a1d_lm == 0 & adm_fv == 0 & adm_booster_lm == 0, (adm_td_lm / 2),
+    if_else(adm_a1d_lm == 0 & adm_fv == 0 & adm_booster_lm != 0, ((adm_td_lm - adm_booster_lm)/ 2),
+            if_else(adm_a1d_lm != 0 & adm_fv == 0 & adm_booster_lm == 0, (adm_td_lm - adm_a1d_lm),
+                    if_else(adm_a1d_lm != 0 & adm_fv == 0 & adm_booster_lm != 0, (adm_td_lm - adm_a1d_lm - adm_booster_lm),
+                            (adm_fv)))))) %>%
   
-  mutate(adm_fv_2m_homo = if_else(adm_fv_2m == 0,
-                                  adm_td_2m / 2,
-                                  adm_fv_2m))
-
+  mutate(adm_fv_2m_homo = if_else(
+    adm_a1d_2m == 0 & adm_fv == 0, (adm_td_2m / 2),
+            if_else(adm_a1d_2m != 0 & adm_fv == 0, (adm_td_2m - adm_a1d_2m),
+                            (adm_fv))))
 
 # Calculate td and fv change from lm and 2m
 a_data <- a_data %>%
@@ -1432,9 +1411,9 @@ a_data <- a_data %>%
   
   mutate(adm_td_1m_2m = adm_td_lm - adm_td_2m) %>%
   
-  mutate(adm_fv_less_1m = adm_fv - adm_fv_lm) %>%
+  mutate(adm_fv_less_1m = adm_fv_homo - adm_fv_lm_homo) %>%
   
-  mutate(adm_fv_1m_2m = adm_fv_lm - adm_fv_2m)
+  mutate(adm_fv_1m_2m = adm_fv_lm_homo - adm_fv_2m_homo)
 
 
 # Calculate adm_a1d and adm_fv coverage for current, lm, and 2m, including change
@@ -1476,7 +1455,7 @@ a_data <- a_data %>%
       )
     )
   )) %>%
-
+  
   
   mutate(cov_total_fv_lw_cat = if_else(
     cov_total_fv_lw < 0.01,
@@ -1583,10 +1562,10 @@ a_data <- a_data %>%
   
   mutate(t10_timeto = if_else((((
     0.1 * a_pop
-  ) - adm_fv) / (dvr_4wk_fv)) < 0 , 0,
-  if_else(is.infinite((((0.1 * a_pop) - adm_fv) / (dvr_4wk_fv)
+  ) - adm_fv_homo) / (dvr_4wk_fv)) < 0 , 0,
+  if_else(is.infinite((((0.1 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
   )), NA_real_,
-  (((0.1 * a_pop) - adm_fv) / (dvr_4wk_fv)
+  (((0.1 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
   )))) %>%
   
   mutate(t10_status = if_else(
@@ -1611,10 +1590,10 @@ a_data <- a_data %>%
   
   mutate(t20_timeto = if_else((((
     0.2 * a_pop
-  ) - adm_fv) / (dvr_4wk_fv)) < 0 , 0,
-  if_else(is.infinite((((0.2 * a_pop) - adm_fv) / (dvr_4wk_fv)
+  ) - adm_fv_homo) / (dvr_4wk_fv)) < 0 , 0,
+  if_else(is.infinite((((0.2 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
   )), NA_real_,
-  (((0.2 * a_pop) - adm_fv) / (dvr_4wk_fv)
+  (((0.2 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
   )))) %>%
   
   mutate(t20_status = if_else(
@@ -1635,10 +1614,10 @@ a_data <- a_data %>%
   
   mutate(t40_timeto = if_else((((
     0.4 * a_pop
-  ) - adm_fv) / (dvr_4wk_fv)) < 0 , 0,
-  if_else(is.infinite((((0.4 * a_pop) - adm_fv) / (dvr_4wk_fv)
+  ) - adm_fv_homo) / (dvr_4wk_fv)) < 0 , 0,
+  if_else(is.infinite((((0.4 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
   )), NA_real_,
-  (((0.4 * a_pop) - adm_fv) / (dvr_4wk_fv)
+  (((0.4 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
   )))) %>%
   
   mutate(t40_status = if_else(
@@ -1652,7 +1631,7 @@ a_data <- a_data %>%
               NA_character_)
     )
   )) %>%
-
+  
   
   mutate(t40_jun_peratpace = (adm_fv_homo + (dvr_4wk_fv * (
     as.numeric(as.Date("2022-06-30") - Sys.Date())
@@ -1675,10 +1654,10 @@ a_data <- a_data %>%
   
   mutate(t70_timeto = if_else((((
     0.7 * a_pop
-  ) - adm_fv) / (dvr_4wk_fv)) < 0 , 0,
-  if_else(is.infinite((((0.7 * a_pop) - adm_fv) / (dvr_4wk_fv)
+  ) - adm_fv_homo) / (dvr_4wk_fv)) < 0 , 0,
+  if_else(is.infinite((((0.7 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
   )), NA_real_,
-  (((0.7 * a_pop) - adm_fv) / (dvr_4wk_fv)
+  (((0.7 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
   )))) %>%
   
   mutate(t70_status = if_else(
@@ -1901,7 +1880,7 @@ a_data <- a_data %>%
   
   mutate(sec_tobedel_per = sec_tobedel / a_pop) %>%
   
-  mutate(rem_cour_del = del_cour_total - del_cour_wast - adm_fv) %>%
+  mutate(rem_cour_del = del_cour_total - del_cour_wast - adm_fv_homo) %>%
   
   mutate(rem_cour_del_per = rem_cour_del / a_pop) %>%
   
@@ -1946,8 +1925,8 @@ a_data <- a_data %>%
                                      (t20_cour_req - del_cour_total)
   )) %>%
   
-  mutate(t20_cour_need_admin = if_else((t20_cour_req - adm_fv) < 0, 0,
-                                       (t20_cour_req - adm_fv))) %>%
+  mutate(t20_cour_need_admin = if_else((t20_cour_req - adm_fv_homo) < 0, 0,
+                                       (t20_cour_req - adm_fv_homo))) %>%
   
   mutate(t40_cour_need_sec = if_else((t40_cour_req - sec_total) < 0, 0,
                                      (t40_cour_req - sec_total))) %>%
@@ -1957,8 +1936,8 @@ a_data <- a_data %>%
                                      (t40_cour_req - del_cour_total)
   )) %>%
   
-  mutate(t40_cour_need_admin = if_else((t40_cour_req - adm_fv) < 0, 0,
-                                       (t40_cour_req - adm_fv))) %>%
+  mutate(t40_cour_need_admin = if_else((t40_cour_req - adm_fv_homo) < 0, 0,
+                                       (t40_cour_req - adm_fv_homo))) %>%
   
   mutate(t70_cour_need_sec = if_else((t70_cour_req - sec_total) < 0, 0,
                                      (t70_cour_req - sec_total))) %>%
@@ -1968,8 +1947,8 @@ a_data <- a_data %>%
                                      (t70_cour_req - del_cour_total)
   )) %>%
   
-  mutate(t70_cour_need_admin = if_else((t70_cour_req - adm_fv) < 0, 0,
-                                       (t70_cour_req - adm_fv)))
+  mutate(t70_cour_need_admin = if_else((t70_cour_req - adm_fv_homo) < 0, 0,
+                                       (t70_cour_req - adm_fv_homo)))
 
 
 # Merge IMR Smartsheet data
@@ -2130,12 +2109,14 @@ a_data <- a_data %>%
   ))
 
 a_data <- a_data %>%
-  mutate(cats_a = if_else(
-    cov_total_fv < 0.1 &
-      t70_willmeet == "No",
-    "Country for concerted support",
-    "Other country"
-  ))
+  mutate(
+    cats_a = if_else(
+      cov_total_fv < 0.1 &
+        t70_willmeet == "No",
+      "Country for concerted support",
+      "Other country"
+    )
+  )
 
 
 # Sort columns
