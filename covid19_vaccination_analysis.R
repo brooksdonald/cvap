@@ -36,7 +36,7 @@ library("data.table")
 
 # Load entity base data
 b_details <-
-  data.frame(read_excel("input/base_entitydetails.xlsx",
+  data.frame(read_excel("input/static/base_entitydetails.xlsx",
                         sheet = "data"))
 
 # Reduce number of rows/rename columns
@@ -528,7 +528,7 @@ b_vxrate_lw_sum <-
 colnames(b_vxrate_lw_sum) <-
   c("a_iso", "dvr_4wk_td_lw", "dvr_4wk_td_lw_lm", "adm_fv_lw")
 
-## Calculate percent change and category/color
+## Calculate percent change and category
 b_vxrate_change_lw <- b_vxrate_lw_sum %>%
   mutate(dvr_4wk_td_change_lw_lm = dvr_4wk_td_lw - dvr_4wk_td_lw_lm) %>%
   
@@ -550,6 +550,7 @@ b_vxrate_change_lw <- b_vxrate_lw_sum %>%
       )
     )
   )
+
 
 ## Select relevant columns for dvr category count change table
 b_vxrate_change_lw <-
@@ -588,6 +589,13 @@ colnames(b_vxrate_2m_sum) <- c("a_iso", "adm_td_2m", "adm_fv_2m")
 ## Merge with current summary dataset
 c_vxrate_latest <-
   left_join(c_vxrate_latest, b_vxrate_2m_sum, by = "a_iso")
+
+
+
+# Population coverage in target groups ------------------------------------
+
+# Load datasets
+
 
 
 
@@ -1304,11 +1312,6 @@ c_smartsheet_red <- c_smartsheet_red %>%
     )
   )
 
-## Assign priority country status color for visualization
-c_smartsheet_red <- c_smartsheet_red %>%
-  mutate(watchlist_status_color = if_else(watchlist_status == "Yes",
-                                          "#asdasd",
-                                          "#sdfasv"))
 
 ## Rename priority country category
 c_smartsheet_red <- c_smartsheet_red %>%
@@ -1453,7 +1456,7 @@ a_data <- a_data %>%
   mutate(cov_total_fv_less_1m_prop = cov_total_fv_less_1m / cov_total_fv)
 
 
-# Assign coverage category & category color for current and lw
+# Assign coverage category for current and lw
 a_data <- a_data %>%
   mutate(cov_total_fv_cat = if_else(
     cov_total_fv < 0.01,
@@ -1473,25 +1476,7 @@ a_data <- a_data %>%
       )
     )
   )) %>%
-  
-  mutate(cov_total_fv_cat_color = if_else(
-    cov_total_fv < 0.01,
-    "#fhksld",
-    if_else(
-      cov_total_fv < 0.1,
-      "#sdfczx",
-      if_else(
-        cov_total_fv < 0.2,
-        "#sadfvx",
-        if_else(
-          cov_total_fv < 0.4,
-          "#sfvnvf",
-          if_else(cov_total_fv >= 0.4, "#aqweds",
-                  NA_character_)
-        )
-      )
-    )
-  )) %>%
+
   
   mutate(cov_total_fv_lw_cat = if_else(
     cov_total_fv_lw < 0.01,
@@ -1519,12 +1504,14 @@ a_data <- a_data %>%
     as.numeric(as.Date("2022-06-30") - Sys.Date())
   ))) / a_pop)
 
-# Calculate 4-week average rate as % of pop.
+# Calculate 4-week average daily rates as % of pop.
 a_data <- a_data %>%
-  mutate(dvr_4wk_td_per = dvr_4wk_td / a_pop)
+  mutate(dvr_4wk_td_per = dvr_4wk_td / a_pop) %>%
+  
+  mutate(dvr_4wk_fv_per = dvr_4wk_fv / a_pop)
 
 
-# Assign vaccination rate category & category color
+# Assign vaccination rate category
 a_data <- a_data %>%
   mutate(dvr_4wk_td_per_cat = if_else(
     dvr_4wk_td_per < 0.0015,
@@ -1539,25 +1526,10 @@ a_data <- a_data %>%
                 NA_character_)
       )
     )
-  )) %>%
-  
-  mutate(dvr_4wk_td_per_cat_color = if_else(
-    dvr_4wk_td_per < 0.0015,
-    "#fhdjfh",
-    if_else(
-      dvr_4wk_td_per < 0.0035,
-      "#dqpxap",
-      if_else(
-        dvr_4wk_td_per < 0.0065,
-        "#smcdcm",
-        if_else(dvr_4wk_td_per >= 0.0065, "#skaqjw",
-                NA_character_)
-      )
-    )
   ))
 
 
-# Calculate (percent) change in 4-week average daily vaccination rate & category/color
+# Calculate (percent) change in 4-week average daily vaccination rate & assign category
 a_data <- a_data %>%
   mutate(dvr_4wk_td_change_lm = dvr_4wk_td - dvr_4wk_td_lm) %>%
   
@@ -1595,24 +1567,8 @@ a_data <- a_data %>%
         )
       )
     )
-  ) %>%
-  
-  mutate(
-    dvr_4wk_td_change_lm_trend_color = if_else(
-      dvr_4wk_td_change_lm_per <= -0.25,
-      "#ajdkas",
-      if_else(
-        dvr_4wk_td_change_lm_per >= 0.25,
-        "#tuirpw",
-        if_else(
-          dvr_4wk_td_change_lm_per < 0.25 &
-            dvr_4wk_td_change_lm_per > -0.25,
-          "#fjsasf",
-          NA_character_
-        )
-      )
-    )
   )
+
 
 # Progress against coverage targets
 ## 10% target
@@ -1640,17 +1596,6 @@ a_data <- a_data %>%
       t10_goalmet_after == "Yes",
       "2) Goal met after deadline",
       if_else(t10_notmet == "Yes", "3) Goal not yet met",
-              NA_character_)
-    )
-  )) %>%
-  
-  mutate(t10_status_color = if_else(
-    t10_goalmet_sep == "Yes",
-    "#hgjfkd",
-    if_else(
-      t10_goalmet_after == "Yes",
-      "#fjkdla",
-      if_else(t10_notmet == "Yes", "#nbmgkf",
               NA_character_)
     )
   ))
@@ -1684,18 +1629,6 @@ a_data <- a_data %>%
     )
   )) %>%
   
-  mutate(t20_status_color = if_else(
-    t20_goalmet_dec == "Yes" |
-      (is.na(t20_goalmet_dec) & adm_td > 0),
-    "#hgjfkd",
-    if_else(
-      t20_goalmet_after == "Yes",
-      "#fjkdla",
-      if_else(t20_notmet == "Yes", "#nbmgkf",
-              NA_character_)
-    )
-  )) %>%
-  
   mutate(t40_goalmet_after = if_else(cov_total_fv >= 0.4, "Yes", "No")) %>%
   
   mutate(t40_notmet = if_else(cov_total_fv < 0.4, "Yes", "No")) %>%
@@ -1719,18 +1652,7 @@ a_data <- a_data %>%
               NA_character_)
     )
   )) %>%
-  
-  mutate(t40_status_color = if_else(
-    t40_goalmet_dec == "Yes" |
-      (is.na(t40_goalmet_dec) & adm_td > 0),
-    "#hgjfkd",
-    if_else(
-      t40_goalmet_after == "Yes",
-      "#fjkdla",
-      if_else(t40_notmet == "Yes", "#nbmgkf",
-              NA_character_)
-    )
-  )) %>%
+
   
   mutate(t40_jun_peratpace = (adm_fv_homo + (dvr_4wk_fv * (
     as.numeric(as.Date("2022-06-30") - Sys.Date())
@@ -1802,25 +1724,6 @@ a_data <- a_data %>%
         )
       )
     )
-  )) %>%
-  
-  mutate(t70_scaleup_cat_color = if_else(
-    t70_scaleup == 0,
-    "#eroifk",
-    if_else(
-      t70_scaleup <= 2,
-      "#lkhgoi",
-      if_else(
-        t70_scaleup <= 5,
-        "#fkdska",
-        if_else(
-          t70_scaleup <= 10,
-          "#kdlcmv",
-          if_else(t70_scaleup > 10, "#fkcmas",
-                  NA_character_)
-        )
-      )
-    )
   ))
 
 
@@ -1833,18 +1736,6 @@ a_data <- a_data %>%
       adm_booster > 0,
       "Administering booster/additional doses",
       "Not reporting on booster/additional dose administration"
-    )
-  ) %>%
-  
-  mutate(
-    booster_status_color = if_else(
-      booster_status == "Administering booster/additional doses",
-      "#123zmn",
-      if_else(
-        booster_status == "Not reporting on booster/additional dose administration",
-        "#1281kh",
-        NA_character_
-      )
     )
   ) %>%
   
@@ -1881,7 +1772,7 @@ a_data <- a_data %>%
   mutate(sec_total_per = sec_total / a_pop)
 
 
-# Assign secured courses category & color
+# Assign secured courses category
 a_data <- a_data %>%
   mutate(sec_total_per_cat = if_else(
     sec_total_per < 0.25,
@@ -1896,25 +1787,6 @@ a_data <- a_data %>%
           sec_total_per < 1,
           "3) 75-100%",
           if_else(sec_total_per >= 1, "4) >100%",
-                  NA_character_)
-        )
-      )
-    )
-  )) %>%
-  
-  mutate(sec_total_per_cat_color = if_else(
-    sec_total_per < 0.25,
-    "#sdjksd",
-    if_else(
-      sec_total_per < 0.5,
-      "#345fgh",
-      if_else(
-        sec_total_per < 0.75,
-        "#asdfgh",
-        if_else(
-          sec_total_per < 1,
-          "#vbnvbn",
-          if_else(sec_total_per >= 1, "#qweqwe",
                   NA_character_)
         )
       )
@@ -1944,7 +1816,7 @@ a_data <- a_data %>%
   mutate(del_wast_per = del_cour_wast / a_pop)
 
 
-# Assign received courses category & color
+# Assign received courses category
 a_data <- a_data %>%
   mutate(del_cour_total_per_cat = if_else(
     del_cour_total_per < 0.25,
@@ -1963,25 +1835,6 @@ a_data <- a_data %>%
         )
       )
     )
-  )) %>%
-  
-  mutate(del_cour_total_per_cat_color = if_else(
-    del_cour_total_per < 0.25,
-    "#sdjksd",
-    if_else(
-      del_cour_total_per < 0.5,
-      "#345fgh",
-      if_else(
-        del_cour_total_per < 0.75,
-        "#asdfgh",
-        if_else(
-          del_cour_total_per < 1,
-          "#vbnvbn",
-          if_else(del_cour_total_per >= 1, "#qweqwe",
-                  NA_character_)
-        )
-      )
-    )
   ))
 
 
@@ -1992,13 +1845,10 @@ a_data <- a_data %>%
   mutate(del_cour_since_lm_prop = del_cour_since_lm / del_cour_total)
 
 
-# Calculate supply influx status & color
+# Calculate supply influx status
 a_data <- a_data %>%
   mutate(del_influx_status = if_else(del_cour_since_lm_per >= 0.1,
-                                     "Yes", "No")) %>%
-  
-  mutate(del_influx_status_color = if_else(del_influx_status == "Yes",
-                                           "#1029wo", "#poas1d"))
+                                     "Yes", "No"))
 
 
 # Product utilization
@@ -2027,7 +1877,7 @@ a_data <- a_data %>%
   
   mutate(pu_used_per = 1 - pu_del_rem_prop)
 
-## Assign percent utilization categories & colors
+## Assign percent utilization categories
 a_data <- a_data %>%
   mutate(pu_used_per_cat = if_else(
     pu_used_per < 0.25,
@@ -2042,21 +1892,6 @@ a_data <- a_data %>%
                 NA_character_)
       )
     )
-  )) %>%
-  
-  mutate(pu_used_per_cat_color = if_else(
-    pu_used_per < 0.25,
-    "#sdjksd",
-    if_else(
-      pu_used_per < 0.5,
-      "#345fgh",
-      if_else(
-        pu_used_per < 0.75,
-        "#asdfgh",
-        if_else(pu_used_per <= 1, "#vbnvbn",
-                NA_character_)
-      )
-    )
   ))
 
 
@@ -2068,12 +1903,14 @@ a_data <- a_data %>%
   
   mutate(rem_cour_del = del_cour_total - del_cour_wast - adm_fv) %>%
   
-  mutate(rem_cour_del_per = rem_cour_del / a_pop)
+  mutate(rem_cour_del_per = rem_cour_del / a_pop) %>%
+  
+  mutate(rem_cour_del_prop = rem_cour_del / del_cour_total)
 
 
 # Calculate proportions of courses of total
 a_data <- a_data %>%
-  mutate(sec_del_per = del_cour_total / sec_total)
+  mutate(sec_del_prop = del_cour_total / sec_total)
 
 
 # Calculate if courses secured, received, and administered sufficient to reach targets
@@ -2223,66 +2060,11 @@ a_data <- a_data %>%
         )
       )
     )
-  )) %>%
-  
-  mutate(ndvp_scaleup_cat_color = if_else(
-    ndvp_scaleup == 0,
-    "#eroifk",
-    if_else(
-      ndvp_scaleup <= 2,
-      "#lkhgoi",
-      if_else(
-        ndvp_scaleup <= 5,
-        "#fkdska",
-        if_else(
-          ndvp_scaleup <= 10,
-          "#kdlcmv",
-          if_else(ndvp_scaleup > 10, "#fkcmas",
-                  NA_character_)
-        )
-      )
-    )
   ))
 
 
 # Merge WHO Dashboard data
 a_data <- left_join(a_data, c_whodb_red, by = c("a_iso" = "iso"))
-
-a_data <- a_data %>%
-  mutate(prod_inuse_color = if_else(
-    prod_inuse == 1,
-    "#123234",
-    if_else(
-      prod_inuse == 2,
-      "#ghjklo",
-      if_else(
-        prod_inuse == 3,
-        "#qwerty",
-        if_else(
-          prod_inuse == 4,
-          "#asdfgh",
-          if_else(
-            prod_inuse == 5,
-            "#zxcvbn",
-            if_else(
-              prod_inuse == 6,
-              "#rtyuio",
-              if_else(
-                prod_inuse == 7,
-                "#werbnm",
-                if_else(
-                  prod_inuse == 8,
-                  "#789321",
-                  if_else(prod_inuse == 10, "#fghqwe",
-                          NA_character_)
-                )
-              )
-            )
-          )
-        )
-      )
-    )
-  ))
 
 
 # Add notes
@@ -2351,8 +2133,8 @@ a_data <- a_data %>%
   mutate(cats_a = if_else(
     cov_total_fv < 0.1 &
       t70_willmeet == "No",
-    "Focus country",
-    "Non-focus country"
+    "Country for concerted support",
+    "Other country"
   ))
 
 
@@ -2437,9 +2219,18 @@ a_data <- a_data %>%
 a_data <- a_data %>%
   group_by(a_covax_status, intro_status) %>%
   
-  mutate(del_cour_covax_prop_rank = row_number()) %>%
+  mutate(del_cour_covax_prop_rank = row_number(del_cour_covax_prop)) %>%
   
   mutate(del_cour_covax_prop_bins = ntile(del_cour_covax_prop_rank, 2))
+
+
+##Proportion of supply delivered that remains
+a_data <- a_data %>%
+  group_by(a_covax_status, intro_status) %>%
+  
+  mutate(rem_cour_del_prop_rank = row_number(rem_cour_del_prop)) %>%
+  
+  mutate(rem_cour_del_prop_bins = ntile(rem_cour_del_prop_rank, 2))
 
 
 ##Supply received since last month (% pop.)
@@ -2450,6 +2241,8 @@ a_data <- a_data %>%
   
   mutate(del_cour_since_lm_per_bins = ntile(del_cour_since_lm_per_rank, 2))
 
+
+##Proportion of coverage achieved in past month
 a_data <- a_data %>%
   group_by(a_covax_status, intro_status) %>%
   
@@ -2457,12 +2250,14 @@ a_data <- a_data %>%
   
   mutate(cov_total_fv_less_1m_bins = ntile(cov_total_fv_less_1m_rank, 2))
 
+
+##Proportion of secured courses that have been received
 a_data <- a_data %>%
   group_by(a_covax_status, intro_status) %>%
   
-  mutate(sec_del_per_rank = row_number(sec_del_per)) %>%
+  mutate(sec_del_prop_rank = row_number(sec_del_prop)) %>%
   
-  mutate(sec_del_per_bins = ntile(sec_del_per_rank, 2))
+  mutate(sec_del_prop_bins = ntile(sec_del_prop_rank, 2))
 
 
 ##Proportion of supply secured from COVAX
@@ -2915,7 +2710,6 @@ e_cov_all <- left_join(e_cov_amc, e_cov_africa, by = "cov_cat") %>%
 
 # Create values table
 z_values <- data.frame(c("Text"))
-colnames(z_values) <- c("color_type")
 
 z_values$ig_amc_lic <- 25
 z_values$ig_amc_lmic <- 53
