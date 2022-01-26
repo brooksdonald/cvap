@@ -664,7 +664,7 @@ c_sec_cour <- c_sec_cour %>%
   mutate(sec_other_sum = sec_eu + sec_other + sec_domestic)
 
 ## Add dataset date
-c_sec_cour$sec_date <- as.Date("2022-01-06")
+c_sec_cour$sec_date <- as.Date("2022-01-20")
 
 
 
@@ -860,7 +860,7 @@ b_mdb <-
   b_mdb %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
 b_mdb <- b_mdb[!(is.na(b_mdb$iso)),]
 b_mdb <- select(b_mdb, -c("Country.territory"))
-b_mdb$del_date <- as.Date("2022-01-17")
+b_mdb$del_date <- as.Date("2022-01-26")
 colnames(b_mdb) <- c(
   "product",
   "bimultilat",
