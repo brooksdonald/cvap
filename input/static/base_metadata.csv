@@ -1,0 +1,55 @@
+﻿field,description
+name_short,"Name of country, area, or territory"
+iso,ISO-3 code
+who_region,WHO region
+unicef_region,UNICEF region
+income_group,World Bank 2021 income group classification 
+covax_status,COVAX participation modality
+pop,Total 2020 population as per UN Population Division
+sec_date,Date of latest secured and/or expected supply data update
+sec_total,Total number of COVID-19 vaccine courses secured from all sources of all products
+sec_total_per,Total number of COVID-19 vaccine courses secured from all sources of all products as percentage of total population
+sec_tobedel,Total number of COVID-19 vaccine courses yet to be received
+sec_tobedel_per,Total number of COVID-19 vaccine courses yet to be received as percentage of total population
+del_date,Date of latest received supply data update
+del_dose_total,Total number of COVID-19 vaccine doses received from all sources of all products
+del_cour_total,Total number of COVID-19 vaccine courses received from all sources of all products
+del_cour_total_per,Total number of COVID-19 vaccine courses delivered from all sources of all products as percentage of total population
+del_cour_covax_prop,Percentage of total vaccine courses received that have been received from COVAX
+pu_del_rem,Total number of remaining COVID-19 vaccine doses received not yet administered
+pu_del_rem_per,Total number of remaining COVID-19 vaccine doses received not yet administered as percentage of total population
+pu_used_per,Percentage of total vaccine doses received the have been utilized
+adm_date,Date of latest administration data reporting
+adm_td,Total number of COVID-19 vaccine doses administered of any product from any source
+adm_a1d,Number of individuals having received at least one dose of any product from any source
+adm_fv,Number of individuals having been fully vaccinated with any product from any source
+adm_booster,Number of booster and/or additional doses administered of any product from any source
+dvr_4wk_td,28-day average of total COVID-19 vaccine doses administered per day of any product from any source
+dvr_4wk_td_per,28-day average of total COVID-19 vaccine doses administered per day of any product from any source as percentage of total population
+dvr_4wk_td_max,Maximum of 28-day average of total COVID-19 vaccine doses administered per day of any product from any source
+dvr_4wk_td_max_per,Maximum of 28-day average of total COVID-19 vaccine doses administered per day of any product from any source as percentage of total population
+dvr_4wk_fv,28-day average of individuals fully vaccinated per day with any product from any source
+dvr_4wk_fv_per,28-day average of individuals fully vaccinated per day with any product from any source as percentage of total population
+dvr_4wk_td_change_lm_trend,"Trend of 4-week average daily vaccination rate over the past 28 days: 1) Upward (% change of >25%), 2) Stable (% change <25% and >-25%), 3) Downward (% change <-25%)"
+dvr_4wk_td_change_lm_per,Percent change in 4-weel average daily vaccination rate over the past 28 days (1 month)
+cov_total_a1d,Percentage of total population with at least one dose
+cov_total_fv,Percentage of total population fully vaccinated
+cov_total_booster,Percentage of total population having received a booster or additional dose
+cov_total_fv_atpace_30jun,Linearly projected expected population coverage by 30 June 2022 based on current 4-week average daily number of individual fully vaccinated
+t10_status,"Status of progress against WHO 10% target by 30 Sep 2021: 1) Goal met by deadline, 2) Goal met after deadline, 3) Goal not yet met"
+t10_timeto,Number of days to reach WHO 10% target at current 4-week average daily vaccination rate
+t20_status,"Status of progress against COVAX 20% target by 31 Dec 2021: 1) Goal met by deadline, 2) Goal met after deadline, 3) Goal not yet met"
+t20_timeto,Number of days to reach COVAX 20% target at current 4-week average daily vaccination rate
+t40_status,"Status of progress against WHO 40% target by 31 Dec 2021: 1) Goal met by deadline, 2) Goal met after deadline, 3) Goal not yet met"
+t40_timeto,Number of days to reach WHO 40% target at current 4-week average daily vaccination rate
+t70_status,"Status of progress against WHO 70% target by 30 Jun 2022: 1) Off track - Insufficient supply received, 2) Off track - Insufficient abs. capacity, 3) On track, 4) Goal met"
+t70_rate_needed,Daily vaccination rate needed to meet WHO 70% target by 30 Jun 2022
+t70_scaleup,Scale-up from current 4-week  average daily vaccination rate (multiples of current rate) required to reach WHO 70% target by 30 Jun 2022
+t70_timeto,Number of days to reach WHO 70% target at current 4-week average daily vaccination rate
+ndvp_target,Country coverage target
+ndvp_tarpop,Target population subject to country coverage target
+ndvp_deadline,Country coverage target deadline
+ndvp_status,"Status of progress against country coverage target by target deadline: 1) Goal met, 2) On track, 3) Off track, 4) No timeline set, 5) No target captured"
+ndvp_rate_needed,Daily vaccination rate needed to meet country coverage target by deadline
+ndvp_scaleup,Scale-up from current 4-week average daily vaccination rate (multiples of current rate) required to reach country coverage target by deadline
+ndvp_timeto,Days until country coverage target achievement at current rolling 4-week average daily rate
