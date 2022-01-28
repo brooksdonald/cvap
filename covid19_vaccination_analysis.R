@@ -148,7 +148,7 @@ b_vxrate <-
       "persons_booster_add_dose",
       "rolling_4_week_avg_td",
       "rolling_4_week_avg_fv",
-      "max_rolling_4_week_avg_td_per100",
+      "max_rolling_4_week_avg_td",
       "rolling_4_week_avg_td_lastmonth",
       "no_change_from_previous"
     )
@@ -165,7 +165,7 @@ colnames(b_vxrate) <-
     "adm_booster",
     "dvr_4wk_td",
     "dvr_4wk_fv",
-    "dvr_4wk_td_max_per",
+    "dvr_4wk_td_max",
     "dvr_4wk_td_lm",
     "note_nochange"
   )
@@ -594,10 +594,388 @@ c_vxrate_latest <-
 
 
 
+# Population denominators -------------------------------------------------
+
+# Load datasets
+b_pop_total <-
+  data.frame(read_excel("input/static/base_population.xlsx",
+                        sheet = "base_population"))
+
+b_pop_hcw <-
+  data.frame(read_excel("input/static/base_hcw population.xlsx",
+                        sheet = "base_hcw"))
+
+# Reduce columns & rename
+z_pop_total <- select(b_pop_total, c("COUNTRY_FK","GENDER_FK","AGEGROUP_FK",
+                                                   "VALUE"))
+
+colnames(z_pop_total) <- c("a_iso","gender","age_group","value")
+
+z_pop_hcw <- select(b_pop_hcw, c("ISO3","Stock"))
+colnames(z_pop_hcw) <- c("a_iso","a_pop_hcw")
+
+z_pop_hcw <- z_pop_hcw %>%
+  mutate(a_pop_hcw = if_else(a_pop_hcw == 0, NA_real_, a_pop_hcw))
+
+# Filter for 12 and above
+z_pop_12p <- z_pop_total %>%
+  filter(
+    gender == "BOTH" & (
+      age_group == "Y12" |
+        age_group == "Y13" |
+        age_group == "Y14" |
+        age_group == "Y15" |
+        age_group == "Y16" |
+        age_group == "Y17" |
+        age_group == "Y18" |
+        age_group == "Y19" |
+        age_group == "Y20" |
+        age_group == "Y21" |
+        age_group == "Y22" |
+        age_group == "Y23" |
+        age_group == "Y24" |
+        age_group == "Y25" |
+        age_group == "Y26" |
+        age_group == "Y27" |
+        age_group == "Y28" |
+        age_group == "Y29" |
+        age_group == "Y30" |
+        age_group == "Y31" |
+        age_group == "Y32" |
+        age_group == "Y33" |
+        age_group == "Y34" |
+        age_group == "Y35" |
+        age_group == "Y36" |
+        age_group == "Y37" |
+        age_group == "Y38" |
+        age_group == "Y39" |
+        age_group == "Y40" |
+        age_group == "Y41" |
+        age_group == "Y42" |
+        age_group == "Y43" |
+        age_group == "Y44" |
+        age_group == "Y45" |
+        age_group == "Y46" |
+        age_group == "Y47" |
+        age_group == "Y48" |
+        age_group == "Y49" |
+        age_group == "Y50" |
+        age_group == "Y51" |
+        age_group == "Y52" |
+        age_group == "Y53" |
+        age_group == "Y54" |
+        age_group == "Y55" |
+        age_group == "Y56" |
+        age_group == "Y57" |
+        age_group == "Y58" |
+        age_group == "Y59" |
+        age_group == "Y60" |
+        age_group == "Y61" |
+        age_group == "Y62" |
+        age_group == "Y63" |
+        age_group == "Y64" |
+        age_group == "Y65" |
+        age_group == "Y66" |
+        age_group == "Y67" |
+        age_group == "Y68" |
+        age_group == "Y69" |
+        age_group == "Y70" |
+        age_group == "Y71" |
+        age_group == "Y72" |
+        age_group == "Y73" |
+        age_group == "Y74" |
+        age_group == "Y75" |
+        age_group == "Y76" |
+        age_group == "Y77" |
+        age_group == "Y78" |
+        age_group == "Y79" |
+        age_group == "Y80" |
+        age_group == "Y81" |
+        age_group == "Y82" |
+        age_group == "Y83" |
+        age_group == "Y84" |
+        age_group == "Y85" |
+        age_group == "Y86" |
+        age_group == "Y87" |
+        age_group == "Y88" |
+        age_group == "Y89" |
+        age_group == "Y90" |
+        age_group == "Y91" |
+        age_group == "Y92" |
+        age_group == "Y93" |
+        age_group == "Y94" |
+        age_group == "Y95" |
+        age_group == "Y96" |
+        age_group == "Y97" |
+        age_group == "Y98" |
+        age_group == "Y99" |
+        age_group == "Y100"
+    )
+  ) %>%
+  
+  group_by(a_iso) %>%
+  
+  summarize_at("value",
+    sum,
+    na.rm = TRUE
+  )
+
+colnames(z_pop_12p) <- c("a_iso","a_pop_12p")
+
+# Filter for 18 and above
+z_pop_18p <- z_pop_total %>%
+  filter(
+    gender == "BOTH" & (
+        age_group == "Y18" |
+        age_group == "Y19" |
+        age_group == "Y20" |
+        age_group == "Y21" |
+        age_group == "Y22" |
+        age_group == "Y23" |
+        age_group == "Y24" |
+        age_group == "Y25" |
+        age_group == "Y26" |
+        age_group == "Y27" |
+        age_group == "Y28" |
+        age_group == "Y29" |
+        age_group == "Y30" |
+        age_group == "Y31" |
+        age_group == "Y32" |
+        age_group == "Y33" |
+        age_group == "Y34" |
+        age_group == "Y35" |
+        age_group == "Y36" |
+        age_group == "Y37" |
+        age_group == "Y38" |
+        age_group == "Y39" |
+        age_group == "Y40" |
+        age_group == "Y41" |
+        age_group == "Y42" |
+        age_group == "Y43" |
+        age_group == "Y44" |
+        age_group == "Y45" |
+        age_group == "Y46" |
+        age_group == "Y47" |
+        age_group == "Y48" |
+        age_group == "Y49" |
+        age_group == "Y50" |
+        age_group == "Y51" |
+        age_group == "Y52" |
+        age_group == "Y53" |
+        age_group == "Y54" |
+        age_group == "Y55" |
+        age_group == "Y56" |
+        age_group == "Y57" |
+        age_group == "Y58" |
+        age_group == "Y59" |
+        age_group == "Y60" |
+        age_group == "Y61" |
+        age_group == "Y62" |
+        age_group == "Y63" |
+        age_group == "Y64" |
+        age_group == "Y65" |
+        age_group == "Y66" |
+        age_group == "Y67" |
+        age_group == "Y68" |
+        age_group == "Y69" |
+        age_group == "Y70" |
+        age_group == "Y71" |
+        age_group == "Y72" |
+        age_group == "Y73" |
+        age_group == "Y74" |
+        age_group == "Y75" |
+        age_group == "Y76" |
+        age_group == "Y77" |
+        age_group == "Y78" |
+        age_group == "Y79" |
+        age_group == "Y80" |
+        age_group == "Y81" |
+        age_group == "Y82" |
+        age_group == "Y83" |
+        age_group == "Y84" |
+        age_group == "Y85" |
+        age_group == "Y86" |
+        age_group == "Y87" |
+        age_group == "Y88" |
+        age_group == "Y89" |
+        age_group == "Y90" |
+        age_group == "Y91" |
+        age_group == "Y92" |
+        age_group == "Y93" |
+        age_group == "Y94" |
+        age_group == "Y95" |
+        age_group == "Y96" |
+        age_group == "Y97" |
+        age_group == "Y98" |
+        age_group == "Y99" |
+        age_group == "Y100"
+    )
+  ) %>%
+  
+  group_by(a_iso) %>%
+  
+  summarize_at("value",
+               sum,
+               na.rm = TRUE
+  )
+
+colnames(z_pop_18p) <- c("a_iso","a_pop_18p")
+
+
+# Filter for 60 and above
+z_pop_60p <- z_pop_total %>%
+  filter(
+    gender == "BOTH" & (
+        age_group == "Y60" |
+        age_group == "Y61" |
+        age_group == "Y62" |
+        age_group == "Y63" |
+        age_group == "Y64" |
+        age_group == "Y65" |
+        age_group == "Y66" |
+        age_group == "Y67" |
+        age_group == "Y68" |
+        age_group == "Y69" |
+        age_group == "Y70" |
+        age_group == "Y71" |
+        age_group == "Y72" |
+        age_group == "Y73" |
+        age_group == "Y74" |
+        age_group == "Y75" |
+        age_group == "Y76" |
+        age_group == "Y77" |
+        age_group == "Y78" |
+        age_group == "Y79" |
+        age_group == "Y80" |
+        age_group == "Y81" |
+        age_group == "Y82" |
+        age_group == "Y83" |
+        age_group == "Y84" |
+        age_group == "Y85" |
+        age_group == "Y86" |
+        age_group == "Y87" |
+        age_group == "Y88" |
+        age_group == "Y89" |
+        age_group == "Y90" |
+        age_group == "Y91" |
+        age_group == "Y92" |
+        age_group == "Y93" |
+        age_group == "Y94" |
+        age_group == "Y95" |
+        age_group == "Y96" |
+        age_group == "Y97" |
+        age_group == "Y98" |
+        age_group == "Y99" |
+        age_group == "Y100"
+    )
+  ) %>%
+  
+  group_by(a_iso) %>%
+  
+  summarize_at("value",
+               sum,
+               na.rm = TRUE
+  )
+
+colnames(z_pop_60p) <- c("a_iso","a_pop_60p")
+
+
+# Filter for total, male
+z_pop_total_male <- z_pop_total %>%
+  filter(
+    gender == "MALE" & age_group == "ALL") %>%
+  
+  group_by(a_iso) %>%
+  
+  summarize_at("value",
+               sum,
+               na.rm = TRUE
+  )
+
+colnames(z_pop_total_male) <- c("a_iso","a_pop_male")
+
+
+# Filter for total, female
+z_pop_total_fem <- z_pop_total %>%
+  filter(
+    gender == "FEMALE" & age_group == "ALL") %>%
+  
+  group_by(a_iso) %>%
+  
+  summarize_at("value",
+               sum,
+               na.rm = TRUE
+  )
+
+colnames(z_pop_total_fem) <- c("a_iso","a_pop_fem")
+
+# Consolidate population values into single dataframe
+
+c_pop_disag <- left_join(z_pop_total_male, z_pop_total_fem, by = "a_iso") %>%
+  left_join(., z_pop_12p, by = "a_iso") %>%
+  left_join(., z_pop_18p, by = "a_iso") %>%
+  left_join(., z_pop_60p, by = "a_iso") %>%
+  full_join(., z_pop_hcw, by = "a_iso")
+
+
+
+
 # Population coverage in target groups ------------------------------------
 
 # Load datasets
+b_uptake_target <-
+  data.frame(read_excel("input/data_export_WIISE_V_COV_UPTAKE_TARGETGROUP_LAST_MONTH_LONG.xlsx",
+                        sheet = "v_COV_UPTAKE_TARGETGROUP_LAST_M"))
 
+b_uptake_gender <-
+  data.frame(read_excel("input/data_export_WIISE_V_COV_UPTAKE_GENDER_LAST_MONTH_LONG.xlsx",
+                        sheet = "v_COV_UPTAKE_GENDER_LAST_MONTH_"))
+
+# Reduce columns & rename
+c_uptake_target <- select(b_uptake_target, c("ISO_3_CODE",
+                                             "DATE",
+                                             "TARGET_GROUP",
+                                             "N_VACC_DOSE1",
+                                             "N_VACC_LAST_DOSE"))
+
+colnames(c_uptake_target) <- c("a_iso","date", "target_group","adm_a1d","adm_fv")
+
+c_uptake_gender <- select(b_uptake_gender, c("ISO_3_CODE",
+                                             "DATE",
+                                             "GENDER",
+                                             "N_VACC_DOSE1",
+                                             "N_VACC_LAST_DOSE"))
+
+colnames(c_uptake_gender) <- c("a_iso","date", "gender","adm_a1d","adm_fv")
+
+# Sort for healthcare workers, remove target columns & rename
+c_uptake_hcw <- filter(c_uptake_target, target_group == "HW")
+c_uptake_hcw <- select(c_uptake_hcw, -"target_group")
+
+colnames(c_uptake_hcw) <- c("a_iso","adm_date_hcw", "adm_a1d_hcw", "adm_fv_hcw")
+
+# Sort for elderly / 60+, remove target columns & rename
+c_uptake_60p <- filter(c_uptake_target, target_group == "OLDER_60")
+c_uptake_60p <- select(c_uptake_60p, -"target_group")
+
+colnames(c_uptake_60p) <- c("a_iso","adm_date_60p", "adm_a1d_60p", "adm_fv_60p")
+
+# Sort for males, remove target columns & rename
+c_uptake_male <- filter(c_uptake_gender, gender  == "MALE")
+c_uptake_male <- select(c_uptake_male, -"gender")
+
+colnames(c_uptake_male) <- c("a_iso","adm_date_gender", "adm_a1d_male", "adm_fv_male")
+
+# Sort for females, remove target columns & rename
+c_uptake_fem <- filter(c_uptake_gender, gender == "FEMALE")
+c_uptake_fem <- select(c_uptake_fem, -c("gender", "date"))
+
+colnames(c_uptake_fem) <- c("a_iso","adm_a1d_fem", "adm_fv_fem")
+
+# Merge dataframes
+c_uptake_disag <- full_join(c_uptake_hcw, c_uptake_60p, by = "a_iso") %>%
+  full_join(., c_uptake_male, by = "a_iso") %>%
+  full_join(., c_uptake_fem, by = "a_iso")
 
 
 
@@ -1280,6 +1658,9 @@ b_who_dashboard <-
   fread("https://covid19.who.int/who-data/vaccination-data.csv")
 head(b_who_dashboard)
 
+b_csl <- data.frame(read_excel("input/static/base_csl.xlsx",
+                                 sheet = "Sheet1"))
+
 
 # IMR Smartsheet
 ## Select relevant columns and rename
@@ -1330,8 +1711,13 @@ c_smartsheet_red$ndvp_deadline <-
 ## Select relevant columns and rename
 c_whodb_red <-
   select(b_who_dashboard,
-         c("ISO3", "NUMBER_VACCINES_TYPES_USED", "FIRST_VACCINE_DATE"))
-colnames(c_whodb_red) <- c("iso", "prod_inuse", "intro_date")
+         c("ISO3", "NUMBER_VACCINES_TYPES_USED", "FIRST_VACCINE_DATE","PERSONS_FULLY_VACCINATED_PER100"))
+colnames(c_whodb_red) <- c("iso", "prod_inuse", "intro_date","cov_total_fv_per100")
+
+
+# Concerted support list
+## Rename columns
+colnames(b_csl) <- c("iso","csl_status")
 
 
 
@@ -1353,9 +1739,14 @@ c_vxrate_latest_red <-
     )
   )
 
-# Merge details and latest vxrate summary dataframes
+# Merge details, latest vxrate summary, population, target group admin. dataframes
 a_data <-
-  left_join(b_details_red, c_vxrate_latest_red, by = "a_iso")
+  left_join(b_details_red, c_vxrate_latest_red, by = "a_iso") %>%
+  left_join(., c_pop_disag) %>%
+  left_join(., c_uptake_disag)
+
+# Merge WHO Dashboard data
+a_data <- left_join(a_data, c_whodb_red, by = c("a_iso" = "iso"))
 
 # Calculate introduction status
 a_data <- a_data %>%
@@ -1394,16 +1785,16 @@ a_data <- a_data %>%
                             (adm_fv)))))) %>%
   
   mutate(adm_fv_lm_homo = if_else(
-    adm_a1d_lm == 0 & adm_fv == 0 & adm_booster_lm == 0, (adm_td_lm / 2),
-    if_else(adm_a1d_lm == 0 & adm_fv == 0 & adm_booster_lm != 0, ((adm_td_lm - adm_booster_lm)/ 2),
-            if_else(adm_a1d_lm != 0 & adm_fv == 0 & adm_booster_lm == 0, (adm_td_lm - adm_a1d_lm),
-                    if_else(adm_a1d_lm != 0 & adm_fv == 0 & adm_booster_lm != 0, (adm_td_lm - adm_a1d_lm - adm_booster_lm),
-                            (adm_fv)))))) %>%
+    adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm == 0, (adm_td_lm / 2),
+    if_else(adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm != 0, ((adm_td_lm - adm_booster_lm)/ 2),
+            if_else(adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm == 0, (adm_td_lm - adm_a1d_lm),
+                    if_else(adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm != 0, (adm_td_lm - adm_a1d_lm - adm_booster_lm),
+                            (adm_fv_lm)))))) %>%
   
   mutate(adm_fv_2m_homo = if_else(
-    adm_a1d_2m == 0 & adm_fv == 0, (adm_td_2m / 2),
-            if_else(adm_a1d_2m != 0 & adm_fv == 0, (adm_td_2m - adm_a1d_2m),
-                            (adm_fv))))
+    adm_a1d_2m == 0 & adm_fv_2m == 0, (adm_td_2m / 2),
+            if_else(adm_a1d_2m != 0 & adm_fv_2m == 0, (adm_td_2m - adm_a1d_2m),
+                            (adm_fv_2m))))
 
 # Calculate td and fv change from lm and 2m
 a_data <- a_data %>%
@@ -1420,17 +1811,18 @@ a_data <- a_data %>%
 a_data <- a_data %>%
   mutate(cov_total_a1d = adm_a1d / a_pop) %>%
   
-  mutate(cov_total_fv = if_else((adm_fv_homo / a_pop) > 1, 1, (adm_fv_homo / a_pop))) %>%
+  mutate(cov_total_fv = if_else(a_who_region == "EUR", cov_total_fv_per100 / 100,
+                                  if_else((adm_fv_homo / a_pop) > 1, 1, (adm_fv_homo / a_pop)))) %>%
   
   mutate(cov_total_fv_lw = adm_fv_lw / a_pop) %>%
   
-  mutate(cov_total_fv_lm = adm_fv_lm_homo / a_pop) %>%
+  mutate(cov_total_fv_lm = if_else((adm_fv_lm_homo / a_pop) > 1, 1, (adm_fv_lm_homo / a_pop))) %>%
   
-  mutate(cov_total_fv_2m = adm_fv_2m_homo / a_pop) %>%
+  mutate(cov_total_fv_2m = if_else((adm_fv_2m_homo / a_pop) > 1, 1, (adm_fv_2m_homo / a_pop))) %>%
   
-  mutate(cov_total_fv_less_1m = cov_total_fv - cov_total_fv_lm) %>%
+  mutate(cov_total_fv_less_1m = if_else((cov_total_fv - cov_total_fv_lm) < 0, 0, (cov_total_fv - cov_total_fv_lm)))  %>%
   
-  mutate(cov_total_fv_1m_2m = cov_total_fv_lm - cov_total_fv_2m) %>%
+  mutate(cov_total_fv_1m_2m = if_else((cov_total_fv_lm - cov_total_fv_2m) < 0, 0, (cov_total_fv_lm - cov_total_fv_2m))) %>%
   
   mutate(cov_total_fv_less_1m_prop = cov_total_fv_less_1m / cov_total_fv)
 
@@ -1483,11 +1875,25 @@ a_data <- a_data %>%
     as.numeric(as.Date("2022-06-30") - Sys.Date())
   ))) / a_pop)
 
+
+# Calculate target group coverage figures
+a_data <- a_data %>%
+  mutate(cov_hcw_fv = if_else((adm_fv_hcw / a_pop_hcw) > 1, 1, (adm_fv_hcw / a_pop_hcw))) %>%
+  
+  mutate(cov_total_male_fv = adm_fv_male / a_pop_male) %>%
+  
+  mutate(cov_total_fem_fv = adm_fv_fem / a_pop_fem) %>%
+  
+  mutate(cov_60p_fv = adm_fv_60p / a_pop_60p)
+  
+
 # Calculate 4-week average daily rates as % of pop.
 a_data <- a_data %>%
   mutate(dvr_4wk_td_per = dvr_4wk_td / a_pop) %>%
   
-  mutate(dvr_4wk_fv_per = dvr_4wk_fv / a_pop)
+  mutate(dvr_4wk_fv_per = dvr_4wk_fv / a_pop) %>%
+  
+  mutate(dvr_4wk_td_max_per = dvr_4wk_td_max / a_pop)
 
 
 # Assign vaccination rate category
@@ -1560,13 +1966,13 @@ a_data <- a_data %>%
   
   mutate(t10_notmet = if_else(cov_total_fv < 0.1, "Yes", "No")) %>%
   
-  mutate(t10_timeto = if_else((((
+  mutate(t10_timeto = round(if_else((((
     0.1 * a_pop
   ) - adm_fv_homo) / (dvr_4wk_fv)) < 0 , 0,
   if_else(is.infinite((((0.1 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
   )), NA_real_,
   (((0.1 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-  )))) %>%
+  ))))) %>%
   
   mutate(t10_status = if_else(
     t10_goalmet_sep == "Yes" ,
@@ -1588,13 +1994,13 @@ a_data <- a_data %>%
   
   mutate(t20_notmet = if_else(cov_total_fv < 0.2, "Yes", "No")) %>%
   
-  mutate(t20_timeto = if_else((((
+  mutate(t20_timeto = round(if_else((((
     0.2 * a_pop
   ) - adm_fv_homo) / (dvr_4wk_fv)) < 0 , 0,
   if_else(is.infinite((((0.2 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
   )), NA_real_,
   (((0.2 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-  )))) %>%
+  ))))) %>%
   
   mutate(t20_status = if_else(
     t20_goalmet_dec == "Yes" |
@@ -1612,13 +2018,13 @@ a_data <- a_data %>%
   
   mutate(t40_notmet = if_else(cov_total_fv < 0.4, "Yes", "No")) %>%
   
-  mutate(t40_timeto = if_else((((
+  mutate(t40_timeto = round(if_else((((
     0.4 * a_pop
   ) - adm_fv_homo) / (dvr_4wk_fv)) < 0 , 0,
   if_else(is.infinite((((0.4 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
   )), NA_real_,
   (((0.4 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-  )))) %>%
+  ))))) %>%
   
   mutate(t40_status = if_else(
     t40_goalmet_dec == "Yes" |
@@ -1652,13 +2058,13 @@ a_data <- a_data %>%
   mutate(t70_offtrack = if_else(t70_goalmet != "Yes" &
                                   t70_willmeet != "Yes", "Yes", "No")) %>%
   
-  mutate(t70_timeto = if_else((((
+  mutate(t70_timeto = round(if_else((((
     0.7 * a_pop
   ) - adm_fv_homo) / (dvr_4wk_fv)) < 0 , 0,
   if_else(is.infinite((((0.7 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
   )), NA_real_,
   (((0.7 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-  )))) %>%
+  ))))) %>%
   
   mutate(t70_status = if_else(
     t70_goalmet == "Yes",
@@ -1682,9 +2088,11 @@ a_data <- a_data %>%
     )
   )) %>%
   
-  mutate(t70_rate_needed = ((a_pop * 0.7) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - Sys.Date())) %>%
+  mutate(t70_rate_needed = if_else(
+    (((a_pop * 0.7) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-01-26"))) < 0, 0,
+    (((a_pop * 0.7) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-01-26"))))) %>%
   
-  mutate(t70_scaleup = t70_rate_needed / dvr_4wk_fv) %>%
+  mutate(t70_scaleup = round((t70_rate_needed / dvr_4wk_fv),2)) %>%
   
   mutate(t70_scaleup_cat = if_else(
     t70_scaleup == 0,
@@ -1834,10 +2242,16 @@ a_data <- a_data %>%
 ## Calculate remaining doses, absolute and % pop.
 a_data <- a_data %>%
   mutate(pu_del_rem = if_else(
+    (if_else(
     is.na(del_dose_total) | del_dose_total == 0,
     NA_real_,
     ((del_dose_total * 0.9) - adm_td)
-  )) %>%
+  )) < 0, 0, 
+  (if_else(
+    is.na(del_dose_total) | del_dose_total == 0,
+    NA_real_,
+    ((del_dose_total * 0.9) - adm_td)
+  ))))%>%
   
   mutate(pu_del_rem_per = pu_del_rem / a_pop)
 
@@ -1909,46 +2323,43 @@ a_data <- a_data %>%
 
 # Calculate absolute courses needed for reach targets
 a_data <- a_data %>%
-  mutate(t20_cour_req = (a_pop * 0.2) * 1.1) %>%
+  mutate(t20_cour_req = round((a_pop * 0.2) * 1.1)) %>%
   
-  mutate(t40_cour_req = (a_pop * 0.4) * 1.1) %>%
+  mutate(t40_cour_req = round((a_pop * 0.4) * 1.1)) %>%
   
-  mutate(t70_cour_req = (a_pop * 0.7) * 1.1)
+  mutate(t70_cour_req = round((a_pop * 0.7) * 1.1))
+
 
 # Calculate remaining secured, received, and admnistered courses required for targets
 a_data <- a_data %>%
-  mutate(t20_cour_need_sec = if_else((t20_cour_req - sec_total) < 0, 0,
-                                     (t20_cour_req - sec_total))) %>%
+  mutate(t20_cour_need_sec = round(if_else((t20_cour_req - sec_total) < 0, 0,
+                                     (t20_cour_req - sec_total)))) %>%
   
-  mutate(t20_cour_need_del = if_else((t20_cour_req - del_cour_total) < 0,
-                                     0,
-                                     (t20_cour_req - del_cour_total)
-  )) %>%
+  mutate(t20_cour_need_del = round(if_else((t20_cour_req - del_cour_total) < 0, 0,
+                                     (t20_cour_req - del_cour_total)))) %>%
   
-  mutate(t20_cour_need_admin = if_else((t20_cour_req - adm_fv_homo) < 0, 0,
-                                       (t20_cour_req - adm_fv_homo))) %>%
+  mutate(t20_cour_need_adm = round(if_else((t20_cour_req - adm_fv_homo) < 0, 0,
+                                       (t20_cour_req - adm_fv_homo)))) %>%
   
-  mutate(t40_cour_need_sec = if_else((t40_cour_req - sec_total) < 0, 0,
-                                     (t40_cour_req - sec_total))) %>%
+  mutate(t40_cour_need_sec = round(if_else((t40_cour_req - sec_total) < 0, 0,
+                                     (t40_cour_req - sec_total)))) %>%
   
-  mutate(t40_cour_need_del = if_else((t40_cour_req - del_cour_total) < 0,
-                                     0,
-                                     (t40_cour_req - del_cour_total)
-  )) %>%
+  mutate(t40_cour_need_del = round(if_else((t40_cour_req - del_cour_total) < 0, 0,
+                                     (t40_cour_req - del_cour_total)))) %>%
   
-  mutate(t40_cour_need_admin = if_else((t40_cour_req - adm_fv_homo) < 0, 0,
-                                       (t40_cour_req - adm_fv_homo))) %>%
+  mutate(t40_cour_need_adm = round(if_else((t40_cour_req - adm_fv_homo) < 0, 0,
+                                       (t40_cour_req - adm_fv_homo)))) %>%
   
-  mutate(t70_cour_need_sec = if_else((t70_cour_req - sec_total) < 0, 0,
-                                     (t70_cour_req - sec_total))) %>%
+  mutate(t70_cour_need_sec = round(if_else((t70_cour_req - sec_total) < 0, 0,
+                                     (t70_cour_req - sec_total)))) %>%
   
-  mutate(t70_cour_need_del = if_else((t70_cour_req - del_cour_total) < 0,
+  mutate(t70_cour_need_del = round(if_else((t70_cour_req - del_cour_total) < 0,
                                      0,
                                      (t70_cour_req - del_cour_total)
-  )) %>%
+  ))) %>%
   
-  mutate(t70_cour_need_admin = if_else((t70_cour_req - adm_fv_homo) < 0, 0,
-                                       (t70_cour_req - adm_fv_homo)))
+  mutate(t70_cour_need_adm = round(if_else((t70_cour_req - adm_fv_homo) < 0, 0,
+                                       (t70_cour_req - adm_fv_homo))))
 
 
 # Merge IMR Smartsheet data
@@ -1965,6 +2376,14 @@ a_data <- a_data %>%
   ) / a_pop)) %>%
   
   mutate(ndvp_willmeet = if_else(ndvp_peratpace >= ndvp_target, "Yes", "No")) %>%
+  
+  mutate(ndvp_timeto = round(if_else((((
+    ndvp_target * a_pop
+  ) - adm_fv_homo) / (dvr_4wk_fv)) < 0 , 0,
+  if_else(is.infinite((((ndvp_target * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
+  )), NA_real_,
+  (((ndvp_target * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
+  ))))) %>%
   
   mutate(ndvp_ontrack = if_else(ndvp_goalmet != "Yes" &
                                   ndvp_willmeet == "Yes", "Yes", "No")) %>%
@@ -2018,9 +2437,11 @@ a_data <- a_data %>%
     )
   )) %>%
   
-  mutate(ndvp_rate_needed = ((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - Sys.Date())) %>%
+  mutate(ndvp_rate_needed = if_else(
+    (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - as.Date("2022-01-26"))) < 0, 0,
+    (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - as.Date("2022-01-26"))))) %>%
   
-  mutate(ndvp_scaleup = ndvp_rate_needed / dvr_4wk_fv) %>%
+  mutate(ndvp_scaleup = round((ndvp_rate_needed / dvr_4wk_fv),2)) %>%
   
   mutate(ndvp_scaleup_cat = if_else(
     ndvp_scaleup == 0,
@@ -2042,8 +2463,8 @@ a_data <- a_data %>%
   ))
 
 
-# Merge WHO Dashboard data
-a_data <- left_join(a_data, c_whodb_red, by = c("a_iso" = "iso"))
+# Merge concerted support list
+a_data <- left_join(a_data, b_csl, by = c("a_iso" = "iso"))
 
 
 # Add notes
@@ -2084,6 +2505,8 @@ a_data <- a_data %>%
   
   mutate(note_supplyconstraint = if_else(rem_cour_del_per < 0.05 &
                                            pu_used_per > 0.5, 1, 0))
+
+a_data_temp <- select(a_data, c("a_iso","adm_fv","a_pop", "cov_total_fv","t10_status","t40_status"))
 
 a_data <- a_data %>%
   mutate(note_drivers = if_else(

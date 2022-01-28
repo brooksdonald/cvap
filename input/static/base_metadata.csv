@@ -42,10 +42,18 @@ t20_status,"Status of progress against COVAX 20% target by 31 Dec 2021: 1) Goal 
 t20_timeto,Number of days to reach COVAX 20% target at current 4-week average daily vaccination rate
 t40_status,"Status of progress against WHO 40% target by 31 Dec 2021: 1) Goal met by deadline, 2) Goal met after deadline, 3) Goal not yet met"
 t40_timeto,Number of days to reach WHO 40% target at current 4-week average daily vaccination rate
+t40_cour_req,"Total number of vaccine courses required to vaccinate 40% of total population, including a standard assumption of 10% dose wastage"
+t40_cour_need_sec,"Total number of additional vaccine courses needing to be secured in order to vaccinate 40% of total population, including a standard assumption of 10% wastage"
+t40_cour_need_del,"Total number of additional vaccine courses needing to be received in-country in order to vaccinate 40% of total population, including a standard assumption of 10% wastage"
+t40_cour_need_adm,Total number of additional vaccine courses needing to be administered in order to vaccinate 40% of total population wastage
 t70_status,"Status of progress against WHO 70% target by 30 Jun 2022: 1) Off track - Insufficient supply received, 2) Off track - Insufficient abs. capacity, 3) On track, 4) Goal met"
 t70_rate_needed,Daily vaccination rate needed to meet WHO 70% target by 30 Jun 2022
 t70_scaleup,Scale-up from current 4-week  average daily vaccination rate (multiples of current rate) required to reach WHO 70% target by 30 Jun 2022
 t70_timeto,Number of days to reach WHO 70% target at current 4-week average daily vaccination rate
+t70_cour_req,"Total number of vaccine courses required to vaccinate 70% of total population, including a standard assumption of 10% dose wastage"
+t70_cour_need_sec,"Total number of additional vaccine courses needing to be secured in order to vaccinate 70% of total population, including a standard assumption of 10% wastage"
+t70_cour_need_del,"Total number of additional vaccine courses needing to be received in-country in order to vaccinate 70% of total population, including a standard assumption of 10% wastage"
+t70_cour_need_adm,Total number of additional vaccine courses needing to be administered in order to vaccinate 70% of total population wastage
 ndvp_target,Country coverage target
 ndvp_tarpop,Target population subject to country coverage target
 ndvp_deadline,Country coverage target deadline
