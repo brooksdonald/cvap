@@ -1874,9 +1874,11 @@ a_data <- a_data %>%
 
 # Calculate linear population coverage projection by 30 June 2022
 a_data <- a_data %>%
-  mutate(cov_total_fv_atpace_30jun = (adm_fv_homo + (dvr_4wk_fv * (
+  mutate(cov_total_fv_atpace_30jun = if_else(((adm_fv_homo + (dvr_4wk_fv * (
     as.numeric(as.Date("2022-06-30") - Sys.Date())
-  ))) / a_pop)
+  ))) / a_pop) > 1, 1, ((adm_fv_homo + (dvr_4wk_fv * (
+    as.numeric(as.Date("2022-06-30") - Sys.Date())
+  ))) / a_pop)))
 
 
 # Indicator reporting status for target group-specific uptake data
@@ -2058,12 +2060,7 @@ a_data <- a_data %>%
     )
   )) %>%
   
-  
-  mutate(t40_jun_peratpace = (adm_fv_homo + (dvr_4wk_fv * (
-    as.numeric(as.Date("2022-06-30") - Sys.Date())
-  ))) / a_pop) %>%
-  
-  mutate(t40_jun_willmeet = if_else(t40_jun_peratpace >= 0.4, "Yes", "No"))
+  mutate(t40_jun_willmeet = if_else(cov_total_fv_atpace_30jun >= 0.4, "Yes", "No"))
 
 
 ## 70% target
@@ -2112,7 +2109,8 @@ a_data <- a_data %>%
     (((a_pop * 0.7) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-01-26"))) < 0, 0,
     (((a_pop * 0.7) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-01-26"))))) %>%
   
-  mutate(t70_scaleup = round((t70_rate_needed / dvr_4wk_fv),2)) %>%
+  mutate(t70_scaleup = if_else(is.infinite(round((t70_rate_needed / dvr_4wk_fv),2)), NA_real_, 
+                               round((t70_rate_needed / dvr_4wk_fv),2))) %>%
   
   mutate(t70_scaleup_cat = if_else(
     t70_scaleup == 0,
@@ -2314,7 +2312,7 @@ a_data <- a_data %>%
   
   mutate(sec_tobedel_per = sec_tobedel / a_pop) %>%
   
-  mutate(rem_cour_del = del_cour_total - del_cour_wast - adm_fv_homo) %>%
+  mutate(rem_cour_del = del_cour_total - del_cour_wast - (adm_td * 0.5)) %>%
   
   mutate(rem_cour_del_per = rem_cour_del / a_pop) %>%
   
@@ -2391,9 +2389,9 @@ a_data <-
 a_data <- a_data %>%
   mutate(ndvp_goalmet = if_else(cov_total_fv >= ndvp_target, "Yes", "No")) %>%
   
-  mutate(ndvp_peratpace = (adm_fv_homo + (
+  mutate(ndvp_peratpace = ((adm_fv_homo + (
     dvr_4wk_fv * as.numeric(as.Date(ndvp_deadline) - Sys.Date())
-  ) / a_pop)) %>%
+  )) / a_pop)) %>%
   
   mutate(ndvp_willmeet = if_else(ndvp_peratpace >= ndvp_target, "Yes", "No")) %>%
   
@@ -2405,8 +2403,7 @@ a_data <- a_data %>%
   (((ndvp_target * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
   ))))) %>%
   
-  mutate(ndvp_ontrack = if_else(ndvp_goalmet != "Yes" &
-                                  ndvp_willmeet == "Yes", "Yes", "No")) %>%
+  mutate(ndvp_ontrack = if_else(ndvp_peratpace >= ndvp_target & cov_total_fv <= ndvp_target, "Yes", "No")) %>%
   
   mutate(ndvp_offtrack = if_else(ndvp_goalmet != "Yes" &
                                    ndvp_willmeet != "Yes", "Yes", "No")) %>%
@@ -2550,16 +2547,6 @@ a_data <- a_data %>%
       )
     )
   ))
-
-a_data <- a_data %>%
-  mutate(
-    cats_a = if_else(
-      cov_total_fv < 0.1 &
-        t70_willmeet == "No",
-      "Country for concerted support",
-      "Other country"
-    )
-  )
 
 
 # Sort columns
