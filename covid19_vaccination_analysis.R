@@ -1045,7 +1045,7 @@ c_sec_cour <- c_sec_cour %>%
   mutate(sec_other_sum = sec_eu + sec_other + sec_domestic)
 
 ## Add dataset date
-c_sec_cour$sec_date <- as.Date("2022-01-20")
+c_sec_cour$sec_date <- as.Date("2022-01-27")
 
 
 
@@ -1241,7 +1241,7 @@ b_mdb <-
   b_mdb %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
 b_mdb <- b_mdb[!(is.na(b_mdb$iso)),]
 b_mdb <- select(b_mdb, -c("Country.territory"))
-b_mdb$del_date <- as.Date("2022-01-26")
+b_mdb$del_date <- as.Date("2022-02-01")
 colnames(b_mdb) <- c(
   "product",
   "bimultilat",
@@ -1797,7 +1797,11 @@ a_data <- a_data %>%
   mutate(adm_fv_2m_homo = if_else(
     adm_a1d_2m == 0 & adm_fv_2m == 0, (adm_td_2m / 2),
             if_else(adm_a1d_2m != 0 & adm_fv_2m == 0, (adm_td_2m - adm_a1d_2m),
-                            (adm_fv_2m))))
+                            (adm_fv_2m)))) %>%
+  
+  mutate(adm_a1d_homo = if_else(
+    adm_a1d == 0 & adm_fv == 0, (adm_td / 2),
+    adm_a1d))
 
 # Calculate td and fv change from lm and 2m
 a_data <- a_data %>%
@@ -1988,13 +1992,17 @@ a_data <- a_data %>%
   
   mutate(t10_notmet = if_else(cov_total_fv < 0.1, "Yes", "No")) %>%
   
-  mutate(t10_timeto = round(if_else((((
-    0.1 * a_pop
-  ) - adm_fv_homo) / (dvr_4wk_fv)) < 0 , 0,
-  if_else(is.infinite((((0.1 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-  )), NA_real_,
-  (((0.1 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-  ))))) %>%
+  mutate(t10_timeto = round(if_else(
+    ( ((0.1 * a_pop) - adm_fv_homo) / dvr_4wk_fv) < 0 , 0,
+  if_else( is.infinite( ( ((0.1 * a_pop) - adm_fv_homo) / dvr_4wk_fv) ), NA_real_,
+  ( ((0.1 * a_pop) - adm_fv_homo) / dvr_4wk_fv) )))) %>%
+  
+  mutate(t10_rate_needed_30jun = if_else(
+    (((a_pop * 0.1) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))) < 0, 0,
+    (((a_pop * 0.1) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))))) %>%
+  
+  mutate(t10_scaleup_30jun = if_else(is.infinite(round((t10_rate_needed_30jun / dvr_4wk_fv),2)), NA_real_, 
+                                     round((t10_rate_needed_30jun / dvr_4wk_fv),2))) %>%
   
   mutate(t10_status = if_else(
     t10_goalmet_sep == "Yes" ,
@@ -2024,6 +2032,13 @@ a_data <- a_data %>%
   (((0.2 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
   ))))) %>%
   
+  mutate(t20_rate_needed_30jun = if_else(
+    (((a_pop * 0.2) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))) < 0, 0,
+    (((a_pop * 0.2) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))))) %>%
+  
+  mutate(t20_scaleup_30jun = if_else(is.infinite(round((t20_rate_needed_30jun / dvr_4wk_fv),2)), NA_real_, 
+                                     round((t20_rate_needed_30jun / dvr_4wk_fv),2))) %>%
+  
   mutate(t20_status = if_else(
     t20_goalmet_dec == "Yes" |
       (is.na(t20_goalmet_dec) & adm_td > 0),
@@ -2040,13 +2055,23 @@ a_data <- a_data %>%
   
   mutate(t40_notmet = if_else(cov_total_fv < 0.4, "Yes", "No")) %>%
   
-  mutate(t40_timeto = round(if_else((((
-    0.4 * a_pop
-  ) - adm_fv_homo) / (dvr_4wk_fv)) < 0 , 0,
-  if_else(is.infinite((((0.4 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-  )), NA_real_,
-  (((0.4 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-  ))))) %>%
+  mutate(t40_timeto = round( 
+    if_else(
+      (( (0.4 * a_pop) - adm_fv_homo) / dvr_4wk_fv) < 0 , 0,
+      if_else( 
+        is.infinite( 
+          (( (0.4 * a_pop) - adm_fv_homo) / dvr_4wk_fv) ), NA_real_,
+        (( (0.4 * a_pop) - adm_fv_homo) / dvr_4wk_fv) 
+        )
+      )
+    )) %>%
+  
+  mutate(t40_rate_needed_30jun = if_else(
+    (((a_pop * 0.4) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))) < 0, 0,
+    (((a_pop * 0.4) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))))) %>%
+  
+  mutate(t40_scaleup_30jun = if_else(is.infinite(round((t40_rate_needed_30jun / dvr_4wk_fv),2)), NA_real_, 
+                               round((t40_rate_needed_30jun / dvr_4wk_fv),2))) %>%
   
   mutate(t40_status = if_else(
     t40_goalmet_dec == "Yes" |
@@ -2065,15 +2090,14 @@ a_data <- a_data %>%
 
 ## 70% target
 a_data <- a_data %>%
-  mutate(t70_goalmet = if_else(cov_total_fv >= 0.7, "Yes", "No")) %>%
+  mutate(t70_goalmet = if_else(cov_total_fv >= 0.7, "Yes", NA_character_)) %>%
   
-  mutate(t70_willmeet = if_else(cov_total_fv_atpace_30jun >= 0.7, "Yes", "No")) %>%
+  mutate(t70_willmeet = if_else(cov_total_fv_atpace_30jun >= 0.7, "Yes", NA_character_))
+
+a_data <- a_data %>%
+  mutate(t70_ontrack = if_else(t70_willmeet == "Yes" & is.na(t70_goalmet), "Yes", NA_character_)) %>%
   
-  mutate(t70_ontrack = if_else(t70_goalmet != "Yes" &
-                                 t70_willmeet == "Yes", "Yes", "No")) %>%
-  
-  mutate(t70_offtrack = if_else(t70_goalmet != "Yes" &
-                                  t70_willmeet != "Yes", "Yes", "No")) %>%
+  mutate(t70_offtrack = if_else(is.na(t70_goalmet) & is.na(t70_willmeet), "Yes", NA_character_)) %>%
   
   mutate(t70_timeto = round(if_else((((
     0.7 * a_pop
@@ -2081,33 +2105,34 @@ a_data <- a_data %>%
   if_else(is.infinite((((0.7 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
   )), NA_real_,
   (((0.7 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-  ))))) %>%
+  )))))
   
+a_data <- a_data %>%
   mutate(t70_status = if_else(
-    t70_goalmet == "Yes",
+    cov_total_fv >= 0.7,
     "Goal met",
     if_else(
-      t70_ontrack == "Yes",
+      cov_total_fv_atpace_30jun >= 0.7 & is.na(t70_goalmet),
       "On track",
-      if_else(t70_offtrack == "Yes", "Off track",
+      if_else(is.na(t70_goalmet) & is.na(t70_willmeet), "Off track",
               NA_character_)
     )
   )) %>%
   
   mutate(t70_status_num = if_else(
-    t70_goalmet == "Yes",
+    cov_total_fv >= 0.7,
     1,
     if_else(
-      t70_ontrack == "Yes",
+      cov_total_fv_atpace_30jun >= 0.7 & is.na(t70_goalmet),
       2,
-      if_else(t70_offtrack == "Yes", 3,
+      if_else(is.na(t70_goalmet) & is.na(t70_willmeet), 3,
               NA_real_)
     )
   )) %>%
   
   mutate(t70_rate_needed = if_else(
-    (((a_pop * 0.7) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-01-26"))) < 0, 0,
-    (((a_pop * 0.7) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-01-26"))))) %>%
+    (((a_pop * 0.7) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))) < 0, 0,
+    (((a_pop * 0.7) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))))) %>%
   
   mutate(t70_scaleup = if_else(is.infinite(round((t70_rate_needed / dvr_4wk_fv),2)), NA_real_, 
                                round((t70_rate_needed / dvr_4wk_fv),2))) %>%
@@ -2271,7 +2296,10 @@ a_data <- a_data %>%
     ((del_dose_total * 0.9) - adm_td)
   ))))%>%
   
-  mutate(pu_del_rem_per = pu_del_rem / a_pop)
+  mutate(pu_del_rem_per = pu_del_rem / a_pop) %>%
+  
+  mutate(pu_del_rem_timeto = if_else(is.infinite(pu_del_rem / dvr_4wk_td), NA_real_,
+                                     (pu_del_rem / dvr_4wk_td)))
 
 ## Calculate percent of doses received utilized
 a_data <- a_data %>%
@@ -2279,7 +2307,7 @@ a_data <- a_data %>%
     pu_del_rem > 0,
     (pu_del_rem / del_dose_total),
     if_else(
-      is.na(pu_del_rem) | pu_del_rem == 0,
+      is.na(pu_del_rem),
       NA_real_,
       if_else(pu_del_rem <= 0, 0,
               NA_real_)
@@ -2312,7 +2340,8 @@ a_data <- a_data %>%
   
   mutate(sec_tobedel_per = sec_tobedel / a_pop) %>%
   
-  mutate(rem_cour_del = del_cour_total - del_cour_wast - (adm_td * 0.5)) %>%
+  mutate(rem_cour_del = if_else((del_cour_total - del_cour_wast - adm_fv_homo - (((adm_a1d_homo - adm_fv_homo) + adm_booster)  * 0.5)) < 0, 0,
+                                (del_cour_total - del_cour_wast - adm_fv_homo - (((adm_a1d_homo - adm_fv_homo) + adm_booster)  * 0.5)))) %>%
   
   mutate(rem_cour_del_per = rem_cour_del / a_pop) %>%
   
@@ -2389,9 +2418,13 @@ a_data <-
 a_data <- a_data %>%
   mutate(ndvp_goalmet = if_else(cov_total_fv >= ndvp_target, "Yes", "No")) %>%
   
+  mutate(ndvp_rem = if_else((ndvp_target - cov_total_fv) < 0, 0, (ndvp_target - cov_total_fv))) %>%
+  
   mutate(ndvp_peratpace = ((adm_fv_homo + (
     dvr_4wk_fv * as.numeric(as.Date(ndvp_deadline) - Sys.Date())
   )) / a_pop)) %>%
+  
+  mutate(ndvp_pertogo = if_else((ndvp_target - ndvp_peratpace) < 0, 0, (ndvp_target - ndvp_peratpace)))  %>%
   
   mutate(ndvp_willmeet = if_else(ndvp_peratpace >= ndvp_target, "Yes", "No")) %>%
   
@@ -2455,8 +2488,8 @@ a_data <- a_data %>%
   )) %>%
   
   mutate(ndvp_rate_needed = if_else(
-    (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - as.Date("2022-01-26"))) < 0, 0,
-    (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - as.Date("2022-01-26"))))) %>%
+    (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - as.Date("2022-02-02"))) < 0, 0,
+    (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - as.Date("2022-02-02"))))) %>%
   
   mutate(ndvp_scaleup = round((ndvp_rate_needed / dvr_4wk_fv),2)) %>%
   
@@ -2483,6 +2516,11 @@ a_data <- a_data %>%
 # Merge concerted support list
 a_data <- left_join(a_data, b_csl, by = c("a_iso" = "iso"))
 
+a_data <- a_data %>%
+  mutate(csl_status = if_else(is.na(csl_status), "Other country", csl_status)) %>%
+  
+  mutate(csl_status_numb = if_else(csl_status == "Concerted support country", 1, NA_real_))
+
 
 # Add notes
 a_data <- a_data %>%
@@ -2491,7 +2529,7 @@ a_data <- a_data %>%
   mutate(note_recent_rollout = if_else(intro_date > (Sys.Date() - 60), "Recent rollout", "No")) %>%
   
   mutate(note_reporting_date = if_else(
-    adm_date < (as.Date("2022-01-18") - 10),
+    adm_date < (as.Date("2022-02-02") - 10),
     "Likely reporting issue",
     NA_character_
   )) %>%
@@ -2521,7 +2559,7 @@ a_data <- a_data %>%
   ) %>%
   
   mutate(note_supplyconstraint = if_else(rem_cour_del_per < 0.05 &
-                                           pu_used_per > 0.5, 1, 0))
+                                           pu_used_per > 0.8, 1, 0))
 
 a_data_temp <- select(a_data, c("a_iso","adm_fv","a_pop", "cov_total_fv","t10_status","t40_status"))
 
@@ -2556,7 +2594,7 @@ a_data <- a_data %>%
 
 # Create AMC summary table
 
-a_data_amc <- filter(a_data, a_covax_status == "AMC")
+a_data_amc <- filter(a_data, a_covax_status == "AMC" & intro_status == "Product introduced")
 a_data_hic <- filter(a_data, a_income_group == "HIC")
 
 
@@ -2704,6 +2742,7 @@ c_condense <-
       "t40_status",
       "t70_status",
       "t70_scaleup_cat",
+      "ndvp_status",
       "booster_status",
       "pu_used_per_cat",
       "del_cour_total_per_cat",
@@ -2714,7 +2753,7 @@ c_condense <-
 # Filter by grouping
 c_condense_amc <- filter(c_condense, a_covax_status == "AMC")
 c_condense_amc_exc <-
-  filter(c_condense, a_covax_status == "AMC" & a_iso != "NIC")
+  filter(c_condense, a_covax_status == "AMC")
 c_condense_africa <- filter(c_condense, a_continent == "Africa")
 
 c_condense_afr <- filter(c_condense, a_who_region == "AFR")
@@ -2910,16 +2949,16 @@ e_tar_cur_scale_all <-
 #left_join(.,t40_paho, by = "scaleup_cat")
 
 ###NDVP coverage target
-#e_ndvp_amc <- aggregate(c_condense_amc$name_short, list(c_condense_amc$ndv), paste, collapse="; ")
-#colnames(e_ndvp_amc) <- c("ndvp_cat", "ndvp_amc")
-#e_ndvp_africa <- aggregate(c_condense_africa$name_short, list(c_condense_africa$ndvp_status), paste, collapse="; ")
-#colnames(e_ndvp_africa) <- c("ndvp_cat", "ndvp_africa")
+e_ndvp_amc <- aggregate(c_condense_amc$a_name_short, list(c_condense_amc$ndvp_status), paste, collapse="; ")
+colnames(e_ndvp_amc) <- c("ndvp_cat", "ndvp_amc")
+e_ndvp_africa <- aggregate(c_condense_africa$a_name_short, list(c_condense_africa$ndvp_status), paste, collapse="; ")
+colnames(e_ndvp_africa) <- c("ndvp_cat", "ndvp_africa")
 #e_ndvp_amr <- aggregate(c_condense_amr$name_short, list(c_condense_amr$ndvp_status), paste, collapse="; ")
 #colnames(e_ndvp_amr) <- c("ndvp_cat", "ndvp_amr")
 #e_ndvp_emr <- aggregate(c_condense_emr$name_short, list(c_condense_emr$ndvp_status), paste, collapse="; ")
 #colnames(e_ndvp_emr) <- c("ndvp_cat", "ndvp_emr")
 
-#e_ndvp_all <- left_join(e_ndvp_amc, e_ndvp_africa, by = "ndvp_cat") %>%
+e_ndvp_all <- left_join(e_ndvp_amc, e_ndvp_africa, by = "ndvp_cat")
 #left_join(., e_ndvp_amr, by = "ndvp_cat") %>%
 #left_join(., e_ndvp_emr, by = "ndvp_cat")
 
@@ -3140,6 +3179,7 @@ z_values$pop_amc_100mp <- 8
 
 z_values$pop_amc <- 3889355899
 z_values$pop_amc_hcw <- 17570377
+z_values$count_amc <- 90
 
 z_values$pop_amc_10 <- z_values$pop_amc * 0.1
 z_values$pop_amc_20 <- z_values$pop_amc * 0.2
@@ -3292,6 +3332,8 @@ write_xlsx(
     "8_booster_status" = e_booster_all,
     "8_secdelpu_cat" = e_secdelpu_all,
     "8_cov_cat" = e_cov_all,
+    "8_scaleup_cat" = e_tar_cur_scale_all,
+    "8_ndvp_tar_cat" = e_ndvp_all,
     "9_values" = z_values
   ),
   "output/output_master.xlsx"
