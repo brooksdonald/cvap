@@ -1,5 +1,5 @@
-data/input*
-data/input/archives*
-data/input/static*
-data/interim*
-data/output*
+data/input/*
+data/input/archives/*
+data/input/static/*
+data/interim/*
+data/output/*
