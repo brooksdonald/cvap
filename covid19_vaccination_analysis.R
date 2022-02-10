@@ -34,7 +34,6 @@ library("tidyr")
 library("data.table")
 
 
-
 # Entity characteristics --------------------------------------------------
 
 # Load entity base data
@@ -601,11 +600,11 @@ c_vxrate_latest <-
 
 # Load datasets
 b_pop_total <-
-  data.frame(read_excel("input/static/base_population.xlsx",
+  data.frame(read_excel("data/input/static/base_population.xlsx",
                         sheet = "base_population"))
 
 b_pop_hcw <-
-  data.frame(read_excel("input/static/base_hcw population.xlsx",
+  data.frame(read_excel("data/input/static/base_hcw population.xlsx",
                         sheet = "base_hcw"))
 
 # Reduce columns & rename
@@ -620,7 +619,6 @@ colnames(z_pop_hcw) <- c("a_iso","a_pop_hcw")
 z_pop_hcw <- z_pop_hcw %>%
   mutate(a_pop_hcw = if_else(a_pop_hcw == 0, NA_real_, a_pop_hcw))
 
-# Filter for 12 and above
 z_pop_12p <- z_pop_total %>%
   filter(
     gender == "BOTH" & (
@@ -723,7 +721,7 @@ z_pop_12p <- z_pop_total %>%
     na.rm = TRUE
   )
 
-colnames(z_pop_12p) <- c("a_iso","a_pop_12p")
+colnames(z_pop_12p) <- c("a_iso","z_pop_12p")
 
 # Filter for 18 and above
 z_pop_18p <- z_pop_total %>%
@@ -818,8 +816,8 @@ z_pop_18p <- z_pop_total %>%
   group_by(a_iso) %>%
   
   summarize_at("value",
-               sum,
-               na.rm = TRUE
+    sum,
+    na.rm = TRUE
   )
 
 colnames(z_pop_18p) <- c("a_iso","a_pop_18p")
@@ -876,8 +874,8 @@ z_pop_60p <- z_pop_total %>%
   group_by(a_iso) %>%
   
   summarize_at("value",
-               sum,
-               na.rm = TRUE
+    sum,
+    na.rm = TRUE
   )
 
 colnames(z_pop_60p) <- c("a_iso","a_pop_60p")
@@ -921,17 +919,15 @@ c_pop_disag <- left_join(z_pop_total_male, z_pop_total_fem, by = "a_iso") %>%
   full_join(., z_pop_hcw, by = "a_iso")
 
 
-
-
 # Population coverage in target groups ------------------------------------
 
 # Load datasets
 b_uptake_target <-
-  data.frame(read_excel("input/data_export_WIISE_V_COV_UPTAKE_TARGETGROUP_LAST_MONTH_LONG.xlsx",
+  data.frame(read_excel("data/input/data_export_WIISE_V_COV_UPTAKE_TARGETGROUP_LAST_MONTH_LONG.xlsx",
                         sheet = "v_COV_UPTAKE_TARGETGROUP_LAST_M"))
 
 b_uptake_gender <-
-  data.frame(read_excel("input/data_export_WIISE_V_COV_UPTAKE_GENDER_LAST_MONTH_LONG.xlsx",
+  data.frame(read_excel("data/input/data_export_WIISE_V_COV_UPTAKE_GENDER_LAST_MONTH_LONG.xlsx",
                         sheet = "v_COV_UPTAKE_GENDER_LAST_MONTH_"))
 
 # Reduce columns & rename
@@ -3091,8 +3087,8 @@ e_secdelpu_all <- left_join(e_sec_amc, e_sec_africa, by = "cat") %>%
   left_join(., e_pu_amr, by = "cat") %>%
   left_join(., e_pu_emr, by = "cat")
 
-e_secdelpu_all <- e_secdelpu_all %>% replace(is.na(.), "None")
-
+e_secdelpu_all <- e_secdelpu_all %>% replace(is.na(.), "None") 
+  
 # Coverage category
 e_cov_amc <-
   aggregate(
