@@ -43,26 +43,11 @@ load_entity_chars <- function() {
     return(entity_details)
 }
 
-replace_values_with_map <- function(data, values, map, na_fill = "") {
-    dict <- data.frame(
-        val = values,
-        map = map
-    )
-
-    data <- dict$map[match(data, dict$val)]
-
-    if (na_fill != "") {
-        data[is.na(data)] <- na_fill
-    }
-
-    return(data)
-}
-
 
 transform_entity_chars <- function(entity_characteristics) {
     print(" >> Rework WHO region...")
 
-    entity_characteristics$a_who_region <- replace_values_with_map(
+    entity_characteristics$a_who_region <- helper_replace_values_with_map(
         data = entity_characteristics$a_who_region,
         values = c("AMRO", "AFRO", "EMRO", "EURO", "SEARO", "WPRO"),
         map = c("AMR", "AFR", "EMR", "EUR", "SEAR", "WPR"),
@@ -77,7 +62,7 @@ transform_entity_chars <- function(entity_characteristics) {
             "High income", a_income_group
         ))
 
-    entity_characteristics$a_income_group <- replace_values_with_map(
+    entity_characteristics$a_income_group <- helper_replace_values_with_map(
         data = entity_characteristics$a_income_group,
         values = c(
             "High income", "Upper middle income",

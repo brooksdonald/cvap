@@ -116,98 +116,48 @@ transform_sup_rec_product <- function(supply_received) {
         )
 
     print(" >> Renaming products for visualization...")
-    supply_received_by_product <- supply_received_by_product %>%
-        mutate(product_short = if_else(
-            product == "Gamaleya - Sputnik V",
-            "Non-COVAX product",
-            if_else(
-                product == "Bharat - Covaxin",
-                "Non-COVAX product",
-                if_else(
-                    product == "CanSino - Ad5-nCOV",
-                    "Non-COVAX product",
-                    if_else(
-                        product == "Gamaleya - Sputnik Light",
-                        "Non-COVAX product",
-                        if_else(
-                            product == "Chumakov - Covi-Vac",
-                            "Non-COVAX product",
-                            if_else(
-                                product == "RIBSP - QazCovid",
-                                "Non-COVAX product",
-                                if_else(
-                                    product == "SRCVB - EpiVacCorona",
-                                    "Non-COVAX product",
-                                    if_else(
-                                        product == "Medigen - MVC-COV1901",
-                                        "Non-COVAX product",
-                                        if_else(
-                                            product == "Anhui ZL - Recombinant SARS-CoV-2 vaccine",
-                                            "Non-COVAX product",
-                                            if_else(
-                                                product == "Sinopharm (Wuhan) - Inactivated",
-                                                "Non-COVAX product",
-                                                if_else(
-                                                    product == "AstraZeneca - Vaxzevria",
-                                                    "AZ",
-                                                    if_else(
-                                                        product == "SII - Covishield",
-                                                        "SII",
-                                                        if_else(
-                                                            product == "Pfizer BioNTech - Comirnaty",
-                                                            "Pfizer",
-                                                            if_else(
-                                                                product == "Sinopharm (Beijing) - BBIBP-CorV",
-                                                                "Sinopharm",
-                                                                if_else(
-                                                                    product == "Moderna - Spikevax",
-                                                                    "Moderna",
-                                                                    if_else(
-                                                                        product == "Sinovac - CoronaVac",
-                                                                        "Sinovac",
-                                                                        if_else(
-                                                                            product == "CIGB - CIGB-66",
-                                                                            "Non-COVAX product",
-                                                                            if_else(
-                                                                                product == "Janssen - Ad26.COV 2.S",
-                                                                                "J&J",
-                                                                                if_else(
-                                                                                    product == "BBIL - Covaxin",
-                                                                                    "Non-COVAX product",
-                                                                                    if_else(
-                                                                                        product == "CIGB - Abdala",
-                                                                                        "Non-COVAX product",
-                                                                                        if_else(
-                                                                                            product == "Soberana 2",
-                                                                                            "Non-COVAX product",
-                                                                                            if_else(
-                                                                                                product == "SII - Covavax",
-                                                                                                "Novavax",
-                                                                                                if_else(product == "Unknown", "Unknown",
-                                                                                                    NA_character_
-                                                                                                )
-                                                                                            )
-                                                                                        )
-                                                                                    )
-                                                                                )
-                                                                            )
-                                                                        )
-                                                                    )
-                                                                )
-                                                            )
-                                                        )
-                                                    )
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            )
-        ))
+
+    supply_received_by_product$product_short <- helper_replace_values_with_map(
+        data = supply_received_by_product$product_short,
+        values = c(
+            "Gamaleya - Sputnik V",
+            "Bharat - Covaxin",
+            "CanSino - Ad5-nCOV",
+            "Gamaleya - Sputnik Light",
+            "Chumakov - Covi-Vac",
+            "RIBSP - QazCovid",
+            "SRCVB - EpiVacCorona",
+            "Medigen - MVC-COV1901",
+            "Anhui ZL - Recombinant SARS-CoV-2 vaccine",
+            "Sinopharm (Wuhan) - Inactivated",
+            "CIGB - CIGB-66",
+            "BBIL - Covaxin",
+            "CIGB - Abdala",
+            "Soberana 2",
+            "AstraZeneca - Vaxzevria",
+            "SII - Covishield",
+            "Pfizer BioNTech - Comirnaty",
+            "Sinopharm (Beijing) - BBIBP-CorV",
+            "Moderna - Spikevax",
+            "Sinovac - CoronaVac",
+            "Janssen - Ad26.COV 2.S",
+            "SII - Covavax",
+            "Unknown"
+        ),
+        map = c(
+            rep("Non-COVAX product", 14),
+            "AZ",
+            "SII",
+            "Pfizer",
+            "Sinopharm",
+            "Moderna",
+            "Sinovac",
+            "J&J",
+            "Novavax",
+            "Unknown"
+        ),
+        na_fill = NA_character_
+    )
 
     colnames(supply_received_by_product) <-
         c(
