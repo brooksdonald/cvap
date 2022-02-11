@@ -1,6 +1,7 @@
-debug.r
+
 data/_input/*
 data/interim/*
 data/output/*
+debug.r
 .RData
-.Dhistory
+.Rhistory
