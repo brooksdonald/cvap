@@ -1,2 +1,4 @@
 data/*
 debug.r
+.RData
+.Rhistory
