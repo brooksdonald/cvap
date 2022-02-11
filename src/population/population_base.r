@@ -33,7 +33,7 @@ load_base_population <- function() {
 
 
 add_char_to_list <- function(l, char = "Y") {
-    return(lapply(l, function(x) ifelse(!is.na(x), paste0(char, x), x)))
+    return(sprintf(paste0(char, "%s"), l))
 }
 
 transform_base_population <- function(base_population, population_hcw) {
@@ -47,7 +47,11 @@ transform_base_population <- function(base_population, population_hcw) {
     a_pop_18p <- add_char_to_list(age_range18)
     a_pop_60p <- add_char_to_list(age_range60)
 
-    age_ranges <- list(a_pop_12p, a_pop_18p, a_pop_60p)
+    print(a_pop_12p)
+    print(a_pop_18p)
+    print(a_pop_60p)
+
+    age_ranges <- c(a_pop_12p, a_pop_18p, a_pop_60p)
     # has to match the length of a list above
     age_ranges_names <- c("a_pop_12p", "a_pop_18p", "a_pop_60p")
     data_frames <- list()
