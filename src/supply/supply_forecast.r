@@ -70,10 +70,9 @@ transform_supply_forecast <- function(supply_forecast) {
         )
     }
     print(" >> Joining forecasted data...")
-    supply_forecast_join <- Reduce(
-        function(x, y) merge(x, y, by = "iso", all.x = TRUE),
-        forecasts_monthly
-    )
+    supply_forecast_join <- helper_join_dataframe_list(
+            forecasts_monthly, join_by = "iso")
+
 
     supply_forecast_total <- select(
         supply_forecast_join,
