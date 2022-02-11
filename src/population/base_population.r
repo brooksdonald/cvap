@@ -1,16 +1,16 @@
 
 load_base_population <- function() {
     print(" >> Loading base population data...")
-    b_pop_total <- data.frame(
+    base_population <- data.frame(
         read_excel("data/input/static/base_population.xlsx",
             sheet = "base_population"
         )
     )
 
     print(" >> Selecting base population data...")
-    z_pop_total <- 
+    base_population <- 
         select(
-            b_pop_total, 
+            base_population, 
             c
             ("COUNTRY_FK",
             "GENDER_FK",
@@ -20,19 +20,19 @@ load_base_population <- function() {
     )
 
     Print(" >> Renaming Columns...")
-    colnames(z_pop_total) <- c(
+    colnames(base_population) <- c(
         "a_iso",
         "gender",
         "age_group",
         "value"
     )
 
-    return(z_pop_total)
+    return(base_population)
 
 }
 
 transform_base_population <- function() {
-    Print(" >> Segregating the different age groups...")
+    print(" >> Segregating the different age groups...")
     age_range12= (12:100)
     age_range18 = (18:100)
     age_range60 = (60:100)
@@ -48,7 +48,8 @@ transform_base_population <- function() {
     age_range60
 
     # Filter for 12 and above
-    z_pop_12p <- z_pop_total %>%
+    print(" >> Filtering age group 12 and above...")
+    z_pop_12p <- base_population %>%
     filter(
         gender == "BOTH" & age_group%in%age_range12) %>%
         group_by(a_iso) %>%
@@ -61,7 +62,8 @@ transform_base_population <- function() {
     colnames(z_pop_12p) <- c("a_iso","a_pop_12p")
 
     # Filter for 18 and above
-    z_pop_18p <- z_pop_total %>%
+    print(" >> Filtering age group 18 and above...")
+    z_pop_18p <- base_population %>%
     filter(
         gender == "BOTH" & age_group%in%age_range18) %>%
         group_by(a_iso) %>%
@@ -74,7 +76,9 @@ transform_base_population <- function() {
     colnames(z_pop_18p) <- c("a_iso","a_pop_18p")
 
     # Filter for 60 and above
-    z_pop_60p <- z_pop_total %>%
+    print(" >> Filtering age group 60 and above...")
+
+    z_pop_60p <- base_population %>%
     filter(
         gender == "BOTH" & age_group%in%age_range60) %>%
         group_by(a_iso) %>%
@@ -87,7 +91,7 @@ transform_base_population <- function() {
     colnames(z_pop_60p) <- c("a_iso","a_pop_60p")
 
     # Filter for total, male
-    z_pop_total_male <- z_pop_total %>%
+    z_pop_total_male <- base_population %>%
     filter(
         gender == "MALE" & age_group == "ALL") %>%
     
@@ -102,7 +106,7 @@ transform_base_population <- function() {
 
 
     # Filter for total, female
-    z_pop_total_fem <- z_pop_total %>%
+    z_pop_total_fem <- base_population %>%
     filter(
         gender == "FEMALE" & age_group == "ALL") %>%
     
@@ -121,9 +125,9 @@ transform_base_population <- function() {
     left_join(., z_pop_12p, by = "a_iso") %>%
     left_join(., z_pop_18p, by = "a_iso") %>%
     left_join(., z_pop_60p, by = "a_iso") %>%
-    full_join(., z_pop_hcw, by = "a_iso")
+    full_join(., population_hcw, by = "a_iso")
 
-    #FIXME What am I returning here?
-    return()
+    #FIXME Is c_pop_disag what I am returning?
+    return(c_pop_disag)
 
 }
