@@ -2,15 +2,15 @@
 load_population_hcw <- function() {
     print(" >> Loading base hcw data...")
     population_hcw <- data.frame(
-        read_excel("data/input/static/base_hcw population.xlsx",
+        read_excel("data/_input/static/base_hcw population.xlsx",
             sheet = "base_hcw"
         )
     )
 
     print(" >> Selecting base hcw data...")
-    population_hcw <- 
+    population_hcw <-
         select(
-            population_hcw, 
+            population_hcw,
             c(
                 "ISO3",
                 "Stock"
@@ -24,13 +24,12 @@ load_population_hcw <- function() {
     )
 
     return(population_hcw)
-
 }
 
 transform_population_hcw <- function(population_hcw) {
     print(" >> Replacing all 0s with NA_real_ ...")
     population_hcw <- population_hcw %>%
-    mutate(a_pop_hcw = if_else(a_pop_hcw == 0, NA_real_, a_pop_hcw))
+        mutate(a_pop_hcw = if_else(a_pop_hcw == 0, NA_real_, a_pop_hcw))
 
     return(population_hcw)
 }
