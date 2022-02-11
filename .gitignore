@@ -2,3 +2,5 @@ debug.r
 data/_input/*
 data/interim/*
 data/output/*
+.RData
+.Dhistory
