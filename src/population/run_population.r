@@ -1,27 +1,28 @@
 
-source("src/population/base_population.r")
-source("src/population/base_population.r")
+source("src/population/population_base.r")
+source("src/population/population_hcw.r")
 
 run_population <- function(local = new.env()) {
     print(" > Starting local environment for base population") 
-    print(" > base population...")
-    c_pop_disag <- load_base_population()
-    local$c_pop_disag <- transform_base_population(
-        c_pop_disag
-    )
-    print(" > Done. ")
-    print(" base_hcw...")
+
+    print(" > Population healthcare workers...")
     population_hcw <- load_base_hcw()
-    local$population_hcw <- transform_base_hcw(
+    population_hcw <- transform_population_hcw(
         population_hcw
     )
-    print(" Done ")
+    print(" > Done.")
 
-    print(" > Returning to llocal environment. ")
+    print(" > Base population...")
+    population_base <- load_population_base()
+    local$population_data <- transform_base_population(
+        population_base, population_hcw
+    )
+    print(" > Done. ")
 
-    print(" > Loaading data back to global environment ")
-    .GlobalEnv$population_hcw <- local$population_hcw
-    .GlobalEnv$c_pop_disag <- local$c_pop_disag
+    print(" > Returning to local environment. ")
+
+    print(" > Loading data back to global environment...")
+    .GlobalEnv$population_data <- local$population_data
     rm(list = ls())
     
 }
