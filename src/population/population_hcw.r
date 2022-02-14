@@ -7,7 +7,7 @@ load_population_hcw <- function() {
         )
     )
 
-    print(" >> Selecting base hcw data...")
+    print(" >> Selecting population hcw data...")
     population_hcw <-
         select(
             population_hcw,

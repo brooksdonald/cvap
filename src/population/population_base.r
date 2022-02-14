@@ -31,7 +31,7 @@ load_base_population <- function() {
     return(base_population)
 }
 
-
+# Creating a function to add a the character "Y" to the list
 add_char_to_list <- function(l, char = "Y") {
     return(sprintf(paste0(char, "%s"), l))
 }
