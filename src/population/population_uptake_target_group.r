@@ -8,7 +8,7 @@ load_population_target_groups <- function() {
     )
 
     # Reduce columns & rename
-    print(" >> Selecting needed columns and renaming them...")
+    print(" >> Reducing columns and renaming them...")
     uptake_target_group <- 
         select(
             uptake_target_group, 
@@ -31,7 +31,7 @@ load_population_target_groups <- function() {
         "adm_fv"
     )
 
-    return()   
+    return(uptake_target_group)   
 
 }
 
