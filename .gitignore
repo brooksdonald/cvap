@@ -1,4 +1,6 @@
-data/input/*
+data/*
+data/_input/*
 data/interim/*
 data/output/*
 debug.r
+
