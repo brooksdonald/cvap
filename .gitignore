@@ -1,5 +1,5 @@
 data/*
-data/_input/*
+data/input/*
 data/interim/*
 data/output/*
 debug.r
