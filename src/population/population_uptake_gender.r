@@ -34,22 +34,27 @@ load_population_target_gender <- function() {
 }
 
 # TODO Refactor this section
-transform_population_target_gender <- function(uptake_gender) {
+transform_population_target_gender <- function(uptake_gender, uptake_target_group) {
     data_frame <- list()
 
     for (gender in c("MALE", "FEMALE")) {
-        if (gender == "MALE") {
-            df <- uptake_gender %>%
-                colnames(df) <- c("a_iso","adm_date_gender", "adm_a1d_male", "adm_fv_male")
-                data_frame <- append(data_frame, list(df))
-        }
-        else {
-            df <-uptake_gender %>%
-                colnames(df) <- c("a_iso","adm_a1d_fem", "adm_fv_fem")
-                data_frame <- append(data_frame, list(df))
-            }
+        df <- uptake_gender %>%
+            filter(
+                gender == "MALE"
+            )
+            colnames(df) <- c("a_iso","adm_date_gender", "adm_a1d_male", "adm_fv_male")
+            data_frame <- append(data_frame, list(df))
+
+        df <-uptake_gender %>%
+            filter(
+                gender == "FEMALE"
+            )
+            colnames(df) <- c("a_iso","adm_a1d_fem", "adm_fv_fem")
+            data_frame <- append(data_frame, list(df))
+        
 
     }
+
 
     # Consolidate population uptake gender into a single dataframe
     data_frame <- append(data_frame, list(uptake_gender))

@@ -37,17 +37,36 @@ load_population_target_groups <- function() {
 
 #TODO Refactor this section 
 transform_population_target_groups <- function(uptake_target_group) {
+    uptake_df <- list()
+
     # Sort for healthcare workers, remove target columns & rename
-    c_uptake_hcw <- filter(c_uptake_target, target_group == "HW")
-    c_uptake_hcw <- select(c_uptake_hcw, -"target_group")
+    for (target_group in c("HW", "OLDER_60")) {
+        df <- uptake_target_group %>%
+            filter(
+                target_group == "HW"
+            )%>%
+            select(
+                uptake_target_group,
+                -"target_group"
+            )
+            colnames(c_uptake_hcw) <- c("a_iso","adm_date_hcw", "adm_a1d_hcw", "adm_fv_hcw")
+            uptake_df <- append(uptake_df, list(df))
+        
+        df <- uptake_target_group %>%
+            filter(
+                target_group == "OLDER_60"
+            )%>%
+            select(
+                uptake_target_group,
+                -"target_group"
+            )
+            colnames(c_uptake_60p) <- c("a_iso","adm_date_60p", "adm_a1d_60p", "adm_fv_60p")
+            uptake_df <- append(uptake_df, list(df))
 
-    colnames(c_uptake_hcw) <- c("a_iso","adm_date_hcw", "adm_a1d_hcw", "adm_fv_hcw")
+    }
 
-    # Sort for elderly / 60+, remove target columns & rename
-    c_uptake_60p <- filter(c_uptake_target, target_group == "OLDER_60")
-    c_uptake_60p <- select(c_uptake_60p, -"target_group")
-
-    colnames(c_uptake_60p) <- c("a_iso","adm_date_60p", "adm_a1d_60p", "adm_fv_60p")
+    # Consolidate population uptake gender into a single dataframe
+    uptake_df <- append(uptake_df, list(uptake_target_group))
     
     return(uptake_target_group)
 }
