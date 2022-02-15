@@ -35,22 +35,30 @@ load_population_target_gender <- function() {
 
 # TODO Refactor this section
 transform_population_target_gender <- function(uptake_gender) {
-    # Sort for males, remove target columns & rename
-    c_uptake_male <- filter(c_uptake_gender, gender  == "MALE")
-    c_uptake_male <- select(c_uptake_male, -"gender")
+    data_frame <- list()
 
-    colnames(c_uptake_male) <- c("a_iso","adm_date_gender", "adm_a1d_male", "adm_fv_male")
+    for (gender in c("MALE", "FEMALE")) {
+        if (gender == "MALE") {
+            df <- uptake_gender %>%
+                colnames(df) <- c("a_iso","adm_date_gender", "adm_a1d_male", "adm_fv_male")
+                data_frame <- append(data_frame, list(df))
+        }
+        else {
+            df <-uptake_gender %>%
+                colnames(df) <- c("a_iso","adm_a1d_fem", "adm_fv_fem")
+                data_frame <- append(data_frame, list(df))
+            }
 
-    # Sort for females, remove target columns & rename
-    c_uptake_fem <- filter(c_uptake_gender, gender == "FEMALE")
-    c_uptake_fem <- select(c_uptake_fem, -c("gender", "date"))
+    }
 
-    colnames(c_uptake_fem) <- c("a_iso","adm_a1d_fem", "adm_fv_fem")
+    # Consolidate population uptake gender into a single dataframe
+    data_frame <- append(data_frame, list(uptake_gender))
 
-    # Merge dataframes
-    c_uptake_disag <- full_join(c_uptake_hcw, c_uptake_60p, by = "a_iso") %>%
-    full_join(., c_uptake_male, by = "a_iso") %>%
-    full_join(., c_uptake_fem, by = "a_iso")
+    uptake_gender_data <- Reduce(
+        function(x, y) merge(x, y, by = "a_iso", all = TRUE),
+        data_frame
+    )
 
-    return(uptake_gender)
+    return(uptake_gender_data)
+
 }
