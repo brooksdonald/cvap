@@ -118,7 +118,7 @@ transform_sup_rec_product <- function(supply_received) {
     print(" >> Renaming products for visualization...")
 
     supply_received_by_product$product_short <- helper_replace_values_with_map(
-        data = supply_received_by_product$product_short,
+        data = supply_received_by_product$product,
         values = c(
             "Gamaleya - Sputnik V",
             "Bharat - Covaxin",
@@ -155,8 +155,7 @@ transform_sup_rec_product <- function(supply_received) {
             "J&J",
             "Novavax",
             "Unknown"
-        ),
-        na_fill = NA_character_
+        )
     )
 
     colnames(supply_received_by_product) <-

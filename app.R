@@ -10,5 +10,8 @@ source("src/helpers/joins.r")
 source("src/helpers/transformations.r")
 
 source("src/supply/run_supply.r")
+# source("src/entity/run_entity.r")
 
-e <- run_supply()
+supply_env <- run_supply()
+
+# entity_env <- run_entity()
