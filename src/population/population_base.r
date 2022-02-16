@@ -2,7 +2,7 @@
 load_base_population <- function() {
     print(" >> Loading base population data...")
     base_population <- data.frame(
-        read_excel("data/input/static/base_population.xlsx",
+        read_excel("data/_input/static/base_population.xlsx",
             sheet = "base_population"
         )
     )
@@ -67,10 +67,10 @@ transform_base_population <- function(base_population, population_hcw) {
         data_frames <- append(data_frames, list(df))
     }
 
-    for (gender in c("MALE", "FEMALE")) {
+    for (g in c("MALE", "FEMALE")) {
         df <- base_population %>%
             filter(
-                gender == "MALE" & age_group == "ALL"
+                gender == g & age_group == "ALL"
             ) %>%
             group_by(a_iso) %>%
             summarize_at("value",
@@ -78,7 +78,7 @@ transform_base_population <- function(base_population, population_hcw) {
                 na.rm = TRUE
             )
 
-        colnames(df) <- c("a_iso", paste("a_pop", tolower(gender)))
+        colnames(df) <- c("a_iso", paste("a_pop", tolower(g)))
         data_frames <- append(data_frames, list(df))
     }
 
