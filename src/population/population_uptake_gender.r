@@ -33,7 +33,7 @@ load_population_target_gender <- function() {
         return(uptake_gender)
 }
 
-# TODO Refactor this section
+# TODO Check on this Refactor.
 transform_population_target_gender <- function(uptake_gender, uptake_target_group) {
     data_frame <- list()
 
@@ -42,14 +42,8 @@ transform_population_target_gender <- function(uptake_gender, uptake_target_grou
             filter(
                 gender == "MALE"
             )
-            colnames(df) <- c("a_iso","adm_date_gender", "adm_a1d_male", "adm_fv_male")
-            data_frame <- append(data_frame, list(df))
-
-        df <-uptake_gender %>%
-            filter(
-                gender == "FEMALE"
-            )
-            colnames(df) <- c("a_iso","adm_a1d_fem", "adm_fv_fem")
+            #TODO Find a way to remove "adm_date_gender" from gender == "FEMALE"
+            colnames(df) <- c("a_iso","adm_date_gender", paste("adm_a1d", "adm_fv", tolower(gender)))
             data_frame <- append(data_frame, list(df))
         
 

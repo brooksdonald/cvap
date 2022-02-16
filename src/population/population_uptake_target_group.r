@@ -39,28 +39,18 @@ load_population_target_groups <- function() {
 transform_population_target_groups <- function(uptake_target_group) {
     uptake_df <- list()
 
-    # Sort for healthcare workers, remove target columns & rename
+    # Sort for healthcare workers, remove target columns
+    print(" >> Sorting for healthcare workers and removing target columns...")
     for (target_group in c("HW", "OLDER_60")) {
         df <- uptake_target_group %>%
             filter(
                 target_group == "HW"
             )%>%
-            select(
-                uptake_target_group,
-                -"target_group"
+            select(all_of(
+                uptake_target_group
+                )
             )
-            colnames(c_uptake_hcw) <- c("a_iso","adm_date_hcw", "adm_a1d_hcw", "adm_fv_hcw")
-            uptake_df <- append(uptake_df, list(df))
-        
-        df <- uptake_target_group %>%
-            filter(
-                target_group == "OLDER_60"
-            )%>%
-            select(
-                uptake_target_group,
-                -"target_group"
-            )
-            colnames(c_uptake_60p) <- c("a_iso","adm_date_60p", "adm_a1d_60p", "adm_fv_60p")
+            colnames(uptake_target_group) <- c("a_iso", paste("adm_date", "adm_a1d", "adm_fv", tolower(target_group)))
             uptake_df <- append(uptake_df, list(df))
 
     }
