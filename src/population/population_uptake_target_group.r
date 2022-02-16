@@ -35,7 +35,7 @@ load_population_target_groups <- function() {
 
 }
 
-#TODO Refactor this section 
+#TODO Refactor this section - should I use subset() instead?
 transform_population_target_groups <- function(uptake_target_group) {
     uptake_df <- list()
 
@@ -54,7 +54,7 @@ transform_population_target_groups <- function(uptake_target_group) {
             uptake_df <- append(uptake_df, list(df))
 
     }
-
+    
     # Consolidate population uptake gender into a single dataframe
     uptake_df <- append(uptake_df, list(uptake_target_group))
     
