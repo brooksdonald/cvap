@@ -2,7 +2,7 @@
 load_population_hcw <- function() {
     print(" >> Loading base hcw data...")
     population_hcw <- data.frame(
-        read_excel("data/input/static/base_hcw population.xlsx",
+        read_excel("data/_input/static/base_hcw population.xlsx",
             sheet = "base_hcw"
         )
     )
