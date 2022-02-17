@@ -9,3 +9,4 @@ data/output/*
 */*/.RData
 */*/.RHistory
 debug.r
+covid19_vaccination_analysis.R
