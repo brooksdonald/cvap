@@ -111,21 +111,24 @@ load_conc_supp_list <- function() {
 
 transform_base_smartsheet <- function(b_smartsheet) {
     ## Rename expiry risk
-    c_smartsheet_red <- c_smartsheet_red %>%
-    mutate(expiry_risk = if_else(
-        expiry_risk == "Red",
-        "Doses at risk",
-        if_else(
-        expiry_risk == "Yellow",
-        "Doses under observation",
-        if_else(expiry_risk == "Green", "No doses at risk",
-                "Unknown")
+    print(" >> Renaming expiry risk...")
+    b_smartsheet$expiry_risk <- helper_replace_values_with_map(
+        data = b_smartsheet$expiry_risk,
+        values = c(
+            "Red",
+            "Yellow",
+            "Green"
+        ),
+        map = c(
+            "Doses at risk",
+            "Doses under observation",
+            "No doses at risk", "Unknown"
         )
-    ))
+    )
 
     ## Change country target field type to date
-    c_smartsheet_red$ndvp_deadline <-
-    as.Date(c_smartsheet_red$ndvp_deadline)
+    b_smartsheet$ndvp_deadline <-
+    as.Date(b_smartsheet$ndvp_deadline)
 
     return(b_smartsheet)
 
