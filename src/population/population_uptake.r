@@ -1,19 +1,4 @@
 
-# TODO REMOVE THIS FUNCTION WHEN MERGE TO MAIN
-helper_tr_add_suffix_to_list <- function(l, suffix) {
-    return(sprintf(paste0("%s", suffix), l))
-}
-
-helper_join_dataframe_list <- function(l, join_by, allx = TRUE, ally = FALSE) {
-    join <- Reduce(
-        function(x, y) merge(x, y, by = join_by, all.x = allx, all.y = ally),
-        l
-    )
-
-    return(join)
-}
-
-
 load_population_uptake <- function() {
     print(" >> Load target groups and gender...")
     uptake_gender <- load_pop_target_gender()
@@ -111,7 +96,6 @@ load_pop_target_groups <- function() {
     return(uptake_target_group)
 }
 
-# TODO Check on this Refactor.
 transform_pop_target_gender <- function(uptake_gender) {
     print(" >>> Transforming gender df...")
     data_frames <- list()
@@ -133,7 +117,7 @@ transform_pop_target_gender <- function(uptake_gender) {
     return(data_frames)
 }
 
-# TODO Refactor this section - should I use subset() instead?
+
 transform_pop_target_groups <- function(uptake_target_group) {
     print(" >>> Transforming groups df...")
     uptake_df <- list()
@@ -160,3 +144,4 @@ transform_pop_target_groups <- function(uptake_target_group) {
 
     return(uptake_df)
 }
+
