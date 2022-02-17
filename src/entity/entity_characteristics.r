@@ -1,8 +1,8 @@
 
-load_entity_characteristics <- function() {
+load_entity_chars <- function() {
     print(" >> Loading entity characteristics data...")
     entity_details <- data.frame(
-        read_excel("input/static/base_entitydetails.xlsx",
+        read_excel("data/_input/static/base_entitydetails.xlsx",
             sheet = "data"
         )
     )
@@ -38,59 +38,39 @@ load_entity_characteristics <- function() {
         "a_covax_status",
         "a_income_group"
     )
+    # TODO should we drop NA here since some rows are blank and we are populating it with Other later?
 
     return(entity_details)
 }
 
 
-
-transform_entity_characteristics <- function(entity_characteristics) {
+transform_entity_chars <- function(entity_characteristics) {
     print(" >> Rework WHO region...")
-    # TODO map entities with a hash/dict and map them to data.frame
-    entity_characteristics <- entity_characteristics %>%
-        mutate(a_who_region = if_else(
-            a_who_region == "AMRO",
-            "AMR",
-            if_else(
-                a_who_region == "AFRO",
-                "AFR",
-                if_else(
-                    a_who_region == "EMRO",
-                    "EMR",
-                    if_else(
-                        a_who_region == "EURO",
-                        "EUR",
-                        if_else(
-                            a_who_region == "SEARO",
-                            "SEAR",
-                            if_else(a_who_region == "WPRO", "WPR",
-                                "Other"
-                            )
-                        )
-                    )
-                )
-            )
-        ))
 
+    entity_characteristics$a_who_region <- helper_replace_values_with_map(
+        data = entity_characteristics$a_who_region,
+        values = c("AMRO", "AFRO", "EMRO", "EURO", "SEARO", "WPRO"),
+        map = c("AMR", "AFR", "EMR", "EUR", "SEAR", "WPR"),
+        na_fill = "Other"
+    )
 
-    # TODO map income with hash and to the dataframes
     print(" >> Rework WHO income levels...")
+
+    # Fix high-income inconsistent spelling
     entity_characteristics <- entity_characteristics %>%
-        mutate(a_income_group = if_else(
-            grepl("High income", a_income_group),
-            "HIC",
-            if_else(
-                a_income_group == "Upper middle income",
-                "UMIC",
-                if_else(
-                    a_income_group == "Lower middle income",
-                    "LMIC",
-                    if_else(a_income_group == "Low income", "LIC",
-                        "Other"
-                    )
-                )
-            )
+        mutate(a_income_group = if_else(grepl("High income", a_income_group),
+            "High income", a_income_group
         ))
+
+    entity_characteristics$a_income_group <- helper_replace_values_with_map(
+        data = entity_characteristics$a_income_group,
+        values = c(
+            "High income", "Upper middle income",
+            "Lower middle income", "Low income"
+        ),
+        map = c("HIC", "UMIC", "LMIC", "LIC"),
+        na_fill = "Other"
+    )
 
     return(entity_characteristics)
 }

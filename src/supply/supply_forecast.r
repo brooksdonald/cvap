@@ -52,16 +52,16 @@ transform_supply_forecast <- function(supply_forecast) {
         date <- dataset_dates[index]
         month_string <- tolower(format(date, "%b"))
         monthly_set <- filter(supply_forecast, month == date)
-        total_column <- paste("sec_cum_total", month_string, sep = "_")
+        total_column <- paste0("sec_cum_total_", month_string)
         colnames(monthly_set) <- c(
             "iso",
             "date",
             total_column,
-            paste("sec_bilat", month_string, sep = "_"),
-            paste("sec_donat", month_string, sep = "_"),
-            paste("sec_covax", month_string, sep = "_"),
-            paste("sec_avat", month_string, sep = "_"),
-            paste("sec_unknown", month_string, sep = "_")
+            paste0("sec_bilat_", month_string),
+            paste0("sec_donat_", month_string),
+            paste0("sec_covax_", month_string),
+            paste0("sec_avat_", month_string),
+            paste0("sec_unknown_", month_string)
         )
         forecasts_monthly <- append(forecasts_monthly, list(monthly_set))
         totals_column_names <- c(
@@ -70,10 +70,9 @@ transform_supply_forecast <- function(supply_forecast) {
         )
     }
     print(" >> Joining forecasted data...")
-    supply_forecast_join <- Reduce(
-        function(x, y) merge(x, y, by = "iso", all.x = TRUE),
-        forecasts_monthly
-    )
+    supply_forecast_join <- helper_join_dataframe_list(
+            forecasts_monthly, join_by = "iso")
+
 
     supply_forecast_total <- select(
         supply_forecast_join,
