@@ -11,6 +11,6 @@ To resolve languageserver installation issues, just run
 
 
 
-## Contrinbuting
+## Contributing
 
 # This pipeline is leveraging local environments to create clean and consice analysis
