@@ -49,5 +49,4 @@ run_population <- function(env = new.env()) {
     return(environment())
 }
 
-run_population(env = .GlobalEnv)
 

@@ -31,21 +31,17 @@ load_base_population <- function() {
     return(base_population)
 }
 
-# Creating a function to add a the character "Y" to the list
-add_char_to_list <- function(l, char = "Y") {
-    return(sprintf(paste0(char, "%s"), l))
-}
-
 transform_base_population <- function(base_population, population_hcw) {
     print(" >> Segregating the different age groups...")
     age_range12 <- (12:100)
     age_range18 <- (18:100)
     age_range60 <- (60:100)
 
+
     # adding "Y" to the age ranges to match the
-    a_pop_12p <- add_char_to_list(age_range12)
-    a_pop_18p <- add_char_to_list(age_range18)
-    a_pop_60p <- add_char_to_list(age_range60)
+    a_pop_12p <- helper_add_char_to_list(age_range12)
+    a_pop_18p <- helper_add_char_to_list(age_range18)
+    a_pop_60p <- helper_add_char_to_list(age_range60)
 
     print(a_pop_12p)
     print(a_pop_18p)
@@ -78,7 +74,7 @@ transform_base_population <- function(base_population, population_hcw) {
                 na.rm = TRUE
             )
 
-        colnames(df) <- c("a_iso", paste("a_pop", tolower(g)))
+        colnames(df) <- c("a_iso", paste("a_pop", sep="_", tolower(g)))
         data_frames <- append(data_frames, list(df))
     }
 

@@ -122,7 +122,7 @@ transform_base_smartsheet <- function(b_smartsheet) {
         map = c(
             "Doses at risk",
             "Doses under observation",
-            "No doses at risk", "Unknown"
+            "No doses at risk"
         )
     )
 

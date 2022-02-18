@@ -18,3 +18,7 @@ helper_replace_values_with_map <- function(data, values, map, na_fill = "") {
 
     return(data)
 }
+
+helper_add_char_to_list<- function(l, char = "Y") {
+    return(sprintf(paste0(char, "%s"), l))
+}
