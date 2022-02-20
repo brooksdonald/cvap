@@ -11,6 +11,7 @@ transform_base_data <- function(b_smartsheet) {
     print(" >> Transform Load base smartsheet...")
     b_smartsheet <- transform_base_smartsheet(b_smartsheet)
     
+    return(b_smartsheet)
 }
 
 # Loading base smartsheet data

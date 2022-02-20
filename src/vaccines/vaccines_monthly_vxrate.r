@@ -11,13 +11,12 @@ load_monthly_vxrate <- function() {
 }
 
 transform_monthly_vxrate <- function(last_week, last_month, last_2month) {
-    print(" >> Transform last_week, last_month, last_2month")
+    print(" >> Transform last_week, last_month, last_2month...")
     last_week <- transform_lw_data()
     last_month <- transform_lm_data()
     last_2month <- transform_l2m_data()
 
-    #TODO CHECK POP_UPTAKE. DOes it need an output and df_to_append?
-    return()
+    return(list(last_week, last_month, last_2month))
 }
 
 load_lw_data <- function() {
@@ -36,9 +35,9 @@ load_lw_data <- function() {
         b_vxrate_lw_sum,
         c(
             "iso_code",
-        "rolling_4_week_avg_td",
-        "rolling_4_week_avg_td_lastmonth",
-        "fully_vaccinated"
+            "rolling_4_week_avg_td",
+            "rolling_4_week_avg_td_lastmonth",
+            "fully_vaccinated"
         )
     )
     
@@ -50,7 +49,7 @@ load_lw_data <- function() {
         "adm_fv_lw"
     )
 
-  return() # TODO Add what is to be returned
+  return(b_vxrate_lw_sum) 
 
 }
 
@@ -84,7 +83,7 @@ load_lm_data <- function() {
         "adm_booster_lm"
     )
 
-    return() #TODO Include what is to be returned
+    return(b_vxrate_lm_sum) 
 
 }
 
@@ -118,69 +117,70 @@ load_l2m_data <- function() {
         "adm_a1d_2m"
     )
 
-    return() # TODO iNCLUDE What is to be returned
+    return(b_vxrate_2m_sum) 
     
 }
 
 transform_lw_data <- function(last_week) {
     print(" >> Transform last week data...")
     ## Calculate percent change and category
-b_vxrate_change_lw <- b_vxrate_lw_sum %>%
-  mutate(dvr_4wk_td_change_lw_lm = dvr_4wk_td_lw - dvr_4wk_td_lw_lm) %>%
-  
-  mutate(dvr_4wk_td_change_lw_lm_per = dvr_4wk_td_change_lw_lm / dvr_4wk_td_lw_lm) %>%
-  
-  mutate(
-    dvr_4wk_td_change_lw_lm_per_cat = if_else(
-      dvr_4wk_td_change_lw_lm_per <= -0.25,
-      "1) < (-25)%",
-      if_else(
-        dvr_4wk_td_change_lw_lm_per >= 0.25,
-        "4) > 25%",
-        if_else(
-          dvr_4wk_td_change_lw_lm_per <= 0,
-          "2) (-25)-0%",
-          if_else(dvr_4wk_td_change_lw_lm_per > 0, "3) 0-25%",
-                  NA_character_)
+    b_vxrate_change_lw <- b_vxrate_lw_sum %>%
+        mutate(dvr_4wk_td_change_lw_lm = dvr_4wk_td_lw - dvr_4wk_td_lw_lm) %>%
+            mutate(dvr_4wk_td_change_lw_lm_per = dvr_4wk_td_change_lw_lm / dvr_4wk_td_lw_lm) %>%
+                mutate(
+                    dvr_4wk_td_change_lw_lm_per_cat = if_else(
+                        dvr_4wk_td_change_lw_lm_per <= -0.25,
+                        "1) < (-25)%",
+                        if_else(
+                            dvr_4wk_td_change_lw_lm_per >= 0.25,
+                            "4) > 25%",
+                            if_else(
+                                dvr_4wk_td_change_lw_lm_per <= 0,
+                                "2) (-25)-0%",
+                                if_else(dvr_4wk_td_change_lw_lm_per > 0, "3) 0-25%",
+                                NA_character_
+                            )
+                        )
+                    )
+                )
+            )
+
+
+    ## Select relevant columns for dvr category count change table
+    b_vxrate_change_lw <- 
+        select(
+            b_vxrate_change_lw,
+            "a_iso",
+            "dvr_4wk_td_change_lw_lm_per_cat"
         )
-      )
-    )
-  )
 
+    ## Select relevant columns for coverage category count change table
+    b_vxrate_cov <- select(b_vxrate_lw_sum, "a_iso", "adm_fv_lw")
 
-## Select relevant columns for dvr category count change table
-b_vxrate_change_lw <-
-  select(b_vxrate_change_lw,
-         "a_iso",
-         "dvr_4wk_td_change_lw_lm_per_cat")
+    c_vxrate_latest <- 
+    left_join(c_vxrate_latest, b_vxrate_cov, by = "a_iso")
 
-## Select relevant columns for coverage category count change table
-b_vxrate_cov <- select(b_vxrate_lw_sum, "a_iso", "adm_fv_lw")
-
-c_vxrate_latest <-
-  left_join(c_vxrate_latest, b_vxrate_cov, by = "a_iso")
-
-  return() #TODO Include what is to be returned
+    return(c_vxrate_latest) 
 
 }
 
 transform_lm_data <- function(last_month) {
     print(" >> Transform last month data...")
     ## Merge with current summary dataset
-c_vxrate_latest <-
-  left_join(c_vxrate_latest, b_vxrate_lm_sum, by = "a_iso")
-
-  return() # TODO Iclude what is to be returned
+    c_vxrate_latest <- 
+    left_join(c_vxrate_latest, b_vxrate_lm_sum, by = "a_iso")
+    
+    return(c_vxrate_latest) 
 
 }
 
 transform_l2m_data <- function(last_2month) {
     print(" >> Transform last two months data...")
     ## Merge with current summary dataset
-c_vxrate_latest <-
-  left_join(c_vxrate_latest, b_vxrate_2m_sum, by = "a_iso")
-
-  return() # TODO Iclude what is to be returned
+    c_vxrate_latest <- 
+    left_join(c_vxrate_latest, b_vxrate_2m_sum, by = "a_iso")
+    
+    return(c_vxrate_latest) 
 
 
 }
