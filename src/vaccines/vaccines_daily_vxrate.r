@@ -1,10 +1,10 @@
 
 # load current daily vxrate
-load_b_vxrate <- function {
+load_b_vxrate <- function() {
     print(" >> Loading current daily vaccination rate...")
     b_vxrate <-
         data.frame(
-            read_excel("input/base_dvr_current.xlsx",
+            read_excel("data/_input/base_dvr_current.xlsx",
             sheet = "data"
         )
     )
@@ -58,7 +58,7 @@ transform_b_vxrate <- function(b_vxrate) {
     
     ## Add entity base data
     ### Import entity_details from entity base data
-    source("src/entity/entity_characteristics.r")
+    source("src/entity/entity_characteristics.r", local=TRUE)
     b_vxrate <- left_join(b_vxrate, entity_details, by = "a_iso")
     
     ## Add year, month, and week numbers

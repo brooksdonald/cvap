@@ -1,23 +1,3 @@
-# Load lw, lm, and 2m daily vxrate datasets
-
-load_monthly_vxrate <- function() {
-    print(" >> Load last week, last month, last two month...")
-    last_week <- load_lw_data()
-    last_month <- load_lm_data()
-    last_2month <- load_l2m_data()
-
-    return(list(last_week, last_month, last_2month))
-
-}
-
-transform_monthly_vxrate <- function(last_week, last_month, last_2month) {
-    print(" >> Transform last_week, last_month, last_2month...")
-    last_week <- transform_lw_data()
-    last_month <- transform_lm_data()
-    last_2month <- transform_l2m_data()
-
-    return(list(last_week, last_month, last_2month))
-}
 
 load_lw_data <- function() {
     print(" >> Loading last week dataset...")
@@ -57,7 +37,7 @@ load_lm_data <- function() {
     print(" >> Loading last month dataset...")
     b_vxrate_lm_sum <- data.frame(
         read_excel(
-            "input/base_dvr_lastmonth.xlsx",
+            "data/_input/base_dvr_lastmonth.xlsx",
             sheet = "data_summary"
         )
     )
@@ -91,7 +71,7 @@ load_l2m_data <- function() {
     print(" >> Loading last two month dataset...")
     b_vxrate_2m_sum <- data.frame(
         read_excel(
-            "input/base_dvr_twomonth.xlsx",
+            "data/_input/base_dvr_twomonth.xlsx",
             sheet = "data_summary"
         )
     )
@@ -121,7 +101,7 @@ load_l2m_data <- function() {
     
 }
 
-transform_lw_data <- function(last_week) {
+transform_lw_data <- function(b_vxrate_lw_sum) {
     print(" >> Transform last week data...")
     ## Calculate percent change and category
     b_vxrate_change_lw <- b_vxrate_lw_sum %>%
@@ -164,7 +144,7 @@ transform_lw_data <- function(last_week) {
 
 }
 
-transform_lm_data <- function(last_month) {
+transform_lm_data <- function(b_vxrate_lm_sum) {
     print(" >> Transform last month data...")
     ## Merge with current summary dataset
     c_vxrate_latest <- 
@@ -174,7 +154,7 @@ transform_lm_data <- function(last_month) {
 
 }
 
-transform_l2m_data <- function(last_2month) {
+transform_l2m_data <- function(b_vxrate_2m_sum) {
     print(" >> Transform last two months data...")
     ## Merge with current summary dataset
     c_vxrate_latest <- 
