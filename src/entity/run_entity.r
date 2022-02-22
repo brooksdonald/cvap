@@ -3,17 +3,17 @@
 
 source("src/entity/entity_characteristics.r")
 
-run_entity <- function(local = new.env()) {
+run_entity <- function(env = .GlobalEnv) {
     print(" > Loading entity characteristics data...")
     ec <- load_entity_chars()
     print(" > Done.")
+    
     print(" > Transforming entity characteristics data...")
-    local$entity_characteristis <- transform_entity_chars(ec)
+    entity_characteristics <- transform_entity_chars(ec)
     print(" > Done.")
 
-    .GlobalEnv$entity_characteristics <- local$entity_characteristics
+    print(" > Loading entity_characteristics data back to global environment...")
+    env$entity_characteristics <- entity_characteristics
 
-    return(local)
+    return(environment())
 }
-
-run_entity()

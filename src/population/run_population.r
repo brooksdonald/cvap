@@ -15,7 +15,7 @@ source("src/population/population_hcw.r")
 source("src/population/population_uptake.r")
 
 
-run_population <- function(env = new.env()) {
+run_population <- function(env = .GlobalEnv) {
     print(" > Starting local environment for base population")
 
     print(" > Population healthcare workers...")

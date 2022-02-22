@@ -50,16 +50,15 @@ load_b_vxrate <- function() {
 
 }
 
-transform_b_vxrate <- function(b_vxrate) {
+
+transform_current_vxrate <- function(b_vxrate, entity_characteristics) {
     print(" >> Transforming current vxrate...")
     
     ## Change population field type to numeric
     b_vxrate$a_pop <- as.numeric(b_vxrate$a_pop)
     
     ## Add entity base data
-    ### Import entity_details from entity base data
-    source("src/entity/entity_characteristics.r", local=TRUE)
-    b_vxrate <- left_join(b_vxrate, entity_details, by = "a_iso")
+    b_vxrate <- left_join(b_vxrate, entity_characteristics, by = "a_iso")
     
     ## Add year, month, and week numbers
     b_vxrate <- b_vxrate %>%
@@ -155,7 +154,8 @@ transform_b_vxrate <- function(b_vxrate) {
 }
 
 ## Create clean long form subsets and select relevant columns
-transform_subset_b_vxrate_pub <- function(b_vxrate) {
+# TODO Change the name of this function
+transform_current_vxrate_pub <- function(b_vxrate) {
   print(" >> Create clean long form subsets for b_vxrate_pub")
   b_vxrate_pub <- 
     select(
@@ -184,7 +184,8 @@ transform_subset_b_vxrate_pub <- function(b_vxrate) {
 
 }
 
-transform_subset_b_vxrate_amc <- function(b_vxrate) {
+# TODO Check if this needs to be refactor. It produces something different from function above
+transform_subset_amc <- function(b_vxrate) {
   print(" >> Create clean long form subsets for b_vxrate_amc")
   b_vxrate_amc <- filter(b_vxrate, a_covax_status == "AMC")
   b_vxrate_amc <- 

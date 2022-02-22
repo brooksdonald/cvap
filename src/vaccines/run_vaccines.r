@@ -3,14 +3,14 @@
 source("src/vaccines/vaccines_daily_vxrate.r")
 source("src/vaccines/vaccines_monthly_vxrate.r")
 
-run_vaccines <- function(env = new.env()) {
+run_vaccines <- function(entity_characteristics, env = .GlobalEnv) {
     print(" > Starting local environment for vaccinations")
 
     print(" > Daily current vaccinations")
     b_vxrate <- load_b_vxrate()
-    b_vxrate <- transform_b_vxrate(b_vxrate)
-    b_vxrate_pub <- transform_subset_b_vxrate_pub(b_vxrate_pub)
-    b_vxrate_amc <- transform_subset_b_vxrate_amc(b_vxrate_amc)
+    b_vxrate <- transform_current_vxrate(b_vxrate)
+    b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate) # TODO I've passed b_vxrate and removed b_vxrate_pub. Should it be?
+    b_vxrate_amc <- transform_subset_amc(b_vxrate) # TODO I've passed b_vxrate and removed b_vxrate_amc. Should it be?
     c_vxrate_sept <- transform_sept21_pop_tgt(c_vxrate_sept)
     c_vxrate_dec <- transform_dec21_pop_tgt(c_vxrate_dec)
     c_vxrate_eom <- transform_abspt_by_month(c_vxrate_eom)
