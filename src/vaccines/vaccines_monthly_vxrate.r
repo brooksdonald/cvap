@@ -3,7 +3,7 @@ load_lw_data <- function() {
     print(" >> Loading last week dataset...")
     b_vxrate_lw_sum <-data.frame(
         read_excel(
-            "input/base_dvr_lastweek.xlsx",
+            "data/_input/base_dvr_lastweek.xlsx",
             sheet = "data_summary"
         )
     )
@@ -101,7 +101,7 @@ load_l2m_data <- function() {
     
 }
 
-transform_lw_data <- function(b_vxrate_lw_sum) {
+transform_lw_data <- function(b_vxrate_lw_sum, c_vxrate_latest) {
     print(" >> Transform last week data...")
     ## Calculate percent change and category
     b_vxrate_change_lw <- b_vxrate_lw_sum %>%
@@ -144,7 +144,7 @@ transform_lw_data <- function(b_vxrate_lw_sum) {
 
 }
 
-transform_lm_data <- function(b_vxrate_lm_sum) {
+transform_lm_data <- function(b_vxrate_lm_sum, c_vxrate_latest) {
     print(" >> Transform last month data...")
     ## Merge with current summary dataset
     c_vxrate_latest <- 
@@ -154,7 +154,7 @@ transform_lm_data <- function(b_vxrate_lm_sum) {
 
 }
 
-transform_l2m_data <- function(b_vxrate_2m_sum) {
+transform_l2m_data <- function(c_vxrate_latest, b_vxrate_2m_sum) {
     print(" >> Transform last two months data...")
     ## Merge with current summary dataset
     c_vxrate_latest <- 
@@ -164,3 +164,4 @@ transform_l2m_data <- function(b_vxrate_2m_sum) {
 
 
 }
+

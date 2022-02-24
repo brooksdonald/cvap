@@ -5,7 +5,8 @@ source("eda/vxrate/vxrate_consolidate.r")
 run_vxrate <- function(env = .GlobalEnv) {
     print(" > Starting local environment for coverage tartget groups...")
     print(" >  Extracting consolidated vxrate summary...")
-    c_vxrate_latest_red <- extract_vxrate_details()
+
+    c_vxrate_latest_red <- extract_vxrate_details(c_vxrate_latest)
     print(" > Done.")
 
     print(" > Merging dataframes")

@@ -1,3 +1,5 @@
+# rows 2169 - 2254
+
 source("src/supply/supply_secured.r")
 source("src/supply/supply_received.r")
 source("eda/supplies/supplies_consolidate.r")

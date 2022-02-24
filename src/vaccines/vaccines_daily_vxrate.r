@@ -475,7 +475,7 @@ absorption_sum_by_month <- function(c_vxrate_eom) {
   return(d_absorption)
 }
 
-latest_sum_table <- function(b_vxrate) {
+latest_sum_table <- function(b_vxrate, c_vxrate_latest) {
   print(" >> Create latest value summary table...")
   c_vxrate_latest <- filter(b_vxrate, adm_latest == "Yes")
 
