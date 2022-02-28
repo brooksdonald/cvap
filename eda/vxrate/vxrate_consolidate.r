@@ -22,7 +22,7 @@ extract_vxrate_details <- function(c_vxrate_latest) {
 merge_dataframes <- function(entity_characteristics, c_vxrate_latest_red, population_data, uptake_gender_data, b_who_dashboard) {
   # Merge details, latest vxrate summary, population, target group admin. dataframes
   a_data <-
-    left_join(b_details_red, c_vxrate_latest_red, by = "a_iso") %>%
+    left_join(entity_characteristics, c_vxrate_latest_red, by = "a_iso") %>%
     left_join(., population_data) %>%
     left_join(., uptake_gender_data)
 
@@ -65,16 +65,16 @@ transform_vxrate_merge <- function(a_data) {
     mutate(adm_fv_homo = if_else(
       adm_a1d == 0 & adm_fv == 0 & adm_booster == 0, (adm_td / 2),
       if_else(adm_a1d == 0 & adm_fv == 0 & adm_booster != 0, ((adm_td - adm_booster)/ 2),
-              if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster == 0, (adm_td - adm_a1d),
-                      if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster != 0, (adm_td - adm_a1d - adm_booster),
-                              (adm_fv)))))) %>%
-    
-    mutate(adm_fv_lm_homo = if_else(
-      adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm == 0, (adm_td_lm / 2),
-      if_else(adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm != 0, ((adm_td_lm - adm_booster_lm)/ 2),
-              if_else(adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm == 0, (adm_td_lm - adm_a1d_lm),
-                      if_else(adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm != 0, (adm_td_lm - adm_a1d_lm - adm_booster_lm),
-                              (adm_fv_lm)))))) %>%
+        if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster == 0, (adm_td - adm_a1d),
+          if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster != 0, (adm_td - adm_a1d - adm_booster),
+            (adm_fv)))))) %>%
+            
+            mutate(adm_fv_lm_homo = if_else(
+              adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm == 0, (adm_td_lm / 2),
+                if_else(adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm != 0, ((adm_td_lm - adm_booster_lm)/ 2),
+                  if_else(adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm == 0, (adm_td_lm - adm_a1d_lm),
+                    if_else(adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm != 0, (adm_td_lm - adm_a1d_lm - adm_booster_lm),
+                      (adm_fv_lm)))))) %>%
     
     mutate(adm_fv_2m_homo = if_else(
       adm_a1d_2m == 0 & adm_fv_2m == 0, (adm_td_2m / 2),

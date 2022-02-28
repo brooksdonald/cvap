@@ -29,7 +29,7 @@ run_vaccines <- function(env = .GlobalEnv) {
 
     print(" > Last month's data")
     b_vxrate_lm_sum <- load_lm_data()
-    b_vxrate_lm_sum <- transform_lm_data(b_vxrate_lm_sum, c_vxrate_latest)
+    b_vxrate_lm_sum <- transform_lm_data(c_vxrate_latest, b_vxrate_lm_sum)
     print(" > Done.")
 
 

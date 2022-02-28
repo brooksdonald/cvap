@@ -1,12 +1,41 @@
 # rows 1723 - 1972
 
 source("eda/vxrate/vxrate_consolidate.r")
+source("src/population/run_population.r")
+source("src/population/population_base.r")
+source("src/base/base_smartsheet.r")
+source("src/vaccines/vaccines_daily_vxrate.r")
+source("src/vaccines/vaccines_monthly_vxrate.r")
 
 run_vxrate <- function(env = .GlobalEnv) {
     print(" > Starting local environment for coverage tartget groups...")
-    print(" >  Extracting consolidated vxrate summary...")
+    print(" > Obtaining entity-characteristics details")
+    ec <- load_entity_chars()
+    print(" > Done.")
 
+    print(" >  Extracting consolidated vxrate summary...")
     c_vxrate_latest_red <- extract_vxrate_details(c_vxrate_latest)
+    print(" > Done.")
+
+    print(" > Obtaining data on population...")
+    population_hcw <- load_population_hcw()
+
+    population_hcw <- transform_population_hcw(
+        population_hcw
+    )
+    population_base <- load_base_population()
+    population_data <- transform_base_population(
+        population_base, population_hcw
+    )
+    datalist <- load_population_uptake()
+    uptake_gender_data <- transform_population_uptake(
+        as.data.frame(datalist[1]),
+        as.data.frame(datalist[2])
+    )
+    print(" > Done.")
+
+    print(" > Obtaining WHO Dashboard...")
+    b_who_dashboard <- load_who_dashboard()
     print(" > Done.")
 
     print(" > Merging dataframes")

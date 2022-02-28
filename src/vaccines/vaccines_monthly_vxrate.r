@@ -1,3 +1,4 @@
+library("readxl")
 
 load_lw_data <- function() {
     print(" >> Loading last week dataset...")
@@ -55,7 +56,8 @@ load_lm_data <- function() {
     )
 
     print(" >> Renaming columns...")
-    colnames(b_vxrate_lm_sum) <- c(
+    colnames(b_vxrate_lm_sum) <- 
+    c(
         "a_iso", 
         "adm_td_lm", 
         "adm_fv_lm",
@@ -144,7 +146,7 @@ transform_lw_data <- function(b_vxrate_lw_sum, c_vxrate_latest) {
 
 }
 
-transform_lm_data <- function(b_vxrate_lm_sum, c_vxrate_latest) {
+transform_lm_data <- function(c_vxrate_latest, b_vxrate_lm_sum) {
     print(" >> Transform last month data...")
     ## Merge with current summary dataset
     c_vxrate_latest <- 
