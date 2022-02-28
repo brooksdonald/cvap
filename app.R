@@ -7,22 +7,29 @@ library("tidyr")
 library("data.table")
 library("bit64")
 
-source("src/helpers/joins.r")
-source("src/helpers/transformations.r")
 
+# HELPERS
 
-# source("src/supply/run_supply.R")
-# source("src/population/run_population.r")
-# source("src/base/run_base.r")
-source("src/vaccines/run_vaccines.r")
+source("helpers/joins.r")
+source("helpers/transformations.r")
+
+# ETL
+
+source("src/base/run_base.r")
 source("src/entity/run_entity.r")
-source("eda/vxrate/run_vxrate.r")
-# supply_env <- run_supply()
-# pop_env <- run_population()
-# base_env <- run_base()
+source("src/population/run_population.r")
+source("src/supply/run_supply.R")
+source("src/vaccines/run_vaccines.r")
 
+base_env <- run_base()
 entity_env <- run_entity()
-vax_env <- run_vaccines()
-vxrate_env <- run_vxrate()
+pop_env <- run_population()
+supply_env <- run_supply()
+vaccines_env <- run_vaccines(entity_characteristics)
 
-# Pass it in the module!
+# EDA
+
+source("eda/vxrate/run_vxrate.r")
+
+vxrate_env <- run_vxrate(entity_characteristics, population_data, uptake_gender_data, c_vxrate_latest)
+

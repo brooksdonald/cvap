@@ -4,13 +4,11 @@ source("src/vaccines/vaccines_daily_vxrate.r")
 source("src/vaccines/vaccines_monthly_vxrate.r")
 source("src/entity/entity_characteristics.r")
 
-run_vaccines <- function(env = .GlobalEnv) {
+run_vaccines <- function(entity_characteristics, env = .GlobalEnv) {
     print(" > Starting local environment for vaccinations")
 
     print(" > Daily current vaccinations")
     b_vxrate <- load_b_vxrate()
-    ec <- load_entity_chars()
-    entity_characteristics <- transform_entity_chars(ec)
     b_vxrate <- transform_current_vxrate(b_vxrate, entity_characteristics)
     b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate) 
     b_vxrate_amc <- transform_subset_amc(b_vxrate) 
@@ -24,18 +22,18 @@ run_vaccines <- function(env = .GlobalEnv) {
     print(" > Last week, last month and vaccinations")
     print(" > Last week's data")
     b_vxrate_lw_sum <- load_lw_data()
-    b_vxrate_lw_sum <- transform_lw_data(b_vxrate_lw_sum, c_vxrate_latest)
+    c_vxrate_latest <- transform_lw_data(b_vxrate_lw_sum, c_vxrate_latest)
     print(" > Done.")
 
     print(" > Last month's data")
     b_vxrate_lm_sum <- load_lm_data()
-    b_vxrate_lm_sum <- transform_lm_data(c_vxrate_latest, b_vxrate_lm_sum)
+    c_vxrate_latest <- transform_lm_data(c_vxrate_latest, b_vxrate_lm_sum)
     print(" > Done.")
 
 
     print(" > Last 2 months data")
     b_vxrate_2m_sum <- load_l2m_data()
-    b_vxrate_2m_sum <- transform_l2m_data(c_vxrate_latest, b_vxrate_2m_sum)
+    c_vxrate_latest <- transform_l2m_data(c_vxrate_latest, b_vxrate_2m_sum)
 
     print(" > Done.")
 

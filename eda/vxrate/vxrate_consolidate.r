@@ -167,7 +167,7 @@ transform_vxrate_merge <- function(a_data) {
     
     mutate(adm_fv_60p_repstat = if_else(adm_fv_60p > 0, "Reporting", NA_character_)) %>%
     
-    mutate(adm_fv_gen_repstat = if_else(adm_fv_fem > 0, "Reporting", NA_character_))
+    mutate(adm_fv_gen_repstat = if_else(adm_fv_female > 0, "Reporting", NA_character_))
 
 
   # Calculate target group coverage figures
@@ -176,11 +176,11 @@ transform_vxrate_merge <- function(a_data) {
     
     mutate(cov_hcw_fv = if_else((adm_fv_hcw_homo / a_pop_hcw) > 1, 1, (adm_fv_hcw_homo / a_pop_hcw))) %>%
     
-    mutate(adm_fv_gen = adm_fv_male + adm_fv_fem) %>%
+    mutate(adm_fv_gen = adm_fv_male + adm_fv_female) %>%
     
     mutate(cov_total_male_fv = adm_fv_male / a_pop_male) %>%
     
-    mutate(cov_total_fem_fv = adm_fv_fem / a_pop_fem) %>%
+    mutate(cov_total_fem_fv = adm_fv_female / a_pop_female) %>%
     
     mutate(cov_60p_fv = adm_fv_60p / a_pop_60p)
 
