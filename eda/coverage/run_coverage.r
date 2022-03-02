@@ -1,12 +1,10 @@
+# rows 1973 - 2167
 
-source("eda/coverage/coverage_target_groups.r")
-source("eda/vxrate/vxrate_consolidate.r")
+run_coverage <- function(a_data, env = .GlobalEnv) {
+    source("eda/coverage/coverage_target_groups.r")
+    source("eda/vxrate/vxrate_consolidate.r")
 
-run_coverage <- function(env = .GlobalEnv) {
     print(" > Starting local environment for eda coverage module...")
-
-    # print(" > Starting local enviroment for coverage...")
-    # a_data <- load_data()
 
     print(" > 10% target...")
     a_data <- target_group_ten(a_data)
@@ -26,12 +24,7 @@ run_coverage <- function(env = .GlobalEnv) {
 
     print(" > Loading eda coverage data back to global environment...")
     env$a_data <- a_data
-    env$a_data <- a_data
-    env$a_data <- a_data
-    env$a_data <- a_data
-
+  
     return(environment())
 
 }
-
-run_coverage()

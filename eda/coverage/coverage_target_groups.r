@@ -1,5 +1,3 @@
-
-
 target_group_ten <- function(a_data) {
   # Progress against coverage targets
   ## 10% target
@@ -206,9 +204,3 @@ booster_doses <- function(a_data) {
 
   return(a_data) 
 }
-
-
-
-
-
-
