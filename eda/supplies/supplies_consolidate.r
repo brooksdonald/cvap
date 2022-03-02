@@ -1,5 +1,4 @@
-
-merge_a_data_details <- function(a_data, supply_secured, delivery_courses_doeses) {
+merge_a_data_details <- function(a_data, supply_secured, delivery_courses_doses) {
   # Merge supply secured and/or expected data
   a_data <- left_join(a_data, supply_secured, by = c("a_iso" = "iso"))
 
@@ -28,7 +27,8 @@ merge_a_data_details <- function(a_data, supply_secured, delivery_courses_doeses
           )
         )
       )
-    ))
+    )
+  )
 
 
   # Calculate supply secured proportions of totals
@@ -41,7 +41,7 @@ merge_a_data_details <- function(a_data, supply_secured, delivery_courses_doeses
 
 
   # Merge supply received data
-  a_data <- left_join(a_data, delivery_courses_doeses, by = c("a_iso" = "iso"))
+  a_data <- left_join(a_data, delivery_courses_doses, by = c("a_iso" = "iso"))
 
 
   # Calculate delivered courses as percent of population
@@ -91,6 +91,3 @@ merge_a_data_details <- function(a_data, supply_secured, delivery_courses_doeses
 
 
 }
-
-
-
