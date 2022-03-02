@@ -30,6 +30,13 @@ vaccines_env <- run_vaccines(entity_characteristics)
 # EDA
 
 source("eda/vxrate/run_vxrate.r")
+source("eda/supplies/run_supplies.r")
+source("eda/coverage/run_coverage.r")
+source("eda/product/run_product.r")
+
 
 vxrate_env <- run_vxrate(entity_characteristics, population_data, uptake_gender_data, c_vxrate_latest)
-
+supplies_env <- run_eda_supplies(a_data, supply_secured, delivery_courses_doses)
+coverage_env <- run_coverage(a_data)
+product_env <- run_product(a_data, b_smartsheet, b_csl)
+ranking_env <- run_binning(a_data)
