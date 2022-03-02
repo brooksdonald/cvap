@@ -33,10 +33,13 @@ source("eda/vxrate/run_vxrate.r")
 source("eda/supplies/run_supplies.r")
 source("eda/coverage/run_coverage.r")
 source("eda/product/run_product.r")
+source("eda/consolidate/run_consolidate.r")
 
 
 vxrate_env <- run_vxrate(entity_characteristics, population_data, uptake_gender_data, c_vxrate_latest)
 supplies_env <- run_eda_supplies(a_data, supply_secured, delivery_courses_doses)
 coverage_env <- run_coverage(a_data)
-product_env <- run_product(a_data, b_smartsheet, b_csl)
+product_env <- run_product(a_data, base_env$b_smartsheet, base_env$b_csl)
 ranking_env <- run_binning(a_data)
+consolidate_env <- run_consolidate(a_data)
+
