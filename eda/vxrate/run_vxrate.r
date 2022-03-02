@@ -1,9 +1,8 @@
 # rows 1723 - 1972
 
-source("eda/vxrate/vxrate_consolidate.r")
-
-
 run_vxrate <- function(entity_characteristics, population_data, uptake_gender_data, c_vxrate_latest, env = .GlobalEnv) {
+    source("eda/vxrate/vxrate_consolidate.r")
+
     print(" > Starting local environment for coverage tartget groups...")
 
     print(" >  Extracting consolidated vxrate summary...")
