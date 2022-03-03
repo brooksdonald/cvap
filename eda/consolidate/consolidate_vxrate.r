@@ -2,6 +2,7 @@ vxrate <- function(condense_list) {
 
     name_list = list("amc", "africa", "amr", "emr")
 
+    # Daily vaccination rate category and Monthly vaccination rate trend
     df_list_cat = list()
     df_list_trend = list()
 
@@ -15,7 +16,6 @@ vxrate <- function(condense_list) {
         colnames(df_cat) <- c("dvr_cat", paste0("cat_", name))
         df_list_cat = append(df_list_cat, list(df_cat))
 
-
         df_trend <- aggregate(df$a_name_short,
                        list(df$dvr_4wk_td_change_lm_trend),
                        paste,
@@ -25,7 +25,6 @@ vxrate <- function(condense_list) {
         df_list_trend = append(df_list_trend, list(df_trend))
     }
 
-        
 
     
     e_vrcat_all = helper_join_dataframe_list(df_list_cat, join_by="dvr_cat")
@@ -34,8 +33,8 @@ vxrate <- function(condense_list) {
     e_trend_month_emr = helper_join_dataframe_list(df_list_trend, join_by="dvr_trend")
 
 
-     return(list("all" = e_vrcat_all, "trend" = e_trend_month_emr))
-    #return(name_list)
+    return(list("all" = e_vrcat_all, "trend" = e_trend_month_emr))
 
 }
+
 
