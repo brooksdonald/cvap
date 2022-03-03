@@ -15,16 +15,15 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     print(" > Done.")
 
     print(" > Loading eda consolidation data back to global environment...") 
-    env$c_condense <- c_condense
-    env$e_vrcat_all <- e_vrcat_all
-    env$e_trend_all <- e_trend_all
+    env$vrcat_list <- vrcat_list
+    env$e_vrcat_all <- vrcat_list[["all"]]
+    env$e_trend_all <- vrcat_list[["trend"]]
 
     return(environment())
 }
-
 run_consolidate(a_data)
 
-# run_consolidate(a_data, c_condense_amc_exc, c_condense_africa, c_condense_amr, c_condense_emr)
+
 
 
 

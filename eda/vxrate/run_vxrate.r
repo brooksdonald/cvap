@@ -21,7 +21,7 @@ run_vxrate <- function(entity_characteristics, population_data, uptake_gender_da
     a_data <- transform_vxrate_merge(a_data)
     print(" > Done.")
 
-    print(" > Loading consolidated summary data back to global environment...")
+    print(" > Loading consolidated vxrate data back to global environment...")
     env$c_vxrate_latest_red <- c_vxrate_latest_red
     env$a_data <- a_data
 

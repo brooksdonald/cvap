@@ -33,6 +33,7 @@ source("eda/vxrate/run_vxrate.r")
 source("eda/supplies/run_supplies.r")
 source("eda/coverage/run_coverage.r")
 source("eda/product/run_product.r")
+source("eda/rank-bin/run_rank_bin.r")
 source("eda/consolidate/run_consolidate.r")
 
 
