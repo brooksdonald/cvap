@@ -22,6 +22,7 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     env$vrcat_list <- vrcat_list
     env$e_vrcat_all <- vrcat_list[["all"]]
     env$e_trend_all <- vrcat_list[["trend"]]
+    env$e_booster_all <- vrcat_list[["booster"]]
     env$tgt_list <- tgt_list
     env$e_tar_past_all <- tgt_list
     env$e_tar_cur_all <- tgt_list
