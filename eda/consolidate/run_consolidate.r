@@ -35,7 +35,8 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     env$e_tar_cur_all <- tgt_list
     env$e_tar_cur_scale_all <- tgt_list
     env$supp_list <- supp_list
-    env$e_secdelpu_all <- supp_list
+    env$e_secdelpu_all <- supp_list[["all"]]
+    env$e_cov_all <- supp_list[["coverage"]]
     
 
     return(environment())
