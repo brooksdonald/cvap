@@ -30,5 +30,3 @@ run_base <- function(env = new.env()) {
     return(environment())
 
 }
-
-run_base(env = .GlobalEnv)

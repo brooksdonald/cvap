@@ -13,4 +13,3 @@ run_eda_supplies <- function(a_data, supply_secured, delivery_courses_doses, env
 
     return(environment())
 }
-

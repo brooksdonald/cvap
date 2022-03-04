@@ -27,6 +27,5 @@ run_vxrate <- function(entity_characteristics, population_data, uptake_gender_da
 
     return(environment())
 
-
 }
 
