@@ -35,6 +35,7 @@ source("eda/coverage/run_coverage.r")
 source("eda/product/run_product.r")
 source("eda/rank-bin/run_rank_bin.r")
 source("eda/consolidate/run_consolidate.r")
+source("eda/export/run_export.r")
 
 
 vxrate_env <- run_vxrate(entity_characteristics, population_data, uptake_gender_data, c_vxrate_latest)
@@ -43,4 +44,5 @@ coverage_env <- run_coverage(a_data)
 product_env <- run_product(a_data, base_env$b_smartsheet, base_env$b_csl)
 ranking_env <- run_binning(a_data)
 consolidate_env <- run_consolidate(a_data)
+export_env <- run_export()
 
