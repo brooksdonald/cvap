@@ -1,10 +1,12 @@
 # rows 119 - 596
 
-source("src/vaccines/vaccines_daily_vxrate.r")
-source("src/vaccines/vaccines_monthly_vxrate.r")
-source("src/entity/entity_characteristics.r")
+
 
 run_vaccines <- function(entity_characteristics, env = .GlobalEnv) {
+    source("src/vaccines/vaccines_daily_vxrate.r")
+    source("src/vaccines/vaccines_monthly_vxrate.r")
+    source("src/entity/entity_characteristics.r")
+
     print(" > Starting local environment for vaccinations")
 
     print(" > Daily current vaccinations")
@@ -53,4 +55,3 @@ run_vaccines <- function(entity_characteristics, env = .GlobalEnv) {
     return(environment())
 
 }
-

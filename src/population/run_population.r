@@ -10,12 +10,11 @@ library("data.table")
 library("here")
 
 
-source("src/population/population_base.r")
-source("src/population/population_hcw.r")
-source("src/population/population_uptake.r")
-
-
 run_population <- function(env = .GlobalEnv) {
+    source("src/population/population_base.r")
+    source("src/population/population_hcw.r")
+    source("src/population/population_uptake.r")
+
     print(" > Starting local environment for base population")
 
     print(" > Population healthcare workers...")
@@ -48,6 +47,3 @@ run_population <- function(env = .GlobalEnv) {
 
     return(environment())
 }
-
-run_population()
-

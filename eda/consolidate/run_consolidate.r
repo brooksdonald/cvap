@@ -5,6 +5,7 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     source("eda/consolidate/consolidate_vxrate.r")
     source("eda/consolidate/consolidate_targets.r")
     source("eda/consolidate/consolidate_supplies_utilization.r")
+    source("eda/consolidate/consolidate_tables.r")
 
     print(" > Starting local environment for consolidation summary")
     
@@ -23,6 +24,14 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     print(" > Consolidating Supplies & Product utilization...")
     supp_list <- supplies_cons(condense_list)
     print(" > Done.")
+
+    print(" > Creating values table...")
+    z_values <- values_table()
+    print(" > Done.")
+
+    print(" > Change count tables, daily vaccination rate percent change category...")
+    f_dvr_change_count <- vxrate_change_cat(a_data,b_vxrate_change_lw)
+    print(" > Done.")
     
 
     print(" > Loading eda consolidation data back to global environment...") 
@@ -37,6 +46,9 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     env$supp_list <- supp_list
     env$e_secdelpu_all <- supp_list[["all"]]
     env$e_cov_all <- supp_list[["coverage"]]
+    env$z_values <- z_values
+    env$c_data_dvr_lm_cat <- c_data_dvr_lm_cat
+    env$f_dvr_change_count <- f_dvr_change_count
     
 
     return(environment())

@@ -1,8 +1,9 @@
 # Rows 1648 - 1719
 
-source("src/base/base_smartsheet.r")
 
 run_base <- function(env = new.env()) {
+    source("src/base/base_smartsheet.r")
+
     print(" > Starting local environment for base data...")
 
     print(" > Base smartsheet...")

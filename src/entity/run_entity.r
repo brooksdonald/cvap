@@ -1,9 +1,8 @@
 # 40 - 117 lines of original code
 
-
-source("src/entity/entity_characteristics.r")
-
 run_entity <- function(env = .GlobalEnv) {
+    source("src/entity/entity_characteristics.r")
+
     print(" > Loading entity characteristics data...")
     ec <- load_entity_chars()
     print(" > Done.")
@@ -17,5 +16,3 @@ run_entity <- function(env = .GlobalEnv) {
 
     return(environment())
 }
-
-
