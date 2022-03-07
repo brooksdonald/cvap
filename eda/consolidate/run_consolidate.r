@@ -30,7 +30,11 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     print(" > Done.")
 
     print(" > Change count tables, daily vaccination rate percent change category...")
-    f_dvr_change_count <- vxrate_change_cat(a_data,b_vxrate_change_lw)
+    f_dvr_change_count <- vxrate_change_cat(a_data, b_vxrate_change_lw)
+    print(" > Done.")
+
+    print(" > Coverage category change...")
+    f_cov_change_count <- cov_cat_change(a_data)
     print(" > Done.")
     
 
@@ -47,12 +51,13 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     env$e_secdelpu_all <- supp_list[["all"]]
     env$e_cov_all <- supp_list[["coverage"]]
     env$z_values <- z_values
-    env$c_data_dvr_lm_cat <- c_data_dvr_lm_cat
     env$f_dvr_change_count <- f_dvr_change_count
+    env$f_cov_change_count <- f_cov_change_count
     
 
     return(environment())
 }
+
 run_consolidate(a_data)
 
 

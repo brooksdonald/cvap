@@ -80,23 +80,26 @@ values_table <- function() {
 }
 
 # Change count tables
-## Daily vaccination rate percent change category
 
+## Daily vaccination rate percent change category
 vxrate_change_cat <- function(a_data, b_vxrate_change_lw) {
     # Select data
     c_data_dvr_lm_cat <- 
-        select(
-            a_data,
-            c(
-                "a_iso",
-                "dvr_4wk_td_change_lm_per_cat",
-                "a_covax_status",
-                "intro_status"
-                )
-            )
-    
-    f_dvr_change_count <- helper_join_dataframe_list(c_data_dvr_lm_cat, join_by = "a_iso")
-    f_dvr_change_count <- helper_join_dataframe_list(b_vxrate_change_lw, join_by = "a_iso")
+    select(
+        a_data,
+        c(
+            "a_iso",
+            "dvr_4wk_td_change_lm_per_cat",
+            "a_covax_status",
+            "intro_status"
+        )
+    )
+
+    # TODO Use helper function 
+    f_dvr_change_count <- left_join(c_data_dvr_lm_cat, b_vxrate_change_lw, by = "a_iso")
+
+    # f_dvr_change_count <- helper_join_dataframe_list(c_data_dvr_lm_cat, join_by = "a_iso")
+    # f_dvr_change_count <- helper_join_dataframe_list(b_vxrate_change_lw, join_by = "a_iso")
 
     f_dvr_change_count <- filter(f_dvr_change_count,
                                 a_covax_status == "AMC" &
@@ -134,8 +137,12 @@ vxrate_change_cat <- function(a_data, b_vxrate_change_lw) {
             "count_lw"
         )
 
-    f_dvr_change_count <- helper_join_dataframe_list(f_dvr_change_count_cur, join_by = "cat")
-    f_dvr_change_count <- helper_join_dataframe_list(f_dvr_change_count_lw, join_by = "cat")
+    # TODO Use helper function
+    f_dvr_change_count <- left_join(f_dvr_change_count_cur, f_dvr_change_count_lw, by = "cat")
+
+
+    # f_dvr_change_count <- helper_join_dataframe_list(f_dvr_change_count_cur, join_by = "cat")
+    # f_dvr_change_count <- helper_join_dataframe_list(f_dvr_change_count_lw, join_by = "cat")
 
     f_dvr_change_count <- f_dvr_change_count %>%
         mutate(count_change = count_cur - count_lw)
@@ -144,4 +151,44 @@ vxrate_change_cat <- function(a_data, b_vxrate_change_lw) {
 
 }
 
+## Coverage category change
+cov_cat_change <- function(a_data) {
+    f_cov_change_count <- 
+    filter(
+        a_data,
+        a_covax_status == "AMC" & 
+        intro_status == "Product introduced"
+    )
+
+    f_cov_change_count <- select(
+        f_cov_change_count,
+        c(
+            "a_iso", 
+            "cov_total_fv_cat", 
+            "cov_total_fv_lw_cat"
+            )
+        )
+
+    f_cov_change_count_cur <- f_cov_change_count %>%
+        group_by(cov_total_fv_cat) %>%
+        summarise(count_cur = n())
+        colnames(f_cov_change_count_cur) <- c(
+            "cat",
+            "count_cur"
+        )
+
+    f_cov_change_count_lw <- f_cov_change_count %>%
+        group_by(cov_total_fv_lw_cat) %>%
+        summarise(count_lw = n())
+        colnames(f_cov_change_count_lw) <- c("cat", "count_lw")
+
+    # TODO implement helper function here
+    f_cov_change_count <-
+    left_join(f_cov_change_count_cur, f_cov_change_count_lw, by = "cat")
+
+    f_cov_change_count <- f_cov_change_count %>%
+    mutate(count_change = count_cur - count_lw)
+
+    return(f_cov_change_count)
+}
 

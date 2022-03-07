@@ -106,7 +106,7 @@ load_l2m_data <- function() {
 transform_lw_data <- function(b_vxrate_lw_sum, c_vxrate_latest) {
     print(" >> Transform last week data...")
     ## Calculate percent change and category
-    b_vxrate_change_lw <- b_vxrate_lw_sum %>%
+    b_vxrate_change_lw <<- b_vxrate_lw_sum %>%
         mutate(dvr_4wk_td_change_lw_lm = dvr_4wk_td_lw - dvr_4wk_td_lw_lm) %>%
             mutate(dvr_4wk_td_change_lw_lm_per = dvr_4wk_td_change_lw_lm / dvr_4wk_td_lw_lm) %>%
                 mutate(
@@ -129,7 +129,7 @@ transform_lw_data <- function(b_vxrate_lw_sum, c_vxrate_latest) {
 
 
     ## Select relevant columns for dvr category count change table
-    b_vxrate_change_lw <- 
+    b_vxrate_change_lw <<- 
         select(
             b_vxrate_change_lw,
             "a_iso",
