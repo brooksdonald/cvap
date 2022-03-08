@@ -1,4 +1,6 @@
 # rows 985 - 1650
+
+# TODO Check all warning messages coming from supplies module
 run_supply <- function(env = .GlobalEnv) {
     print(" > Starting local environment for supply module...")
 

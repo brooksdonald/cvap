@@ -58,9 +58,6 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     return(environment())
 }
 
-run_consolidate(a_data)
-
-
 
 
 
