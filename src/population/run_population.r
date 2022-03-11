@@ -1,15 +1,5 @@
 # rows 600 - 978
 
-library("readxl")
-library("writexl")
-library("countrycode")
-library("dplyr")
-library("lubridate")
-library("tidyr")
-library("data.table")
-library("here")
-
-
 run_population <- function(env = .GlobalEnv) {
     source("src/population/population_base.r")
     source("src/population/population_hcw.r")
@@ -39,7 +29,7 @@ run_population <- function(env = .GlobalEnv) {
         as.data.frame(datalist[2])
     )
 
-    print(" > Returning to local environment. ")
+    print(" > Returning to global environment. ")
 
     print(" > Loading data back to global environment...")
     env$population_data <- population_data
@@ -47,3 +37,4 @@ run_population <- function(env = .GlobalEnv) {
 
     return(environment())
 }
+run_population()

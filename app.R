@@ -46,4 +46,3 @@ product_env <- run_product(a_data, base_env$b_smartsheet, base_env$b_csl)
 ranking_env <- run_binning(a_data)
 consolidate_env <- run_consolidate(a_data)
 export_env <- run_export()
-

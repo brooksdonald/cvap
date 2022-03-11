@@ -19,3 +19,4 @@ run_binning <- function(a_data, env = .GlobalEnv) {
     return(environment())
 
 }
+# run_binning(a_data)

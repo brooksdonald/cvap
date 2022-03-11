@@ -13,3 +13,4 @@ run_export <- function(env = .GlobalEnv) {
 
     return(environment())
 }
+run_export()

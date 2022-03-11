@@ -28,3 +28,4 @@ run_coverage <- function(a_data, env = .GlobalEnv) {
     return(environment())
 
 }
+# run_coverage(a_data)
