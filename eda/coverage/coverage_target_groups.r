@@ -108,7 +108,7 @@ target_group_twenty_forty <- function(a_data) {
       )
     )) %>%
         
-    mutate(t40_jun_willmeet = if_else(t40_jun_peratpace >= 0.4, "Yes", "No"))
+    mutate(t40_jun_willmeet = if_else(cov_total_fv_atpace_30jun >= 0.4, "Yes", "No"))
 
   return(a_data) 
 }
