@@ -6,29 +6,34 @@ dose_utilization <- function(a_data) {
     a_data <- a_data %>%
     mutate(pu_del_rem = if_else(
         (if_else(
-        is.na(del_dose_total) | del_dose_total == 0,
-        NA_real_,
-        ((del_dose_total * 0.9) - adm_td)
-    )) < 0, 0, 
-    (if_else(
-        is.na(del_dose_total) | del_dose_total == 0,
-        NA_real_,
-        ((del_dose_total * 0.9) - adm_td)
-    ))))%>%
-    
-    mutate(pu_del_rem_per = pu_del_rem / a_pop)
-        
-        ## Calculate percent of doses received utilized
-        a_data <- a_data %>%
-        mutate(pu_del_rem_prop = if_else(
-        pu_del_rem > 0,
-        (pu_del_rem / del_dose_total),
-        if_else(
-            is.na(pu_del_rem) | pu_del_rem == 0,
+            is.na(del_dose_total) | del_dose_total == 0,
             NA_real_,
-                if_else(pu_del_rem <= 0, 0,
-                NA_real_)
+            ((del_dose_total * 0.9) - adm_td))) < 0, 0, 
+                (if_else(
+                    is.na(del_dose_total) | del_dose_total == 0,
+                    NA_real_,
+                    ((del_dose_total * 0.9) - adm_td)
+                )
             )
+        )
+    )%>%
+    
+    mutate(pu_del_rem_per = pu_del_rem / a_pop) %>%
+  
+    mutate(pu_del_rem_timeto = if_else(is.infinite(pu_del_rem / dvr_4wk_td), NA_real_,
+                                                    (pu_del_rem / dvr_4wk_td)))
+        
+    ## Calculate percent of doses received utilized
+    a_data <- a_data %>%
+    mutate(pu_del_rem_prop = if_else(
+    pu_del_rem > 0,
+    (pu_del_rem / del_dose_total),
+    if_else(
+        is.na(pu_del_rem) | pu_del_rem == 0,
+        NA_real_,
+            if_else(pu_del_rem <= 0, 0,
+            NA_real_)
+        )
     )) %>%
     
     mutate(pu_used_per = 1 - pu_del_rem_prop) 
