@@ -19,6 +19,7 @@ load_base_condense_file <- function(a_data) {
             "t40_status",
             "t70_status",
             "t70_scaleup_cat",
+            "ndvp_status",
             "booster_status",
             "pu_used_per_cat",
             "del_cour_total_per_cat",

@@ -58,11 +58,12 @@ dose_utilization <- function(a_data) {
 supply_pending <- function(a_data) {
     # Calculate supply secured not yet delivered, supply received not yet administered
     a_data <- a_data %>%
-        mutate(sec_tobedel = if_else((sec_total - del_cour_total) < 0, 0, (sec_total - del_cour_total))) %>%
+    mutate(sec_tobedel = if_else((sec_total - del_cour_total) < 0, 0, (sec_total - del_cour_total))) %>%
   
     mutate(sec_tobedel_per = sec_tobedel / a_pop) %>%
     
-    mutate(rem_cour_del = del_cour_total - del_cour_wast - adm_fv_homo) %>%
+    mutate(rem_cour_del = if_else((del_cour_total - del_cour_wast - adm_fv_homo - (((adm_a1d_homo - adm_fv_homo) + adm_booster)  * 0.5)) < 0, 0,
+                                    (del_cour_total - del_cour_wast - adm_fv_homo - (((adm_a1d_homo - adm_fv_homo) + adm_booster)  * 0.5)))) %>%
     
     mutate(rem_cour_del_per = rem_cour_del / a_pop) %>%
     
@@ -136,6 +137,7 @@ course_sufficiency <- function(a_data) {
 
 course_progress <- function(a_data, b_smartsheet) {
     # Merge IMR Smartsheet data
+    # TODO Implement helper function to this join
     a_data <- 
         left_join(a_data, b_smartsheet, by = c("a_iso" = "iso"))
 
@@ -143,10 +145,14 @@ course_progress <- function(a_data, b_smartsheet) {
     a_data <- a_data %>%
     mutate(ndvp_goalmet = if_else(cov_total_fv >= ndvp_target, "Yes", "No")) %>%
     
-    mutate(ndvp_peratpace = (adm_fv_homo + (
+    mutate(ndvp_rem = if_else((ndvp_target - cov_total_fv) < 0, 0, (ndvp_target - cov_total_fv))) %>%
+    
+    mutate(ndvp_peratpace = ((adm_fv_homo + (
         dvr_4wk_fv * as.numeric(as.Date(ndvp_deadline) - Sys.Date())
-    ) / a_pop)) %>%
-  
+    )) / a_pop)) %>%
+    
+    mutate(ndvp_pertogo = if_else((ndvp_target - ndvp_peratpace) < 0, 0, (ndvp_target - ndvp_peratpace)))  %>%
+    
     mutate(ndvp_willmeet = if_else(ndvp_peratpace >= ndvp_target, "Yes", "No")) %>%
     
     mutate(ndvp_timeto = round(if_else((((
@@ -157,11 +163,10 @@ course_progress <- function(a_data, b_smartsheet) {
     (((ndvp_target * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
     ))))) %>%
     
-    mutate(ndvp_ontrack = if_else(ndvp_goalmet != "Yes" & 
-    ndvp_willmeet == "Yes", "Yes", "No")) %>%
+    mutate(ndvp_ontrack = if_else(ndvp_peratpace >= ndvp_target & cov_total_fv <= ndvp_target, "Yes", "No")) %>%
     
-    mutate(ndvp_offtrack = if_else(ndvp_goalmet != "Yes" & 
-    ndvp_willmeet != "Yes", "Yes", "No")) %>%
+    mutate(ndvp_offtrack = if_else(ndvp_goalmet != "Yes" &
+                                    ndvp_willmeet != "Yes", "Yes", "No")) %>%
     
     mutate(ndvp_status = if_else(
         is.na(ndvp_target) | ndvp_target == 0,
@@ -185,7 +190,7 @@ course_progress <- function(a_data, b_smartsheet) {
         )
         )
     )) %>%
-  
+    
     mutate(ndvp_status_num = if_else(
         is.na(ndvp_target) | ndvp_target == 0,
         1,
@@ -208,13 +213,13 @@ course_progress <- function(a_data, b_smartsheet) {
         )
         )
     )) %>%
-  
+    
     mutate(ndvp_rate_needed = if_else(
-        (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - as.Date("2022-01-26"))) < 0, 0,
-        (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - as.Date("2022-01-26"))))) %>%
-  
+        (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - as.Date("2022-02-02"))) < 0, 0,
+        (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - as.Date("2022-02-02"))))) %>%
+    
     mutate(ndvp_scaleup = round((ndvp_rate_needed / dvr_4wk_fv),2)) %>%
-  
+    
     mutate(ndvp_scaleup_cat = if_else(
         ndvp_scaleup == 0,
         "1) Goal met",
@@ -241,6 +246,10 @@ course_progress <- function(a_data, b_smartsheet) {
 course_add_notes <- function(a_data, b_csl) {
     # Merge concerted support list
     a_data <- left_join(a_data, b_csl, by = c("a_iso" = "iso"))
+
+    a_data <- a_data %>% 
+    mutate(csl_status = if_else(is.na(csl_status), "Other country", csl_status)) %>% 
+    mutate(csl_status_numb = if_else(csl_status == "Concerted support country", 1, NA_real_))
 
     # Add notes
     a_data <- a_data %>%

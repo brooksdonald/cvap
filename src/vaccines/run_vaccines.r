@@ -55,4 +55,3 @@ run_vaccines <- function(entity_characteristics, env = .GlobalEnv) {
     return(environment())
 
 }
-run_vaccines(entity_characteristics)

@@ -62,24 +62,28 @@ transform_vxrate_merge <- function(a_data) {
 
   # Calculate theoretical fully vaccinated for non-reporters for current, lm, and 2m
   a_data <- a_data %>%
-    mutate(adm_fv_homo = if_else(
-      adm_a1d == 0 & adm_fv == 0 & adm_booster == 0, (adm_td / 2),
-      if_else(adm_a1d == 0 & adm_fv == 0 & adm_booster != 0, ((adm_td - adm_booster)/ 2),
-        if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster == 0, (adm_td - adm_a1d),
-          if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster != 0, (adm_td - adm_a1d - adm_booster),
-            (adm_fv)))))) %>%
-            
-            mutate(adm_fv_lm_homo = if_else(
-              adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm == 0, (adm_td_lm / 2),
-                if_else(adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm != 0, ((adm_td_lm - adm_booster_lm)/ 2),
-                  if_else(adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm == 0, (adm_td_lm - adm_a1d_lm),
+  mutate(adm_fv_homo = if_else(
+    adm_a1d == 0 & adm_fv == 0 & adm_booster == 0, (adm_td / 2),
+    if_else(adm_a1d == 0 & adm_fv == 0 & adm_booster != 0, ((adm_td - adm_booster)/ 2),
+            if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster == 0, (adm_td - adm_a1d),
+                    if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster != 0, (adm_td - adm_a1d - adm_booster),
+                            (adm_fv)))))) %>%
+  
+  mutate(adm_fv_lm_homo = if_else(
+    adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm == 0, (adm_td_lm / 2),
+    if_else(adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm != 0, ((adm_td_lm - adm_booster_lm)/ 2),
+            if_else(adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm == 0, (adm_td_lm - adm_a1d_lm),
                     if_else(adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm != 0, (adm_td_lm - adm_a1d_lm - adm_booster_lm),
-                      (adm_fv_lm)))))) %>%
-    
-    mutate(adm_fv_2m_homo = if_else(
-      adm_a1d_2m == 0 & adm_fv_2m == 0, (adm_td_2m / 2),
-              if_else(adm_a1d_2m != 0 & adm_fv_2m == 0, (adm_td_2m - adm_a1d_2m),
-                              (adm_fv_2m))))
+                            (adm_fv_lm)))))) %>%
+  
+  mutate(adm_fv_2m_homo = if_else(
+    adm_a1d_2m == 0 & adm_fv_2m == 0, (adm_td_2m / 2),
+            if_else(adm_a1d_2m != 0 & adm_fv_2m == 0, (adm_td_2m - adm_a1d_2m),
+                            (adm_fv_2m)))) %>%
+  
+  mutate(adm_a1d_homo = if_else(
+    adm_a1d == 0 & adm_fv == 0, (adm_td / 2),
+    adm_a1d))
 
   # Calculate td and fv change from lm and 2m
   a_data <- a_data %>%

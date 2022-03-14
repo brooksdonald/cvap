@@ -47,7 +47,7 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     env$e_tar_past_all <- tgt_list[["tenperc"]]
     env$e_tar_cur_all <- tgt_list[["seventyperc"]]
     env$e_tar_cur_scale_all <- tgt_list[["scale"]]
-    env$e_ndvp_all <- tgt_list[["ndv"]]
+    env$e_ndvp_all <- tgt_list[["ndvp"]]
     env$supp_list <- supp_list
     env$e_secdelpu_all <- supp_list[["all"]]
     env$e_cov_all <- supp_list[["coverage"]]
@@ -58,7 +58,7 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
 
     return(environment())
 }
-run_consolidate(a_data)
+# run_consolidate(a_data)
 
 
 

@@ -20,7 +20,7 @@ write_to_excel <- function() {
         "8_secdelpu_cat" = e_secdelpu_all,
         "8_cov_cat" = e_cov_all,
         "8_scaleup_cat" = e_tar_cur_scale_all,
-        # "8_ndvp_tar_cat" = e_ndvp_all,
+        "8_ndvp_tar_cat" = e_ndvp_all,
         "9_values" = z_values
     )
     write.xlsx(all_df, "data/output/demo_master.xlsx")
