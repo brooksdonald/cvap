@@ -39,7 +39,9 @@ load_sup_rec <- function() {
     colnames(b_mdb_2m)[3] <- "total_2m"
 
     # FIXME hardcoded date warning!
-    b_mdb$del_date <- as.Date("2022-01-26")
+    # TODO Check on this hardcoded date. Different from original code
+    # b_mdb$del_date <- as.Date("2022-01-26")
+    b_mdb$del_date <- as.Date("2022-02-01")
 
     supply_received <- helper_join_dataframe_list(
         list(b_mdb, b_mdb_lm, b_mdb_2m),

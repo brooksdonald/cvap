@@ -124,7 +124,9 @@ transform_base_smartsheet <- function(b_smartsheet) {
             "Doses at risk",
             "Doses under observation",
             "No doses at risk"
-        )
+        ),
+        na_fill = "Unknown"
+
     )
 
     ## Change country target field type to date

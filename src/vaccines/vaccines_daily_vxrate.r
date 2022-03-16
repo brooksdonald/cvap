@@ -58,6 +58,7 @@ transform_current_vxrate <- function(b_vxrate, entity_characteristics) {
     b_vxrate$a_pop <- as.numeric(b_vxrate$a_pop)
     
     ## Add entity base data
+    # TODO add helper function
     b_vxrate <- left_join(b_vxrate, entity_characteristics, by = "a_iso")
     
     ## Add year, month, and week numbers
@@ -114,7 +115,7 @@ transform_current_vxrate <- function(b_vxrate, entity_characteristics) {
             | b_vxrate$adm_date_week == isoweek(Sys.Date()) - 1
           ),
         "Yes", 
-      NA
+        NA
     )
     
     b_vxrate <- b_vxrate %>% 

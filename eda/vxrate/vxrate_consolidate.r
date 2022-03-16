@@ -160,9 +160,11 @@ transform_vxrate_merge <- function(a_data) {
 
   # Calculate linear population coverage projection by 30 June 2022
   a_data <- a_data %>%
-    mutate(cov_total_fv_atpace_30jun = (adm_fv_homo + (dvr_4wk_fv * (
+    mutate(cov_total_fv_atpace_30jun = if_else(((adm_fv_homo + (dvr_4wk_fv * (
       as.numeric(as.Date("2022-06-30") - Sys.Date())
-    ))) / a_pop)
+    ))) / a_pop) > 1, 1, ((adm_fv_homo + (dvr_4wk_fv * (
+      as.numeric(as.Date("2022-06-30") - Sys.Date())
+    ))) / a_pop)))
 
 
   # Indicator reporting status for target group-specific uptake data

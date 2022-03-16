@@ -31,3 +31,4 @@ run_base <- function(env = .GlobalEnv) {
     return(environment())
 
 }
+run_base()
