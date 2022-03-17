@@ -142,9 +142,7 @@ course_sufficiency <- function(a_data) {
 
 course_progress <- function(a_data, b_smartsheet) {
     # Merge IMR Smartsheet data
-    # TODO Implement helper function to this join
-    a_data <- 
-        left_join(a_data, b_smartsheet, by = c("a_iso" = "iso"))
+    a_data <- left_join(a_data, b_smartsheet, by = c("a_iso" = "iso"))
 
     # Calculate progress against country coverage targets
     a_data <- a_data %>%
@@ -264,34 +262,34 @@ course_add_notes <- function(a_data, b_csl) {
     mutate(note_recent_rollout = if_else(intro_date > (Sys.Date() - 60), "Recent rollout", "No")) %>%
     
     mutate(note_reporting_date = if_else(
-        adm_date < (as.Date("2022-01-18", tz = "UTC") - 10),
+        adm_date < (as.Date("2022-02-02", tz = "UTC") - 10),
         "Likely reporting issue",
         NA_character_
     )) %>%
   
     mutate(
         note_drivers_auto = if_else(
-        note_reporting_date == "Likely reporting issue",
-        "Likely reporting issue",
-        if_else(
-            note_nochange == 1,
+            note_reporting_date == "Likely reporting issue",
             "Likely reporting issue",
             if_else(
-            dvr_4wk_td_per < 0,
-            "Likely reporting issue",
-            if_else(
-                note_highcov == "High fully vaccinated coverage",
-                "High fully vaccinated coverage",
+                note_nochange == 1,
+                "Likely reporting issue",
                 if_else(
-                note_recent_rollout == "Recent rollout",
-                "Recent rollout",
-                NA_character_
+                    dvr_4wk_td_per < 0,
+                    "Likely reporting issue",
+                    if_else(
+                        note_highcov == "High fully vaccinated coverage",
+                        "High fully vaccinated coverage",
+                        if_else(
+                            note_recent_rollout == "Recent rollout",
+                            "Recent rollout",
+                            NA_character_
+                            )
+                        )
+                    )
                 )
             )
-            )
-        )
-        )
-    ) %>%
+        ) %>%
     
     mutate(note_supplyconstraint = if_else(rem_cour_del_per < 0.05 & 
     pu_used_per > 0.5, 1, 0))
