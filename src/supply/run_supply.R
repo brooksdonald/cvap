@@ -14,7 +14,7 @@ run_supply <- function(env = .GlobalEnv) {
     # FIXME hardcoded date
     supply_secured <- transform_supply_secured(
         supply_secured,
-        dataset_date = "2020-11-20"
+        dataset_date = "2022-01-27"
     )
     print(" > Done.")
 

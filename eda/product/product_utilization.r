@@ -25,37 +25,37 @@ dose_utilization <- function(a_data) {
         
     ## Calculate percent of doses received utilized
     a_data <- a_data %>%
-    mutate(pu_del_rem_prop = if_else(
-    pu_del_rem > 0,
-    (pu_del_rem / del_dose_total),
-    if_else(
-        is.na(pu_del_rem) | pu_del_rem == 0,
-        NA_real_,
-            if_else(pu_del_rem <= 0, 0,
-            NA_real_)
-        )
-    )) %>%
-    
+        mutate(pu_del_rem_prop = if_else(
+            pu_del_rem > 0,
+            (pu_del_rem / del_dose_total),
+            if_else(
+                is.na(pu_del_rem),
+                NA_real_,
+                if_else(pu_del_rem <= 0, 0,
+                NA_real_)
+            )
+        )) %>%
+  
     mutate(pu_used_per = 1 - pu_del_rem_prop) 
   
     ## Assign percent utilization categories
-    a_data <- a_data %>%
-    mutate(pu_used_per_cat = if_else(
-        pu_used_per < 0.25,
-        "0) <25%",
+    a_data <- a_data %>% 
+        mutate(pu_used_per_cat = if_else(
+            pu_used_per < 0.25,
+            "0) <25%",
             if_else(
                 pu_used_per < 0.5,
                 "1) 25-49%",
-                    if_else(
-                        pu_used_per < 0.75,
-                        "2) 50-74%",
-                            if_else(pu_used_per <= 1, "3) 75-100%",
-                            NA_character_
-                        )
+                if_else(
+                    pu_used_per < 0.75,
+                    "2) 50-74%",
+                    if_else(pu_used_per <= 1, "3) 75-100%",
+                    NA_character_
                     )
                 )
             )
         )
+    )
 
     return(a_data)
 }
@@ -291,8 +291,8 @@ course_add_notes <- function(a_data, b_csl) {
             )
         ) %>%
     
-    mutate(note_supplyconstraint = if_else(rem_cour_del_per < 0.05 & 
-    pu_used_per > 0.5, 1, 0))
+    mutate(note_supplyconstraint = if_else(rem_cour_del_per < 0.05 &
+                                           pu_used_per > 0.8, 1, 0))
     
     a_data_temp <- select(
         a_data, c("a_iso","adm_fv","a_pop", "cov_total_fv","t10_status","t40_status")
