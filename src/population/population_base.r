@@ -43,9 +43,6 @@ transform_base_population <- function(base_population, population_hcw) {
     a_pop_18p <- helper_add_char_to_list(age_range18)
     a_pop_60p <- helper_add_char_to_list(age_range60)
 
-    print(a_pop_12p)
-    print(a_pop_18p)
-    print(a_pop_60p)
 
     age_ranges <- c(a_pop_12p, a_pop_18p, a_pop_60p)
     # has to match the length of a list above
@@ -74,7 +71,7 @@ transform_base_population <- function(base_population, population_hcw) {
                 na.rm = TRUE
             )
 
-        colnames(df) <- c("a_iso", paste("a_pop", sep="_", tolower(g)))
+        colnames(df) <- c("a_iso", paste("a_pop", sep = "_", tolower(g)))
         data_frames <- append(data_frames, list(df))
     }
 

@@ -80,62 +80,62 @@ supply_pending <- function(a_data) {
 course_sufficiency <- function(a_data) {
     # Calculate proportions of courses of total
     a_data <- a_data %>%
-    mutate(sec_del_prop = del_cour_total / sec_total)
+        mutate(sec_del_prop = del_cour_total / sec_total)
 
 
     # Calculate if courses secured, received, and administered sufficient to reach targets
     a_data <- a_data %>%
-    mutate(t20_suff_sec = if_else(sec_total_per >= 0.2, "Yes", "No")) %>%
-    
-    mutate(t20_suff_del = if_else(del_cour_total_per >= 0.2, "Yes", "No")) %>%
-    
-    mutate(t40_suff_sec = if_else(sec_total_per >= 0.4, "Yes", "No")) %>%
-    
-    mutate(t40_suff_del = if_else(del_cour_total_per >= 0.4, "Yes", "No")) %>%
-    
-    mutate(t70_suff_sec = if_else(sec_total_per >= 0.7, "Yes", "No")) %>%
-    
-    mutate(t70_suff_del = if_else(del_cour_total_per >= 0.7, "Yes", "No"))
+        mutate(t20_suff_sec = if_else(sec_total_per >= 0.2, "Yes", "No")) %>%
+        
+        mutate(t20_suff_del = if_else(del_cour_total_per >= 0.2, "Yes", "No")) %>%
+        
+        mutate(t40_suff_sec = if_else(sec_total_per >= 0.4, "Yes", "No")) %>%
+        
+        mutate(t40_suff_del = if_else(del_cour_total_per >= 0.4, "Yes", "No")) %>%
+        
+        mutate(t70_suff_sec = if_else(sec_total_per >= 0.7, "Yes", "No")) %>%
+        
+        mutate(t70_suff_del = if_else(del_cour_total_per >= 0.7, "Yes", "No"))
 
 
     # Calculate absolute courses needed for reach targets
     a_data <- a_data %>%
-    mutate(t20_cour_req = round((a_pop * 0.2) * 1.1)) %>%
-    
-    mutate(t40_cour_req = round((a_pop * 0.4) * 1.1)) %>%
-    
-    mutate(t70_cour_req = round((a_pop * 0.7) * 1.1))
+        mutate(t20_cour_req = round((a_pop * 0.2) * 1.1)) %>%
+        
+        mutate(t40_cour_req = round((a_pop * 0.4) * 1.1)) %>%
+        
+        mutate(t70_cour_req = round((a_pop * 0.7) * 1.1))
 
 
     # Calculate remaining secured, received, and admnistered courses required for targets
     a_data <- a_data %>%
-    mutate(t20_cour_need_sec = round(if_else((t20_cour_req - sec_total) < 0, 0,
-    (t20_cour_req - sec_total)))) %>%
-    
-    mutate(t20_cour_need_del = round(if_else((t20_cour_req - del_cour_total) < 0, 0,
-    (t20_cour_req - del_cour_total)))) %>%
-    
-    mutate(t20_cour_need_adm = round(if_else((t20_cour_req - adm_fv_homo) < 0, 0,
-    (t20_cour_req - adm_fv_homo)))) %>%
-    
-    mutate(t40_cour_need_sec = round(if_else((t40_cour_req - sec_total) < 0, 0,
-    (t40_cour_req - sec_total)))) %>%
-    
-    mutate(t40_cour_need_del = round(if_else((t40_cour_req - del_cour_total) < 0, 0,
-    (t40_cour_req - del_cour_total)))) %>%
-    
-    mutate(t40_cour_need_adm = round(if_else((t40_cour_req - adm_fv_homo) < 0, 0,
-    (t40_cour_req - adm_fv_homo)))) %>%
-    
-    mutate(t70_cour_need_sec = round(if_else((t70_cour_req - sec_total) < 0, 0,
-    (t70_cour_req - sec_total)))) %>%
-    
-    mutate(t70_cour_need_del = round(if_else((t70_cour_req - del_cour_total) < 0,0,
-    (t70_cour_req - del_cour_total)
-    ))) %>%
-    
-    mutate(t70_cour_need_adm = round(if_else((t70_cour_req - adm_fv_homo) < 0, 0,
-    (t70_cour_req - adm_fv_homo))))
+        mutate(t20_cour_need_sec = round(if_else((t20_cour_req - sec_total) < 0, 0,
+        (t20_cour_req - sec_total)))) %>%
+        
+        mutate(t20_cour_need_del = round(if_else((t20_cour_req - del_cour_total) < 0, 0,
+        (t20_cour_req - del_cour_total)))) %>%
+        
+        mutate(t20_cour_need_adm = round(if_else((t20_cour_req - adm_fv_homo) < 0, 0,
+        (t20_cour_req - adm_fv_homo)))) %>%
+        
+        mutate(t40_cour_need_sec = round(if_else((t40_cour_req - sec_total) < 0, 0,
+        (t40_cour_req - sec_total)))) %>%
+        
+        mutate(t40_cour_need_del = round(if_else((t40_cour_req - del_cour_total) < 0, 0,
+        (t40_cour_req - del_cour_total)))) %>%
+        
+        mutate(t40_cour_need_adm = round(if_else((t40_cour_req - adm_fv_homo) < 0, 0,
+        (t40_cour_req - adm_fv_homo)))) %>%
+        
+        mutate(t70_cour_need_sec = round(if_else((t70_cour_req - sec_total) < 0, 0,
+        (t70_cour_req - sec_total)))) %>%
+        
+        mutate(t70_cour_need_del = round(if_else((t70_cour_req - del_cour_total) < 0,0,
+        (t70_cour_req - del_cour_total)
+        ))) %>%
+        
+        mutate(t70_cour_need_adm = round(if_else((t70_cour_req - adm_fv_homo) < 0, 0,
+        (t70_cour_req - adm_fv_homo))))
 
     return(a_data)
 }

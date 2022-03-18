@@ -3,7 +3,7 @@ extract_vxrate_details <- function(c_vxrate_latest) {
   print(" >> Remove duplicative base details from latest vxrate summary...")
   c_vxrate_latest_red <-
     select(
-      c_vxrate_latest,-c(
+      c_vxrate_latest, -c(
         "a_continent",
         "a_who_region",
         "a_income_group",
@@ -20,7 +20,7 @@ extract_vxrate_details <- function(c_vxrate_latest) {
 }
 
 merge_dataframes <- function(entity_characteristics, c_vxrate_latest_red, population_data, uptake_gender_data, b_who_dashboard) {
-  # Merge details, latest vxrate summary, population, target group admin. dataframes
+  # Merge details
   a_data <-
     left_join(entity_characteristics, c_vxrate_latest_red, by = "a_iso") %>%
     left_join(., population_data) %>%
@@ -40,43 +40,44 @@ transform_vxrate_merge <- function(a_data) {
       is.na(adm_td) | adm_td == 0,
       "No product introduced",
       "Product introduced"
-    ))
-  
+    )
+  )
   # Assign population size category
   a_data <- a_data %>%
-    mutate(a_pop_cat = if_else(
-      a_pop < 1000000,
-      "1) <1M",
+  mutate(a_pop_cat = if_else(
+    a_pop < 1000000,
+    "1) <1M",
+    if_else(
+      a_pop < 10000000,
+      "2) 1-10M",
       if_else(
-        a_pop < 10000000,
-        "2) 1-10M",
+        a_pop < 100000000,
+        "3) 10-100M",
         if_else(
-          a_pop < 100000000,
-          "3) 10-100M",
-          if_else(a_pop >= 100000000, "4) 100M+",
-                  NA_character_)
+          a_pop >= 100000000,
+          "4) 100M+",
+          NA_character_
+          )
         )
       )
-    ))
-
+    )
+  )
 
   # Calculate theoretical fully vaccinated for non-reporters for current, lm, and 2m
   a_data <- a_data %>%
   mutate(adm_fv_homo = if_else(
     adm_a1d == 0 & adm_fv == 0 & adm_booster == 0, (adm_td / 2),
     if_else(adm_a1d == 0 & adm_fv == 0 & adm_booster != 0, ((adm_td - adm_booster)/ 2),
-            if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster == 0, (adm_td - adm_a1d),
-                    if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster != 0, (adm_td - adm_a1d - adm_booster),
-                            (adm_fv)))))) %>%
-  
-  mutate(adm_fv_lm_homo = if_else(
+    if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster == 0, (adm_td - adm_a1d),
+    if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster != 0, (adm_td - adm_a1d - adm_booster),
+    (adm_fv)))))) %>%
+    mutate(adm_fv_lm_homo = if_else(
     adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm == 0, (adm_td_lm / 2),
     if_else(adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm != 0, ((adm_td_lm - adm_booster_lm)/ 2),
-            if_else(adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm == 0, (adm_td_lm - adm_a1d_lm),
-                    if_else(adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm != 0, (adm_td_lm - adm_a1d_lm - adm_booster_lm),
-                            (adm_fv_lm)))))) %>%
-  
-  mutate(adm_fv_2m_homo = if_else(
+    if_else(adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm == 0, (adm_td_lm - adm_a1d_lm),
+    if_else(adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm != 0, (adm_td_lm - adm_a1d_lm - adm_booster_lm),
+    (adm_fv_lm)))))) %>%
+    mutate(adm_fv_2m_homo = if_else(
     adm_a1d_2m == 0 & adm_fv_2m == 0, (adm_td_2m / 2),
             if_else(adm_a1d_2m != 0 & adm_fv_2m == 0, (adm_td_2m - adm_a1d_2m),
                             (adm_fv_2m)))) %>%
@@ -136,8 +137,6 @@ transform_vxrate_merge <- function(a_data) {
         )
       )
     )) %>%
-    
-    
     mutate(cov_total_fv_lw_cat = if_else(
       cov_total_fv_lw < 0.01,
       "1) 0-1%",
@@ -244,7 +243,6 @@ transform_vxrate_merge <- function(a_data) {
         )
       )
     ) %>%
-    
     mutate(
       dvr_4wk_td_change_lm_trend = if_else(
         dvr_4wk_td_change_lm_per <= -0.25,
@@ -263,9 +261,4 @@ transform_vxrate_merge <- function(a_data) {
     )
 
   return(a_data)
-
 }
-
-
-
-  

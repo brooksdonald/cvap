@@ -30,7 +30,8 @@ transform_population_uptake <- function(uptake_gender, uptake_groups) {
 load_pop_target_gender <- function() {
     print(" >> Loading COV Uptake gender data...")
     uptake_gender <- data.frame(
-        read_excel("data/_input/data_export_WIISE_V_COV_UPTAKE_GENDER_LAST_MONTH_LONG.xlsx",
+        read_excel(
+            "data/_input/data_export_WIISE_V_COV_UPTAKE_GENDER_LAST_MONTH_LONG.xlsx",
             sheet = "v_COV_UPTAKE_GENDER_LAST_MONTH_"
         )
     )
