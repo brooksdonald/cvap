@@ -54,7 +54,7 @@ transform_supply_secured <- function(supply_secured, dataset_date) {
     )
     print(" >> Multiplying by a million...")
     for (c in columns_to_multiply) {
-        mutate(supply_secured, UQ(rlang::sym(c)) :=
+        supply_secured <- mutate(supply_secured, UQ(rlang::sym(c)) :=
             UQ(rlang::sym(c)) * multiplier)
     }
 
