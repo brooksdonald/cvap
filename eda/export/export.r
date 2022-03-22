@@ -6,7 +6,7 @@ write_to_excel <- function() {
         "1_absorption_month" = d_absorption,
         "1_adm_dvr_long" = b_vxrate_amc,
         "1_adm_all_long" = b_vxrate_pub,
-        "1_delivery_doses" = supply_received_doses,
+        "1_delivery_doses" = supply_received_product,
         "2_base_data_amc" = a_data_amc,
         "2_base_data_hic" = a_data_hic,
         "2_dvr_perchange_count" = f_dvr_change_count,

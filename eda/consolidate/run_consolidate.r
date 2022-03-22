@@ -8,7 +8,6 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     source("eda/consolidate/consolidate_tables.r")
 
     print(" > Starting local environment for consolidation summary")
-    
     print(" > Consolidating base file...")
     condense_list <- load_base_condense_file(a_data)
     print(" > Done.")

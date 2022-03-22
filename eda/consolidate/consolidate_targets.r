@@ -6,7 +6,7 @@ targets <- function(condense_list) {
     column_names_value <- list("t10_", "t20_", "t40_", "t70_", "t70s_", "ndvp_")
     column_names_name <- list("tar_stat", "tar_stat", "tar_stat", "tar_stat", "scaleup_cat", "ndvp_cat")
     data_list <- list()
-    
+
     for (colname in column_names_value) {
         data_list[[colname]] <- list()
     }
