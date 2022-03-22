@@ -1,6 +1,6 @@
 vxrate <- function(condense_list) {
 
-    name_list <- list("amc", "africa", "amr", "emr")
+    name_list <- list("amc", "africa", "emr", "amr")
 
     # Daily vaccination rate category, Monthly vaccination rate trend & booster
     df_list_cat <- list()

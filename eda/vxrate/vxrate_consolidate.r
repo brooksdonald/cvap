@@ -224,7 +224,6 @@ transform_vxrate_merge <- function(a_data) {
   # Calculate (percent) change in 4-week average daily vaccination rate & assign category
   a_data <- a_data %>%
     mutate(dvr_4wk_td_change_lm = dvr_4wk_td - dvr_4wk_td_lm) %>%
-    
     mutate(dvr_4wk_td_change_lm_per = dvr_4wk_td_change_lm / dvr_4wk_td_lm) %>%
     
     mutate(
@@ -238,7 +237,7 @@ transform_vxrate_merge <- function(a_data) {
             dvr_4wk_td_change_lm_per <= 0,
             "2) (-25)-0%",
             if_else(dvr_4wk_td_change_lm_per > 0, "3) 0-25%",
-                    NA_character_)
+            NA_character_)
           )
         )
       )

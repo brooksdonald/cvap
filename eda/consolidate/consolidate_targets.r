@@ -36,7 +36,4 @@ targets <- function(condense_list) {
     # colnames(e_tar_cur_scale_all) <- c("scaleup_cat", "t70_amc", "t70_africa")
 
     return(list("tenperc" = e_tar_past_all, "seventyperc" = e_tar_cur_all, "scale" = e_tar_cur_scale_all, "ndvp" = e_ndvp_all))
-    
 }
-
-

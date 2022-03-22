@@ -53,25 +53,19 @@ load_b_vxrate <- function() {
 
 transform_current_vxrate <- function(b_vxrate, entity_characteristics) {
     print(" >> Transforming current vxrate...")
-    
     ## Change population field type to numeric
     b_vxrate$a_pop <- as.numeric(b_vxrate$a_pop)
-    
     ## Add entity base data
     # TODO add helper function
     b_vxrate <- left_join(b_vxrate, entity_characteristics, by = "a_iso")
-    
     ## Add year, month, and week numbers
     b_vxrate <- b_vxrate %>%
-      mutate(adm_date_year = if_else(
-        year(adm_date) == 2021,
-        2021,
-        if_else(year(adm_date) == 2022, 2022,
-        NA_real_
-        )
-      )
-    ) %>% 
-    
+    mutate(adm_date_year = if_else(
+      year(adm_date) == 2021,
+      2021,
+      if_else(year(adm_date) == 2022, 2022,
+      NA_real_)
+    )) %>%
     mutate(
       adm_date_month = ifelse(
         year(adm_date) == 2021,
@@ -100,23 +94,23 @@ transform_current_vxrate <- function(b_vxrate, entity_characteristics) {
     ## Indicate latest entry per ISO code
     b_vxrate <- b_vxrate %>%
       group_by(a_iso) %>%
-        mutate (
+        mutate(
           adm_latest = if_else(
-            adm_date == max(adm_date), 
+            adm_date == max(adm_date),
             "Yes", "No"
           )
         )
 
     ## Indicate if latest entry is reported within the current or past week
     b_vxrate$adm_is_current <- ifelse(
-      b_vxrate$adm_latest == "Yes" & 
+      b_vxrate$adm_latest == "Yes" &
         (
-          b_vxrate$adm_date_week == isoweek(Sys.Date()) 
-            | b_vxrate$adm_date_week == isoweek(Sys.Date()) - 1
-          ),
-        "Yes", 
+          b_vxrate$adm_date_week == isoweek(Sys.Date())
+          | b_vxrate$adm_date_week == isoweek(Sys.Date()) - 1
+        ),
+        "Yes",
         NA
-    )
+      )
     
     b_vxrate <- b_vxrate %>% 
       group_by(a_iso, adm_date_week) %>% 

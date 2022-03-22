@@ -8,7 +8,7 @@ supplies_cons <- function(condense_list) {
     df_list_coverage = list()
 
     for (supp in supplies_list) {
-        df = condense_list[[supp]]
+        df <- condense_list[[supp]]
 
         # Secured category
         df_secured <- aggregate(df$a_name_short,

@@ -134,17 +134,16 @@ a_data <- a_data %>%
   )))))
   
 a_data <- a_data %>%
-  mutate(t70_status = if_else(
-    cov_total_fv >= 0.7,
-    "Goal met",
-    if_else(
-      cov_total_fv_atpace_30jun >= 0.7 & is.na(t70_goalmet),
-      "On track",
-      if_else(is.na(t70_goalmet) & is.na(t70_willmeet), "Off track",
-              NA_character_)
-    )
-  )) %>%
-  
+mutate(t70_status = if_else(
+  cov_total_fv >= 0.7,
+  "Goal met",
+  if_else(
+    cov_total_fv_atpace_30jun >= 0.7 & is.na(t70_goalmet),
+    "On track",
+    if_else(is.na(t70_goalmet) & is.na(t70_willmeet), "Off track",
+    NA_character_)
+  )
+)) %>%
   mutate(t70_status_num = if_else(
     cov_total_fv >= 0.7,
     1,
@@ -152,7 +151,7 @@ a_data <- a_data %>%
       cov_total_fv_atpace_30jun >= 0.7 & is.na(t70_goalmet),
       2,
       if_else(is.na(t70_goalmet) & is.na(t70_willmeet), 3,
-              NA_real_)
+      NA_real_)
     )
   )) %>%
   

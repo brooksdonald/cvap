@@ -21,6 +21,7 @@ values_table <- function() {
 
     z_values$pop_amc <- 3889355899
     z_values$pop_amc_hcw <- 17570377
+    z_values$count_amc <- 90
 
     z_values$pop_amc_10 <- z_values$pop_amc * 0.1
     z_values$pop_amc_20 <- z_values$pop_amc * 0.2
