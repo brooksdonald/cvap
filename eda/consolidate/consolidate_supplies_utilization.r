@@ -5,7 +5,7 @@ supplies_cons <- function(condense_list) {
     col_names_name <- list("cat", "cat", "cat", "cov_cat")
     data_list <- list()
 
-    for(colname in col_names_value) {
+    for (colname in col_names_value) {
         data_list[[colname]] <- list()
     }
 
