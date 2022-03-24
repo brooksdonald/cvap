@@ -32,9 +32,14 @@ supplies_cons <- function(condense_list) {
             data_list[[i]] <- append(data_list[[i]], list(df_value))
         }
     }
-    e_secdelpu_all <- helper_join_dataframe_list(as.list(c(data_list$seccat_, data_list$delcat_, data_list$pucat_)), join_by = "cat")
+    e_secdelpu_all <- helper_join_dataframe_list(as.list(c(
+        data_list$seccat_, data_list$delcat_, data_list$pucat_)),
+        join_by = "cat"
+    )
     e_secdelpu_all <- e_secdelpu_all %>% replace(is.na(.), "None")
-    e_cov_all <- helper_join_dataframe_list(data_list[["covcat_"]], join_by = "cov_cat")
+    e_cov_all <- helper_join_dataframe_list(
+        data_list[["covcat_"]], join_by = "cov_cat"
+    )
     return(list("all" = e_secdelpu_all, "coverage" = e_cov_all))
 
 }

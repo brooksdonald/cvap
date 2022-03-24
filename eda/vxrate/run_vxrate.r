@@ -28,4 +28,4 @@ run_vxrate <- function(entity_characteristics, population_data, uptake_gender_da
     return(environment())
 
 }
-# run_vxrate(entity_characteristics, population_data, uptake_gender_data, c_vxrate_latest)
+run_vxrate(entity_characteristics, population_data, uptake_gender_data, c_vxrate_latest)

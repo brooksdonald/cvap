@@ -43,25 +43,18 @@ transform_vxrate_merge <- function(a_data) {
     )
   )
   # Assign population size category
-  a_data <- a_data %>%
-  mutate(a_pop_cat = if_else(
-    a_pop < 1000000,
-    "1) <1M",
-    if_else(
-      a_pop < 10000000,
-      "2) 1-10M",
-      if_else(
-        a_pop < 100000000,
-        "3) 10-100M",
-        if_else(
-          a_pop >= 100000000,
-          "4) 100M+",
-          NA_character_
-          )
-        )
-      )
-    )
+  # TODO Find a way to include the max value of max(a_data$a_pop_cat))
+  # FIXME Don't hard code the max value
+  breaks <- c(0, 1000000, 10000000, 100000000, 2000000000)
+  tags <- c("1) <1M", "2) 1-10M", "3) 10-100M", "4) 100M+")
+  group_tags <- cut(
+    a_data$a_pop,
+    breaks = breaks,
+    include.lowest = TRUE,
+    right = FALSE,
+    labels = tags
   )
+  a_data$a_pop_cat <- group_tags
 
   # Calculate theoretical fully vaccinated for non-reporters for current, lm, and 2m
   a_data <- a_data %>%

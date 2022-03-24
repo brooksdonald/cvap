@@ -1,7 +1,7 @@
 # Create base condense file
 
 load_base_condense_file <- function(a_data) {
-    c_condense <- 
+    c_condense <-
     select(
         a_data,
         c(
@@ -41,19 +41,15 @@ load_base_condense_file <- function(a_data) {
     c_condense_wpr <- filter(c_condense, a_who_region == "WPR")
 
     condense_list <- list("amc" = c_condense_amc, 
-                          "amc_exc" = c_condense_amc_exc, 
-                          "africa" = c_condense_africa, 
-                          "afr" = c_condense_afr, 
-                          "amr" = c_condense_amr, 
-                          "emr" = c_condense_emr, 
-                          "eur" = c_condense_eur, 
-                          "sear" = c_condense_sear, 
+                          "amc_exc" = c_condense_amc_exc,
+                          "africa" = c_condense_africa,
+                          "afr" = c_condense_afr,
+                          "amr" = c_condense_amr,
+                          "emr" = c_condense_emr,
+                          "eur" = c_condense_eur,
+                          "sear" = c_condense_sear,
                           "wpr" = c_condense_wpr)
 
     return(condense_list)
 
 }
-
-
-
-
