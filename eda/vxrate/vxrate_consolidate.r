@@ -19,7 +19,7 @@ extract_vxrate_details <- function(c_vxrate_latest) {
     return(c_vxrate_latest_red)
 }
 
-merge_dataframes <- function(entity_characteristics, c_vxrate_latest_red, population_data, uptake_gender_data, b_who_dashboard) {
+merge_dataframes <- function(entity_characteristics, c_vxrate_latest_red, population_data, uptake_gender_data, b_who_dashboard) { #nolint 
   # Merge details
   a_data <-
     left_join(entity_characteristics, c_vxrate_latest_red, by = "a_iso") %>%
@@ -111,44 +111,28 @@ transform_vxrate_merge <- function(a_data) {
 
 
   # Assign coverage category for current and lw
-  a_data <- a_data %>%
-    mutate(cov_total_fv_cat = if_else(
-      cov_total_fv < 0.01,
-      "1) 0-1%",
-      if_else(
-        cov_total_fv < 0.1,
-        "2) 1-10%",
-        if_else(
-          cov_total_fv < 0.2,
-          "3) 10-20%",
-          if_else(
-            cov_total_fv < 0.4,
-            "4) 20-40%",
-            if_else(cov_total_fv >= 0.4, "5) 40%+",
-                    NA_character_)
-          )
-        )
-      )
-    )) %>%
-    mutate(cov_total_fv_lw_cat = if_else(
-      cov_total_fv_lw < 0.01,
-      "1) 0-1%",
-      if_else(
-        cov_total_fv_lw < 0.1,
-        "2) 1-10%",
-        if_else(
-          cov_total_fv_lw < 0.2,
-          "3) 10-20%",
-          if_else(
-            cov_total_fv_lw < 0.4,
-            "4) 20-40%",
-            if_else(cov_total_fv_lw >= 0.4, "5) 40%+",
-                    NA_character_)
-          )
-        )
-      )
-    ))
-
+  # FIXME Find how to include max as opposed to 1 in breaks
+  breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 1)
+  tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%", "4) 20-40%", "5) 40%+")
+  group_tags <- cut(
+    a_data$cov_total_fv,
+    breaks = breaks,
+    include.lowest = TRUE,
+    right = FALSE,
+    labels = tags
+  )
+  a_data$cov_total_fv_cat <- group_tags
+  # FIXME Find how to include max as opposed to 1 in breaks
+  breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 1)
+  tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%", "4) 20-40%", "5) 40%+")
+  group_tags <- cut(
+    a_data$cov_total_fv_lw,
+    breaks = breaks,
+    include.lowest = TRUE,
+    right = FALSE,
+    labels = tags
+  )
+  a_data$cov_total_fv_lw_cat <- group_tags
 
   # Calculate linear population coverage projection by 30 June 2022
   a_data <- a_data %>%
@@ -197,28 +181,21 @@ transform_vxrate_merge <- function(a_data) {
 
 
   # Assign vaccination rate category
-  a_data <- a_data %>%
-    mutate(dvr_4wk_td_per_cat = if_else(
-      dvr_4wk_td_per < 0.0015,
-      "1) Low (< 0.15%*)",
-      if_else(
-        dvr_4wk_td_per < 0.0035,
-        "2) Medium (< 0.35%)",
-        if_else(
-          dvr_4wk_td_per < 0.0065,
-          "3) High (< 0.65%)",
-          if_else(dvr_4wk_td_per >= 0.0065, "4) Very high (> 0.65%)",
-                  NA_character_)
-        )
-      )
-    ))
-
+  breaks <- c(0, 0.0015, 0.0035, 0.0065, 1)
+  tags <- c("1) Low (< 0.15%*)", "2) Medium (< 0.35%)", "3) High (< 0.65%)", "4) Very high (> 0.65%)") #nolint 
+  group_tags <- cut(
+    a_data$dvr_4wk_td_per,
+    breaks = breaks,
+    include.lowest = TRUE,
+    right = FALSE,
+    labels = tags
+  )
+  a_data$dvr_4wk_td_per_cat <- group_tags
 
   # Calculate (percent) change in 4-week average daily vaccination rate & assign category
   a_data <- a_data %>%
     mutate(dvr_4wk_td_change_lm = dvr_4wk_td - dvr_4wk_td_lm) %>%
     mutate(dvr_4wk_td_change_lm_per = dvr_4wk_td_change_lm / dvr_4wk_td_lm) %>%
-    
     mutate(
       dvr_4wk_td_change_lm_per_cat = if_else(
         dvr_4wk_td_change_lm_per <= -0.25,
@@ -254,3 +231,25 @@ transform_vxrate_merge <- function(a_data) {
 
   return(a_data)
 }
+
+ # breaks <- c(-1, -0.25, 0.25, 0, 1)
+    # tags <- c("1) < (-25)%", "4) > 25%", "2) (-25)-0%", "3) 0-25%") #nolint 
+    # group_tags <- cut(
+    #   a_data$dvr_4wk_td_change_lm_per,
+    #   breaks = breaks,
+    #   include.lowest = TRUE,
+    #   right = FALSE,
+    #   labels = tags
+    # )
+    # a_data$dvr_4wk_td_change_lm_per_cat <- group_tags
+
+ # breaks <- c(-1, -0.25, 0.25, 1)
+    # tags <- c("Downward", "Upward", "Stable") #nolint 
+    # group_tags <- cut(
+    #   a_data$dvr_4wk_td_change_lm_per,
+    #   breaks = breaks,
+    #   include.lowest = TRUE,
+    #   right = FALSE,
+    #   labels = tags
+    # )
+    # a_data$dvr_4wk_td_change_lm_trend <- group_tags
