@@ -41,7 +41,7 @@ load_base_smartsheet <- function() {
         )
 
     print(" >> Renaming Columns...")
-    colnames(b_smartsheet) <-c(
+    colnames(b_smartsheet) <- c(
         "iso",
         "ndvp_target",
         "ndvp_deadline",
