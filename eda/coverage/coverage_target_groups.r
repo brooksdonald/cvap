@@ -162,7 +162,7 @@ booster_doses <- function(a_data) {
         "Administering booster/additional doses",
         "Not reporting on booster/additional dose administration"
       )
-    ) %>%
+    )%>%
   
   #FIXME Make this DRY
   mutate(cov_total_booster_cat = if_else(
@@ -189,7 +189,7 @@ booster_doses <- function(a_data) {
   ))
 
   # #FIXME Min and max values hard coded. Automate this.
-  # breaks <- c(.1, .05, .01, 0)
+  # breaks <- c(-1, 0, .01, .05, .1, .2)
   # tags <- c("4) >10%", "3) 5-9.9%", "2) 1-4.9%", "1) 0-0.9%", "0) Not reporting")
   # a_data$cov_total_booster_cat <- cut(
   #   a_data$cov_total_booster,
