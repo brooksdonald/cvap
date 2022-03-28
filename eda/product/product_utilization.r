@@ -1,6 +1,5 @@
 # Product utilization
 
-
 dose_utilization <- function(a_data) {
     ## Calculate remaining doses, absolute and % pop.
     a_data <- a_data %>%
@@ -16,13 +15,10 @@ dose_utilization <- function(a_data) {
                 )
             )
         )
-    )%>%
-    
+    ) %>%
     mutate(pu_del_rem_per = pu_del_rem / a_pop) %>%
-  
     mutate(pu_del_rem_timeto = if_else(is.infinite(pu_del_rem / dvr_4wk_td), NA_real_,
                                                     (pu_del_rem / dvr_4wk_td)))
-        
     ## Calculate percent of doses received utilized
     a_data <- a_data %>%
         mutate(pu_del_rem_prop = if_else(
@@ -35,28 +31,18 @@ dose_utilization <- function(a_data) {
                 NA_real_)
             )
         )) %>%
-  
-    mutate(pu_used_per = 1 - pu_del_rem_prop) 
-  
-    ## Assign percent utilization categories
-    a_data <- a_data %>% 
-        mutate(pu_used_per_cat = if_else(
-            pu_used_per < 0.25,
-            "0) <25%",
-            if_else(
-                pu_used_per < 0.5,
-                "1) 25-49%",
-                if_else(
-                    pu_used_per < 0.75,
-                    "2) 50-74%",
-                    if_else(pu_used_per <= 1, "3) 75-100%",
-                    NA_character_
-                    )
-                )
-            )
-        )
-    )
+    mutate(pu_used_per = 1 - pu_del_rem_prop)
 
+    ## Assign percent utilization categories
+    breaks <- c(0, 0.25, 0.5, 0.75, 1)
+    tags <- c("0) <25%", "1) 25-49%", "2) 50-74%", "3) 75-100%")
+    a_data$pu_used_per_cat <- cut(
+        a_data$pu_used_per,
+        breaks = breaks,
+        include.lowest = TRUE,
+        right = FALSE,
+        labels = tags
+    )
     return(a_data)
 }
 
@@ -64,16 +50,13 @@ supply_pending <- function(a_data) {
     # Calculate supply secured not yet delivered, supply received not yet administered
     a_data <- a_data %>%
     mutate(sec_tobedel = if_else((sec_total - del_cour_total) < 0, 0, (sec_total - del_cour_total))) %>%
-  
     mutate(sec_tobedel_per = sec_tobedel / a_pop) %>%
-    
+    # TODO Test pmax() on code below
+    # pmax((del_cour_total - del_cour_wast - adm_fv_homo - (((adm_a1d_homo - adm_fv_homo) + adm_booster)  * 0.5)), 0)
     mutate(rem_cour_del = if_else((del_cour_total - del_cour_wast - adm_fv_homo - (((adm_a1d_homo - adm_fv_homo) + adm_booster)  * 0.5)) < 0, 0,
                                     (del_cour_total - del_cour_wast - adm_fv_homo - (((adm_a1d_homo - adm_fv_homo) + adm_booster)  * 0.5)))) %>%
-    
     mutate(rem_cour_del_per = rem_cour_del / a_pop) %>%
-    
     mutate(rem_cour_del_prop = rem_cour_del / del_cour_total)
-
     return(a_data)
 }
 
@@ -82,61 +65,42 @@ course_sufficiency <- function(a_data) {
     a_data <- a_data %>%
         mutate(sec_del_prop = del_cour_total / sec_total)
 
-
     # Calculate if courses secured, received, and administered sufficient to reach targets
     a_data <- a_data %>%
         mutate(t20_suff_sec = if_else(sec_total_per >= 0.2, "Yes", "No")) %>%
-        
         mutate(t20_suff_del = if_else(del_cour_total_per >= 0.2, "Yes", "No")) %>%
-        
         mutate(t40_suff_sec = if_else(sec_total_per >= 0.4, "Yes", "No")) %>%
-        
         mutate(t40_suff_del = if_else(del_cour_total_per >= 0.4, "Yes", "No")) %>%
-        
         mutate(t70_suff_sec = if_else(sec_total_per >= 0.7, "Yes", "No")) %>%
-        
-        mutate(t70_suff_del = if_else(del_cour_total_per >= 0.7, "Yes", "No"))
-
-
+        mutate(t70_suff_del = if_else(del_cour_total_per >= 0.7, "Yes", "No"))    
+ 
     # Calculate absolute courses needed for reach targets
     a_data <- a_data %>%
         mutate(t20_cour_req = round((a_pop * 0.2) * 1.1)) %>%
-        
         mutate(t40_cour_req = round((a_pop * 0.4) * 1.1)) %>%
-        
         mutate(t70_cour_req = round((a_pop * 0.7) * 1.1))
-
 
     # Calculate remaining secured, received, and admnistered courses required for targets
     a_data <- a_data %>%
         mutate(t20_cour_need_sec = round(if_else((t20_cour_req - sec_total) < 0, 0,
         (t20_cour_req - sec_total)))) %>%
-        
         mutate(t20_cour_need_del = round(if_else((t20_cour_req - del_cour_total) < 0, 0,
         (t20_cour_req - del_cour_total)))) %>%
-        
         mutate(t20_cour_need_adm = round(if_else((t20_cour_req - adm_fv_homo) < 0, 0,
         (t20_cour_req - adm_fv_homo)))) %>%
-        
         mutate(t40_cour_need_sec = round(if_else((t40_cour_req - sec_total) < 0, 0,
         (t40_cour_req - sec_total)))) %>%
-        
         mutate(t40_cour_need_del = round(if_else((t40_cour_req - del_cour_total) < 0, 0,
         (t40_cour_req - del_cour_total)))) %>%
-        
         mutate(t40_cour_need_adm = round(if_else((t40_cour_req - adm_fv_homo) < 0, 0,
         (t40_cour_req - adm_fv_homo)))) %>%
-        
         mutate(t70_cour_need_sec = round(if_else((t70_cour_req - sec_total) < 0, 0,
         (t70_cour_req - sec_total)))) %>%
-        
         mutate(t70_cour_need_del = round(if_else((t70_cour_req - del_cour_total) < 0,0,
         (t70_cour_req - del_cour_total)
         ))) %>%
-        
         mutate(t70_cour_need_adm = round(if_else((t70_cour_req - adm_fv_homo) < 0, 0,
         (t70_cour_req - adm_fv_homo))))
-
     return(a_data)
 }
 
@@ -147,30 +111,22 @@ course_progress <- function(a_data, b_smartsheet) {
     # Calculate progress against country coverage targets
     a_data <- a_data %>%
     mutate(ndvp_goalmet = if_else(cov_total_fv >= ndvp_target, "Yes", "No")) %>%
-    
     mutate(ndvp_rem = if_else((ndvp_target - cov_total_fv) < 0, 0, (ndvp_target - cov_total_fv))) %>%
-    
     mutate(ndvp_peratpace = ((adm_fv_homo + (
         dvr_4wk_fv * as.numeric(as.Date(ndvp_deadline) - Sys.Date())
     )) / a_pop)) %>%
-    
     mutate(ndvp_pertogo = if_else((ndvp_target - ndvp_peratpace) < 0, 0, (ndvp_target - ndvp_peratpace)))  %>%
-    
     mutate(ndvp_willmeet = if_else(ndvp_peratpace >= ndvp_target, "Yes", "No")) %>%
-    
     mutate(ndvp_timeto = round(if_else((((
         ndvp_target * a_pop
-    ) - adm_fv_homo) / (dvr_4wk_fv)) < 0 , 0,
+    ) - adm_fv_homo) / (dvr_4wk_fv)) < 0, 0,
     if_else(is.infinite((((ndvp_target * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
     )), NA_real_,
     (((ndvp_target * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
     ))))) %>%
-    
     mutate(ndvp_ontrack = if_else(ndvp_peratpace >= ndvp_target & cov_total_fv <= ndvp_target, "Yes", "No")) %>%
-    
     mutate(ndvp_offtrack = if_else(ndvp_goalmet != "Yes" &
                                     ndvp_willmeet != "Yes", "Yes", "No")) %>%
-    
     mutate(ndvp_status = if_else(
         is.na(ndvp_target) | ndvp_target == 0,
         "Not captured",
@@ -193,7 +149,6 @@ course_progress <- function(a_data, b_smartsheet) {
         )
         )
     )) %>%
-    
     mutate(ndvp_status_num = if_else(
         is.na(ndvp_target) | ndvp_target == 0,
         1,
@@ -220,30 +175,18 @@ course_progress <- function(a_data, b_smartsheet) {
     mutate(ndvp_rate_needed = if_else(
         (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - as.Date("2022-02-02"))) < 0, 0,
         (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - as.Date("2022-02-02"))))) %>%
-    
-    mutate(ndvp_scaleup = round((ndvp_rate_needed / dvr_4wk_fv),2)) %>%
-    
-    mutate(ndvp_scaleup_cat = if_else(
-        ndvp_scaleup == 0,
-        "1) Goal met",
-        if_else(
-        ndvp_scaleup <= 2,
-        "2) <2x",
-        if_else(
-            ndvp_scaleup <= 5,
-            "3) 3-5x",
-            if_else(
-            ndvp_scaleup <= 10,
-            "4) 5-10x",
-            if_else(ndvp_scaleup > 10, "5) >10x",
-                    NA_character_)
-            )
-        )
-        )
-    ))
-
+    mutate(ndvp_scaleup = round((ndvp_rate_needed / dvr_4wk_fv), 2))
+    #FIXME -1 & 100 set as min and max value. Find a way to get min & max value than hard coding it
+    breaks <- c(-1, 0, 2, 5, 10, 100)
+    tags <- c("1) Goal met", "2) <2x", "3) 3-5x", "4) 5-10x", "5) >10x")
+    a_data$ndvp_scaleup_cat <- cut(
+        a_data$ndvp_scaleup,
+        breaks = breaks,
+        include.lowest = TRUE,
+        right = FALSE,
+        labels = tags
+    )
     return(a_data)
-
 }
 
 course_add_notes <- function(a_data, b_csl) {
@@ -252,21 +195,17 @@ course_add_notes <- function(a_data, b_csl) {
 
     a_data <- a_data %>% 
     mutate(csl_status = if_else(is.na(csl_status), "Other country", csl_status)) %>% 
-    
     mutate(csl_status_numb = if_else(csl_status == "Concerted support country", 1, NA_real_))
 
     # Add notes
     a_data <- a_data %>%
     mutate(note_highcov = if_else(cov_total_fv > 0.5, "High fully vaccinated coverage", "No")) %>%
-    
     mutate(note_recent_rollout = if_else(intro_date > (Sys.Date() - 60), "Recent rollout", "No")) %>%
-    
     mutate(note_reporting_date = if_else(
         adm_date < (as.Date("2022-02-02", tz = "UTC") - 10),
         "Likely reporting issue",
         NA_character_
     )) %>%
-  
     mutate(
         note_drivers_auto = if_else(
             note_reporting_date == "Likely reporting issue",
@@ -290,14 +229,11 @@ course_add_notes <- function(a_data, b_csl) {
                 )
             )
         ) %>%
-    
     mutate(note_supplyconstraint = if_else(rem_cour_del_per < 0.05 &
                                            pu_used_per > 0.8, 1, 0))
-    
     a_data_temp <- select(
-        a_data, c("a_iso","adm_fv","a_pop", "cov_total_fv","t10_status","t40_status")
+        a_data, c("a_iso", "adm_fv", "a_pop", "cov_total_fv", "t10_status", "t40_status") #nolint
     )
-
     a_data <- a_data %>%
         mutate(note_drivers = if_else(
             is.na(if_else(
@@ -321,7 +257,7 @@ course_add_notes <- function(a_data, b_csl) {
             )
         )
     ))
-    
+
     # Sort columns
     a_data <- a_data %>%
     select("a_iso", sort(colnames(.)))
@@ -329,7 +265,6 @@ course_add_notes <- function(a_data, b_csl) {
     return(a_data)
 
 }
-
 
 # Create AMC summary table
 amc_covax_status <- function(a_data) {
