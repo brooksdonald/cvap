@@ -56,7 +56,6 @@ transform_current_vxrate <- function(b_vxrate, entity_characteristics) {
     ## Change population field type to numeric
     b_vxrate$a_pop <- as.numeric(b_vxrate$a_pop)
     ## Add entity base data
-    # TODO add helper function
     b_vxrate <- left_join(b_vxrate, entity_characteristics, by = "a_iso")
     ## Add year, month, and week numbers
     b_vxrate <- b_vxrate %>%
@@ -77,16 +76,14 @@ transform_current_vxrate <- function(b_vxrate, entity_characteristics) {
         )
       )
     ) %>%
-    
     mutate(adm_date_week = if_else(
       year(adm_date) == 2021 | year(adm_date) == 2022,
       isoweek(adm_date),
       NA_integer_
       )
     )
-    
     ## Remove pre-2021 entries
-    b_vxrate <- 
+    b_vxrate <-
       filter(
         b_vxrate, adm_date_year == 2021 | adm_date_year == 2022
       )
@@ -111,24 +108,23 @@ transform_current_vxrate <- function(b_vxrate, entity_characteristics) {
         "Yes",
         NA
       )
-    
     b_vxrate <- b_vxrate %>% 
-      group_by(a_iso, adm_date_week) %>% 
+      group_by(a_iso, adm_date_week) %>%
         mutate (
           adm_date_maxweek = if_else(
-            adm_date == max(adm_date), 
-            "Yes", 
+            adm_date == max(adm_date),
+            "Yes",
             "No"
           )
         )
 
     ## Indicate if end of month
     b_vxrate <- b_vxrate %>% 
-      group_by(a_iso, adm_date_month) %>% 
-        mutate (
+      group_by(a_iso, adm_date_month) %>%
+        mutate(
           adm_date_eom = if_else(
-            adm_date == max(adm_date), 
-            "Yes", 
+            adm_date == max(adm_date),
+            "Yes",
             "No"
           )
         )
@@ -139,11 +135,10 @@ transform_current_vxrate <- function(b_vxrate, entity_characteristics) {
         mutate (
           adm_date_lastmonth = if_else(
             adm_date_week == (
-              max(adm_date_week) - 4) 
+              max(adm_date_week) - 4)
                 & adm_date_maxweek == "Yes", "Yes", "No"
               )
             )
-    
     return(b_vxrate)
 
 }
@@ -152,9 +147,9 @@ transform_current_vxrate <- function(b_vxrate, entity_characteristics) {
 # TODO Change the name of this function
 transform_current_vxrate_pub <- function(b_vxrate) {
   print(" >> Create clean long form subsets for b_vxrate_pub")
-  b_vxrate_pub <- 
+  b_vxrate_pub <-
     select(
-      b_vxrate, 
+      b_vxrate,
         c(
           "a_iso",
           "a_name_short",
@@ -413,60 +408,27 @@ absorption_sum_by_month <- function(c_vxrate_eom) {
     left_join(., d_absorption_amc91, by = "adm_date_month")
 
     ### Add full date names for visualization
-    # TODO Refactor this
-    d_absorption <- d_absorption %>%
-      mutate(adm_date_month_name = if_else(
-        adm_date_month == 1,
+    d_absorption$adm_date_month_name <- helper_replace_values_with_map(
+      data = d_absorption$adm_date_month,
+      values = c(
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+      ),
+      map = c(
         "2021-01",
-        if_else(
-          adm_date_month == 2,
-          "2021-02",
-          if_else(
-            adm_date_month == 3,
-            "2021-03",
-            if_else(
-              adm_date_month == 4,
-              "2021-04",
-              if_else(
-                adm_date_month == 5,
-                "2021-05",
-                if_else(
-                  adm_date_month == 6,
-                  "2021-06",
-                  if_else(
-                    adm_date_month == 7,
-                    "2021-07",
-                    if_else(
-                      adm_date_month == 8,
-                      "2021-08",
-                      if_else(
-                        adm_date_month == 9,
-                        "2021-09",
-                        if_else(
-                          adm_date_month == 10,
-                          "2021-10",
-                          if_else(
-                            adm_date_month == 11,
-                            "2021-11",
-                            if_else(
-                              adm_date_month == 12,
-                              "2021-12",
-                              if_else(adm_date_month == 13, "2022-01",
-                                      NA_character_)
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
+        "2021-02",
+        "2021-03",
+        "2021-04",
+        "2021-05",
+        "2021-06",
+        "2021-07",
+        "2021-08",
+        "2021-09",
+        "2021-10",
+        "2021-11",
+        "2021-12",
+        "2022-01"
       )
     )
-  
   return(d_absorption)
 }
 
@@ -477,6 +439,6 @@ latest_sum_table <- function(b_vxrate, c_vxrate_latest) {
   ### Remove is_latest column
   c_vxrate_latest <- select(c_vxrate_latest, -c("adm_latest"))
 
-  return(c_vxrate_latest) 
+  return(c_vxrate_latest)
 
 } 
