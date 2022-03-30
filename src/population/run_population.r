@@ -36,6 +36,3 @@ run_population <- function(env = .GlobalEnv) {
     env$uptake_gender_data <- uptake_gender_data
 
     return(environment())
-}
-
-run_population()

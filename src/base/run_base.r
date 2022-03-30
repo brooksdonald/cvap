@@ -1,6 +1,5 @@
 # Rows 1648 - 1719
 
-
 run_base <- function(env = .GlobalEnv) {
     source("src/base/base_smartsheet.r")
 
@@ -31,4 +30,3 @@ run_base <- function(env = .GlobalEnv) {
     return(environment())
 
 }
-run_base()

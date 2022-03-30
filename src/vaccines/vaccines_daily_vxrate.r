@@ -335,6 +335,7 @@ transform_abspt_by_month <- function(b_vxrate) {
   return(c_vxrate_eom)
 }
 
+#TODO Do a proper refactor for this function
 absorption_sum_by_month <- function(c_vxrate_eom) {
   print(" >> Summarize absorption by grouping by month...")
   ## Summarize absorption by grouping by month
@@ -347,7 +348,6 @@ absorption_sum_by_month <- function(c_vxrate_eom) {
   #### COVAX participation = AMC91
   c_vxrate_eom_amc91 <-
     filter(c_vxrate_eom, a_covax_status == "AMC" & a_iso != "IND")
-  
   d_absorption_amc91 <- c_vxrate_eom_amc91 %>%
     group_by(adm_date_month) %>%
     summarize(absorption_amc91 = sum(adm_td_absorbed))
