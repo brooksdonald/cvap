@@ -1,4 +1,3 @@
-# rows 985 - 1650
 
 # TODO Check all warning messages coming from supplies module
 run_supply <- function(env = .GlobalEnv) {
@@ -9,13 +8,15 @@ run_supply <- function(env = .GlobalEnv) {
     source("src/supply/supply_received.r", TRUE)
 
     print(" > Secured supply...")
-
     supply_secured <- extract_supply_secured()
+    c_sec_cour_lm <- extract_sup_sec_lm()
+
     # FIXME hardcoded date
     supply_secured <- transform_supply_secured(
         supply_secured,
         # dataset_date = "2020-11-20"
-        dataset_date = "2022-01-27"
+        dataset_date = "2022-01-27",
+        c_sec_cour_lm
     )
     print(" > Done.")
 
@@ -37,6 +38,7 @@ run_supply <- function(env = .GlobalEnv) {
     print(" > Loading supply data back to global environment...")
     env$supply_forecast_total <- supply_forecast_total
     env$supply_secured <- supply_secured
+    env$c_sec_cour_lm <- c_sec_cour_lm
     env$delivery_courses_doses <- delivery_courses_doses
     env$supply_received_product <- supply_received_produ
     env$supply_received_doses <- supply_received_doses
@@ -44,3 +46,4 @@ run_supply <- function(env = .GlobalEnv) {
 
     return(environment())
 }
+run_supply()
