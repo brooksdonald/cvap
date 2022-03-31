@@ -46,4 +46,3 @@ run_supply <- function(env = .GlobalEnv) {
 
     return(environment())
 }
-run_supply()
