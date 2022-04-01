@@ -27,7 +27,7 @@ load_base_smartsheet <- function() {
     # IMR Smartsheet
     ## Select relevant columns and rename
     print(" >> Selecting base smartsheet data...")
-    b_smartsheet <- 
+    b_smartsheet <-
         select(
             b_smartsheet,
             c(
@@ -67,10 +67,10 @@ load_who_dashboard <- function() {
     ## Select relevant columns and rename
     print(" >> Selecting WHO vaccination data")
     b_who_dashboard <- select(
-        b_who_dashboard, 
+        b_who_dashboard,
         c(
-            "ISO3", 
-            "NUMBER_VACCINES_TYPES_USED", 
+            "ISO3",
+            "NUMBER_VACCINES_TYPES_USED",
             "FIRST_VACCINE_DATE",
             "PERSONS_FULLY_VACCINATED_PER100"
         )
@@ -78,8 +78,8 @@ load_who_dashboard <- function() {
 
     print(" >> Renaming Columns")
     colnames(b_who_dashboard) <- c(
-        "iso", 
-        "prod_inuse", 
+        "iso",
+        "prod_inuse",
         "intro_date",
         "cov_total_fv_per100"
     )
@@ -100,14 +100,12 @@ load_conc_supp_list <- function() {
     )
 
     ## Rename columns
-    print(" >> Renaming Columns...")
+    print(" >> Renaming CSL Columns...")
     colnames(b_csl) <- c(
         "iso",
-        "csl_status" #a_csl_status
+        "a_csl_status"
     )
-
     return(b_csl)
-
 }
 
 transform_base_smartsheet <- function(b_smartsheet) {

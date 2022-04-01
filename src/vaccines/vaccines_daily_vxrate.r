@@ -196,7 +196,8 @@ transform_subset_amc <- function(b_vxrate) {
     return(b_vxrate_amc)
 }
 
-transform_smooth_tiemseries <- function(b_vxrate_amc) {
+transform_smooth_timeseries <- function(b_vxrate_amc) {
+  print(" >> Transforming smooth time series...")
   d_cov_smooth <- b_vxrate_amc
   d_cov_smooth <- select(
     d_cov_smooth,
@@ -706,4 +707,4 @@ latest_sum_table <- function(b_vxrate, c_vxrate_latest) {
 
   return(c_vxrate_latest)
 
-} 
+}

@@ -194,8 +194,8 @@ course_add_notes <- function(a_data, b_csl) {
     a_data <- left_join(a_data, b_csl, by = c("a_iso" = "iso"))
 
     a_data <- a_data %>% 
-    mutate(csl_status = if_else(is.na(csl_status), "Other country", csl_status)) %>% 
-    mutate(csl_status_numb = if_else(csl_status == "Concerted support country", 1, NA_real_))
+    mutate(a_csl_status = if_else(is.na(a_csl_status), "Other country", a_csl_status)) %>% 
+    mutate(csl_status_numb = if_else(a_csl_status == "Concerted support country", 1, NA_real_))
 
     # Add notes
     a_data <- a_data %>%
