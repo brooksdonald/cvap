@@ -1,5 +1,5 @@
 load_base_data <- function() {
-    print(" >> Load base smartsheet, WHO dashboard and concerted support list...")
+    print(" >> Load base smartsheet, WHO dashboard & concerted support list...")
     b_smartsheet <- load_base_smartsheet()
     b_who_dashboard <- load_who_dashboard()
     b_csl <- load_conc_supp_list()
