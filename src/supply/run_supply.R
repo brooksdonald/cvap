@@ -20,11 +20,6 @@ run_supply <- function(env = .GlobalEnv) {
     )
     print(" > Done.")
 
-    print(" > Forecasted supply...")
-    supply_forecast <- extract_supply_forecast()
-    supply_forecast_total <- transform_supply_forecast(supply_forecast)
-    print(" > Done.")
-
     print(" > Received supply...")
     supply_received <- load_sup_rec()
     supply_received_doses <- transform_sup_rec_doses(supply_received)
@@ -36,7 +31,6 @@ run_supply <- function(env = .GlobalEnv) {
 
 
     print(" > Loading supply data back to global environment...")
-    env$supply_forecast_total <- supply_forecast_total
     env$supply_secured <- supply_secured
     env$c_sec_cour_lm <- c_sec_cour_lm
     env$delivery_courses_doses <- delivery_courses_doses
