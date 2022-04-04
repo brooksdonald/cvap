@@ -12,7 +12,14 @@ extract_vxrate_details <- function(c_vxrate_latest) {
         "a_name_short",
         "a_name_long",
         "a_who_subregion",
-        "a_who_status"
+        "a_who_status",
+        "a_csl_status",
+        "a_ifc_status",
+        "a_continent_sub",
+        "ndvp_mid_target",
+        "ndvp_mid_deadline",
+        "ndvp_mid_rep_rate",
+        "jj_policy"
       )
     )
 
@@ -28,11 +35,36 @@ merge_dataframes <- function(entity_characteristics, c_vxrate_latest_red, popula
 
   # Merge WHO Dashboard data
   a_data <- left_join(a_data, b_who_dashboard, by = c("a_iso" = "iso"))
+  
+  # Merge IMR Smartsheet data
+  a_data <- left_join(a_data, b_smartsheet, by = c("a_iso" = "iso"))
+  
+  # Merge supply secured and/or expected data
+  a_data <- left_join(a_data, supply_secured, by = c("a_iso" = "iso"))
+  
+  # Merge supply received data
+  a_data <- left_join(a_data, delivery_courses_doses, by = c("a_iso" = "iso"))
+  
+  # Merge demand planning
+  a_data <- left_join(a_data, b_dp, by = "a_iso")
+  
+  # Merge JJ-related information
+  a_data <- left_join(a_data, c_delivery_product, by = "a_iso")
+  
+  # Merge financing
+  a_data <- left_join(a_data, b_fin_fund_del_sum, by = "a_iso")
 
   return(a_data)
 }
 
 transform_vxrate_merge <- function(a_data) {
+  #Calculate JJ proportion
+  a_data <- a_data %>%
+    mutate(del_dose_minjj = del_dose_total - del_dose_jj) %>%
+    
+    mutate(del_dose_jj_prop = if_else(is.na(del_dose_jj),0,
+                                      (del_dose_jj / del_dose_total)))
+  
   # Calculate introduction status
   a_data <- a_data %>%
     mutate(intro_status = if_else(
@@ -41,6 +73,11 @@ transform_vxrate_merge <- function(a_data) {
       "Product introduced"
     )
   )
+  
+  a_data <- a_data %>%
+    mutate(csl_status_numb = if_else(a_csl_status == "Concerted support country", 1, NA_real_))
+  
+
   # Assign population size category
   # TODO Find a way to include the max value of max(a_data$a_pop_cat))
   # FIXME Don't hard code the max value
@@ -53,6 +90,20 @@ transform_vxrate_merge <- function(a_data) {
     right = FALSE,
     labels = tags
   )
+  
+  # Calculate population percentages
+  a_data <- a_data %>%
+    mutate(a_pop_10 = a_pop * 0.1) %>%
+    mutate(a_pop_20 = a_pop * 0.2) %>%
+    mutate(a_pop_40 = a_pop * 0.4) %>%
+    mutate(a_pop_70 = a_pop * 0.7)
+  
+  # Calculate population proportions
+  a_data <- a_data %>%
+    mutate(a_pop_18p_prop = a_pop_18p / a_pop_2021) %>%
+    mutate(a_pop_18u_prop = a_pop_18u / a_pop_2021) %>%
+    mutate(a_pop_hcw_prop = a_pop_hcw / a_pop_2021) %>%
+    mutate(a_pop_60p_prop = a_pop_60p / a_pop_2021)
 
   # Calculate theoretical fully vaccinated for non-reporters for current, lm, and 2m
   a_data <- a_data %>%
@@ -62,20 +113,28 @@ transform_vxrate_merge <- function(a_data) {
     if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster == 0, (adm_td - adm_a1d),
     if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster != 0, (adm_td - adm_a1d - adm_booster),
     (adm_fv)))))) %>%
-    mutate(adm_fv_lm_homo = if_else(
+  mutate(adm_fv_lm_homo = if_else(
     adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm == 0, (adm_td_lm / 2),
     if_else(adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm != 0, ((adm_td_lm - adm_booster_lm)/ 2),
     if_else(adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm == 0, (adm_td_lm - adm_a1d_lm),
     if_else(adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm != 0, (adm_td_lm - adm_a1d_lm - adm_booster_lm),
     (adm_fv_lm)))))) %>%
-    mutate(adm_fv_2m_homo = if_else(
+  mutate(adm_fv_2m_homo = if_else(
     adm_a1d_2m == 0 & adm_fv_2m == 0, (adm_td_2m / 2),
-            if_else(adm_a1d_2m != 0 & adm_fv_2m == 0, (adm_td_2m - adm_a1d_2m),
-                            (adm_fv_2m)))) %>%
+    if_else(adm_a1d_2m != 0 & adm_fv_2m == 0, (adm_td_2m - adm_a1d_2m),
+    (adm_fv_2m)))) %>%
+  mutate(adm_fv_13jan_homo = if_else(
+      adm_a1d_13jan == 0 & adm_fv_13jan == 0 & adm_booster_13jan == 0, (adm_td_13jan / 2),
+      if_else(adm_a1d_13jan == 0 & adm_fv_13jan == 0 & adm_booster_13jan != 0, ((adm_td_13jan - adm_booster_13jan)/ 2),
+      if_else(adm_a1d_13jan != 0 & adm_fv_13jan == 0 & adm_booster_13jan == 0, (adm_td_13jan - adm_a1d_13jan),
+      if_else(adm_a1d_13jan != 0 & adm_fv_13jan == 0 & adm_booster_13jan != 0, (adm_td_13jan - adm_a1d_13jan - adm_booster_13jan),
+      (adm_fv_13jan)))))) %>%
   mutate(adm_a1d_homo = if_else(
     adm_a1d == 0 & adm_fv == 0, (adm_td / 2),
-    adm_a1d))
-
+    adm_a1d)) %>%
+  mutate(adm_td_per = adm_td / a_pop) %>%
+  mutate(adm_pv = if_else((adm_a1d - adm_fv) < 0, 0, (adm_a1d - adm_fv)))
+  
   # Calculate td and fv change from lm and 2m
   a_data <- a_data %>%
     mutate(adm_td_less_1m = adm_td - adm_td_lm) %>%
@@ -86,13 +145,17 @@ transform_vxrate_merge <- function(a_data) {
   # Calculate adm_a1d and adm_fv coverage for current, lm, and 2m, including change
   a_data <- a_data %>%
     mutate(cov_total_a1d = adm_a1d / a_pop) %>%
-    mutate(cov_total_fv = if_else(a_who_region == "EUR", cov_total_fv_per100 / 100,
-                                    if_else((adm_fv_homo / a_pop) > 1, 1, (adm_fv_homo / a_pop)))) %>%
+    mutate(cov_total_a1d_adjust = if_else(adm_a1d <= adm_fv, NA_real_, (adm_a1d / a_pop))) %>%
+    mutate(cov_total_a1d_13jan = adm_a1d_13jan / a_pop) %>%
+    mutate(cov_total_fv = if_else((adm_fv_homo / a_pop) > 1, 1, (adm_fv_homo / a_pop))) %>%
+    mutate(cov_total_fv_theo = (adm_td / 2) / a_pop) %>%
     mutate(cov_total_fv_lw = adm_fv_lw / a_pop) %>%
+    mutate(cov_total_fv_13jan = adm_fv_13jan_homo / a_pop) %>%
     mutate(cov_total_fv_lm = if_else((adm_fv_lm_homo / a_pop) > 1, 1, (adm_fv_lm_homo / a_pop))) %>%
     mutate(cov_total_fv_2m = if_else((adm_fv_2m_homo / a_pop) > 1, 1, (adm_fv_2m_homo / a_pop))) %>%
-    mutate(cov_total_fv_less_1m = if_else((cov_total_fv - cov_total_fv_lm) < 0, 0, (cov_total_fv - cov_total_fv_lm)))  %>% 
+    mutate(cov_total_fv_less_1m = if_else((cov_total_fv - cov_total_fv_lm) < 0, 0, (cov_total_fv - cov_total_fv_lm)))  %>%
     mutate(cov_total_fv_1m_2m = if_else((cov_total_fv_lm - cov_total_fv_2m) < 0, 0, (cov_total_fv_lm - cov_total_fv_2m))) %>%
+    mutate(cov_total_fv_cur_13jan= if_else((cov_total_fv - cov_total_fv_13jan) < 0, 0, (cov_total_fv - cov_total_fv_13jan))) %>%
     mutate(cov_total_fv_less_1m_prop = cov_total_fv_less_1m / cov_total_fv)
 
 
@@ -121,9 +184,9 @@ transform_vxrate_merge <- function(a_data) {
   # Calculate linear population coverage projection by 30 June 2022
   a_data <- a_data %>%
     mutate(cov_total_fv_atpace_30jun = if_else(((adm_fv_homo + (dvr_4wk_fv * (
-      as.numeric(as.Date("2022-06-30") - Sys.Date())
+      timeto_t70
     ))) / a_pop) > 1, 1, ((adm_fv_homo + (dvr_4wk_fv * (
-      as.numeric(as.Date("2022-06-30") - Sys.Date())
+      timeto_t70
     ))) / a_pop)))
 
 
@@ -135,12 +198,15 @@ transform_vxrate_merge <- function(a_data) {
 
   # Calculate target group coverage figures
   a_data <- a_data %>%
+    mutate(adm_a1d_hcw_homo = if_else(adm_a1d_hcw > a_pop_hcw, a_pop_hcw, adm_a1d_hcw)) %>%
     mutate(adm_fv_hcw_homo = if_else(adm_fv_hcw > a_pop_hcw, a_pop_hcw, adm_fv_hcw)) %>%
+    mutate(cov_hcw_a1d = if_else((adm_a1d_hcw / a_pop_hcw) > 1, 1, (adm_a1d_hcw / a_pop_hcw))) %>%
     mutate(cov_hcw_fv = if_else((adm_fv_hcw_homo / a_pop_hcw) > 1, 1, (adm_fv_hcw_homo / a_pop_hcw))) %>%
     mutate(adm_fv_gen = adm_fv_male + adm_fv_female) %>%
     mutate(cov_total_male_fv = adm_fv_male / a_pop_male) %>%
     mutate(cov_total_fem_fv = adm_fv_female / a_pop_female) %>%
-    mutate(cov_60p_fv = adm_fv_60p / a_pop_60p)
+    mutate(cov_60p_a1d = if_else((adm_a1d_60p / a_pop_60p) > 1, 1, (adm_a1d_60p / a_pop_60p))) %>%
+    mutate(cov_60p_fv = if_else((adm_fv_60p / a_pop_60p) > 1, 1, (adm_fv_60p / a_pop_60p)))
 
   # Calculate gender coverage difference in reporting countries
   a_data <- a_data %>%
@@ -148,6 +214,7 @@ transform_vxrate_merge <- function(a_data) {
   
   # Calculate 4-week average daily rates as % of pop.
   a_data <- a_data %>%
+    mutate(dvr_4wk_fv = if_else(dvr_4wk_fv < 0, 0, dvr_4wk_fv)) %>%
     mutate(dvr_4wk_td_per = dvr_4wk_td / a_pop) %>%
     mutate(dvr_4wk_fv_per = dvr_4wk_fv / a_pop) %>%
     mutate(dvr_4wk_td_max_per = dvr_4wk_td_max / a_pop)

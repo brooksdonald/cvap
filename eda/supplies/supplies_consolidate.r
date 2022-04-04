@@ -1,10 +1,19 @@
 merge_a_data_details <- function(a_data, supply_secured, delivery_courses_doses) { #nolint
-  # Merge supply secured and/or expected data
-
-  a_data <- left_join(a_data, supply_secured, by = c("a_iso" = "iso"))
+  # Divide by to for courses
+  a_data <- a_data %>%
+    mutate(sec_total = sec_total_dose / 2) %>%
+    mutate(sec_covax = sec_covax_dose / 2) %>%
+    mutate(sec_bilat = sec_bilat_dose / 2) %>%
+    mutate(sec_eu = sec_eu_dose / 2) %>%
+    mutate(sec_domestic = sec_domestic_dose / 2) %>%
+    mutate(sec_donat = sec_donat_dose / 2) %>%
+    mutate(sec_other = sec_other_dose / 2) %>%
+    mutate(sec_other_sum = sec_other_sum_dose / 2)
+  
   # Calculate secured courses as percent of population
   a_data <- a_data %>%
-  mutate(sec_total_per = sec_total / a_pop)
+  mutate(sec_total_per = sec_total / a_pop) %>%
+  mutate(sec_total_dose_lm = sec_total_lm * 2)
 
   # Assign secured courses category
   breaks <- c(0, 0.25, 0.5, 0.75, 1, 10)
@@ -23,8 +32,6 @@ merge_a_data_details <- function(a_data, supply_secured, delivery_courses_doses)
     mutate(sec_noncovaxdonat_prop = (sec_bilat + sec_other_sum) / sec_total) %>%
     mutate(sec_bilat_prop = sec_bilat / sec_total)
 
-  # Merge supply received data
-  a_data <- left_join(a_data, delivery_courses_doses, by = c("a_iso" = "iso"))
   # Calculate delivered courses as percent of population
   a_data <- a_data %>%
     mutate(del_cour_total_per = del_cour_total / a_pop) %>%

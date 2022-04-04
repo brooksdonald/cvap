@@ -8,19 +8,15 @@ target_group_ten <- function(a_data) {
     mutate(t10_goalmet_sep = if_else(a_iso == "BDI", "No", t10_goalmet_sep)) %>%
     mutate(t10_goalmet_after = if_else(cov_total_fv >= 0.1, "Yes", "No")) %>%
     mutate(t10_notmet = if_else(cov_total_fv < 0.1, "Yes", "No")) %>%
-    mutate(t10_timeto = round(if_else((((
-      0.1 * a_pop
-    ) - adm_fv_homo) / (dvr_4wk_fv)) < 0, 0,
-    if_else(is.infinite((((0.1 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-    )), NA_real_,
-    (((0.1 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-    ))))) %>%
-
+    mutate(t10_timeto = round(if_else(
+      ((adm_pv + ((a_pop_10 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td) < 0, 0,
+      if_else(is.infinite(((adm_pv + ((a_pop_10 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td)), NA_real_,
+              ((adm_pv + ((a_pop_10 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td))))) %>%
     mutate(t10_rate_needed_30jun = if_else(
-    (((a_pop * 0.1) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))) < 0, 0,
-    (((a_pop * 0.1) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))))) %>%
-    mutate(t10_scaleup_30jun = if_else(is.infinite(round((t10_rate_needed_30jun / dvr_4wk_fv),2)), NA_real_, 
-                                     round((t10_rate_needed_30jun / dvr_4wk_fv),2))) %>%
+      (((a_pop_10 - adm_fv_homo) / timeto_t70) * 2) < 0, 0,
+      (((a_pop_10 - adm_fv_homo) / timeto_t70) * 2))) %>%
+    mutate(t10_scaleup_30jun = if_else(is.infinite(round((t10_rate_needed_30jun / dvr_4wk_td),2)), 0, 
+                                       round((t10_rate_needed_30jun / dvr_4wk_td), 2))) %>%
     mutate(t10_status = if_else(
       t10_goalmet_sep == "Yes",
       "1) Goal met by deadline",
@@ -43,19 +39,15 @@ target_group_twenty_forty <- function(a_data) {
   a_data <- a_data %>%
     mutate(t20_goalmet_after = if_else(cov_total_fv >= 0.2, "Yes", "No")) %>%
     mutate(t20_notmet = if_else(cov_total_fv < 0.2, "Yes", "No")) %>%
-    mutate(t20_timeto = round(if_else((((
-      0.2 * a_pop
-    ) - adm_fv_homo) / (dvr_4wk_fv)) < 0 , 0,
-    if_else(is.infinite((((0.2 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-    )), NA_real_,
-    (((0.2 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-    ))))) %>%
-
+    mutate(t20_timeto = round(if_else(
+      ((adm_pv + ((a_pop_20 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td) < 0, 0,
+      if_else(is.infinite(((adm_pv + ((a_pop_20 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td)), NA_real_,
+              ((adm_pv + ((a_pop_20 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td))))) %>%
     mutate(t20_rate_needed_30jun = if_else(
-    (((a_pop * 0.2) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))) < 0, 0,
-    (((a_pop * 0.2) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))))) %>%
-    mutate(t20_scaleup_30jun = if_else(is.infinite(round((t20_rate_needed_30jun / dvr_4wk_fv),2)), NA_real_, 
-                                        round((t20_rate_needed_30jun / dvr_4wk_fv),2))) %>%
+      (((a_pop_20 - adm_fv_homo) / timeto_t70) * 2) < 0, 0,
+      (((a_pop_20 - adm_fv_homo) / timeto_t70) * 2))) %>%
+    mutate(t20_scaleup_30jun = if_else(is.infinite(round((t20_rate_needed_30jun / dvr_4wk_td), 2)), 0, 
+                                       round((t20_rate_needed_30jun / dvr_4wk_td), 2))) %>%
     mutate(t20_status = if_else(
       t20_goalmet_dec == "Yes" |
         (is.na(t20_goalmet_dec) & adm_td > 0),
@@ -67,21 +59,19 @@ target_group_twenty_forty <- function(a_data) {
                 NA_character_)
       )
     )) %>%
+    mutate(t40_goalmet_dec = if_else((is.na(t40_goalmet_dec) & cov_total_fv < 0.4), "No", 
+                                     t40_goalmet_dec)) %>%
     mutate(t40_goalmet_after = if_else(cov_total_fv >= 0.4, "Yes", "No")) %>%
     mutate(t40_notmet = if_else(cov_total_fv < 0.4, "Yes", "No")) %>%
-    mutate(t40_timeto = round(if_else((((
-      0.4 * a_pop
-    ) - adm_fv_homo) / (dvr_4wk_fv)) < 0 , 0,
-    if_else(is.infinite((((0.4 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-    )), NA_real_,
-    (((0.4 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-    ))))) %>%
-
+    mutate(t40_timeto = round(if_else(
+      ((adm_pv + ((a_pop_40 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td) < 0, 0,
+      if_else(is.infinite(((adm_pv + ((a_pop_40 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td)), NA_real_,
+              ((adm_pv + ((a_pop_40 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td))))) %>%
     mutate(t40_rate_needed_30jun = if_else(
-    (((a_pop * 0.4) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))) < 0, 0,
-    (((a_pop * 0.4) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))))) %>%
-    mutate(t40_scaleup_30jun = if_else(is.infinite(round((t40_rate_needed_30jun / dvr_4wk_fv),2)), NA_real_, 
-                                round((t40_rate_needed_30jun / dvr_4wk_fv),2))) %>%
+      (((a_pop_40 - adm_fv_homo) / timeto_t70) * 2) < 0, 0,
+      (((a_pop_40 - adm_fv_homo) / timeto_t70) * 2))) %>%
+    mutate(t40_scaleup_30jun = if_else(is.infinite(round((t40_rate_needed_30jun / dvr_4wk_td),2)), 0, 
+                                       round((t40_rate_needed_30jun / dvr_4wk_td),2))) %>%
     mutate(t40_status = if_else(
       t40_goalmet_dec == "Yes" |
         (is.na(t40_goalmet_dec) & adm_td > 0),
@@ -106,13 +96,10 @@ target_group_seventy <- function(a_data) {
   a_data <- a_data %>%
   mutate(t70_ontrack = if_else(t70_willmeet == "Yes" & is.na(t70_goalmet), "Yes", NA_character_)) %>%
   mutate(t70_offtrack = if_else(is.na(t70_goalmet) & is.na(t70_willmeet), "Yes", NA_character_)) %>%
-  mutate(t70_timeto = round(if_else((((
-    0.7 * a_pop
-  ) - adm_fv_homo) / (dvr_4wk_fv)) < 0 , 0,
-  if_else(is.infinite((((0.7 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-  )), NA_real_,
-  (((0.7 * a_pop) - adm_fv_homo) / (dvr_4wk_fv)
-  )))))
+  mutate(t70_timeto = round(if_else(
+    ((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td) < 0, 0,
+    if_else(is.infinite(((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td)), NA_real_,
+            ((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td)))))
   a_data <- a_data %>%
   mutate(t70_status = if_else(
     cov_total_fv >= 0.7,
@@ -135,20 +122,54 @@ target_group_seventy <- function(a_data) {
     )
   )) %>%
   mutate(t70_rate_needed = if_else(
-    (((a_pop * 0.7) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))) < 0, 0,
-    (((a_pop * 0.7) - adm_fv_homo) / as.numeric(as.Date("2022-06-30") - as.Date("2022-02-02"))))) %>%
+    ((a_pop_70 - adm_fv_homo) / timeto_t70) < 0, 0,
+    ((a_pop_70 - adm_fv_homo) / timeto_t70))) %>%
+    mutate(t70_rate_needed_dose = if_else(is.na(jj_policy),
+    if_else(
+    ((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2)) / timeto_t70) < 0, 0,
+    ((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2)) / timeto_t70)
+    ),
+    if_else(jj_policy == "One",
+    if_else(
+    ((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2 * (1 - del_dose_jj_prop)) + ((a_pop_70 - adm_pv - adm_fv_homo) * del_dose_jj_prop)) / timeto_t70) < 0, 0,
+    ((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2 * (1 - del_dose_jj_prop)) + ((a_pop_70 - adm_pv - adm_fv_homo) * del_dose_jj_prop)) / timeto_t70) 
+    ),
+    NA_real_)
+    )) %>%
+    
   mutate(t70_scaleup = if_else(is.infinite(round((t70_rate_needed / dvr_4wk_fv),2)), NA_real_, 
-                               round((t70_rate_needed / dvr_4wk_fv), 2)))
+                               round((t70_rate_needed / dvr_4wk_fv), 2))) %>%
+  mutate(t70_scaleup_dose = if_else(is.infinite(round((t70_rate_needed_dose / dvr_4wk_td),2)), 0, 
+                                    round((t70_rate_needed_dose / dvr_4wk_td),2))) %>%
+    
+  mutate(t70_rate_needed_dose_per = t70_rate_needed_dose / a_pop)
+  
   #FIXME Min and max values hard coded. Automate this.
   breaks <- c(-1, 0, 2, 5, 10, 100)
   tags <- c("1) Goal met", "2) <2x", "3) 3-5x", "4) 5-10x", "5) >10x")
   a_data$t70_scaleup_cat <- cut(
-    a_data$t70_scaleup,
+    a_data$t70_scaleup_dose,
     breaks = breaks,
     include.lowest = TRUE,
     right = FALSE,
     labels = tags
   )
+  
+  a_data <- a_data %>%
+  mutate(t70_scaleup_cat_kpi = if_else(
+    t70_scaleup_dose < 2,
+    "High",
+    if_else(
+      t70_scaleup_dose < 10,
+      "Medium",
+      if_else(
+        t70_scaleup_dose >= 10,
+        "Low",
+        NA_character_)
+    )
+  )
+  )
+  
   return(a_data)
 }
 
@@ -197,5 +218,12 @@ booster_doses <- function(a_data) {
   #   right = FALSE,
   #   labels = tags
   # )
+  
+  # Calculate coverage differences
+  a_data <- a_data %>%
+    mutate(cov_total_a1d_fv = if_else(cov_total_a1d < cov_total_fv, 0, (cov_total_a1d - cov_total_fv))) %>%
+    
+    mutate(cov_total_fv_booster = if_else(cov_total_fv < cov_total_booster, 0, (cov_total_fv - cov_total_booster)))
+  
   return(a_data)
 }
