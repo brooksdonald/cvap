@@ -28,13 +28,13 @@ extract_supply_secured <- function() {
             supply_input,
             c(
                 "ISO3",
-                "Secured.and.or.Expected.Vaccine..millions.of.courses.",
-                "Bilateral.Deals..millions.of.courses.",
-                "Bilateral.Donations..millions.of.courses.",
-                "COVAX.Total..millions.of.courses.",
-                "EU.Deal..millions.of.courses.",
-                "Other.sources..millions.of.courses.",
-                "Domestic.Supply..millions.of.courses."
+                "Secured.and.or.Expected.Vaccine..millions.of.doses.",
+                "Bilateral.Deals..millions.of.doses.",
+                "Bilateral.Donations..millions.of.doses.",
+                "COVAX.Total..millions.of.doses.",
+                "EU.Deal..millions.of.doses.",
+                "Other.sources..millions.of.doses.",
+                "Domestic.Supply..millions.of.doses."
             )
         )
 
@@ -42,13 +42,13 @@ extract_supply_secured <- function() {
     colnames(supply_secured) <-
         c(
             "iso",
-            "sec_total",
-            "sec_bilat",
-            "sec_donat",
-            "sec_covax",
-            "sec_eu",
-            "sec_other",
-            "sec_domestic"
+            "sec_total_dose",
+            "sec_bilat_dose",
+            "sec_donat_dose",
+            "sec_covax_dose",
+            "sec_eu_dose",
+            "sec_other_dose",
+            "sec_domestic_dose"
         )
 
     return(supply_secured)
@@ -86,13 +86,13 @@ transform_supply_secured <- function(supply_secured, dataset_date, c_sec_cour_lm
     print(" >> Transforming and cleaning supply secured...")
     multiplier <- 1000000
     columns_to_multiply <- list(
-        "sec_total",
-        "sec_bilat",
-        "sec_donat",
-        "sec_covax",
-        "sec_other",
-        "sec_eu",
-        "sec_domestic"
+        "sec_total_dose",
+        "sec_bilat_dose",
+        "sec_donat_dose",
+        "sec_covax_dose",
+        "sec_other_dose",
+        "sec_eu_dose",
+        "sec_domestic_dose"
     )
     print(" >> Multiplying current supply by a million...")
     for (c in columns_to_multiply) {
@@ -116,7 +116,7 @@ transform_supply_secured <- function(supply_secured, dataset_date, c_sec_cour_lm
     # consolidate other secured sources for visualization
     print(" >> Summing others...")
     supply_secured <- supply_secured %>%
-        mutate(sec_other_sum = sec_eu + sec_other + sec_domestic)
+        mutate(sec_other_sum_dose = sec_eu_dose + sec_other_dose + sec_domestic_dose)
 
     print(" >> Adding dataset date...")
     # FIXME do I need to pass in date here?

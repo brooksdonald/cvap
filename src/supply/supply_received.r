@@ -91,7 +91,9 @@ transform_sup_rec_doses <- function(supply_received) {
         mutate(del_dose_prior_2m = del_dose_total_2m)
 
     supply_received_doses <- supply_received_doses %>%
-        mutate(del_dose_lm_2m = del_dose_total_lm - del_dose_total_2m)
+        mutate(del_dose_lm_2m = del_dose_total_lm - del_dose_total_2m) %>%
+        
+        mutate(del_dose_wast = del_dose_total * 0.1)
 
 
     return(supply_received_doses)

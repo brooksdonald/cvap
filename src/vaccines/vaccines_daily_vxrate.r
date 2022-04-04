@@ -159,19 +159,28 @@ transform_current_vxrate_pub <- function(b_vxrate) {
         "dvr_4wk_td",
         "a_who_region",
         "a_covax_status",
-        "a_income_group"
+        "a_income_group",
+        "a_csl_status",
+        "a_ifc_status",
+        "a_continent_sub"
       )
     )
     ### Calculate dvr_4wk_td_per in long form subsets
     b_vxrate_pub <- b_vxrate_pub %>%
       mutate(dvr_4wk_td_per = dvr_4wk_td / a_pop)
+    
+    ### Calculate population coverage in long form datasets
+    b_vxrate_pub <- b_vxrate_pub %>%
+      mutate(cov_total_fv = adm_fv / a_pop) %>%
+      
+      mutate(cov_total_fv_theo = (adm_td / 2) / a_pop)
 
     return(b_vxrate_pub)
 }
 
 transform_subset_amc <- function(b_vxrate) {
   print(" >> Create clean long form subsets for b_vxrate_amc")
-  b_vxrate_amc <- filter(b_vxrate, a_covax_status == "AMC")
+  b_vxrate_amc <- filter(b_vxrate, a_covax_status == "AMC" | a_iso == "GAB")
   b_vxrate_amc <-
     select(
       b_vxrate_amc,
@@ -187,18 +196,26 @@ transform_subset_amc <- function(b_vxrate) {
         "dvr_4wk_td",
         "a_who_region",
         "a_covax_status",
-        "a_income_group"
+        "a_income_group",
+        "a_csl_status",
+        "a_ifc_status",
+        "a_continent_sub"
       )
     )
     b_vxrate_amc <- b_vxrate_amc %>%
       mutate(dvr_4wk_td_per = dvr_4wk_td / a_pop)
+    
+    b_vxrate_amc <- b_vxrate_amc %>%
+      mutate(cov_total_fv = adm_fv / a_pop) %>%
+      
+      mutate(cov_total_fv_theo = (adm_td / 2) / a_pop)
 
     return(b_vxrate_amc)
 }
 
 transform_smooth_timeseries <- function(b_vxrate_amc) {
   print(" >> Transforming smooth time series...")
-  d_cov_smooth <- b_vxrate_amc
+  d_cov_smooth <- b_vxrate_pub
   d_cov_smooth <- select(
     d_cov_smooth,
     c(
@@ -362,11 +379,11 @@ transform_dec21_pop_tgt <- function(b_vxrate) {
 
   #### Indicate if cov_total_fv is greater than or equal to 20%
   c_vxrate_dec <- c_vxrate_dec %>%
-    mutate(t20_goalmet_dec = if_else(cov_total_fv > .2, "Yes", "No"))
+    mutate(t20_goalmet_dec = if_else(cov_total_fv >= .2, "Yes", "No"))
 
   #### Indicate if cov_total_fv is greater than or equal to 40%
   c_vxrate_dec <- c_vxrate_dec %>%
-    mutate(t40_goalmet_dec = if_else(cov_total_fv > .4, "Yes", "No"))
+    mutate(t40_goalmet_dec = if_else(cov_total_fv >= .4, "Yes", "No"))
 
   #### Reduce to a_iso, t20_goalmet_dec, t40_goalmet_dec
   c_vxrate_dec_t2040 <-
@@ -394,6 +411,8 @@ transform_abspt_by_month <- function(b_vxrate) {
         "a_continent",
         "a_covax_status",
         "a_income_group",
+        "a_csl_status",
+        "a_ifc_status",
         "adm_date_month",
         "adm_td"
       )
@@ -441,7 +460,7 @@ absorption_per_country <- function(c_vxrate_eom) {
   d_absorption_country$adm_date_month_name <- helper_replace_values_with_map(
     data = d_absorption_country$adm_date_month,
     values = c(
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
     ),
     map = c(
       "2021-01",
@@ -457,7 +476,8 @@ absorption_per_country <- function(c_vxrate_eom) {
       "2021-11",
       "2021-12",
       "2022-01",
-      "2022-02"
+      "2022-02",
+      "2022-03"
     )
   )
   print(" >> Selecting columns needed...")
@@ -543,7 +563,7 @@ new_absorption_countries <- function(c_vxrate_eom) {
     d_absorption_country_new$month_name <- helper_replace_values_with_map(
       data = d_absorption_country_new$adm_date_month,
       values = c(
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
       ),
       map = c(
         "2021-01",
@@ -559,7 +579,8 @@ new_absorption_countries <- function(c_vxrate_eom) {
         "2021-11",
         "2021-12",
         "2022-01",
-        "2022-02"
+        "2022-02",
+        "2022-03"
       )
     )
     return(d_absorption_country_new)
@@ -675,7 +696,7 @@ absorption_sum_by_month <- function(c_vxrate_eom) {
     d_absorption$adm_date_month_name <- helper_replace_values_with_map(
       data = d_absorption$adm_date_month,
       values = c(
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
       ),
       map = c(
         "2021-01",
@@ -690,7 +711,9 @@ absorption_sum_by_month <- function(c_vxrate_eom) {
         "2021-10",
         "2021-11",
         "2021-12",
-        "2022-01"
+        "2022-01",
+        "2022-02",
+        "2022-03"
       )
     )
   return(d_absorption)

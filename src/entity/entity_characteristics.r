@@ -18,6 +18,7 @@ load_entity_chars <- function() {
                 "CONTINENT",
                 "WHOREGIONC",
                 "WHO14SUBREGIONS",
+                "MAJORGEOAREASSUBS",
                 "UNICEFREGION",
                 "WHO_LEGAL_STATUS_TITLE",
                 "COVAX",
@@ -33,6 +34,7 @@ load_entity_chars <- function() {
         "a_continent",
         "a_who_region",
         "a_who_subregion",
+        "a_continent_sub",
         "a_unicef_region",
         "a_who_status",
         "a_covax_status",
@@ -69,6 +71,16 @@ transform_entity_chars <- function(entity_characteristics) {
             "Lower middle income", "Low income"
         ),
         map = c("HIC", "UMIC", "LMIC", "LIC"),
+        na_fill = "Other"
+    )
+    
+    print(" >> Rework Africa sub-regions...")
+    
+    entity_characteristics$a_continent_sub <- helper_replace_values_with_map(
+        data = entity_characteristics$a_who_region,
+        values = c("Eastern Africa", "Western Africa", "Middle Africa", 
+                   "Southern Africa", "Northern Africa"),
+        map = c("Eastern", "Western", "Central", "Southern", "Northern"),
         na_fill = "Other"
     )
 

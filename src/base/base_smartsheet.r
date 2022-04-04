@@ -20,7 +20,7 @@ load_base_smartsheet <- function() {
     b_smartsheet <- data.frame(
         read_excel(
             "data/_input/base_smartsheet.xlsx",
-            sheet = "data"
+            sheet = "1. CRD-global-monitoring (PMO M"
         )
     )
     
@@ -43,9 +43,8 @@ load_base_smartsheet <- function() {
     print(" >> Renaming Columns...")
     colnames(b_smartsheet) <- c(
         "iso",
-        "ndvp_target",
-        "ndvp_deadline",
-        "ndvp_tarpop",
+        "ss_target",
+        "ss_deadline",
         "expiry_risk",
         "note_ss_drivers"
     )
@@ -103,7 +102,12 @@ load_conc_supp_list <- function() {
     print(" >> Renaming CSL Columns...")
     colnames(b_csl) <- c(
         "iso",
-        "a_csl_status"
+        "a_csl_status",
+        "a_ifc_status",
+        "ndvp_mid_target",
+        "ndvp_mid_deadline",
+        "ndvp_mid_rep_rate",
+        "jj_policy"
     )
     return(b_csl)
 }
@@ -120,7 +124,7 @@ transform_base_smartsheet <- function(b_smartsheet) {
         ),
         map = c(
             "Doses at risk",
-            "Doses under observation",
+            "Under observation",
             "No doses at risk"
         ),
         na_fill = "Unknown"
@@ -128,8 +132,8 @@ transform_base_smartsheet <- function(b_smartsheet) {
     )
 
     ## Change country target field type to date
-    b_smartsheet$ndvp_deadline <-
-    as.Date(b_smartsheet$ndvp_deadline)
+    b_smartsheet$ss_deadline <-
+    as.Date(b_smartsheet$ss_deadline)
 
     return(b_smartsheet)
 
