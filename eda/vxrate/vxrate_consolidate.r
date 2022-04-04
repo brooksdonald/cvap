@@ -58,6 +58,12 @@ merge_dataframes <- function(entity_characteristics, c_vxrate_latest_red, popula
 }
 
 transform_vxrate_merge <- function(a_data) {
+  # Set static dates
+  refresh_date <- as.Date("2022-03-30")
+  t70_deadline <- as.Date("2022-06-30")
+  timeto_t70 <- as.numeric(t70_deadline - refresh_date)
+  a_data$refresh_date <- refresh_date
+  
   #Calculate JJ proportion
   a_data <- a_data %>%
     mutate(del_dose_minjj = del_dose_total - del_dose_jj) %>%
