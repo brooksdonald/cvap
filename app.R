@@ -21,6 +21,8 @@ source("src/population/run_population.r")
 source("src/supply/run_supply.R")
 source("src/vaccines/run_vaccines.r")
 source("src/finance/finance.r")
+source("src/demand-planning/demand_planning.r")
+
 
 base_env <- run_base()
 entity_env <- run_entity()
@@ -28,6 +30,7 @@ pop_env <- run_population()
 supply_env <- run_supply()
 vaccines_env <- run_vaccines(entity_characteristics)
 finance_env <- run_financing()
+demand_plan_env <- run_dp()
 
 # EDA
 

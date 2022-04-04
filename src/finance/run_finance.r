@@ -1,7 +1,7 @@
 run_financing <- function(env = .GlobalEnv) {
     source("src/finance/finance.r")
     
-    print(" > Starting local environment for base population")
+    print(" > Starting local environment for fiancing module")
     print(" > Loading financing data...")
     b_fin_funding <- load_finance_data()
     print(" > Done.")
@@ -20,4 +20,3 @@ run_financing <- function(env = .GlobalEnv) {
 
     return(environment())
 }
-run_financing()
