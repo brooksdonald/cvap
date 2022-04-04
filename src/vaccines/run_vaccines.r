@@ -12,16 +12,16 @@ run_vaccines <- function(entity_characteristics, env = .GlobalEnv) {
     b_vxrate <- transform_current_vxrate(b_vxrate, entity_characteristics)
     b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate) 
     b_vxrate_amc <- transform_subset_amc(b_vxrate) 
-    b_vxrate_amc_smooth <- transform_smooth_timeseries(b_vxrate_amc)
+    # b_vxrate_amc_smooth <- transform_smooth_timeseries(b_vxrate_amc)
     c_vxrate_sept_t10 <- transform_sept21_pop_tgt(b_vxrate)
     c_vxrate_dec_t2040 <- transform_dec21_pop_tgt(b_vxrate)
     c_vxrate_eom <- transform_abspt_by_month(b_vxrate)
     d_absorption <- absorption_sum_by_month(c_vxrate_eom)
     c_vxrate_latest <- latest_sum_table(b_vxrate, c_vxrate_latest)
-    d_absorb_red <- absorption_per_country(c_vxrate_eom)
-    combined <- first_supplies(d_absorption_country)
-    d_absorption_country_new <- new_absorption_countries(c_vxrate_eom)
-    combined_three <- second_supplies(d_absorption_country_new, combined, d_absorb_red, entity_characteristics)
+    # d_absorb_red <- absorption_per_country(c_vxrate_eom)
+    # combined <- first_supplies(d_absorption_country)
+    # d_absorption_country_new <- new_absorption_countries(c_vxrate_eom)
+    # combined_three <- second_supplies(d_absorption_country_new, combined, d_absorb_red, entity_characteristics)
     print(" > Done.")
 
     print(" > Last week, last month, vaccinations and 13jan data")
@@ -50,7 +50,7 @@ run_vaccines <- function(entity_characteristics, env = .GlobalEnv) {
     env$b_vxrate <- b_vxrate
     env$b_vxrate_pub <- b_vxrate_pub
     env$b_vxrate_amc <- b_vxrate_amc
-    env$b_vxrate_amc_smooth <- b_vxrate_amc_smooth
+    # env$b_vxrate_amc_smooth <- b_vxrate_amc_smooth
     env$c_vxrate_sept_t10 <- c_vxrate_sept_t10
     env$c_vxrate_dec_t2040 <- c_vxrate_dec_t2040
     env$c_vxrate_eom <- c_vxrate_eom
@@ -60,10 +60,10 @@ run_vaccines <- function(entity_characteristics, env = .GlobalEnv) {
     env$b_vxrate_lm_sum <- b_vxrate_lm_sum
     env$b_vxrate_2m_sum <- b_vxrate_2m_sum
     env$b_vxrate_13jan <- b_vxrate_13jan
-    env$d_absorb_red <- d_absorb_red
-    env$combined <- combined
-    env$d_absorption_country_new <- d_absorption_country_new
-    env$combined_three <- combined_three
+    # env$d_absorb_red <- d_absorb_red
+    # env$combined <- combined
+    # env$d_absorption_country_new <- d_absorption_country_new
+    # env$combined_three <- combined_three
     print(" > Done.")
 
     return(environment())

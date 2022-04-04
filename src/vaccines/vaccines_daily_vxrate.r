@@ -264,9 +264,10 @@ transform_smooth_timeseries <- function(b_vxrate_amc) {
   d_cov_smooth_new <- arrange(d_cov_smooth_new,iso, date)
 
   d_cov_smooth_new <- d_cov_smooth_new %>%
-  group_by(iso) %>% 
-  fill(adm_fv_smooth) %>%
-  mutate(adm_fv_smooth = replace(adm_fv_smooth, is.na(adm_fv_smooth), 0))
+    group_by(iso) %>% 
+    fill(adm_fv_smooth) %>%
+    
+    mutate(adm_fv_smooth = replace(adm_fv_smooth, is.na(adm_fv_smooth), 0))
 
   d_cov_smooth_new <- select(
     d_cov_smooth_new, c("iso", "date", "adm_fv_smooth")
@@ -276,7 +277,7 @@ transform_smooth_timeseries <- function(b_vxrate_amc) {
     b_vxrate_amc, d_cov_smooth_new, by = c("a_iso" = "iso", "adm_date" = "date")
   )
 
-  b_vxrate_amc_smooth <- arrange(b_vxrate_amc_smooth,a_iso, adm_date)
+  b_vxrate_amc_smooth <- arrange(b_vxrate_amc_smooth, a_iso, adm_date)
 
   b_vxrate_amc_smooth <- b_vxrate_amc_smooth %>%
     group_by(a_iso) %>%
@@ -292,7 +293,6 @@ transform_smooth_timeseries <- function(b_vxrate_amc) {
 
   b_vxrate_amc_smooth <- b_vxrate_amc_smooth %>%
     mutate(cov_total_fv_smooth = adm_fv_smooth / a_pop)
-  
   return(b_vxrate_amc_smooth)
 }
 
@@ -425,179 +425,178 @@ transform_abspt_by_month <- function(b_vxrate) {
   return(c_vxrate_eom)
 }
 
-# Create per country absorption table
-absorption_per_country <- function(c_vxrate_eom) {
-  print(" >> Adding per country monthly absorption table...")
-  d_absorption_country <- select(
-    c_vxrate_eom,
-    c(
-      "a_iso",
-      "a_covax_status",
-      "a_csl_status",
-      "adm_date_month",
-      "adm_td_absorbed"
-    )
-  )
-  d_absorption_country$adm_date_month_name <- helper_replace_values_with_map(
-    data = d_absorption_country$adm_date_month,
-    values = c(
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
-    ),
-    map = c(
-      "2021-01",
-      "2021-02",
-      "2021-03",
-      "2021-04",
-      "2021-05",
-      "2021-06",
-      "2021-07",
-      "2021-08",
-      "2021-09",
-      "2021-10",
-      "2021-11",
-      "2021-12",
-      "2022-01",
-      "2022-02"
-    )
-  )
-  print(" >> Selecting columns needed...")
-  d_absorption_country <- select(
-    d_absorption_country,
-    c(
-      "a_iso",
-      "a_covax_status",
-      "a_csl_status",
-      "adm_td_absorbed",
-      "adm_date_month_name"
-    )
-  )
-  print(" >> Renaming columns...")
-  colnames(d_absorption_country) <- c(
-    "iso",
-    "a_covax_status",
-    "a_csl_status",
-    "value",
-    "month_name"
-  )
-  d_absorption_country$type <- "Absorbed"
-  print(" >> Selecting columns needed from d_absorption_country for d_absorb_red...") #nolint
-  d_absorb_red <- select(
-    d_absorption_country,
-    c(
-      "iso",
-      "month_name",
-      "value"
-    )
-  )
-  print(" >> Renaming columns for d_absorb_red...")
-  colnames(d_absorb_red) <- c(
-    "iso",
-    "month_name",
-    "absorbed"
-  )
-  return(d_absorb_red)
-}
+# # Create per country absorption table
+# absorption_per_country <- function(c_vxrate_eom) {
+#   print(" >> Adding per country monthly absorption table...")
+#   d_absorption_country <- select(
+#     c_vxrate_eom,
+#     c(
+#       "a_iso",
+#       "a_covax_status",
+#       "a_csl_status",
+#       "adm_date_month",
+#       "adm_td_absorbed"
+#     )
+#   )
+#   d_absorption_country$adm_date_month_name <- helper_replace_values_with_map(
+#     data = d_absorption_country$adm_date_month,
+#     values = c(
+#       1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+#     ),
+#     map = c(
+#       "2021-01",
+#       "2021-02",
+#       "2021-03",
+#       "2021-04",
+#       "2021-05",
+#       "2021-06",
+#       "2021-07",
+#       "2021-08",
+#       "2021-09",
+#       "2021-10",
+#       "2021-11",
+#       "2021-12",
+#       "2022-01",
+#       "2022-02"
+#     )
+#   )
+#   print(" >> Selecting columns needed...")
+#   d_absorption_country <- select(
+#     d_absorption_country,
+#     c(
+#       "a_iso",
+#       "a_covax_status",
+#       "a_csl_status",
+#       "adm_td_absorbed",
+#       "adm_date_month_name"
+#     )
+#   )
+#   print(" >> Renaming columns...")
+#   colnames(d_absorption_country) <- c(
+#     "iso",
+#     "a_covax_status",
+#     "a_csl_status",
+#     "value",
+#     "month_name"
+#   )
+#   d_absorption_country$type <- "Absorbed"
+#   print(" >> Selecting columns needed from d_absorption_country for d_absorb_red...") #nolint
+#   d_absorb_red <- select(
+#     d_absorption_country,
+#     c(
+#       "iso",
+#       "month_name",
+#       "value"
+#     )
+#   )
+#   print(" >> Renaming columns for d_absorb_red...")
+#   colnames(d_absorb_red) <- c(
+#     "iso",
+#     "month_name",
+#     "absorbed"
+#   )
+#   return(d_absorb_red)
+# }
 
-first_supplies <- function(d_absorption_country) {
-  print(" >> Loading supplies data from supply dataset...")
-  b_supply <- data.frame(
-    read_excel("output/supply.xlsx",
-    sheet = "data"
-    )
-  )
-  print(" >> Selecting columns needed for b_supply_red...")
-  b_supply_red <- select(
-    b_supply,
-    c(
-      "iso",
-      "month_name",
-      "value"
-    )
-  )
-  print(" >> Renaming b_supply_red columns...")
-  colnames(b_supply_red) <- c(
-    "iso",
-    "month_name",
-    "received"
-  )
-  combined <- rbind(d_absorption_country, b_supply)
-  return(combined)
-}
+# first_supplies <- function(d_absorption_country) {
+#   print(" >> Loading supplies data from supply dataset...")
+#   b_supply <- data.frame(
+#     read_excel("output/supply.xlsx",
+#     sheet = "data"
+#     )
+#   )
+#   print(" >> Selecting columns needed for b_supply_red...")
+#   b_supply_red <- select(
+#     b_supply,
+#     c(
+#       "iso",
+#       "month_name",
+#       "value"
+#     )
+#   )
+#   print(" >> Renaming b_supply_red columns...")
+#   colnames(b_supply_red) <- c(
+#     "iso",
+#     "month_name",
+#     "received"
+#   )
+#   combined <- rbind(d_absorption_country, b_supply)
+#   return(combined)
+# }
 
-new_absorption_countries <- function(c_vxrate_eom) {
-  print(" >> Selecting columns from c_vxrate_eom for d_absorption_country_new...")
-  d_absorption_country_new <- select(
-      c_vxrate_eom,
-      c(
-        "a_iso",
-        "adm_td",
-        "adm_date_month"
-      )
-    )
-    print(" >> Renaming d_absorption_country_new columns...")
-    colnames(d_absorption_country_new) <- c(
-      "iso",
-      "absorbed",
-      "adm_date_month"
-    )
-    d_absorption_country_new$month_name <- helper_replace_values_with_map(
-      data = d_absorption_country_new$adm_date_month,
-      values = c(
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
-      ),
-      map = c(
-        "2021-01",
-        "2021-02",
-        "2021-03",
-        "2021-04",
-        "2021-05",
-        "2021-06",
-        "2021-07",
-        "2021-08",
-        "2021-09",
-        "2021-10",
-        "2021-11",
-        "2021-12",
-        "2022-01",
-        "2022-02"
-      )
-    )
-    return(d_absorption_country_new)
-}
+# new_absorption_countries <- function(c_vxrate_eom) {
+#   print(" >> Selecting columns from c_vxrate_eom for d_absorption_country_new...")
+#   d_absorption_country_new <- select(
+#       c_vxrate_eom,
+#       c(
+#         "a_iso",
+#         "adm_td",
+#         "adm_date_month"
+#       )
+#     )
+#     print(" >> Renaming d_absorption_country_new columns...")
+#     colnames(d_absorption_country_new) <- c(
+#       "iso",
+#       "absorbed",
+#       "adm_date_month"
+#     )
+#     d_absorption_country_new$month_name <- helper_replace_values_with_map(
+#       data = d_absorption_country_new$adm_date_month,
+#       values = c(
+#         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+#       ),
+#       map = c(
+#         "2021-01",
+#         "2021-02",
+#         "2021-03",
+#         "2021-04",
+#         "2021-05",
+#         "2021-06",
+#         "2021-07",
+#         "2021-08",
+#         "2021-09",
+#         "2021-10",
+#         "2021-11",
+#         "2021-12",
+#         "2022-01",
+#         "2022-02"
+#       )
+#     )
+#     return(d_absorption_country_new)
+# }
 
-second_supplies <- function(d_absorption_country_new, combined, d_absorb_red, entity_characteristics) {
-  print(" >> Loading supplies data for second supplies...")
-  b_supply_second <- data.frame(
-    read_excel("output/supply.xlsx", sheet = "supply")
-  )
-  d_absorption_country_new <- select(
-    d_absorption_country_new,
-    c("iso", "absorbed", "month_name")
-  )
-  #TODO Look into this join and use a helper function
-  combined_new <- full_join(
-    d_absorption_country_new,
-    b_supply_second,
-    b = c("iso", "month_name")
-  )
-  combined_new <- combined_new %>%
-  mutate(est_stock = if_else(is.na(supply) | is.na(absorbed), NA_real_,
-  if_else((supply - absorbed) < 0, 0, (supply - absorbed))))
+# second_supplies <- function(d_absorption_country_new, combined, d_absorb_red, entity_characteristics) {
+#   print(" >> Loading supplies data for second supplies...")
+#   b_supply_second <- data.frame(
+#     read_excel("output/supply.xlsx", sheet = "supply")
+#   )
+#   d_absorption_country_new <- select(
+#     d_absorption_country_new,
+#     c("iso", "absorbed", "month_name")
+#   )
+#   combined_new <- full_join(
+#     d_absorption_country_new,
+#     b_supply_second,
+#     b = c("iso", "month_name")
+#   )
+#   combined_new <- combined_new %>%
+#   mutate(est_stock = if_else(is.na(supply) | is.na(absorbed), NA_real_,
+#   if_else((supply - absorbed) < 0, 0, (supply - absorbed))))
   
-  d_est_stock <- select(
-    combined_new,
-    c("iso", "month_name", "est_stock")
-  )
-  
-  combined_three <- full_join(
-    b_supply_red,
-    d_absorb_red,
-    by = c("iso", "month_name")) %>%
-    full_join(., d_est_stock, by = c("iso", "month_name")) %>%
-    left_join(.,entity_characteristics, by = c("iso" = "a_iso")
-  )
-  return(combined_three)
-}
+#   d_est_stock <- select(
+#     combined_new,
+#     c("iso", "month_name", "est_stock")
+#   )
+#   #TODO Look into this join and use a helper function
+#   combined_three <- full_join(
+#     b_supply_red,
+#     d_absorb_red,
+#     by = c("iso", "month_name")) %>%
+#     full_join(., d_est_stock, by = c("iso", "month_name")) %>%
+#     left_join(.,entity_characteristics, by = c("iso" = "a_iso")
+#   )
+#   return(combined_three)
+# }
 
 #TODO Do a proper refactor for this function
 absorption_sum_by_month <- function(c_vxrate_eom) {

@@ -1,3 +1,7 @@
+# Clear environment
+rm(list = ls())
+
+# Load packages
 library("readxl")
 library("writexl")
 library("countrycode")

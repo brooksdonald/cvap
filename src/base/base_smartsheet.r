@@ -88,26 +88,6 @@ load_who_dashboard <- function() {
 
 }
 
-# Concerted support list (csl)
-
-load_conc_supp_list <- function() {
-    print(" >> Loading concerted support list data...")
-    b_csl <- data.frame(
-        read_excel(
-            "data/_input/static/base_csl.xlsx",
-            sheet = "Sheet1"
-        )
-    )
-
-    ## Rename columns
-    print(" >> Renaming CSL Columns...")
-    colnames(b_csl) <- c(
-        "iso",
-        "a_csl_status"
-    )
-    return(b_csl)
-}
-
 transform_base_smartsheet <- function(b_smartsheet) {
     ## Rename expiry risk
     print(" >> Renaming expiry risk...")

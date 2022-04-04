@@ -43,10 +43,36 @@ load_entity_chars <- function() {
     return(entity_details)
 }
 
+load_conc_supp_list <- function() {
+    print(" >> Loading concerted support list data...")
+    b_csl <- data.frame(
+        read_excel(
+            "data/_input/static/base_csl.xlsx",
+            sheet = "Sheet1"
+        )
+    )
 
-transform_entity_chars <- function(entity_characteristics) {
+    ## Rename columns
+    print(" >> Renaming CSL Columns...")
+    colnames(b_csl) <- c(
+        "iso",
+        "a_csl_status",
+        "a_ifc_status",
+        "ndvp_mid_target",
+        "ndvp_mid_deadline",
+        "ndvp_mid_rep_rate",
+        "jj_policy"
+    )
+    return(b_csl)
+}
+
+transform_entity_chars <- function(entity_characteristics, b_csl) {
+    print(" >> Joining b_csl to entity_characteristics...")
+    entity_characteristics <- left_join(
+        entity_characteristics, b_csl, by = c("a_iso" = "iso")
+    )
+
     print(" >> Rework WHO region...")
-
     entity_characteristics$a_who_region <- helper_replace_values_with_map(
         data = entity_characteristics$a_who_region,
         values = c("AMRO", "AFRO", "EMRO", "EURO", "SEARO", "WPRO"),

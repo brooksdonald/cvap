@@ -3,7 +3,6 @@
 run_supply <- function(env = .GlobalEnv) {
     print(" > Starting local environment for supply module...")
 
-    source("src/supply/supply_forecast.r", TRUE)
     source("src/supply/supply_secured.r", TRUE)
     source("src/supply/supply_received.r", TRUE)
 
