@@ -41,4 +41,4 @@ run_product <- function(a_data, b_smartsheet, b_csl, env = .GlobalEnv) {
     return(environment())
 
 }
-# run_product(a_data, b_smartsheet, b_csl)
+run_product(a_data, b_smartsheet, b_csl)

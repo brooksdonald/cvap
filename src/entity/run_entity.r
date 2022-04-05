@@ -21,4 +21,3 @@ run_entity <- function(env = .GlobalEnv) {
 
     return(environment())
 }
-run_entity()
