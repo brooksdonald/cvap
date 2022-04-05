@@ -19,9 +19,13 @@ values_table <- function() {
     z_values$pop_amc_100m <- 40
     z_values$pop_amc_100mp <- 8
 
-    z_values$pop_amc <- 3889355899
-    z_values$pop_amc_hcw <- 17570377
+    z_values$pop_amc <- sum(a_data_amc$a_pop)
+    z_values$pop_amc_hcw <- sum(a_data_amc$a_pop_hcw)
+    z_values$pop_africa <- sum(a_data_africa$a_pop)
+    z_values$pop_csl <- sum(a_data_csl$a_pop)
+    z_values$pop_ifc <- sum(a_data_ifc$a_pop)
     z_values$count_amc <- 90
+    z_values$count_africa <- 53
 
     z_values$pop_amc_10 <- z_values$pop_amc * 0.1
     z_values$pop_amc_20 <- z_values$pop_amc * 0.2

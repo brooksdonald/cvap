@@ -30,7 +30,7 @@ load_base_condense_file <- function(a_data) {
     # Filter by grouping
     c_condense_amc <- filter(c_condense, a_covax_status == "AMC")
     c_condense_amc_exc <-
-    filter(c_condense, a_covax_status == "AMC" & a_iso != "NIC")
+    filter(c_condense, a_covax_status == "AMC")
     c_condense_africa <- filter(c_condense, a_continent == "Africa")
 
     c_condense_afr <- filter(c_condense, a_who_region == "AFR")

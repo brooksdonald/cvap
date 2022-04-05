@@ -39,9 +39,7 @@ load_sup_rec <- function() {
     colnames(b_mdb_2m)[3] <- "total_2m"
 
     # FIXME hardcoded date warning!
-    # TODO Check on this hardcoded date. Different from original code
-    # b_mdb$del_date <- as.Date("2022-01-26")
-    b_mdb$del_date <- as.Date("2022-02-01")
+    b_mdb$del_date <- as.Date("2022-03-28")
 
     supply_received <- helper_join_dataframe_list(
         list(b_mdb, b_mdb_lm, b_mdb_2m),
@@ -91,7 +89,9 @@ transform_sup_rec_doses <- function(supply_received) {
         mutate(del_dose_prior_2m = del_dose_total_2m)
 
     supply_received_doses <- supply_received_doses %>%
-        mutate(del_dose_lm_2m = del_dose_total_lm - del_dose_total_2m)
+        mutate(del_dose_lm_2m = del_dose_total_lm - del_dose_total_2m) %>%
+        
+        mutate(del_dose_wast = del_dose_total * 0.1)
 
 
     return(supply_received_doses)
@@ -172,6 +172,11 @@ transform_sup_rec_product <- function(supply_received) {
             "total",
             "product_short"
         )
+    
+    c_delivery_product <- select(c_delivery_doses_product, c("a_iso","product_short","total"))
+    c_delivery_product <- filter(c_delivery_product, product_short == "J&J")
+    c_delivery_product <- select(c_delivery_product, -c("product_short"))
+    colnames(c_delivery_product) <- c("a_iso","del_dose_jj")
 
     return(supply_received_by_product)
 }

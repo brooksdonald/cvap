@@ -32,11 +32,27 @@ run_product <- function(a_data, b_smartsheet, b_csl, env = .GlobalEnv) {
     print(" > Filtering HIC income group...")
     a_data_hic <- hic_income_group(a_data)
     print(" > Done.")
+    
+    print(" > Filtering CoVDP CSL status...")
+    a_data_hic <- covdp_csl_status(a_data)
+    print(" > Done.")
+    
+    print(" > Filtering CoVDP IFC status ...")
+    a_data_hic <- covdp_ifc_status(a_data)
+    print(" > Done.")
+    
+    print(" > Filtering African continent...")
+    a_data_hic <- africa_continent(a_data)
+    print(" > Done.")
 
     print(" > Loading eda product utilization data back to global environment...") 
     env$a_data <- a_data
     env$a_data_amc <- a_data_amc
     env$a_data_hic <- a_data_hic
+    env$a_data_hic <- a_data_csl
+    env$a_data_hic <- a_data_ifc
+    env$a_data_hic <- a_data_africa
+    
 
     return(environment())
 
