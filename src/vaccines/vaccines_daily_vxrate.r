@@ -393,6 +393,7 @@ transform_abspt_by_month <- function(b_vxrate) {
         "a_who_region",
         "a_continent",
         "a_covax_status",
+        "a_csl_status",
         "a_income_group",
         "adm_date_month",
         "adm_td"
