@@ -49,8 +49,15 @@ source("eda/combination/run_combination.r")
 source("eda/export/run_export.r")
 
 
-vxrate_env <- run_vxrate(entity_characteristics, population_data, uptake_gender_data, 
-                         c_vxrate_latest, base_env$b_smartsheet, supply_secured, delivery_courses_doses)
+vxrate_env <- run_vxrate(
+    entity_characteristics,
+    population_data,
+    uptake_gender_data,
+    c_vxrate_latest,
+    base_env$b_smartsheet,
+    supply_secured,
+    delivery_courses_doses
+)
 supplies_env <- run_eda_supplies(a_data)
 coverage_env <- run_coverage(a_data)
 product_env <- run_product(a_data)
