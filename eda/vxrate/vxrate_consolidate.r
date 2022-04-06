@@ -26,7 +26,18 @@ extract_vxrate_details <- function(c_vxrate_latest) {
     return(c_vxrate_latest_red)
 }
 
-merge_dataframes <- function(entity_characteristics, c_vxrate_latest_red, population_data, uptake_gender_data, b_who_dashboard) { #nolint 
+merge_dataframes <- function(
+  entity_characteristics,
+  c_vxrate_latest_red,
+  population_data,
+  uptake_gender_data,
+  b_who_dashboard,
+  b_smartsheet,
+  supply_secured,
+  delivery_courses_doses,
+  b_dp,
+  c_delivery_product,
+  b_fin_fund_del_sum) {  
   # Merge details
   a_data <-
     left_join(entity_characteristics, c_vxrate_latest_red, by = "a_iso") %>%

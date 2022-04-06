@@ -54,7 +54,8 @@ transform_base_population <- function(base_population, population_hcw) {
         }
 
     # Adding "Y0" to age_range17 for values between 1-9
-    age_range17u_list <- list()
+    #TODO Merge u12 and u18 functions
+    age_range18u_list <- list()
     
     for (age in age_range18u) {
         if (age < 10) {
