@@ -45,6 +45,19 @@ load_sup_rec <- function() {
         list(b_mdb, b_mdb_lm, b_mdb_2m),
         join_by = c("iso", "product")
     )
+    for (col in c(
+        "bimultilat",
+        "donations",
+        "covax",
+        "avat",
+        "unknown",
+        "total",
+        "total_lm",
+        "total_2m"
+        )
+    ) {
+        supply_received[, col] <- as.numeric(supply_received[, col])
+    }
 
     return(supply_received)
 }
@@ -55,7 +68,7 @@ transform_sup_rec_doses <- function(supply_received) {
         group_by(iso) %>%
         summarize_at(
             c(
-                as.numeric("bimultilat"),
+                "bimultilat",
                 "donations",
                 "covax",
                 "avat",

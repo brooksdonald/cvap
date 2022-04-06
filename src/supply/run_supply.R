@@ -20,6 +20,7 @@ run_supply <- function(env = .GlobalEnv) {
 
     print(" > Received supply...")
     supply_received <- load_sup_rec()
+    env$supply_received <- supply_received
     supply_received_doses <- transform_sup_rec_doses(supply_received)
     supply_received_produ <- transform_sup_rec_product(supply_received)
     delivery_courses_doses <- eda_sup_rec_courses(
@@ -38,4 +39,3 @@ run_supply <- function(env = .GlobalEnv) {
 
     return(environment())
 }
-run_supply()
