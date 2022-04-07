@@ -12,7 +12,7 @@ run_vaccines <- function(entity_characteristics, env = .GlobalEnv) {
     b_vxrate <- transform_current_vxrate(b_vxrate, entity_characteristics)
     b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate) 
     b_vxrate_amc <- transform_subset_amc(b_vxrate) 
-    b_vxrate_amc_smooth <- transform_smooth_timeseries(b_vxrate_amc)
+    b_vxrate_amc_smooth <- transform_smooth_timeseries(b_vxrate_amc, b_vxrate_pub)
     c_vxrate_sept_t10 <- transform_sept21_pop_tgt(b_vxrate)
     c_vxrate_dec_t2040 <- transform_dec21_pop_tgt(b_vxrate)
     c_vxrate_eom <- transform_abspt_by_month(b_vxrate)

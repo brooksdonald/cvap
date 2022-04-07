@@ -213,7 +213,7 @@ transform_subset_amc <- function(b_vxrate) {
     return(b_vxrate_amc)
 }
 
-transform_smooth_timeseries <- function(b_vxrate_amc) {
+transform_smooth_timeseries <- function(b_vxrate_amc, b_vxrate_pub) {
   print(" >> Transforming smooth time series...")
   d_cov_smooth <- b_vxrate_pub
   d_cov_smooth <- select(
