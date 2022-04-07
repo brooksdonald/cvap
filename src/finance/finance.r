@@ -70,7 +70,7 @@ transform_finance_data <- function(b_fin_funding, entity_characteristics) {
             "BMGF"
         )
     )
-    b_fin_fund_del_sum <- b_fin_fund_del %>%
+    b_fin_fund_del_sum <<- b_fin_fund_del %>%
     group_by(a_iso) %>%
     summarize_at("fund_total", sum, na.rm = TRUE) %>%
     mutate_if(is.numeric, round)

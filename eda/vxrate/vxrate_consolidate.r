@@ -37,34 +37,31 @@ merge_dataframes <- function(
   delivery_courses_doses,
   b_dp,
   c_delivery_product,
-  b_fin_fund_del_sum) {  
-  # Merge details
-  a_data <-
-    left_join(entity_characteristics, c_vxrate_latest_red, by = "a_iso") %>%
-    left_join(., population_data) %>%
-    left_join(., uptake_gender_data)
+  b_fin_fund_del_sum
+  ) {
+    # Renaming iso columns to a_iso before merge
+    df_list <- list(
+        entity_characteristics,
+        c_vxrate_latest_red,
+        population_data,
+        uptake_gender_data,
+        b_who_dashboard,
+        b_smartsheet,
+        supply_secured,
+        delivery_courses_doses,
+        b_dp,
+        c_delivery_product,
+        b_fin_fund_del_sum
+      )
+    for (i in 1:length(df_list)) {
+      colnames(df_list[[i]])[colnames(df_list[[i]]) == "iso"] <- "a_iso"
 
-  # Merge WHO Dashboard data
-  a_data <- left_join(a_data, b_who_dashboard, by = c("a_iso" = "iso"))
-  
-  # Merge IMR Smartsheet data
-  a_data <- left_join(a_data, b_smartsheet, by = c("a_iso" = "iso"))
-  
-  # Merge supply secured and/or expected data
-  a_data <- left_join(a_data, supply_secured, by = c("a_iso" = "iso"))
-  
-  # Merge supply received data
-  a_data <- left_join(a_data, delivery_courses_doses, by = c("a_iso" = "iso"))
-  
-  # Merge demand planning
-  a_data <- left_join(a_data, b_dp, by = "a_iso")
-  
-  # Merge JJ-related information
-  a_data <- left_join(a_data, c_delivery_product, by = "a_iso")
-  
-  # Merge financing
-  a_data <- left_join(a_data, b_fin_fund_del_sum, by = "a_iso")
-
+    }
+    # Merge details
+    a_data <- helper_join_dataframe_list(
+      df_list,
+      join_by = "a_iso"
+    )
   return(a_data)
 }
 
