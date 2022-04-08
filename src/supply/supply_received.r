@@ -191,7 +191,6 @@ transform_sup_rec_product <- function(supply_received) {
     c_delivery_product <- filter(c_delivery_product, product_short == "J&J")
     c_delivery_product <- select(c_delivery_product, -c("product_short"))
     colnames(c_delivery_product) <- c("a_iso", "del_dose_jj")
-    
     return(c_delivery_product)
 }
 

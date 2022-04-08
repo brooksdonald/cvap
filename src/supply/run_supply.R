@@ -1,5 +1,3 @@
-
-# TODO Check all warning messages coming from supplies module
 run_supply <- function(env = .GlobalEnv) {
     print(" > Starting local environment for supply module...")
 
@@ -39,4 +37,3 @@ run_supply <- function(env = .GlobalEnv) {
 
     return(environment())
 }
-run_supply()
