@@ -75,12 +75,6 @@ transform_base_population <- function(base_population, population_hcw) {
     a_pop_18p <- helper_add_char_to_list(age_range18)
     a_pop_60p <- helper_add_char_to_list(age_range60)
 
-    print(a_pop_12u)
-    print(a_pop_12p)
-    print(a_pop_18u)
-    print(a_pop_18p)
-    print(a_pop_60p)
-
     age_ranges <- c(a_pop_12u, a_pop_12p, a_pop_18u, a_pop_18p, a_pop_60p)
     # has to match the length of a list above
     age_ranges_names <- c("a_pop_12u", "a_pop_12p", "a_pop_18p", "a_pop_18p", "a_pop_60p")
