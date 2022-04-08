@@ -53,15 +53,12 @@ merge_dataframes <- function(
       c_delivery_product,
       b_fin_fund_del_sum
     )
-    # for (i in 1:length(df_list)) {
-    #   colnames(df_list[[i]])[colnames(df_list[[i]]) == "iso"] <- "a_iso"
-    # }
     # Merge details
     a_data <- helper_join_dataframe_list(
       df_list,
       join_by = "a_iso"
     )
-  return(a_data)
+  return(as.data.frame(a_data))
 }
 
 transform_vxrate_merge <- function(a_data) {
@@ -70,13 +67,29 @@ transform_vxrate_merge <- function(a_data) {
   t70_deadline <- as.Date("2022-06-30")
   timeto_t70 <- as.numeric(t70_deadline - refresh_date)
   a_data$refresh_date <- refresh_date
-  
+
   #Calculate JJ proportion
+  print(" >>> Computing JJ doses KPIs")
   a_data <- a_data %>%
-    mutate(del_dose_minjj = del_dose_total - del_dose_jj) %>%
-    
-    mutate(del_dose_jj_prop = if_else(is.na(del_dose_jj),0,
-                                      (del_dose_jj / del_dose_total)))
+      mutate(del_dose_minjj = del_dose_total  - del_dose_jj) %>% 
+      mutate(del_dose_jj_prop = if_else(is.na(del_dose_jj), 0,
+                                        (del_dose_jj / del_dose_total)))
+  
+
+  #   ⢀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⣠⣤⣶⣶
+  # ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⢰⣿⣿⣿⣿
+  # ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⣀⣀⣾⣿⣿⣿⣿
+  # ⣿⣿⣿⣿⣿⡏⠉⠛⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣿
+  # ⣿⣿⣿⣿⣿⣿⠀⠀⠀⠈⠛⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⠉⠁⠀⣿
+  # ⣿⣿⣿⣿⣿⣿⣧⡀⠀⠀⠀⠀⠙⠿⠿⠿⠻⠿⠿⠟⠿⠛⠉⠀⠀⠀⠀⠀⣸⣿
+  # ⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⣿
+  # ⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⣴⣿⣿⣿⣿
+  # ⣿⣿⣿⣿⣿⣿⣿⣿⡟⠀⠀⢰⣹⡆⠀⠀⠀⠀⠀⠀⣭⣷⠀⠀⠀⠸⣿⣿⣿⣿
+  # ⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠈⠉⠀⠀⠤⠄⠀⠀⠀⠉⠁⠀⠀⠀⠀⢿⣿⣿⣿
+  # ⣿⣿⣿⣿⣿⣿⣿⣿⢾⣿⣷⠀⠀⠀⠀⡠⠤⢄⠀⠀⠀⠠⣿⣿⣷⠀⢸⣿⣿⣿
+  # ⣿⣿⣿⣿⣿⣿⣿⣿⡀⠉⠀⠀⠀⠀⠀⢄⠀⢀⠀⠀⠀⠀⠉⠉⠁⠀⠀⣿⣿⣿
+  # ⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⣿
+  # ⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿
   # Calculate introduction status
   a_data <- a_data %>%
     mutate(intro_status = if_else(
