@@ -367,7 +367,6 @@ eda_sup_rec_courses <- function(supply_received, supply_received_doses) {
         by = "iso"
     )
     # Renaming delivery_courses_doeses iso to a_iso
-    colnames(delivery_courses_doeses) <- c("a_iso")
-
+    colnames(delivery_courses_doeses)[1] <- c("a_iso")
     return(delivery_courses_doeses)
 }
