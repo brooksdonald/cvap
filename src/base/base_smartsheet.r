@@ -41,7 +41,7 @@ load_base_smartsheet <- function() {
 
     print(" >> Renaming Columns...")
     colnames(b_smartsheet) <- c(
-        "iso",
+        "a_iso",
         "ss_target",
         "ss_deadline",
         "expiry_risk",
@@ -76,7 +76,7 @@ load_who_dashboard <- function() {
 
     print(" >> Renaming Columns")
     colnames(b_who_dashboard) <- c(
-        "iso",
+        "a_iso",
         "prod_inuse",
         "intro_date",
         "cov_total_fv_per100"

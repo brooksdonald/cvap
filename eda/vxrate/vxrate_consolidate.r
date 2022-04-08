@@ -41,22 +41,21 @@ merge_dataframes <- function(
   ) {
     # Renaming iso columns to a_iso before merge
     df_list <- list(
-        entity_characteristics,
-        c_vxrate_latest_red,
-        population_data,
-        uptake_gender_data,
-        b_who_dashboard,
-        b_smartsheet,
-        supply_secured,
-        delivery_courses_doses,
-        b_dp,
-        c_delivery_product,
-        b_fin_fund_del_sum
-      )
-    for (i in 1:length(df_list)) {
-      colnames(df_list[[i]])[colnames(df_list[[i]]) == "iso"] <- "a_iso"
-
-    }
+      entity_characteristics,
+      c_vxrate_latest_red,
+      population_data,
+      uptake_gender_data,
+      b_who_dashboard,
+      b_smartsheet,
+      supply_secured,
+      delivery_courses_doses,
+      b_dp,
+      c_delivery_product,
+      b_fin_fund_del_sum
+    )
+    # for (i in 1:length(df_list)) {
+    #   colnames(df_list[[i]])[colnames(df_list[[i]]) == "iso"] <- "a_iso"
+    # }
     # Merge details
     a_data <- helper_join_dataframe_list(
       df_list,
@@ -78,7 +77,6 @@ transform_vxrate_merge <- function(a_data) {
     
     mutate(del_dose_jj_prop = if_else(is.na(del_dose_jj),0,
                                       (del_dose_jj / del_dose_total)))
-  
   # Calculate introduction status
   a_data <- a_data %>%
     mutate(intro_status = if_else(

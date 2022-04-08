@@ -41,7 +41,7 @@ extract_supply_secured <- function() {
     print(" >> Selecting and renaming columns...")
     colnames(supply_secured) <-
         c(
-            "iso",
+            "a_iso",
             "sec_total_dose",
             "sec_bilat_dose",
             "sec_donat_dose",
@@ -74,7 +74,7 @@ extract_sup_sec_lm <- function() {
     print(" >> Selecting and renaming columns...")
     colnames(c_sec_cour_lm) <-
     c(
-        "iso",
+        "a_iso",
         "sec_total_lm"
     )
     return(c_sec_cour_lm)
@@ -123,6 +123,6 @@ transform_supply_secured <- function(supply_secured, dataset_date, c_sec_cour_lm
     supply_secured$sec_date <- as.Date(dataset_date)
     
     # Merge current and last month supply
-    supply_secured <- left_join(supply_secured, c_sec_cour_lm, by = "iso")
+    supply_secured <- left_join(supply_secured, c_sec_cour_lm, by = "a_iso")
     return(supply_secured)
 }

@@ -191,6 +191,7 @@ transform_sup_rec_product <- function(supply_received) {
     c_delivery_product <- filter(c_delivery_product, product_short == "J&J")
     c_delivery_product <- select(c_delivery_product, -c("product_short"))
     colnames(c_delivery_product) <- c("a_iso", "del_dose_jj")
+    
     return(c_delivery_product)
 }
 
@@ -365,6 +366,8 @@ eda_sup_rec_courses <- function(supply_received, supply_received_doses) {
         delivery_couses,
         by = "iso"
     )
+    # Renaming delivery_courses_doeses iso to a_iso
+    colnames(delivery_courses_doeses) <- c("a_iso")
 
     return(delivery_courses_doeses)
 }
