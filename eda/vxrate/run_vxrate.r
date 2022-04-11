@@ -24,8 +24,8 @@ run_vxrate <- function(entity_characteristics, population_data, uptake_gender_da
     print(" > Loading consolidated vxrate data back to global environment...")
     env$c_vxrate_latest_red <- c_vxrate_latest_red
     env$a_data <- a_data
+    print(" > Ok.")
 
     return(environment())
 
 }
-run_vxrate(entity_characteristics, population_data, uptake_gender_data, c_vxrate_latest)

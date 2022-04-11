@@ -76,6 +76,7 @@ transform_vxrate_merge <- function(a_data) {
                                         (del_dose_jj / del_dose_total)))
 
   # Calculate introduction status
+  print(" >>> Computing introduction status...")
   a_data <- a_data %>%
     mutate(intro_status = if_else(
       is.na(adm_td) | adm_td == 0,
@@ -102,6 +103,7 @@ transform_vxrate_merge <- function(a_data) {
   )
   
   # Calculate population percentages
+  print(" >>> Computing pop percentages...")
   a_data <- a_data %>%
     mutate(a_pop_10 = a_pop * 0.1) %>%
     mutate(a_pop_20 = a_pop * 0.2) %>%
@@ -109,6 +111,7 @@ transform_vxrate_merge <- function(a_data) {
     mutate(a_pop_70 = a_pop * 0.7)
   
   # Calculate population proportions
+  print(" >>> Computing pop proportions...")
   a_data <- a_data %>%
     mutate(a_pop_18p_prop = a_pop_18p / a_pop_2021) %>%
     mutate(a_pop_18u_prop = a_pop_18u / a_pop_2021) %>%
@@ -116,6 +119,7 @@ transform_vxrate_merge <- function(a_data) {
     mutate(a_pop_60p_prop = a_pop_60p / a_pop_2021)
 
   # Calculate theoretical fully vaccinated for non-reporters for current, lm, and 2m
+  print(" >>> Computing theoreticaally fully vaxxed for non reporters...")
   a_data <- a_data %>%
   mutate(adm_fv_homo = if_else(
     adm_a1d == 0 & adm_fv == 0 & adm_booster == 0, (adm_td / 2),
@@ -146,6 +150,7 @@ transform_vxrate_merge <- function(a_data) {
   mutate(adm_pv = if_else((adm_a1d - adm_fv) < 0, 0, (adm_a1d - adm_fv)))
   
   # Calculate td and fv change from lm and 2m
+  print(" >>> Computing td and fv change from lm and 2m...")
   a_data <- a_data %>%
     mutate(adm_td_less_1m = adm_td - adm_td_lm) %>%
     mutate(adm_td_1m_2m = adm_td_lm - adm_td_2m) %>%
@@ -153,6 +158,7 @@ transform_vxrate_merge <- function(a_data) {
     mutate(adm_fv_1m_2m = adm_fv_lm_homo - adm_fv_2m_homo)
 
   # Calculate adm_a1d and adm_fv coverage for current, lm, and 2m, including change
+  print(" >>> Computing adm_a1d and adm_fv coverage...")
   a_data <- a_data %>%
     mutate(cov_total_a1d = adm_a1d / a_pop) %>%
     mutate(cov_total_a1d_adjust = if_else(adm_a1d <= adm_fv, NA_real_, (adm_a1d / a_pop))) %>%
@@ -171,6 +177,7 @@ transform_vxrate_merge <- function(a_data) {
 
   # Assign coverage category for current and lw
   # FIXME Find how to include max as opposed to 1 in breaks
+  print(" >>> Assigning coverage category for current and lw...")
   breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 1)
   tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%", "4) 20-40%", "5) 40%+")
   a_data$cov_total_fv_cat <- cut(
@@ -192,6 +199,7 @@ transform_vxrate_merge <- function(a_data) {
   )
 
   # Calculate linear population coverage projection by 30 June 2022
+  print(" >>> Computing linear population coverage projection by 30 June 2022...")
   a_data <- a_data %>%
     mutate(cov_total_fv_atpace_30jun = if_else(((adm_fv_homo + (dvr_4wk_fv * (
       timeto_t70
@@ -201,12 +209,14 @@ transform_vxrate_merge <- function(a_data) {
 
 
   # Indicator reporting status for target group-specific uptake data
+  print(" >>> Indicator reporting status for target group-specific uptake data...")
   a_data <- a_data %>%
     mutate(adm_fv_hcw_repstat = if_else(adm_fv_hcw > 0, "Reporting", NA_character_)) %>%
     mutate(adm_fv_60p_repstat = if_else(adm_fv_60p > 0, "Reporting", NA_character_)) %>%
     mutate(adm_fv_gen_repstat = if_else(adm_fv_female > 0, "Reporting", NA_character_))
 
   # Calculate target group coverage figures
+  print(" >>> Computing target group coverage figures...")
   a_data <- a_data %>%
     mutate(adm_a1d_hcw_homo = if_else(adm_a1d_hcw > a_pop_hcw, a_pop_hcw, adm_a1d_hcw)) %>%
     mutate(adm_fv_hcw_homo = if_else(adm_fv_hcw > a_pop_hcw, a_pop_hcw, adm_fv_hcw)) %>%
@@ -219,10 +229,12 @@ transform_vxrate_merge <- function(a_data) {
     mutate(cov_60p_fv = if_else((adm_fv_60p / a_pop_60p) > 1, 1, (adm_fv_60p / a_pop_60p)))
 
   # Calculate gender coverage difference in reporting countries
+  print(" >>> Computing gender coverage difference in reporting countries...")
   a_data <- a_data %>%
     mutate(cov_total_gen_diff = cov_total_fem_fv - cov_total_male_fv)
   
   # Calculate 4-week average daily rates as % of pop.
+  print(" >>> Computing 4-week average daily rates as % of pop...")
   a_data <- a_data %>%
     mutate(dvr_4wk_fv = if_else(dvr_4wk_fv < 0, 0, dvr_4wk_fv)) %>%
     mutate(dvr_4wk_td_per = dvr_4wk_td / a_pop) %>%
@@ -230,6 +242,7 @@ transform_vxrate_merge <- function(a_data) {
     mutate(dvr_4wk_td_max_per = dvr_4wk_td_max / a_pop)
 
   # Assign vaccination rate category
+  print(" >>> Assigning vaccination rate category...")
   breaks <- c(0, 0.0015, 0.0035, 0.0065, 1)
   tags <- c("1) Low (< 0.15%*)", "2) Medium (< 0.35%)", "3) High (< 0.65%)", "4) Very high (> 0.65%)") #nolint 
   a_data$dvr_4wk_td_per_cat <- cut(
@@ -241,6 +254,7 @@ transform_vxrate_merge <- function(a_data) {
   )
 
   # Calculate (percent) change in 4-week average daily vaccination rate & assign category
+  print(" >>> Computing % change in 4-week average daily vxrate & assign category...")
   a_data <- a_data %>%
     mutate(dvr_4wk_td_change_lm = dvr_4wk_td - dvr_4wk_td_lm) %>%
     mutate(dvr_4wk_td_change_lm_per = dvr_4wk_td_change_lm / dvr_4wk_td_lm) %>%

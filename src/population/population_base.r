@@ -32,6 +32,16 @@ load_base_population <- function() {
 }
 
 transform_base_population <- function(base_population, population_hcw) {
+    print(" >> Getting the total population from UNPOP...")
+    # Creating an empty list for all dataframes to be joined
+    data_frames <- list()
+    
+    z_pop_tot <- base_population %>%
+    filter(gender == "BOTH" & age_group == "ALL")
+    z_pop_tot <- select(z_pop_tot, c("a_iso", "value"))
+    colnames(z_pop_tot) <- c("a_iso", "a_pop_2021")
+    data_frames <- append(data_frames, list(z_pop_tot))
+
     print(" >> Segregating the different age groups...")
     age_range12u <- (1:11)
     age_range12 <- (12:100)
@@ -77,9 +87,14 @@ transform_base_population <- function(base_population, population_hcw) {
 
     age_ranges <- c(a_pop_12u, a_pop_12p, a_pop_18u, a_pop_18p, a_pop_60p)
     # has to match the length of a list above
-    age_ranges_names <- c("a_pop_12u", "a_pop_12p", "a_pop_18u", "a_pop_18p", "a_pop_60p")
-    data_frames <- list()
-
+    age_ranges_names <- c(
+        "a_pop_12u",
+        "a_pop_12p",
+        "a_pop_18u",
+        "a_pop_18p",
+        "a_pop_60p"
+    )
+    # Filter for different ages
     for (i in seq_len(length(age_ranges_names))) {
         df <- base_population %>%
             filter(gender == "BOTH" &
@@ -89,9 +104,9 @@ transform_base_population <- function(base_population, population_hcw) {
         colnames(df) <- c("a_iso", age_ranges_names[i])
 
         data_frames <- append(data_frames, list(df))
-        print(data_frames)
     }
 
+    # Filter for total, both genders
     for (g in c("MALE", "FEMALE")) {
         df <- base_population %>%
             filter(
@@ -111,10 +126,16 @@ transform_base_population <- function(base_population, population_hcw) {
 
     data_frames <- append(data_frames, list(population_hcw))
 
-    population_data <- Reduce(
-        function(x, y) merge(x, y, by = "a_iso", all = TRUE),
-        data_frames
+    population_data <- helper_join_dataframe_list(
+        data_frames,
+        join_by = "a_iso",
+        ally = TRUE
     )
+
+    # population_data <- Reduce(
+    #     function(x, y) merge(x, y, by = "a_iso", all = TRUE),
+    #     data_frames
+    # )
 
     return(population_data)
 }
