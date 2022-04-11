@@ -28,7 +28,7 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     z_values <- values_table()
     print(" > Done.")
 
-    print(" > Change count tables, daily vaccination rate percent change category...")
+    print(" > Change count tables, daily vxrate % change category...")
     f_dvr_change_count <- vxrate_change_cat(a_data, b_vxrate_change_lw)
     print(" > Done.")
 
@@ -36,7 +36,6 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     f_cov_change_count <- cov_cat_change(a_data)
     print(" > Done.")
     
-
     print(" > Loading eda consolidation data back to global environment...") 
     env$vrcat_list <- vrcat_list
     env$e_vrcat_all <- vrcat_list[["all"]]
@@ -53,12 +52,6 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     env$z_values <- z_values
     env$f_dvr_change_count <- f_dvr_change_count
     env$f_cov_change_count <- f_cov_change_count
-    
-
+    print(" > Ok.")
     return(environment())
 }
-# run_consolidate(a_data)
-
-
-
-

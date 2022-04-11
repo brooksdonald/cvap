@@ -89,7 +89,7 @@ values_table <- function() {
 ## Daily vaccination rate percent change category
 vxrate_change_cat <- function(a_data, b_vxrate_change_lw) {
     # Select data
-    c_data_dvr_lm_cat <- 
+    c_data_dvr_lm_cat <-
     select(
         a_data,
         c(
@@ -99,19 +99,12 @@ vxrate_change_cat <- function(a_data, b_vxrate_change_lw) {
             "intro_status"
         )
     )
-
-    # TODO Use helper function 
     f_dvr_change_count <- left_join(c_data_dvr_lm_cat, b_vxrate_change_lw, by = "a_iso")
-
-    # f_dvr_change_count <- helper_join_dataframe_list(c_data_dvr_lm_cat, join_by = "a_iso")
-    # f_dvr_change_count <- helper_join_dataframe_list(b_vxrate_change_lw, join_by = "a_iso")
-
     f_dvr_change_count <- filter(f_dvr_change_count,
                                 a_covax_status == "AMC" &
                                 intro_status == "Product introduced"
                             )
-    
-    f_dvr_change_count <- 
+    f_dvr_change_count <-
         select(
             f_dvr_change_count,
             c(
@@ -121,34 +114,26 @@ vxrate_change_cat <- function(a_data, b_vxrate_change_lw) {
             )
         )
         colnames(f_dvr_change_count) <- c(
-            "a_iso", 
-            "dvr_change_cat_lm_cur", 
+            "a_iso",
+            "dvr_change_cat_lm_cur",
             "dvr_change_cat_lm_lw"
         )
 
     f_dvr_change_count_cur <- f_dvr_change_count %>%
-        group_by(dvr_change_cat_lm_cur) %>% 
+        group_by(dvr_change_cat_lm_cur) %>%
         summarise(count_cur = n())
         colnames(f_dvr_change_count_cur) <- c(
-            "cat", 
+            "cat",
             "count_cur"
         )
-    
-    f_dvr_change_count_lw <- f_dvr_change_count %>% 
+    f_dvr_change_count_lw <- f_dvr_change_count %>%
         group_by(dvr_change_cat_lm_lw) %>%
         summarise(count_lw = n())
         colnames(f_dvr_change_count_lw) <- c(
-            "cat", 
+            "cat",
             "count_lw"
         )
-
-    # TODO Use helper function
     f_dvr_change_count <- left_join(f_dvr_change_count_cur, f_dvr_change_count_lw, by = "cat")
-
-
-    # f_dvr_change_count <- helper_join_dataframe_list(f_dvr_change_count_cur, join_by = "cat")
-    # f_dvr_change_count <- helper_join_dataframe_list(f_dvr_change_count_lw, join_by = "cat")
-
     f_dvr_change_count <- f_dvr_change_count %>%
         mutate(count_change = count_cur - count_lw)
 
@@ -187,7 +172,6 @@ cov_cat_change <- function(a_data) {
         summarise(count_lw = n())
         colnames(f_cov_change_count_lw) <- c("cat", "count_lw")
 
-    # TODO implement helper function here
     f_cov_change_count <-
     left_join(f_cov_change_count_cur, f_cov_change_count_lw, by = "cat")
 

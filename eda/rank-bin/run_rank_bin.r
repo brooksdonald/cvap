@@ -4,7 +4,6 @@ run_binning <- function(a_data, env = .GlobalEnv) {
     source("eda/rank-bin/rank_bin.r")
 
     print(" > Starting local environment for ranking and binning")
-    
     print(" > Grouping by one column...")
     a_data <- grouping_by_one(a_data)
     print(" > Done.")
@@ -12,15 +11,13 @@ run_binning <- function(a_data, env = .GlobalEnv) {
     print(" > Grouping by two columns...")
     a_data <- grouping_by_two(a_data)
     print(" > Done.")
-    
     print(" > Grouping by three columns...")
     a_data <- grouping_by_three(a_data)
     print(" > Done.")
 
     print(" > Loading ranking and binning data back to global environment...") 
     env$a_data <- a_data
+    print(" > Ok.")
 
     return(environment())
-
 }
-# run_binning(a_data)

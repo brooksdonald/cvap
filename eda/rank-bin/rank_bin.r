@@ -126,5 +126,6 @@ grouping_by_three <- function(a_data) {
   a_data <- a_data %>%
     group_by(a_covax_status, intro_status, booster_status) %>%
     mutate(booster_rank = row_number(cov_total_booster)) %>%
-    mutate(booster_bins = ntile(booster_rank, 2))
+    mutate(booster_bins = ntile(booster_rank, 2)) %>%
+    data.frame()
 }
