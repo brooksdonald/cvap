@@ -9,7 +9,9 @@ run_financing <- function(a_data, env = .GlobalEnv) {
   
   print(" > Loading financing summary data back to global environment...") 
   env$a_data <- a_data
+  print(" > Ok.")
   
   return(environment())
   
 }
+run_financing(a_data)

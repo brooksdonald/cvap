@@ -2,7 +2,6 @@
 
 run_coverage <- function(a_data, env = .GlobalEnv) {
     source("eda/coverage/coverage_target_groups.r")
-    source("eda/vxrate/vxrate_consolidate.r")
 
     print(" > Starting local environment for eda coverage module...")
 
@@ -27,4 +26,5 @@ run_coverage <- function(a_data, env = .GlobalEnv) {
     print(" > Ok.")
   
     return(environment())
+
 }

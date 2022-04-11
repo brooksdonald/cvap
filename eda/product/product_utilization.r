@@ -2,6 +2,7 @@
 
 dose_utilization <- function(a_data) {
     ## Calculate remaining doses, absolute and % pop.
+    print(" >>> Computing remaining doses, absolute and % pop...")
     a_data <- a_data %>%
         mutate(pu_del_rem = if_else(
             (if_else(
@@ -53,6 +54,7 @@ dose_utilization <- function(a_data) {
         mutate(pu_del_rem_timeto_date = as.Date(refresh_date + pu_del_rem_timeto))
     
     ## Calculate percent of doses received utilized
+    print(" >>> Computing percent of doses received utilized...")
     a_data <- a_data %>%
         mutate(pu_del_rem_prop = if_else(
             pu_del_rem > 0,
@@ -67,6 +69,7 @@ dose_utilization <- function(a_data) {
     mutate(pu_used_per = 1 - pu_del_rem_prop)
 
     ## Assign percent utilization categories
+    print(" >>> Assigning percent utilization categories...")
     breaks <- c(0, 0.25, 0.5, 0.75, 1)
     tags <- c("0) <25%", "1) 25-49%", "2) 50-74%", "3) 75-100%")
     a_data$pu_used_per_cat <- cut(
@@ -81,6 +84,7 @@ dose_utilization <- function(a_data) {
 
 supply_pending <- function(a_data) {
     # Calculate supply secured not yet delivered, supply received not yet administered
+    print(" >>> Computing supply secured not yet delivered, supply received not yet administered...")
     a_data <- a_data %>%
     mutate(sec_tobedel = if_else((sec_total - del_cour_total) < 0, 0, (sec_total - del_cour_total))) %>%
     mutate(sec_tobedel_per = sec_tobedel / a_pop) %>%
@@ -101,10 +105,12 @@ supply_pending <- function(a_data) {
 
 course_sufficiency <- function(a_data) {
     # Calculate proportions of courses of total
+    print(" >>> Computing proportions of courses of total...")
     a_data <- a_data %>%
         mutate(sec_del_prop = del_cour_total / sec_total)
 
     # Calculate if courses secured, received, and administered sufficient to reach targets
+    print(" >>> Computing if courses secured, received, & administered sufficient to reach targets...")
     a_data <- a_data %>%
         mutate(t20_suff_sec = if_else(sec_total_per >= 0.2, "Yes", "No")) %>%
         mutate(t20_suff_del = if_else(del_cour_total_per >= 0.2, "Yes", "No")) %>%
@@ -114,12 +120,14 @@ course_sufficiency <- function(a_data) {
         mutate(t70_suff_del = if_else(del_cour_total_per >= 0.7, "Yes", "No"))    
  
     # Calculate absolute courses needed for reach targets
+    print(" >>> Computing absolute courses needed for reach targets...")
     a_data <- a_data %>%
         mutate(t20_cour_req = round((a_pop * 0.2) * 1.1)) %>%
         mutate(t40_cour_req = round((a_pop * 0.4) * 1.1)) %>%
         mutate(t70_cour_req = round((a_pop * 0.7) * 1.1))
 
     # Calculate remaining secured, received, and admnistered courses required for targets
+    print(" >>> Computing remaining secured, received, and admnistered courses required for targets...")
     a_data <- a_data %>%
         mutate(t20_cour_need_sec = round(if_else((t20_cour_req - sec_total) < 0, 0,
         (t20_cour_req - sec_total)))) %>%
@@ -146,6 +154,7 @@ course_sufficiency <- function(a_data) {
 course_progress <- function(a_data, b_smartsheet) {
     
     # Homogenize country coverage targets
+    print(" >>>> Homogenizing country coverage targets...")
     a_data <- a_data %>%
     mutate(dp_deadline = as.Date(dp_deadline)) %>%
     mutate(ss_deadline = as.Date(ss_deadline))
@@ -162,6 +171,7 @@ course_progress <- function(a_data, b_smartsheet) {
     mutate(a_pop_ndvp_mid = a_pop * ndvp_mid_target)
 
     # Calculate progress against country coverage targets
+    print(" >>> Computing progress against country coverage targets...")
     a_data <- a_data %>%
     mutate(ndvp_goalmet = if_else(cov_total_fv >= ndvp_target, "Yes", "No")) %>%
     mutate(ndvp_target_active = if_else(as.Date(ndvp_deadline) < Sys.Date(), NA_real_, ndvp_target)) %>%
@@ -169,7 +179,7 @@ course_progress <- function(a_data, b_smartsheet) {
     mutate(ndvp_peratpace = ((adm_fv_homo + (
         dvr_4wk_fv * as.numeric(as.Date(ndvp_deadline) - Sys.Date())
     )) / a_pop)) %>%
-    mutate(ndvp_pertogo = if_else((ndvp_target - ndvp_peratpace) < 0, 0, (ndvp_target - ndvp_peratpace)))  %>%
+    mutate(ndvp_pertogo = if_else((ndvp_target - ndvp_peratpace) < 0, 0, (ndvp_target - ndvp_peratpace))) %>%
     mutate(ndvp_willmeet = if_else(ndvp_peratpace >= ndvp_target, "Yes", "No")) %>%
     mutate(ndvp_timeto = round(if_else(
         ((adm_pv + ((a_pop_ndvp - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td) < 0, 0,
@@ -232,7 +242,7 @@ course_progress <- function(a_data, b_smartsheet) {
     mutate(ndvp_scaleup = if_else(is.infinite(round((ndvp_rate_needed / dvr_4wk_fv),2)),NA_real_,
                                   round(ndvp_rate_needed / dvr_4wk_fv),2)) %>%
     mutate(ndvp_scaleup_dose = if_else(is.infinite(round((ndvp_rate_needed_dose / dvr_4wk_td),2)), NA_real_,
-                                       round(ndvp_rate_needed_dose / dvr_4wk_td),2)) %>%
+                                       round(ndvp_rate_needed_dose / dvr_4wk_td),2))
     #FIXME -1 & 100 set as min and max value. Find a way to get min & max value than hard coding it
     breaks <- c(-1, 0, 2, 5, 10, 100)
     tags <- c("1) Goal met", "2) <2x", "3) 3-5x", "4) 5-10x", "5) >10x")
@@ -245,6 +255,7 @@ course_progress <- function(a_data, b_smartsheet) {
     )
     
     # Progress against mid year targets
+    print(" >>> Getting progress against mid year targets...")
     a_data <- a_data %>%
     mutate(ndvp_mid_rem = if_else((ndvp_mid_target - cov_total_fv) < 0, 0, (ndvp_mid_target - cov_total_fv))) %>%
     mutate(ndvp_mid_peratpace = ((adm_fv_homo + (
@@ -284,7 +295,6 @@ course_progress <- function(a_data, b_smartsheet) {
     "Low",
     NA_character_)
     ))))
-    
     return(a_data)
 }
 
@@ -365,36 +375,25 @@ course_add_notes <- function(a_data, b_csl) {
 # Create AMC summary table
 amc_covax_status <- function(a_data) {
     a_data_amc <- filter(a_data, a_covax_status == "AMC")
-
     return(a_data_amc)
 }
 
 hic_income_group <- function(a_data) {
     a_data_hic <- filter(a_data, a_income_group == "HIC")
-
     return(a_data_hic)
-
 }
 
 covdp_csl_status <- function(a_data) {
     a_data_csl <- filter(a_data, a_csl_status == "Concerted support country")
-    
     return(a_data_csl)
-    
 }
 
 covdp_ifc_status <- function(a_data) {
     a_data_ifc <- filter(a_data, a_ifc_status == "Immediate focus")
-    
     return(a_data_ifc)
-    
 }
 
 africa_continent <- function(a_data) {
     a_data_africa <- filter(a_data, a_continent == "Africa" & intro_status == "Product introduced")
-    
     return(a_data_africa)
-    
 }
-
-
