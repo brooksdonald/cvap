@@ -24,8 +24,7 @@ run_coverage <- function(a_data, env = .GlobalEnv) {
 
     print(" > Loading eda coverage data back to global environment...")
     env$a_data <- a_data
+    print(" > Ok.")
   
     return(environment())
-
 }
-# run_coverage(a_data)

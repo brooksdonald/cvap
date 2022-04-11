@@ -65,7 +65,7 @@ transform_vxrate_merge <- function(a_data) {
   # Set static dates
   refresh_date <- as.Date("2022-03-30")
   t70_deadline <- as.Date("2022-06-30")
-  timeto_t70 <- as.numeric(t70_deadline - refresh_date)
+  timeto_t70 <<- as.numeric(t70_deadline - refresh_date)
   a_data$refresh_date <- refresh_date
 
   #Calculate JJ proportion

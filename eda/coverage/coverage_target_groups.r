@@ -1,7 +1,7 @@
 target_group_ten <- function(a_data) {
+  print(" >>> Getting 10% target progress against coverage targets...")
   # Progress against coverage targets
   ## 10% target
-  # TODO Implement join helper function
   a_data <- left_join(a_data, c_vxrate_sept_t10, by = "a_iso")
 
   a_data <- a_data %>%

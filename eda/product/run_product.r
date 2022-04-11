@@ -52,8 +52,8 @@ run_product <- function(a_data, b_smartsheet, b_csl, env = .GlobalEnv) {
     env$a_data_hic <- a_data_csl
     env$a_data_hic <- a_data_ifc
     env$a_data_hic <- a_data_africa
-    
+    print(" > Ok.")
 
     return(environment())
-
 }
+run_product(a_data, b_smartsheet, b_csl)
