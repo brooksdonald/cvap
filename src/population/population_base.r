@@ -77,7 +77,7 @@ transform_base_population <- function(base_population, population_hcw) {
 
     age_ranges <- c(a_pop_12u, a_pop_12p, a_pop_18u, a_pop_18p, a_pop_60p)
     # has to match the length of a list above
-    age_ranges_names <- c("a_pop_12u", "a_pop_12p", "a_pop_18p", "a_pop_18p", "a_pop_60p")
+    age_ranges_names <- c("a_pop_12u", "a_pop_12p", "a_pop_18u", "a_pop_18p", "a_pop_60p")
     data_frames <- list()
 
     for (i in seq_len(length(age_ranges_names))) {
@@ -89,6 +89,7 @@ transform_base_population <- function(base_population, population_hcw) {
         colnames(df) <- c("a_iso", age_ranges_names[i])
 
         data_frames <- append(data_frames, list(df))
+        print(data_frames)
     }
 
     for (g in c("MALE", "FEMALE")) {
