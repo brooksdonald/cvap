@@ -1,7 +1,7 @@
 # rows 2575 - 2691
 
 run_binning <- function(a_data, env = .GlobalEnv) {
-    source("eda/rank-bin/rank_bin.r")
+    source("eda/rank_bin/rank_bin.r")
 
     print(" > Starting local environment for ranking and binning")
     print(" > Grouping by one column...")
