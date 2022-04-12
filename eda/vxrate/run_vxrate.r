@@ -1,9 +1,23 @@
 # rows 1723 - 1972
 
-run_vxrate <- function(entity_characteristics, population_data, uptake_gender_data, c_vxrate_latest, env = .GlobalEnv) {
+run_vxrate <- function(
+    c_vxrate_latest,
+    entity_characteristics,
+    c_vxrate_latest_red,
+    population_data,
+    uptake_gender_data,
+    b_who_dashboard,
+    b_smartsheet,
+    supply_secured,
+    delivery_courses_doses,
+    b_dp,
+    c_delivery_product,
+    b_fin_fund_del_sum,
+    env = .GlobalEnv
+) {
     source("eda/vxrate/vxrate_consolidate.r")
 
-    print(" > Starting local environment for coverage tartget groups...")
+    print(" > Starting local environment for vxrate...")
 
     print(" >  Extracting consolidated vxrate summary...")
     c_vxrate_latest_red <- extract_vxrate_details(c_vxrate_latest)
@@ -14,6 +28,19 @@ run_vxrate <- function(entity_characteristics, population_data, uptake_gender_da
     print(" > Done.")
 
     print(" > Merging dataframes...")
+    a_data <- merge_dataframes(
+        entity_characteristics,
+        c_vxrate_latest_red,
+        population_data,
+        uptake_gender_data,
+        b_who_dashboard,
+        b_smartsheet,
+        supply_secured,
+        delivery_courses_doses,
+        b_dp,
+        c_delivery_product,
+        b_fin_fund_del_sum
+    )
     print(" > Done.")
 
     print(" > Calculating merged data")
@@ -27,3 +54,17 @@ run_vxrate <- function(entity_characteristics, population_data, uptake_gender_da
 
     return(environment())
 }
+run_vxrate(
+    c_vxrate_latest,
+    entity_characteristics,
+    c_vxrate_latest_red,
+    population_data,
+    uptake_gender_data,
+    b_who_dashboard,
+    b_smartsheet,
+    supply_secured,
+    delivery_courses_doses,
+    b_dp,
+    c_delivery_product,
+    b_fin_fund_del_sum
+)
