@@ -32,8 +32,16 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     f_dvr_change_count <- vxrate_change_cat(a_data, b_vxrate_change_lw)
     print(" > Done.")
 
+    print(" > DVR change: Africa...")
+    f_dvr_change_count_af <- dvr_change_af()
+    print(" > Done.")
+
     print(" > Coverage category change...")
     f_cov_change_count <- cov_cat_change(a_data)
+    print(" > Done.")
+
+    print(" > Coverage category change Africa...")
+    f_cov_change_count_af <- cov_cat_af(a_data)
     print(" > Done.")
     
     print(" > Loading eda consolidation data back to global environment...") 
@@ -52,6 +60,8 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     env$z_values <- z_values
     env$f_dvr_change_count <- f_dvr_change_count
     env$f_cov_change_count <- f_cov_change_count
+    env$f_dvr_change_count_af <- f_dvr_change_count_af
+    env$f_cov_change_count_af <- f_cov_change_count_af
     print(" > Ok.")
     return(environment())
 }

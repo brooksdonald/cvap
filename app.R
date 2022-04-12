@@ -44,7 +44,6 @@ source("eda/product/run_product.r")
 source("eda/financing/run_financing.r")
 source("eda/rank_bin/run_rank_bin.r")
 source("eda/combination/run_combination.r")
-source("eda/export/run_export.r")
 
 vxrate_env <- run_vxrate(
     c_vxrate_latest,
@@ -66,10 +65,15 @@ product_env <- run_product(a_data)
 financing_env <- run_financing(a_data)
 ranking_env <- run_binning(a_data)
 combination_env <- run_combination(a_data)
-# export_env <- run_export()
 
 # CONSOLIDATE
 
 source("consolidate/run_consolidate.r")
 
 consolidate_env <- run_consolidate(a_data)
+
+# Export
+
+source("eda/export/run_export.r")
+
+export_env <- run_export()

@@ -32,7 +32,7 @@ supply_admin_summary <- function(a_data) {
   colnames(z_temp_adm) <- c("a_iso", "a_covax_status","a_csl_status","a_ifc_status","a_name_short", "doses")
   z_temp_adm$category <- "1) Administered"
   
-  z_temp <- bind_rows(z_temp_sec, z_temp_secdel) %>%
+  z_temp <<- bind_rows(z_temp_sec, z_temp_secdel) %>%
     bind_rows(., z_temp_del) %>%
     bind_rows(., z_temp_secdel_wast) %>%
     bind_rows(., z_temp_deladm) %>%
@@ -66,7 +66,7 @@ supply_admin_summary <- function(a_data) {
   colnames(z_temp_adm_lm) <- c("a_iso", "a_covax_status","a_csl_status","a_ifc_status","a_name_short", "doses")
   z_temp_adm_lm$category <- "1) Administered"
   
-  z_temp_lm <- bind_rows(z_temp_sec_lm, z_temp_secdel_lm) %>%
+  z_temp_lm <<- bind_rows(z_temp_sec_lm, z_temp_secdel_lm) %>%
     bind_rows(., z_temp_del_lm) %>%
     bind_rows(., z_temp_secdel_wast_lm) %>%
     bind_rows(., z_temp_deladmwast_lm) %>%  
@@ -89,7 +89,7 @@ supply_admin_summary <- function(a_data) {
   z_secview_long$type <- "Change since last month"
   colnames(z_secview_long) <- c("a_iso","a_covax_status","a_csl_status","a_ifc_status","a_name_short","category","doses","type")
   
-  z_secview_long <- bind_rows(z_secview_long, z_temp_lm_long)
+  z_secview_long <<- bind_rows(z_secview_long, z_temp_lm_long)
   
   return(a_data)
   

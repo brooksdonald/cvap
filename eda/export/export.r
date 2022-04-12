@@ -9,7 +9,7 @@ write_to_excel <- function() {
         "1_adm_dvr_long" = b_vxrate_amc,
         "1_adm_long_smoohth" = b_vxrate_amc_smooth,
         "1_adm_all_long" = b_vxrate_pub,
-        "1_delivery_doses" = supply_received_product,
+        "1_delivery_doses" = c_delivery_product,
         "1_secview" = z_temp,
         "1_secview_lm" = z_temp_lm,
         "1_secview_all" = z_secview_long,
@@ -33,7 +33,7 @@ write_to_excel <- function() {
         "8_ndvp_tar_cat" = e_ndvp_all,
         "9_values" = z_values
     )
-    write.xlsx(all_df, "data/output/demo_master.xlsx")
+    write.xlsx(all_df, "data/output/v2_master.xlsx")
 
 
 }
