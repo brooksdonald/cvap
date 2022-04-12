@@ -27,7 +27,6 @@ source("src/vaccines/run_vaccines.r")
 source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
 
-
 base_env <- run_base()
 entity_env <- run_entity()
 pop_env <- run_population()
@@ -44,10 +43,8 @@ source("eda/coverage/run_coverage.r")
 source("eda/product/run_product.r")
 source("eda/financing/run_financing.r")
 source("eda/rank_bin/run_rank_bin.r")
-source("eda/consolidate/run_consolidate.r")
 source("eda/combination/run_combination.r")
 source("eda/export/run_export.r")
-
 
 vxrate_env <- run_vxrate(
     c_vxrate_latest,
@@ -68,6 +65,11 @@ coverage_env <- run_coverage(a_data)
 product_env <- run_product(a_data)
 financing_env <- run_financing(a_data)
 ranking_env <- run_binning(a_data)
-consolidate_env <- run_consolidate(a_data)
 combination_env <- run_combination(a_data)
 # export_env <- run_export()
+
+# CONSOLIDATE
+
+source("consolidate/run_consolidate.r")
+
+consolidate_env <- run_consolidate(a_data)

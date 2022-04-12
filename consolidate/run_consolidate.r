@@ -1,11 +1,11 @@
 # rows 2698 - 3280
 
 run_consolidate <- function(a_data, env = .GlobalEnv) {
-    source("eda/consolidate/consolidate_base_file.r")
-    source("eda/consolidate/consolidate_vxrate.r")
-    source("eda/consolidate/consolidate_targets.r")
-    source("eda/consolidate/consolidate_supplies_utilization.r")
-    source("eda/consolidate/consolidate_tables.r")
+    source("consolidate/consolidate_base_file.r")
+    source("consolidate/consolidate_vxrate.r")
+    source("consolidate/consolidate_targets.r")
+    source("consolidate/consolidate_supplies_utilization.r")
+    source("consolidate/consolidate_tables.r")
 
     print(" > Starting local environment for consolidation summary")
     print(" > Consolidating base file...")
