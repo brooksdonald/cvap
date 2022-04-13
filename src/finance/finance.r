@@ -18,7 +18,7 @@ load_finance_data <- function() {
             "Funding.Amount",
             "Funding.Source.Type",
             "Funding.Source",
-            "Double.Counting"
+            "DoubleCounting"
         )
     )
     colnames(b_fin_funding) <- c(

@@ -117,7 +117,9 @@ transform_vxrate_merge <- function(a_data) {
     mutate(a_pop_18p_prop = a_pop_18p / a_pop_2021) %>%
     mutate(a_pop_18u_prop = a_pop_18u / a_pop_2021) %>%
     mutate(a_pop_hcw_prop = a_pop_hcw / a_pop_2021) %>%
-    mutate(a_pop_60p_prop = a_pop_60p / a_pop_2021)
+    mutate(a_pop_60p_prop = a_pop_60p / a_pop_2021) %>%
+    mutate(a_pop_12p_prop = a_pop_12p / a_pop_2021) %>%
+    mutate(a_pop_12u_prop = a_pop_12u / a_pop_2021)
 
   # Calculate theoretical fully vaccinated for non-reporters for current, lm, and 2m
   print(" >>> Computing theoreticaally fully vaxxed for non reporters...")

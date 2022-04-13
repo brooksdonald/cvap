@@ -37,55 +37,24 @@ transform_base_population <- function(base_population, population_hcw) {
     data_frames <- list()
     
     z_pop_tot <- base_population %>%
-    filter(gender == "BOTH" & age_group == "ALL")
+        filter(gender == "BOTH" & age_group == "ALL")
     z_pop_tot <- select(z_pop_tot, c("a_iso", "value"))
     colnames(z_pop_tot) <- c("a_iso", "a_pop_2021")
     data_frames <- append(data_frames, list(z_pop_tot))
 
     print(" >> Segregating the different age groups...")
-    age_range12u <- (1:11)
-    age_range12 <- (12:100)
-    age_range18u <- (1:17)
-    age_range18 <- (18:100)
-    age_range60 <- (60:100)
-
-    # Adding "Y0" to age_range11 for values between 1-9
-    age_range12u_list <- list()
-
-    for (age in age_range12u) {
-        if (age < 10) {
-            age <- paste("Y0", as.character(age), sep = "")
-            age_range12u_list <- append(age_range12u_list, age)
-        }
-        else {
-            age <- paste("Y", as.character(age), sep = "")
-            age_range12u_list <- append(age_range12u_list, age)
-            }
-        }
-
-    # Adding "Y0" to age_range17 for values between 1-9
-    #TODO Merge u12 and u18 functions
-    age_range18u_list <- list()
-    
-    for (age in age_range18u) {
-        if (age < 10) {
-            age <- paste("Y0", as.character(age), sep = "")
-            age_range18u_list <- append(age_range18u_list, age)
-        }
-        else {
-            age <- paste("Y", as.character(age), sep = "")
-            age_range18u_list <- append(age_range18u_list, age)
-        }
-    }
 
     # adding "Y" to the age ranges to match the desired output
-    a_pop_12u <- unlist(age_range12u_list)
-    a_pop_12p <- helper_add_char_to_list(age_range12)
-    a_pop_18u <- unlist(age_range18u_list)
-    a_pop_18p <- helper_add_char_to_list(age_range18)
-    a_pop_60p <- helper_add_char_to_list(age_range60)
+    a_pop_12u <- c(helper_add_char_to_list(c(0:9), "Y0"), 
+                   helper_add_char_to_list(c(10:11), "Y"), "Y0")
+    a_pop_12p <- helper_add_char_to_list(c(12:100), "Y")
+    a_pop_18u <- c(helper_add_char_to_list(c(0:9), "Y0"), 
+                   helper_add_char_to_list(c(10:17), "Y"), "Y0")
+    a_pop_18p <- helper_add_char_to_list(c(18:100), "Y")
+    a_pop_60p <- helper_add_char_to_list(c(60:100), "Y")
 
-    age_ranges <- c(a_pop_12u, a_pop_12p, a_pop_18u, a_pop_18p, a_pop_60p)
+    age_ranges <- list(a_pop_12u, a_pop_12p, a_pop_18u, a_pop_18p, a_pop_60p)
+    
     # has to match the length of a list above
     age_ranges_names <- c(
         "a_pop_12u",
@@ -94,11 +63,14 @@ transform_base_population <- function(base_population, population_hcw) {
         "a_pop_18p",
         "a_pop_60p"
     )
+
+
     # Filter for different ages
     for (i in seq_len(length(age_ranges_names))) {
+        
         df <- base_population %>%
             filter(gender == "BOTH" &
-                age_group %in% age_ranges[i]) %>%
+                age_group %in% age_ranges[[i]]) %>%
             group_by(a_iso) %>%
             summarize_at("value", sum, na.rm = TRUE)
         colnames(df) <- c("a_iso", age_ranges_names[i])
@@ -131,11 +103,5 @@ transform_base_population <- function(base_population, population_hcw) {
         join_by = "a_iso",
         ally = TRUE
     )
-
-    # population_data <- Reduce(
-    #     function(x, y) merge(x, y, by = "a_iso", all = TRUE),
-    #     data_frames
-    # )
-
     return(population_data)
 }
