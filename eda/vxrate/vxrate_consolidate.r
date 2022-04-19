@@ -238,7 +238,48 @@ transform_vxrate_merge <- function(a_data) {
   print(" >>> Computing gender coverage difference in reporting countries...")
   a_data <- a_data %>%
     mutate(cov_total_gen_diff = cov_total_fem_fv - cov_total_male_fv)
-  
+    
+    # Coverage categories in target groups
+    a_data <- a_data %>%
+      mutate(cov_hcw_fv_cat = if_else(
+        cov_hcw_fv < 0.1,
+        "1) 1-10%",
+        if_else(
+          cov_hcw_fv < 0.2,
+          "2) 10-20%",
+          if_else(
+            cov_hcw_fv < 0.4,
+            "3) 20-40%",
+            if_else(
+              cov_hcw_fv < 0.7,
+              "4) 40-70%",
+              if_else(cov_hcw_fv >= 0.7, "5) 70%+",
+                      NA_character_)
+            )
+          )
+        )
+      )) %>%
+      
+      mutate(cov_60p_fv_cat = if_else(
+        cov_60p_fv < 0.1,
+        "1) 1-10%",
+        if_else(
+          cov_60p_fv < 0.2,
+          "2) 10-20%",
+          if_else(
+            cov_60p_fv < 0.4,
+            "3) 20-40%",
+            if_else(
+              cov_60p_fv < 0.7,
+              "4) 40-70%",
+              if_else(cov_60p_fv >= 0.7, "5) 70%+",
+                      NA_character_)
+            )
+          )
+        )
+      )
+    )
+    
   # Calculate 4-week average daily rates as % of pop.
   print(" >>> Computing 4-week average daily rates as % of pop...")
   a_data <- a_data %>%
