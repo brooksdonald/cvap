@@ -118,6 +118,12 @@ grouping_by_two <- function(a_data) {
     group_by(a_covax_status, intro_status) %>%
     mutate(sec_covax_prop_rank = row_number(sec_covax_prop)) %>%
     mutate(sec_covax_prop_bins = ntile(sec_covax_prop_rank, 2))
+
+   ## Proportion of JJ doses
+  a_data <- a_data %>%
+    group_by(intro_status, a_csc_status) %>%
+    mutate(csl_del_dose_jj_rank = row_number(del_dose_jj_prop)) %>%
+    mutate(csl_del_dose_jj_bins = ntile(csl_del_dose_jj_rank, 2))  
   return(a_data)
 }
 
