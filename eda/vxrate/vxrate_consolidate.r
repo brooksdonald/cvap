@@ -225,11 +225,14 @@ transform_vxrate_merge <- function(a_data) {
     mutate(adm_fv_hcw_homo = if_else(adm_fv_hcw > a_pop_hcw, a_pop_hcw, adm_fv_hcw)) %>%
     mutate(cov_hcw_a1d = if_else((adm_a1d_hcw / a_pop_hcw) > 1, 1, (adm_a1d_hcw / a_pop_hcw))) %>%
     mutate(cov_hcw_fv = if_else((adm_fv_hcw_homo / a_pop_hcw) > 1, 1, (adm_fv_hcw_homo / a_pop_hcw))) %>%
-    mutate(adm_fv_gen = adm_fv_male + adm_fv_female) %>%
+    mutate(adm_fv_male_homo = if_else(adm_fv_male > a_pop_male, a_pop_male, adm_fv_male)) %>%
     mutate(cov_total_male_fv = adm_fv_male / a_pop_male) %>%
+    mutate(adm_fv_fem_homo = if_else(adm_fv_fem > a_pop_fem, a_pop_fem, adm_fv_fem)) %>%
     mutate(cov_total_fem_fv = adm_fv_female / a_pop_female) %>%
+    mutate(adm_fv_60p_homo = if_else(adm_fv_60p > a_pop_60p, a_pop_60p, adm_fv_60p)) %>%
     mutate(cov_60p_a1d = if_else((adm_a1d_60p / a_pop_60p) > 1, 1, (adm_a1d_60p / a_pop_60p))) %>%
-    mutate(cov_60p_fv = if_else((adm_fv_60p / a_pop_60p) > 1, 1, (adm_fv_60p / a_pop_60p)))
+    mutate(cov_60p_fv = if_else((adm_fv_60p / a_pop_60p) > 1, 1, (adm_fv_60p / a_pop_60p))) %>%
+    mutate(adm_fv_gen = adm_fv_male_homo + adm_fv_fem_homo)
 
   # Calculate gender coverage difference in reporting countries
   print(" >>> Computing gender coverage difference in reporting countries...")
