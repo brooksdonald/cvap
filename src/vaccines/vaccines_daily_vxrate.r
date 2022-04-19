@@ -527,7 +527,7 @@ first_supplies <- function(d_absorb_red) {
     )
   )
   print(" >> Selecting columns needed for b_supply_red...")
-  b_supply_red <<- select(
+  b_supply_red <- select(
     b_supply,
     c(
       "iso",
@@ -541,6 +541,8 @@ first_supplies <- function(d_absorb_red) {
     "month_name",
     "received"
   )
+  #TODO Where do I fix this b_supply_red variable?
+  b_supply_red <<- b_supply_red
   combined <- rbind(d_absorb_red, b_supply)
   return(combined)
 }
