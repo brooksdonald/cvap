@@ -104,18 +104,16 @@ transform_base_smartsheet <- function(b_smartsheet) {
         na_fill = "Unknown"
 
     )
-    
-    b_smartsheet <- b_smartsheet %>%
-    mutate(expiry_risk_num = if_else(
-        expiry_risk == "Doses at risk",
-        1,
-        if_else(
-            expiry_risk == "Under observation",
-            2,
-            if_else(expiry_risk == "No doses at risk", 3,
-                    4)
-        )
-    ))
+    b_smartsheet$expiry_risk_num <- helper_replace_values_with_map(
+        data = b_smartsheet$expiry_risk,
+        values = c(
+            "Doses at risk",
+            "Under observation",
+            "No doses at risk"
+        ),
+        map = c(1, 2, 3),
+        na_fill = 4
+    )
 
     ## Change country target field type to date
     b_smartsheet$ss_deadline <-

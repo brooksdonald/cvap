@@ -121,7 +121,7 @@ grouping_by_two <- function(a_data) {
 
    ## Proportion of JJ doses
   a_data <- a_data %>%
-    group_by(intro_status, a_csc_status) %>%
+    group_by(intro_status, a_csl_status) %>%
     mutate(csl_del_dose_jj_rank = row_number(del_dose_jj_prop)) %>%
     mutate(csl_del_dose_jj_bins = ntile(csl_del_dose_jj_rank, 2))  
   return(a_data)
