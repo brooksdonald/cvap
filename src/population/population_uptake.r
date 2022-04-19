@@ -131,7 +131,7 @@ transform_pop_target_groups <- function(uptake_target_group) {
 
     for (tg in c("HW", "OLDER_60")) {
         df <- uptake_target_group %>%
-            filter(target_group == paste(tg)) %>%
+            filter(target_group == paste(tg) & is.na(adm_fv) == FALSE) %>%
             select(-"target_group")
 
         colnames(df) <-
