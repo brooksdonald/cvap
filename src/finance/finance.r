@@ -47,7 +47,7 @@ transform_finance_data <- function(b_fin_funding, entity_characteristics) {
     )
     b_fin_fund_del <- b_fin_fund_del %>%
     mutate(funding_source = if_else(funding_source == "Foundations/Private", "Foundations / private", funding_source))
-    b_fin_fund_del$funding_source <- helper_replace_values_with_map(
+    b_fin_fund_del$funder <- helper_replace_values_with_map(
         data = b_fin_fund_del$funder,
         values = c(
             "Japan - Ministry of Foreign Affairs",
