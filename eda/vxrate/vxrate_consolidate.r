@@ -63,6 +63,7 @@ merge_dataframes <- function(
 
 transform_vxrate_merge <- function(a_data) {
   # Set static dates
+  # TODO move static dates to app.r
   print(" >>> Setting static dates")
   refresh_date <- as.Date("2022-03-30")
   t70_deadline <- as.Date("2022-06-30")
@@ -88,8 +89,7 @@ transform_vxrate_merge <- function(a_data) {
   
   a_data <- a_data %>%
     mutate(csl_status_numb = if_else(a_csl_status == "Concerted support country", 1, NA_real_))
-  
-
+    
   # Assign population size category
   # TODO Find a way to include the max value of max(a_data$a_pop_cat))
   # FIXME Don't hard code the max value
@@ -214,13 +214,13 @@ transform_vxrate_merge <- function(a_data) {
   # Indicator reporting status for target group-specific uptake data
   print(" >>> Indicator reporting status for target group-specific uptake data...")
   a_data <- a_data %>%
-    mutate(adm_fv_hcw_repstat = if_else(adm_fv_hcw > 0, "Reporting", NA_character_)) %>%
-    mutate(adm_fv_60p_repstat = if_else(adm_fv_60p > 0, "Reporting", NA_character_)) %>%
-    mutate(adm_fv_gen_repstat = if_else(adm_fv_female > 0, "Reporting", NA_character_))
+    mutate(adm_fv_hcw_repstat = if_else(adm_fv_hcw > 0, "Reporting", "Not Reporting")) %>%
+    mutate(adm_fv_60p_repstat = if_else(adm_fv_60p > 0, "Reporting", "Not Reporting")) %>%
+    mutate(adm_fv_gen_repstat = if_else(adm_fv_female > 0, "Reporting", "Not Reporting"))
 
   # Calculate target group coverage figures
   print(" >>> Computing target group coverage figures...")
-    a_data <- a_data %>%
+  a_data <- a_data %>%
     mutate(adm_a1d_hcw_homo = if_else(adm_a1d_hcw > a_pop_hcw, a_pop_hcw, adm_a1d_hcw)) %>%
     mutate(adm_fv_hcw_homo = if_else(adm_fv_hcw > a_pop_hcw, a_pop_hcw, adm_fv_hcw)) %>%
     mutate(cov_hcw_a1d = if_else((adm_a1d_hcw / a_pop_hcw) > 1, 1, (adm_a1d_hcw / a_pop_hcw))) %>%
@@ -234,52 +234,52 @@ transform_vxrate_merge <- function(a_data) {
     mutate(cov_60p_fv = if_else((adm_fv_60p / a_pop_60p) > 1, 1, (adm_fv_60p / a_pop_60p))) %>%
     mutate(adm_fv_gen = adm_fv_male_homo + adm_fv_fem_homo)
   
+
   # Calculate gender coverage difference in reporting countries
   print(" >>> Computing gender coverage difference in reporting countries...")
   a_data <- a_data %>%
     mutate(cov_total_gen_diff = cov_total_fem_fv - cov_total_male_fv)
-    
-    # Coverage categories in target groups
-    a_data <- a_data %>%
-      mutate(cov_hcw_fv_cat = if_else(
-        cov_hcw_fv < 0.1,
-        "1) 1-10%",
+  
+  # Coverage categories in target groups
+  a_data <- a_data %>%
+    mutate(cov_hcw_fv_cat = if_else(
+      cov_hcw_fv < 0.1,
+      "1) 1-10%",
+      if_else(
+        cov_hcw_fv < 0.2,
+        "2) 10-20%",
         if_else(
-          cov_hcw_fv < 0.2,
-          "2) 10-20%",
+          cov_hcw_fv < 0.4,
+          "3) 20-40%",
           if_else(
-            cov_hcw_fv < 0.4,
-            "3) 20-40%",
-            if_else(
-              cov_hcw_fv < 0.7,
-              "4) 40-70%",
-              if_else(cov_hcw_fv >= 0.7, "5) 70%+",
-                      NA_character_)
-            )
-          )
-        )
-      )) %>%
-      
-      mutate(cov_60p_fv_cat = if_else(
-        cov_60p_fv < 0.1,
-        "1) 1-10%",
-        if_else(
-          cov_60p_fv < 0.2,
-          "2) 10-20%",
-          if_else(
-            cov_60p_fv < 0.4,
-            "3) 20-40%",
-            if_else(
-              cov_60p_fv < 0.7,
-              "4) 40-70%",
-              if_else(cov_60p_fv >= 0.7, "5) 70%+",
-                      NA_character_)
-            )
+            cov_hcw_fv < 0.7,
+            "4) 40-70%",
+            if_else(cov_hcw_fv >= 0.7, "5) 70%+",
+                    NA_character_)
           )
         )
       )
-    )
+    )) %>%
     
+    mutate(cov_60p_fv_cat = if_else(
+      cov_60p_fv < 0.1,
+      "1) 1-10%",
+      if_else(
+        cov_60p_fv < 0.2,
+        "2) 10-20%",
+        if_else(
+          cov_60p_fv < 0.4,
+          "3) 20-40%",
+          if_else(
+            cov_60p_fv < 0.7,
+            "4) 40-70%",
+            if_else(cov_60p_fv >= 0.7, "5) 70%+",
+                    NA_character_)
+          )
+        )
+      )
+    ))
+  
   # Calculate 4-week average daily rates as % of pop.
   print(" >>> Computing 4-week average daily rates as % of pop...")
   a_data <- a_data %>%
@@ -340,6 +340,7 @@ transform_vxrate_merge <- function(a_data) {
 
   return(a_data)
 }
+
 
  # breaks <- c(-1, -0.25, 0.25, 0, 1)
     # tags <- c("1) < (-25)%", "4) > 25%", "2) (-25)-0%", "3) 0-25%") #nolint 
