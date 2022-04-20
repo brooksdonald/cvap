@@ -39,7 +39,7 @@ load_sup_rec <- function() {
     colnames(b_mdb_2m)[3] <- "total_2m"
 
     # FIXME hardcoded date warning!
-    b_mdb$del_date <- as.Date("2022-03-28")
+    b_mdb$del_date <- as.Date("2022-04-12")
 
     supply_received <- helper_join_dataframe_list(
         list(b_mdb, b_mdb_lm, b_mdb_2m),
@@ -54,7 +54,7 @@ load_sup_rec <- function() {
         "total",
         "total_lm",
         "total_2m"
-        )
+    )
     ) {
         supply_received[, col] <- as.numeric(supply_received[, col])
     }
@@ -103,7 +103,6 @@ transform_sup_rec_doses <- function(supply_received) {
 
     supply_received_doses <- supply_received_doses %>%
         mutate(del_dose_lm_2m = del_dose_total_lm - del_dose_total_2m) %>%
-        
         mutate(del_dose_wast = del_dose_total * 0.1)
 
 
@@ -191,7 +190,7 @@ transform_sup_rec_product <- function(supply_received) {
     c_delivery_product <- filter(c_delivery_product, product_short == "J&J")
     c_delivery_product <- select(c_delivery_product, -c("product_short"))
     colnames(c_delivery_product) <- c("a_iso", "del_dose_jj")
-    
+
     return(c_delivery_product)
 }
 
@@ -261,112 +260,93 @@ sr_filter_and_rename <- function(df, suffix) {
 
 
 eda_sup_rec_courses <- function(supply_received, supply_received_doses) {
-    print(" >> Building one dose dataset...")
-    one_dose_delivery_courses <- sr_filter_and_rename(
-        filter(supply_received, product == "Janssen - Ad26.COV 2.S"),
-        suffix = "_1d"
-    )
-
-    print(" >> Calculating one dose wastage...")
-    one_dose_delivery_courses <- one_dose_delivery_courses %>%
-        mutate(wast_1d = total_1d * 0.1)
-
-    print(" >> Building two dose dataset...")
-    two_dose_delivery_courses <- sr_filter_and_rename(
-        filter(supply_received, product != "Janssen - Ad26.COV 2.S"),
-        suffix = "_2d"
-    )
-
-    two_dose_delivery_courses <- two_dose_delivery_courses %>%
+    c_delivery_courses <- supply_received %>%
         group_by(iso) %>%
-        summarise_at(
+        summarize_at(
             c(
-                "bimultilat_2d",
-                "donations_2d",
-                "covax_2d",
-                "avat_2d",
-                "unknown_2d",
-                "total_2d",
-                "total_lm_2d",
-                "total_2m_2d"
+                "bimultilat",
+                "donations",
+                "covax",
+                "avat",
+                "unknown",
+                "total",
+                "total_lm",
+                "total_2m"
             ),
             sum,
             na.rm = TRUE
         )
 
-
-    print(" >> Calculating two dose wastage...")
-    two_dose_delivery_courses <- two_dose_delivery_courses %>%
-        mutate(wast_2d = total_2d * 0.1)
-
-    # FIXME make this dry
-    two_dose_delivery_courses <- two_dose_delivery_courses %>%
-        mutate(bimultilat_2d = bimultilat_2d / 2) %>%
-        mutate(donations_2d = donations_2d / 2) %>%
-        mutate(covax_2d = covax_2d / 2) %>%
-        mutate(avat_2d = avat_2d / 2) %>%
-        mutate(unknown_2d = unknown_2d / 2) %>%
-        mutate(total_2d = total_2d / 2) %>%
-        mutate(wast_2d = wast_2d / 2) %>%
-        mutate(total_lm_2d = total_lm_2d / 2) %>%
-        mutate(total_2m_2d = total_2m_2d / 2)
-
-    delivery_couses <- left_join(two_dose_delivery_courses,
-        one_dose_delivery_courses,
-        by = "iso"
+    colnames(c_delivery_courses) <- c(
+        "iso",
+        "bimultilat",
+        "donations",
+        "covax",
+        "avat",
+        "unknown",
+        "total",
+        "total_lm",
+        "total_2m"
     )
 
-    delivery_couses <- delivery_couses %>%
-        mutate(across(-c(del_date, iso), ~ replace_na(., 0)))
+    c_delivery_courses <- c_delivery_courses[!(is.na(c_delivery_courses$iso)), ]
 
-    print(" >> Adding 1-dose and 2-dose courses...")
-    delivery_couses <- delivery_couses %>%
-        mutate(del_cour_bilat = bimultilat_1d + bimultilat_2d) %>%
-        mutate(del_cour_donat = donations_1d + donations_2d) %>%
-        mutate(del_cour_covax = covax_1d + covax_2d) %>%
-        mutate(del_cour_avat = avat_1d + avat_2d) %>%
-        mutate(del_cour_unkwn = unknown_1d + unknown_2d) %>%
-        mutate(del_cour_total = total_1d + total_2d) %>%
-        mutate(del_cour_wast = wast_1d + wast_2d) %>%
-        mutate(del_cour_total_lm = total_lm_1d + total_lm_2d) %>%
-        mutate(del_cour_total_2m = total_2m_1d + total_2m_2d)
 
-    delivery_couses <- delivery_couses %>%
+    print(" >> Calculate estimated course wastage")
+    c_delivery_courses <- c_delivery_courses %>%
+        mutate(wast = total * 0.1)
+
+    print(" >> Divide by 2 to calculate number courses")
+    c_delivery_courses <- c_delivery_courses %>%
+        mutate(del_cour_bilat = bimultilat / 2) %>%
+        mutate(del_cour_donat = donations / 2) %>%
+        mutate(del_cour_covax = covax / 2) %>%
+        mutate(del_cour_avat = avat / 2) %>%
+        mutate(del_cour_unkwn = unknown / 2) %>%
+        mutate(del_cour_total = total / 2) %>%
+        mutate(del_cour_wast = wast / 2) %>%
+        mutate(del_cour_total_lm = total_lm / 2) %>%
+        mutate(del_cour_total_2m = total_2m / 2)
+
+    print(" >> Replace NAs with 0 and round")
+    # c_delivery_courses <- replace_na(c_delivery_courses, everything(), 0)
+    c_delivery_courses <- c_delivery_courses %>%
+        mutate(across(.cols = c(everything(), -"iso"), ~ replace_na(., 0)))
+
+    c_delivery_courses <- c_delivery_courses %>%
         mutate_if(is.numeric, round)
 
-    delivery_couses <-
-        select(
-            delivery_couses,
-            c(
-                "iso",
-                "del_date",
-                "del_cour_bilat",
-                "del_cour_donat",
-                "del_cour_covax",
-                "del_cour_avat",
-                "del_cour_unkwn",
-                "del_cour_total",
-                "del_cour_wast",
-                "del_cour_total_lm",
-                "del_cour_total_2m"
-            )
+    c_delivery_courses <- select(
+        c_delivery_courses,
+        c(
+            "iso",
+            "del_cour_bilat",
+            "del_cour_donat",
+            "del_cour_covax",
+            "del_cour_avat",
+            "del_cour_unkwn",
+            "del_cour_total",
+            "del_cour_wast",
+            "del_cour_total_lm",
+            "del_cour_total_2m"
         )
+    )
 
-    ## Calculate courses delivered since last month and two month
-    delivery_couses <- delivery_couses %>%
+    print(" >> Calculate courses delivered since last month and two month")
+    c_delivery_courses <- c_delivery_courses %>%
         mutate(del_cour_since_lm = del_cour_total - del_cour_total_lm)
 
-    delivery_couses <- delivery_couses %>%
+    c_delivery_courses <- c_delivery_courses %>%
         mutate(del_cour_prior_2m = del_cour_total_2m)
 
-    delivery_couses <- delivery_couses %>%
+    c_delivery_courses <- c_delivery_courses %>%
         mutate(del_cour_lm_2m = del_cour_total_lm - del_cour_total_2m)
 
-    delivery_courses_doeses <- left_join(supply_received_doses,
-        delivery_couses,
-        by = "iso"
-    )
-    # Renaming delivery_courses_doeses iso to a_iso
-    colnames(delivery_courses_doeses)[1] <- c("a_iso")
-    return(delivery_courses_doeses)
+    print(" >> Combine doses and courses delivered tables")
+    c_delivery <- left_join(supply_received_doses, c_delivery_courses, by = "iso")
+
+    print(" >> Renaming delivery_courses_doeses iso to a_iso")
+
+    colnames(c_delivery)[1] <- c("a_iso")
+    return(c_delivery)
 }
