@@ -33,7 +33,6 @@ load_base_smartsheet <- function() {
                 "ISO3",
                 "NDVP...Coverage.target..",
                 "NDVP...Coverage.deadline",
-                "NDVP.Target.Population",
                 "At.risk.for.expiry",
                 "Driving.factors"
             )
