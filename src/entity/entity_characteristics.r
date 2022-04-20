@@ -101,7 +101,7 @@ transform_entity_chars <- function(entity_characteristics, b_csl) {
     )
     
     print(" >> Rework Africa sub-regions...")
-    entity_characteristics$a_who_region <- helper_replace_values_with_map(
+    entity_characteristics$a_continent_sub <- helper_replace_values_with_map(
         data = entity_characteristics$a_continent_sub,
         values = c("Eastern Africa", "Western Africa", "Middle Africa",
                    "Southern Africa", "Northern Africa"),
