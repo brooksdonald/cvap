@@ -22,7 +22,7 @@ values_table <- function() {
     z_values$pop_amc <- sum(a_data_amc$a_pop)
     z_values$pop_amc_hcw <- sum(a_data_amc$a_pop_hcw)
     z_values$pop_africa <- sum(a_data_africa$a_pop)
-    z_values$pop_csl <- sum(a_data_csl$a_pop)
+    z_values$pop_csc <- sum(a_data_csc$a_pop)
     z_values$pop_ifc <- sum(a_data_ifc$a_pop)
     z_values$count_amc <- 90
     z_values$count_africa <- 53

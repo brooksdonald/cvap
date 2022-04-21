@@ -1,6 +1,6 @@
 # rows 2258 - 2569
 
-run_product <- function(a_data, b_smartsheet, b_csl, env = .GlobalEnv) {
+run_product <- function(a_data, b_smartsheet, b_csc, env = .GlobalEnv) {
     source("eda/product/product_utilization.r")
 
     print(" > Starting local environment for product utilization eda")
@@ -22,7 +22,7 @@ run_product <- function(a_data, b_smartsheet, b_csl, env = .GlobalEnv) {
     print(" > Done.")
 
     print(" > Adding additional notes...")
-    a_data <- course_add_notes(a_data, b_csl)
+    a_data <- course_add_notes(a_data, b_csc)
     print(" > Done.")
 
     print(" > Filtering AMC covax status...")
@@ -33,8 +33,8 @@ run_product <- function(a_data, b_smartsheet, b_csl, env = .GlobalEnv) {
     a_data_hic <- hic_income_group(a_data)
     print(" > Done.")
     
-    print(" > Filtering CoVDP CSL status...")
-    a_data_csl <- covdp_csl_status(a_data)
+    print(" > Filtering CoVDP csc status...")
+    a_data_csc <- covdp_csc_status(a_data)
     print(" > Done.")
     
     print(" > Filtering CoVDP IFC status ...")
@@ -49,7 +49,7 @@ run_product <- function(a_data, b_smartsheet, b_csl, env = .GlobalEnv) {
     env$a_data <- a_data
     env$a_data_amc <- a_data_amc
     env$a_data_hic <- a_data_hic
-    env$a_data_csl <- a_data_csl
+    env$a_data_csc <- a_data_csc
     env$a_data_ifc <- a_data_ifc
     env$a_data_africa <- a_data_africa
     print(" > Ok.")

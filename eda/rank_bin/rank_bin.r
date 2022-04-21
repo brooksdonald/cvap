@@ -107,11 +107,11 @@ grouping_by_two <- function(a_data) {
     mutate(ndvp_target_rank = row_number(ndvp_target)) %>%
     mutate(ndvp_target_bins = ntile(ndvp_target_rank, 2))
   
-  ## CSL total courses received
+  ## csc total courses received
   a_data <- a_data %>%
-    group_by(intro_status, a_csl_status) %>%
-    mutate(csl_del_dose_rank = row_number(del_dose_total)) %>%
-    mutate(csl_del_dose_bins = ntile(csl_del_dose_rank, 2))
+    group_by(intro_status, a_csc_status) %>%
+    mutate(csc_del_dose_rank = row_number(del_dose_total)) %>%
+    mutate(csc_del_dose_bins = ntile(csc_del_dose_rank, 2))
 
   ##Proportion of supply secured from COVAX
   a_data <- a_data %>%
@@ -121,9 +121,9 @@ grouping_by_two <- function(a_data) {
 
    ## Proportion of JJ doses
   a_data <- a_data %>%
-    group_by(intro_status, a_csl_status) %>%
-    mutate(csl_del_dose_jj_rank = row_number(del_dose_jj_prop)) %>%
-    mutate(csl_del_dose_jj_bins = ntile(csl_del_dose_jj_rank, 2))  
+    group_by(intro_status, a_csc_status) %>%
+    mutate(csc_del_dose_jj_rank = row_number(del_dose_jj_prop)) %>%
+    mutate(csc_del_dose_jj_bins = ntile(csc_del_dose_jj_rank, 2))  
   return(a_data)
 }
 
