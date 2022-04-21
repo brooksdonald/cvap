@@ -19,6 +19,10 @@ financing_overview <- function(a_data) {
         )
       )
     ))
+    
+    # Sort columns
+    a_data <- a_data %>%
+    select("a_iso", sort(colnames(.)))
   
   return(a_data)
 

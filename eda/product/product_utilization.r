@@ -364,10 +364,6 @@ course_add_notes <- function(a_data, b_csc) {
         )
     ))
 
-    # Sort columns
-    a_data <- a_data %>%
-    select("a_iso", sort(colnames(.)))
-
     return(a_data)
 
 }
