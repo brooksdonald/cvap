@@ -160,7 +160,7 @@ transform_current_vxrate_pub <- function(b_vxrate) {
         "a_who_region",
         "a_covax_status",
         "a_income_group",
-        "a_csl_status",
+        "a_csc_status",
         "a_ifc_status",
         "a_continent_sub"
       )
@@ -197,7 +197,7 @@ transform_subset_amc <- function(b_vxrate) {
         "a_who_region",
         "a_covax_status",
         "a_income_group",
-        "a_csl_status",
+        "a_csc_status",
         "a_ifc_status",
         "a_continent_sub"
       )
@@ -303,7 +303,7 @@ transform_smooth_timeseries <- function(b_vxrate_amc, b_vxrate_pub) {
     fill(a_who_region) %>%
     fill(a_covax_status) %>%
     fill(a_income_group) %>%
-    fill(a_csl_status) %>%
+    fill(a_csc_status) %>%
     fill(a_ifc_status) %>%
     fill(dvr_4wk_td) %>%
     fill(dvr_4wk_td_per)
@@ -410,9 +410,9 @@ transform_abspt_by_month <- function(b_vxrate) {
         "a_who_region",
         "a_continent",
         "a_covax_status",
-        "a_csl_status",
+        "a_csc_status",
         "a_income_group",
-        "a_csl_status",
+        "a_csc_status",
         "a_ifc_status",
         "adm_date_month",
         "adm_td"
@@ -453,7 +453,7 @@ absorption_per_country <- function(c_vxrate_eom) {
     c(
       "a_iso",
       "a_covax_status",
-      "a_csl_status",
+      "a_csc_status",
       "adm_date_month",
       "adm_td_absorbed"
     )
@@ -487,7 +487,7 @@ absorption_per_country <- function(c_vxrate_eom) {
     c(
       "a_iso",
       "a_covax_status",
-      "a_csl_status",
+      "a_csc_status",
       "adm_td_absorbed",
       "adm_date_month_name"
     )
@@ -496,7 +496,7 @@ absorption_per_country <- function(c_vxrate_eom) {
   colnames(d_absorption_country) <- c(
     "iso",
     "a_covax_status",
-    "a_csl_status",
+    "a_csc_status",
     "value",
     "month_name"
   )
