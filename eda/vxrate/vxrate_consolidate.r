@@ -214,9 +214,9 @@ transform_vxrate_merge <- function(a_data) {
   # Indicator reporting status for target group-specific uptake data
   print(" >>> Indicator reporting status for target group-specific uptake data...")
   a_data <- a_data %>%
-    mutate(adm_fv_hcw_repstat = if_else(adm_fv_hcw > 0, "Reporting", "Not Reporting")) %>%
-    mutate(adm_fv_60p_repstat = if_else(adm_fv_60p > 0, "Reporting", "Not Reporting")) %>%
-    mutate(adm_fv_gen_repstat = if_else(adm_fv_female > 0, "Reporting", "Not Reporting"))
+    mutate(adm_fv_hcw_repstat = if_else(adm_fv_hcw > 0, "Reporting", "Not reporting")) %>%
+    mutate(adm_fv_60p_repstat = if_else(adm_fv_60p > 0, "Reporting", "Not reporting")) %>%
+    mutate(adm_fv_gen_repstat = if_else(adm_fv_female > 0, "Reporting", "Not reporting"))
 
   # Calculate target group coverage figures
   print(" >>> Computing target group coverage figures...")

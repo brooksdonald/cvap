@@ -341,25 +341,25 @@ course_add_notes <- function(a_data, b_csl) {
         a_data, c("a_iso", "adm_fv", "a_pop", "cov_total_fv", "t10_status", "t40_status") #nolint
     )
     a_data <- a_data %>%
-        mutate(note_drivers = if_else(
-            is.na(if_else(
-                is.na(note_drivers_auto),
-                note_ss_drivers,
-                if_else(
-                    is.na(note_ss_drivers),
-                    note_drivers_auto,
-                    paste(note_drivers_auto, note_ss_drivers, sep = ", ")
-                )
-            )
-        ),
-        "None",
-        if_else(
+    mutate(note_drivers = if_else(
+        is.na(if_else(
             is.na(note_drivers_auto),
             note_ss_drivers,
             if_else(
                 is.na(note_ss_drivers),
                 note_drivers_auto,
                 paste(note_drivers_auto, note_ss_drivers, sep = ", ")
+            )
+        )
+    ),
+    "None",
+    if_else(
+        is.na(note_drivers_auto),
+        note_ss_drivers,
+        if_else(
+            is.na(note_ss_drivers),
+            note_drivers_auto,
+            paste(note_drivers_auto, note_ss_drivers, sep = ", ")
             )
         )
     ))

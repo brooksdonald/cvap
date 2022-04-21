@@ -18,6 +18,7 @@ library("tidyverse")
 source("helpers/joins.r")
 source("helpers/transformations.r")
 
+
 # ETL
 
 source("src/base/run_base.r")
@@ -77,4 +78,4 @@ consolidate_env <- run_consolidate(a_data)
 
 source("eda/export/run_export.r")
 
-# export_env <- run_export()
+export_env <- run_export()
