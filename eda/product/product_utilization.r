@@ -298,7 +298,7 @@ course_progress <- function(a_data, b_smartsheet) {
     return(a_data)
 }
 
-course_add_notes <- function(a_data, b_csl) {
+course_add_notes <- function(a_data, b_csc) {
     # Add notes
     a_data <- a_data %>%
     mutate(note_highcov = if_else(cov_total_fv > 0.5, "High fully vaccinated coverage", "No")) %>%
@@ -387,9 +387,9 @@ hic_income_group <- function(a_data) {
     return(a_data_hic)
 }
 
-covdp_csl_status <- function(a_data) {
-    a_data_csl <- filter(a_data, a_csl_status == "Concerted support country")
-    return(a_data_csl)
+covdp_csc_status <- function(a_data) {
+    a_data_csc <- filter(a_data, a_csc_status == "Concerted support country")
+    return(a_data_csc)
 }
 
 covdp_ifc_status <- function(a_data) {

@@ -89,7 +89,7 @@ transform_vxrate_merge <- function(a_data) {
   )
   
   a_data <- a_data %>%
-    mutate(csl_status_numb = if_else(a_csl_status == "Concerted support country", 1, NA_real_))
+    mutate(csc_status_numb = if_else(a_csc_status == "Concerted support country", 1, NA_real_))
     
   # Assign population size category
   # TODO Find a way to include the max value of max(a_data$a_pop_cat))
