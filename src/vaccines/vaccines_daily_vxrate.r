@@ -543,7 +543,7 @@ first_supplies <- function(d_absorb_red) {
   )
   #TODO Where do I fix this b_supply_red variable?
   b_supply_red <<- b_supply_red
-  combined <- rbind(d_absorb_red, b_supply)
+  combined <- rbind(d_absorption_country, b_supply)
   return(combined)
 }
 
