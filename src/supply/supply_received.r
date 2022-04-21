@@ -38,8 +38,8 @@ load_sup_rec <- function() {
     )
     colnames(b_mdb_2m)[3] <- "total_2m"
 
-    # FIXME hardcoded date warning!
-    b_mdb$del_date <- as.Date("2022-04-20")
+    # # FIXME hardcoded date warning!
+    # b_mdb$del_date <- as.Date("2022-04-20")
 
     supply_received <- helper_join_dataframe_list(
         list(b_mdb, b_mdb_lm, b_mdb_2m),
@@ -58,6 +58,7 @@ load_sup_rec <- function() {
     ) {
         supply_received[, col] <- as.numeric(supply_received[, col])
     }
+    
 
     return(supply_received)
 }
@@ -105,7 +106,9 @@ transform_sup_rec_doses <- function(supply_received) {
         mutate(del_dose_lm_2m = del_dose_total_lm - del_dose_total_2m) %>%
         mutate(del_dose_wast = del_dose_total * 0.1)
 
-
+    #TODO Check on del_date from output
+    supply_received_doses$del_date <- as.Date("2022-04-20")
+    
     return(supply_received_doses)
 }
 

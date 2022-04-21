@@ -66,10 +66,10 @@ transform_vxrate_merge <- function(a_data) {
   # Set static dates
   # TODO move static dates to app.r
   print(" >>> Setting static dates")
-  refresh_date <- as.Date("2022-03-30")
+  refresh_date <<- as.Date("2022-04-21")
   t70_deadline <- as.Date("2022-06-30")
   timeto_t70 <<- as.numeric(t70_deadline - refresh_date)
-  a_data$refresh_date <- refresh_date
+  # a_data$refresh_date <- refresh_date
 
   #Calculate JJ proportion
   print(" >>> Computing JJ doses KPIs")
@@ -183,7 +183,7 @@ transform_vxrate_merge <- function(a_data) {
   # FIXME Find how to include max as opposed to 1 in breaks
   print(" >>> Assigning coverage category for current and lw...")
   breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 0.7, 1)
-  tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%", "4) 20-40%", "5) 40%-70%", "6) 70%+")
+  tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%", "4) 20-40%", "5) 40-70%", "6) 70%+")
   a_data$cov_total_fv_cat <- cut(
     a_data$cov_total_fv,
     breaks = breaks,
@@ -193,7 +193,7 @@ transform_vxrate_merge <- function(a_data) {
   )
   # FIXME Find how to include max as opposed to 1 in breaks
   breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 0.7, 1)
-  tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%", "4) 20-40%", "5) 40%-70%", "6) 70%+")
+  tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%", "4) 20-40%", "5) 40-70%", "6) 70%+")
   a_data$cov_total_fv_lw_cat <- cut(
     a_data$cov_total_fv_lw,
     breaks = breaks,
@@ -215,9 +215,9 @@ transform_vxrate_merge <- function(a_data) {
   # Indicator reporting status for target group-specific uptake data
   print(" >>> Indicator reporting status for target group-specific uptake data...")
   a_data <- a_data %>%
-    mutate(adm_fv_hcw_repstat = if_else(adm_fv_hcw > 0, "Reporting", "Not reporting")) %>%
-    mutate(adm_fv_60p_repstat = if_else(adm_fv_60p > 0, "Reporting", "Not reporting")) %>%
-    mutate(adm_fv_gen_repstat = if_else(adm_fv_female > 0, "Reporting", "Not reporting"))
+    mutate(adm_fv_hcw_repstat = if_else(is.na(adm_fv_hcw),"Not reporting", if_else(adm_fv_hcw > 0, "Reporting", "Not reporting"))) %>%
+    mutate(adm_fv_60p_repstat = if_else(is.na(adm_fv_60p),"Not reporting",if_else(adm_fv_60p > 0, "Reporting", "Not reporting"))) %>%
+    mutate(adm_fv_gen_repstat = if_else(is.na(adm_fv_female) | is.na(adm_fv_male),"Not reporting",if_else(adm_fv_female > 0, "Reporting", "Not reporting")))
 
   # Calculate target group coverage figures
   print(" >>> Computing target group coverage figures...")

@@ -368,10 +368,6 @@ course_add_notes <- function(a_data, b_csc) {
     a_data <- a_data %>%
     select("a_iso", sort(colnames(.)))
 
-    # Add refresh date
-    refresh_date <- as.Date("2022-03-30")
-    a_data$a_refresh_date <- refresh_date
-
     return(a_data)
 
 }
