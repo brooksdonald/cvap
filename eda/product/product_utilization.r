@@ -234,8 +234,8 @@ course_progress <- function(a_data, b_smartsheet) {
     )) %>%
     
     mutate(ndvp_rate_needed = if_else(
-        (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - as.Date("2022-02-02"))) < 0, 0,
-        (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - as.Date("2022-02-02"))))) %>%
+        (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - refresh_date)) < 0, 0,
+        (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - refresh_date)))) %>%
     mutate(ndvp_rate_needed_dose = if_else(
             ((adm_pv + ((a_pop_ndvp - adm_pv - adm_fv_homo) * 2)) / as.numeric(ndvp_deadline - refresh_date)) < 0, 0,
             ((adm_pv + ((a_pop_ndvp - adm_pv - adm_fv_homo) * 2)) / as.numeric(ndvp_deadline - refresh_date)))) %>%
@@ -244,6 +244,7 @@ course_progress <- function(a_data, b_smartsheet) {
     mutate(ndvp_scaleup_dose = if_else(is.infinite(round((ndvp_rate_needed_dose / dvr_4wk_td),2)), NA_real_,
                                        round(ndvp_rate_needed_dose / dvr_4wk_td),2))
     #FIXME -1 & 100 set as min and max value. Find a way to get min & max value than hard coding it
+    #TOD0 Add "Not captured to this refactor"
     breaks <- c(-1, 0, 2, 5, 10, 100)
     tags <- c("1) Goal met", "2) <2x", "3) 3-5x", "4) 5-10x", "5) >10x")
     a_data$ndvp_scaleup_cat <- cut(
@@ -259,7 +260,7 @@ course_progress <- function(a_data, b_smartsheet) {
     a_data <- a_data %>%
     mutate(ndvp_mid_rem = if_else((ndvp_mid_target - cov_total_fv) < 0, 0, (ndvp_mid_target - cov_total_fv))) %>%
     mutate(ndvp_mid_peratpace = ((adm_fv_homo + (
-    dvr_4wk_fv * as.numeric(as.Date("2022-06-30") - refresh_date)
+    dvr_4wk_fv * timeto_t70
     )) / a_pop)) %>%
     mutate(ndvp_mid_pertogo = if_else((ndvp_mid_target - ndvp_mid_peratpace) < 0, 0, (ndvp_mid_target - ndvp_mid_peratpace)))  %>%
     mutate(ndvp_mid_rate_needed = if_else(
