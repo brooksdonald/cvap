@@ -8,12 +8,12 @@ merge_a_data_details <- function(a_data, supply_secured, delivery_courses_doses)
     mutate(sec_domestic = sec_domestic_dose / 2) %>%
     mutate(sec_donat = sec_donat_dose / 2) %>%
     mutate(sec_other = sec_other_dose / 2) %>%
-    mutate(sec_other_sum = sec_other_sum_dose / 2)
+    mutate(sec_other_sum = sec_other_sum_dose / 2) %>%
+    mutate(sec_total_lm = sec_total_dose_lm / 2)
   
   # Calculate secured courses as percent of population
   a_data <- a_data %>%
-  mutate(sec_total_per = sec_total / a_pop) %>%
-  mutate(sec_total_dose_lm = sec_total_lm * 2)
+  mutate(sec_total_per = sec_total / a_pop)
 
   # Assign secured courses category
   breaks <- c(0, 0.25, 0.5, 0.75, 1, 10)

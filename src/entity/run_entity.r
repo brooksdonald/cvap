@@ -8,16 +8,17 @@ run_entity <- function(env = .GlobalEnv) {
     print(" > Done.")
     
     print(" > Concerted support list...")
-    b_csl <- load_conc_supp_list()
+    b_adhoc <- load_conc_supp_list()
     print(" > Done.")
     
     print(" > Transforming entity characteristics data...")
-    entity_characteristics <- transform_entity_chars(ec, b_csl)
+    entity_characteristics <- transform_entity_chars(ec, b_adhoc)
     print(" > Done.")
 
     print(" > Loading entity_characteristics data back to global environment...")
-    env$b_csl <- b_csl
+    env$b_adhoc <- b_adhoc
     env$entity_characteristics <- entity_characteristics
 
     return(environment())
 }
+run_entity()

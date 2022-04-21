@@ -2,7 +2,7 @@
 load_base_population <- function() {
     print(" >> Loading base population data...")
     base_population <- data.frame(
-        read_excel("data/_input/static/base_population.xlsx",
+        read_excel("data/_input/static/base_population_unpop.xlsx",
             sheet = "base_population"
         )
     )

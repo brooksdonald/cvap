@@ -68,14 +68,14 @@ extract_sup_sec_lm <- function() {
         b_sec_lm,
         c(
             "ISO3",
-            "Secured.and.or.Expected.Vaccine..millions.of.courses."
+            "Secured.and.or.Expected.Vaccine..millions.of.doses."
         )
     )
     print(" >> Selecting and renaming columns...")
     colnames(c_sec_cour_lm) <-
     c(
         "a_iso",
-        "sec_total_lm"
+        "sec_total_dose_lm"
     )
     return(c_sec_cour_lm)
 
@@ -104,7 +104,7 @@ transform_supply_secured <- function(supply_secured, dataset_date, c_sec_cour_lm
     ## Multiply lastmonth summary by one million
     print(" >> Multiplying last month supply summary by a million...")
     c_sec_cour_lm <- c_sec_cour_lm %>%
-        mutate(sec_total_lm = sec_total_lm * 1000000)
+        mutate(sec_total_dose_lm = sec_total_dose_lm * 1000000)
 
     # FIXME replacing NA with 0 is NOT a good idea for data repr
     print(" >> Replacing NAs...")

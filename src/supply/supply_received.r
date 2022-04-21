@@ -39,7 +39,7 @@ load_sup_rec <- function() {
     colnames(b_mdb_2m)[3] <- "total_2m"
 
     # FIXME hardcoded date warning!
-    b_mdb$del_date <- as.Date("2022-04-12")
+    b_mdb$del_date <- as.Date("2022-04-20")
 
     supply_received <- helper_join_dataframe_list(
         list(b_mdb, b_mdb_lm, b_mdb_2m),

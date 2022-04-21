@@ -22,7 +22,10 @@ load_entity_chars <- function() {
                 "UNICEFREGION",
                 "WHO_LEGAL_STATUS_TITLE",
                 "COVAX",
-                "WBINCOMESTATUS"
+                "WBINCOMESTATUS",
+                "CSC",
+                "IFC",
+                "GAVI"
             )
         )
 
@@ -38,7 +41,10 @@ load_entity_chars <- function() {
         "a_unicef_region",
         "a_who_status",
         "a_covax_status",
-        "a_income_group"
+        "a_income_group",
+        "a_csc_status",
+        "a_ifc_status",
+        "a_gavi_status"
     )
     # TODO should we drop NA here since some rows are blank and we are populating it with Other later?
 
@@ -47,31 +53,29 @@ load_entity_chars <- function() {
 
 load_conc_supp_list <- function() {
     print(" >> Loading concerted support list data...")
-    b_csl <- data.frame(
+    b_adhoc <- data.frame(
         read_excel(
-            "data/_input/static/base_csl.xlsx",
-            sheet = "Sheet1"
+            "data/_input/static/base_adhoc.xlsx",
+            sheet = "data"
         )
     )
 
     ## Rename columns
-    print(" >> Renaming CSL Columns...")
-    colnames(b_csl) <- c(
+    print(" >> Renaming adhoc Columns...")
+    colnames(b_adhoc) <- c(
         "iso",
-        "a_csl_status",
-        "a_ifc_status",
         "ndvp_mid_target",
         "ndvp_mid_deadline",
         "ndvp_mid_rep_rate",
         "jj_policy"
     )
-    return(b_csl)
+    return(b_adhoc)
 }
 
-transform_entity_chars <- function(entity_characteristics, b_csl) {
+transform_entity_chars <- function(entity_characteristics, b_adhoc) {
     print(" >> Joining b_csl to entity_characteristics...")
     entity_characteristics <- left_join(
-        entity_characteristics, b_csl, by = c("a_iso" = "iso")
+        entity_characteristics, b_adhoc, by = c("a_iso" = "iso")
     )
 
     print(" >> Rework WHO region...")
@@ -106,7 +110,8 @@ transform_entity_chars <- function(entity_characteristics, b_csl) {
         values = c("Eastern Africa", "Western Africa", "Middle Africa",
                    "Southern Africa", "Northern Africa"),
         map = c("Eastern", "Western", "Central", "Southern", "Northern"),
-        na_fill = "Other"
+        #TODO Check warning message
+        na_fill = entity_characteristics$a_continent_sub
     )
 
     return(entity_characteristics)
