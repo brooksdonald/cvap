@@ -101,6 +101,14 @@ grouping_by_two <- function(a_data) {
     mutate(cov_total_fem_fv_rank = row_number(cov_total_fem_fv)) %>%
     mutate(cov_total_fem_fv_bins = ntile(cov_total_fem_fv_rank, 2))
   
+  ## Gender coverage repstat
+  a_data <- a_data %>%
+  group_by(adm_fv_gen_repstat, intro_status) %>%
+
+  mutate(cov_total_gen_diff_rank = row_number(cov_total_gen_diff)) %>%
+
+  mutate(cov_total_gen_diff_bins = ntile(cov_total_gen_diff_rank, 2))
+
   ## Country coverage target
   a_data <- a_data %>%
     group_by(a_covax_status, intro_status) %>%

@@ -638,6 +638,20 @@ absorption_sum_by_month <- function(c_vxrate_eom) {
     group_by(adm_date_month) %>%
     summarize(absorption_amc91 = sum(adm_td_absorbed))
 
+  #### Concerted support status = csc
+  c_vxrate_eom_csc <-
+  filter(c_vxrate_eom, a_csc_status == "Concerted support country")
+  d_absorption_csc <- c_vxrate_eom_csc %>%
+  group_by(adm_date_month) %>%
+  summarize(absorption_csc = sum(adm_td_absorbed))
+
+  #### Immediate focus country status = IFC
+  c_vxrate_eom_ifc <-
+  filter(c_vxrate_eom, a_ifc_status == "Immediate focus")
+  d_absorption_ifc <- c_vxrate_eom_ifc %>%
+  group_by(adm_date_month) %>%
+  summarize(absorption_ifc = sum(adm_td_absorbed))
+  
   #### Continent = Africa
   c_vxrate_eom_africa <- filter(c_vxrate_eom, a_continent == "Africa")
   d_absorption_africa <- c_vxrate_eom_africa %>%
@@ -691,7 +705,9 @@ absorption_sum_by_month <- function(c_vxrate_eom) {
     left_join(., d_absorption_sear, by = "adm_date_month") %>%
     left_join(., d_absorption_wpr, by = "adm_date_month") %>%
     left_join(., d_absorption_eur, by = "adm_date_month") %>%
-    left_join(., d_absorption_amc91, by = "adm_date_month")
+    left_join(., d_absorption_amc91, by = "adm_date_month") %>%
+    left_join(., d_absorption_csc, by = "adm_date_month") %>%
+    left_join(., d_absorption_ifc, by = "adm_date_month")
 
     ### Add full date names for visualization
     d_absorption$adm_date_month_name <- helper_replace_values_with_map(
