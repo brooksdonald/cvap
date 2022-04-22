@@ -151,7 +151,7 @@ target_group_seventy <- function(a_data) {
     a_data$t70_scaleup_dose,
     breaks = breaks,
     include.lowest = TRUE,
-    right = FALSE,
+    right = TRUE,
     labels = tags
   )
   

@@ -158,7 +158,10 @@ course_progress <- function(a_data, b_smartsheet) {
     a_data <- a_data %>%
     mutate(dp_deadline = as.Date(dp_deadline)) %>%
     mutate(ss_deadline = as.Date(ss_deadline))
-    
+    # Removing time from date
+    dp_deadline <- gsub(x = dp_deadline, pattern=" 0:00:00", replacement = "", fixed = T)
+    ss_deadline <- gsub(x = ss_deadline, pattern=" 0:00:00", replacement = "", fixed = T)
+
     a_data <- a_data %>%
     mutate(ndvp_target = if_else(is.na(dp_target) == FALSE, dp_target, ss_target)) %>%
     mutate(ndvp_target_source = if_else(is.na(dp_target) == FALSE, "DP","SS")) %>%
@@ -169,6 +172,8 @@ course_progress <- function(a_data, b_smartsheet) {
     mutate(timeto_ndvp = ndvp_deadline - refresh_date) %>%
     mutate(a_pop_ndvp = a_pop * ndvp_target) %>%
     mutate(a_pop_ndvp_mid = a_pop * ndvp_mid_target)
+    # Remove time from ndvp_deadline
+    ndvp_deadline <- gsub(x = ndvp_deadline, pattern = " 0:00:00", replacement = "", fixed = T)
 
     # Calculate progress against country coverage targets
     print(" >>> Computing progress against country coverage targets...")
@@ -306,7 +311,7 @@ course_add_notes <- function(a_data, b_csc) {
     mutate(note_recent_rollout = if_else(intro_date > (Sys.Date() - 60), "Recent rollout", "No")) %>%
     mutate(note_reporting_date = if_else(
         adm_date < (refresh_date - 10),
-        adm_date <- gsub(x=adm_date, pattern = " 0:00:00", replacement="", fixed = T),
+        adm_date <- gsub(x = adm_date, pattern = " 0:00:00", replacement = "", fixed = T),
         "Likely reporting issue",
         NA_character_
     )) %>%
