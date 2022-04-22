@@ -501,6 +501,7 @@ absorption_per_country <- function(c_vxrate_eom) {
     "month_name"
   )
   d_absorption_country$type <- "Absorbed"
+  d_absorption_country <<- d_absorption_country
   print(" >> Selecting columns needed from d_absorption_country for d_absorb_red...") #nolint
   d_absorb_red <- select(
     d_absorption_country,
