@@ -19,11 +19,11 @@ values_table <- function(a_data_amc) {
     z_values$pop_amc_100m <- 40
     z_values$pop_amc_100mp <- 8
 
-    z_values$pop_amc <- sum(a_data_amc$a_pop)
-    z_values$pop_amc_hcw <- sum(a_data_amc$a_pop_hcw)
-    z_values$pop_africa <- sum(a_data_africa$a_pop)
-    z_values$pop_csc <- sum(a_data_csc$a_pop)
-    z_values$pop_ifc <- sum(a_data_ifc$a_pop)
+    z_values$pop_amc <- sum(a_data_amc$a_pop, na.rm = TRUE)
+    z_values$pop_amc_hcw <- sum(a_data_amc$a_pop_hcw, na.rm = TRUE)
+    z_values$pop_africa <- sum(a_data_africa$a_pop, na.rm = TRUE)
+    z_values$pop_csc <- sum(a_data_csc$a_pop, na.rm = TRUE)
+    z_values$pop_ifc <- sum(a_data_ifc$a_pop, na.rm = TRUE)
     z_values$count_amc <- 90
     z_values$count_africa <- 53
 

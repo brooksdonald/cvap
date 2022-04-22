@@ -25,10 +25,9 @@ vxrate <- function(condense_list) {
                                 collapse = "; "
             )
             colnames(df_value) <- c(
-                col_names_name[i], paste0(col_names_value[i], name
-                )
+                col_names_value[[i]], paste0(col_names_name[[i]], name)
             )
-            data_list[[i]] <- append(data_list[[i]], list(df_value))
+            data_list[[col_names_name[[i]]]] <- append(data_list[[col_names_name[[i]]]], list(df_value))
         }
     }
     e_vrcat_all <- helper_join_dataframe_list(
