@@ -25,7 +25,7 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     print(" > Done.")
 
     print(" > Creating values table...")
-    z_values <- values_table()
+    z_values <- values_table(a_data_amc)
     print(" > Done.")
 
     print(" > Change count tables, daily vxrate % change category...")

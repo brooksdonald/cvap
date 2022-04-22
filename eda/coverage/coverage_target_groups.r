@@ -145,7 +145,7 @@ target_group_seventy <- function(a_data) {
   mutate(t70_rate_needed_dose_per = t70_rate_needed_dose / a_pop)
   
   #FIXME Min and max values hard coded. Automate this.
-  breaks <- c(-1, 0, 2, 5, 10, 100)
+  breaks <- c(-1, 0, 2, 5, 10, 1000000)
   tags <- c("1) Goal met", "2) <2x", "3) 3-5x", "4) 5-10x", "5) >10x")
   a_data$t70_scaleup_cat <- cut(
     a_data$t70_scaleup_dose,
