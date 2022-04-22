@@ -105,13 +105,36 @@ transform_entity_chars <- function(entity_characteristics, b_adhoc) {
     )
     
     print(" >> Rework Africa sub-regions...")
-    entity_characteristics$a_continent_sub <- helper_replace_values_with_map(
-        data = entity_characteristics$a_continent_sub,
-        values = c("Eastern Africa", "Western Africa", "Middle Africa",
-                   "Southern Africa", "Northern Africa"),
-        map = c("Eastern", "Western", "Central", "Southern", "Northern"),
-        #TODO Check warning message
-        na_fill = entity_characteristics$a_continent_sub
+    # entity_characteristics$a_continent_sub <- helper_replace_values_with_map(
+    #     data = entity_characteristics$a_continent_sub,
+    #     values = c("Eastern Africa", "Western Africa", "Middle Africa",
+    #                "Southern Africa", "Northern Africa"),
+    #     map = c("Eastern", "Western", "Central", "Southern", "Northern"),
+    #     #TODO Check warning message
+    #     na_fill = entity_characteristics$a_continent_sub
+    # )
+    entity_characteristics <- entity_characteristics %>%
+    mutate(a_continent_sub = if_else(
+        a_continent_sub == "Eastern Africa",
+        "Eastern",
+        if_else(
+            a_continent_sub == "Western Africa",
+            "Western",
+            if_else(
+                a_continent_sub == "Middle Africa",
+                "Central",
+                if_else(
+                    a_continent_sub == "Southern Africa",
+                    "Southern",
+                    if_else(
+                        a_continent_sub == "Northern Africa",
+                        "Northern",
+                        a_continent_sub
+                        )
+                    )
+                )
+            )
+        )
     )
 
     return(entity_characteristics)

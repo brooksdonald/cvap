@@ -192,8 +192,10 @@ transform_sup_rec_product <- function(supply_received) {
     c_delivery_product <- filter(c_delivery_product, product_short == "J&J")
     c_delivery_product <- select(c_delivery_product, -c("product_short"))
     colnames(c_delivery_product) <- c("a_iso", "del_dose_jj")
-
-    return(c_delivery_product)
+    
+    # FIXME make Do I make c_delivery_product global variable in run_supply?
+    c_delivery_product <<- c_delivery_product
+    return(supply_received_by_product)
 }
 
 treat_country_name_datasource <- function(dataframe) {

@@ -158,9 +158,6 @@ course_progress <- function(a_data, b_smartsheet) {
     a_data <- a_data %>%
     mutate(dp_deadline = as.Date(dp_deadline)) %>%
     mutate(ss_deadline = as.Date(ss_deadline))
-    # Removing time from date
-    dp_deadline <- gsub(x = dp_deadline, pattern=" 0:00:00", replacement = "", fixed = T)
-    ss_deadline <- gsub(x = ss_deadline, pattern=" 0:00:00", replacement = "", fixed = T)
 
     a_data <- a_data %>%
     mutate(ndvp_target = if_else(is.na(dp_target) == FALSE, dp_target, ss_target)) %>%
@@ -172,8 +169,6 @@ course_progress <- function(a_data, b_smartsheet) {
     mutate(timeto_ndvp = ndvp_deadline - refresh_date) %>%
     mutate(a_pop_ndvp = a_pop * ndvp_target) %>%
     mutate(a_pop_ndvp_mid = a_pop * ndvp_mid_target)
-    # Remove time from ndvp_deadline
-    ndvp_deadline <- gsub(x = ndvp_deadline, pattern = " 0:00:00", replacement = "", fixed = T)
 
     # Calculate progress against country coverage targets
     print(" >>> Computing progress against country coverage targets...")
@@ -247,18 +242,42 @@ course_progress <- function(a_data, b_smartsheet) {
     mutate(ndvp_scaleup = if_else(is.infinite(round((ndvp_rate_needed / dvr_4wk_fv),2)),NA_real_,
                                   round(ndvp_rate_needed / dvr_4wk_fv),2)) %>%
     mutate(ndvp_scaleup_dose = if_else(is.infinite(round((ndvp_rate_needed_dose / dvr_4wk_td),2)), NA_real_,
-                                       round(ndvp_rate_needed_dose / dvr_4wk_td),2))
+                                       round(ndvp_rate_needed_dose / dvr_4wk_td),2)) %>%
+    # TODO Figure out how to refactor this section
+    mutate(ndvp_scaleup_cat = if_else(
+        is.na(ndvp_target) | ndvp_target == 0,
+        "1) Not captured",
+        if_else(
+            ndvp_status == "Goal met",
+            "2) Goal met",
+            if_else(
+                ndvp_scaleup_dose <= 2,
+                "3) <2x",
+                if_else(
+                    ndvp_scaleup_dose <= 5,
+                    "4) 3-5x",
+                    if_else(
+                        ndvp_scaleup_dose <= 10,
+                        "5) 5-10x",
+                        if_else(ndvp_scaleup_dose > 10, "6) >10x",
+                        NA_character_)
+                        )
+                    )
+                )
+            )
+        )
+    )
     #FIXME -1 & 100 set as min and max value. Find a way to get min & max value than hard coding it
     #TOD0 Add "Not captured to this refactor"
-    breaks <- c(-1, 0, 2, 5, 10, 100)
-    tags <- c("1) Goal met", "2) <2x", "3) 3-5x", "4) 5-10x", "5) >10x")
-    a_data$ndvp_scaleup_cat <- cut(
-        a_data$ndvp_scaleup_dose,
-        breaks = breaks,
-        include.lowest = TRUE,
-        right = FALSE,
-        labels = tags
-    )
+    # breaks <- c(-1, 0, 2, 5, 10, 100)
+    # tags <- c("1) Goal met", "2) <2x", "3) 3-5x", "4) 5-10x", "5) >10x")
+    # a_data$ndvp_scaleup_cat <- cut(
+    #     a_data$ndvp_scaleup_dose,
+    #     breaks = breaks,
+    #     include.lowest = TRUE,
+    #     right = FALSE,
+    #     labels = tags
+    # )
     
     # Progress against mid year targets
     print(" >>> Getting progress against mid year targets...")

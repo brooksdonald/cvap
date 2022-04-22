@@ -31,7 +31,7 @@ run_supply <- function(env = .GlobalEnv) {
     env$supply_secured <- supply_secured
     env$c_sec_cour_lm <- c_sec_cour_lm
     env$delivery_courses_doses <- delivery_courses_doses
-    env$c_delivery_product <- supply_received_produ
+    env$supply_received_by_product <- supply_received_produ
     env$supply_received_doses <- supply_received_doses
     print(" > OK.")
 
