@@ -12,6 +12,8 @@ library("data.table")
 library("bit64")
 library("openxlsx")
 library("tidyverse")
+library("httr")
+library("jsonlite")
 
 # HELPERS
 
