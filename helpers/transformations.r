@@ -4,7 +4,7 @@ helper_tr_add_suffix_to_list <- function(l, suffix) {
 }
 
 helper_replace_values_with_map <- function(data, values, map,
-                                           drop_rest = FALSE, na_fill = "") {
+                                           drop_rest = TRUE, na_fill = "") {
     if (!drop_rest) {
         unique_values <- unique(data)
         for (uv in unique_values) {

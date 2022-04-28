@@ -109,7 +109,8 @@ transform_entity_chars <- function(entity_characteristics, b_adhoc) {
         data = entity_characteristics$a_continent_sub,
         values = c("Eastern Africa", "Western Africa", "Middle Africa",
                    "Southern Africa", "Northern Africa"),
-        map = c("Eastern", "Western", "Central", "Southern", "Northern")
+        map = c("Eastern", "Western", "Central", "Southern", "Northern"),
+        drop_rest = FALSE
     )
 
     return(entity_characteristics)

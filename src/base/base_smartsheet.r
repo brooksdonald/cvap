@@ -111,8 +111,9 @@ transform_base_smartsheet <- function(b_smartsheet) {
             "No doses at risk"
         ),
         map = c(1, 2, 3),
-        na_fill = 4
+        na_fill = 4,
     )
+   
 
     ## Change country target field type to date
     b_smartsheet$ss_deadline <-

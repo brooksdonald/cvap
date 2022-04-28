@@ -74,7 +74,8 @@ transform_finance_data <- function(b_fin_funding, entity_characteristics) {
             "Ireland",
             "ADB",
             "BMGF"
-        )
+        ),
+        drop_rest = FALSE
     )
     b_fin_fund_del_sum <<- b_fin_fund_del %>%
     group_by(a_iso) %>%
