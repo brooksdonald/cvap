@@ -45,68 +45,37 @@ transform_finance_data <- function(b_fin_funding, entity_characteristics) {
         is.na(fund_total) == FALSE
         & fund_total != 0
     )
-    
+
     b_fin_fund_del <- b_fin_fund_del %>%
-    mutate(
-        funding_source = if_else(
-            funding_source == "Foundations/Private", "Foundations / private", funding_source
+    mutate(funding_source = if_else(
+        funding_source == "Foundations/Private",
+        "Foundations / private",
+        funding_source
         )
-    ) %>%
-    # TODO Check on the refactor for section below
-    mutate(funder = if_else(
-        funder == "Japan - Ministry of Foreign Affairs",
-        "Japan MoFA",
-        if_else(
-            funder == "UNICEF (Thematic/Flexible Funding) HAC)",
+    )
+    b_fin_fund_del$funder <- helper_replace_values_with_map(
+        data = b_fin_fund_del$funder,
+        values = c(
+            "Japan - Ministry of Foreign Affairs",
+            "UNICEF (Thematic/Flexible Funding) HAC)",
+            "Inter-American Development Bank",
+            "Germany - Federal Foreign Office (AA)",
+            "Governm ent of France - Gavi",
+            "Government of Ireland",
+            "Asian Development Bank",
+            "Bill and Melinda Gates Foundation"
+        ),
+        map = c(
+            "Japan MoFA",
             "UNICEF HAC",
-            if_else(
-                funder == "Inter-American Development Bank",
-                "IADB",
-                if_else(
-                    funder == "Germany - Federal Foreign Office (AA)",
-                    "Germany FFO",
-                    if_else(
-                        funder == "Governm ent of France - Gavi",
-                        "France - Gavi",
-                        if_else(
-                            funder == "Government of Ireland",
-                            "Ireland",
-                            if_else(
-                                funder == "Asian Development Bank",
-                                "ADB",
-                                if_else(funder == "Bill and Melinda Gates Foundation", "BMGF", funder)
-                            )
-                        )
-                    )
-                )
-            )
+            "IADB",
+            "Germany FFO",
+            "France - Gavi",
+            "Ireland",
+            "ADB",
+            "BMGF"
         )
-    ))
-    # b_fin_fund_del <- b_fin_fund_del %>%
-    # mutate(funding_source = if_else(funding_source == "Foundations/Private", "Foundations / private", funding_source))
-    # b_fin_fund_del$funder <- helper_replace_values_with_map(
-    #     data = b_fin_fund_del$funder,
-    #     values = c(
-    #         "Japan - Ministry of Foreign Affairs",
-    #         "UNICEF (Thematic/Flexible Funding) HAC)",
-    #         "Inter-American Development Bank",
-    #         "Germany - Federal Foreign Office (AA)",
-    #         "Governm ent of France - Gavi",
-    #         "Government of Ireland",
-    #         "Asian Development Bank",
-    #         "Bill and Melinda Gates Foundation"
-    #     ),
-    #     map = c(
-    #         "Japan MoFA",
-    #         "UNICEF HAC",
-    #         "IADB",
-    #         "Germany FFO",
-    #         "France - Gavi",
-    #         "Ireland",
-    #         "ADB",
-    #         "BMGF"
-    #     )
-    # )
+    )
     b_fin_fund_del_sum <<- b_fin_fund_del %>%
     group_by(a_iso) %>%
     summarize_at("fund_total", sum, na.rm = TRUE) %>%
