@@ -330,7 +330,6 @@ course_add_notes <- function(a_data, b_csc) {
     mutate(note_recent_rollout = if_else(intro_date > (Sys.Date() - 60), "Recent rollout", "No")) %>%
     mutate(note_reporting_date = if_else(
         adm_date < (refresh_date - 10),
-        adm_date <- gsub(x = adm_date, pattern = " 0:00:00", replacement = "", fixed = T),
         "Likely reporting issue",
         NA_character_
     )) %>%
