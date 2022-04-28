@@ -81,7 +81,9 @@ load_pop_target_groups <- function() {
                 "DATE",
                 "TARGET_GROUP",
                 "N_VACC_DOSE1",
-                "N_VACC_LAST_DOSE"
+                "N_VACC_LAST_DOSE",
+                "N_VACC_BOOSTER_DOSE",
+                "NUMBER_TARGET"
             )
         )
 
@@ -91,7 +93,9 @@ load_pop_target_groups <- function() {
         "date",
         "target_group",
         "adm_a1d",
-        "adm_fv"
+        "adm_fv",
+        "adm_booster",
+        "adm_target"
     )
 
     return(uptake_target_group)
@@ -127,7 +131,7 @@ transform_pop_target_groups <- function(uptake_target_group) {
     print(" >> Sorting for healthcare workers and removing target columns...")
 
     age_group_suffix <- list("HW" = "_hcw", "OLDER_60" = "_60p")
-    var_columns <- c("adm_date", "adm_a1d", "adm_fv")
+    var_columns <- c("adm_date", "adm_a1d", "adm_fv","adm_booster","adm_target")
 
     for (tg in c("HW", "OLDER_60")) {
         df <- uptake_target_group %>%

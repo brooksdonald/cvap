@@ -20,7 +20,9 @@ extract_vxrate_details <- function(c_vxrate_latest) {
         "ndvp_mid_target",
         "ndvp_mid_deadline",
         "ndvp_mid_rep_rate",
-        "jj_policy"
+        "jj_policy",
+        "older_def",
+        "older_source"
       )
     )
 
@@ -66,7 +68,7 @@ transform_vxrate_merge <- function(a_data) {
   # Set static dates
   # TODO move static dates to app.r
   print(" >>> Setting static dates")
-  refresh_date <<- as.Date("2022-04-21")
+  refresh_date <<- as.Date("2022-04-28")
   t70_deadline <- as.Date("2022-06-30")
   timeto_t70 <<- as.numeric(t70_deadline - refresh_date)
   a_data$a_refresh_date <- refresh_date
@@ -121,6 +123,20 @@ transform_vxrate_merge <- function(a_data) {
     mutate(a_pop_60p_prop = a_pop_60p / a_pop_2021) %>%
     mutate(a_pop_12p_prop = a_pop_12p / a_pop_2021) %>%
     mutate(a_pop_12u_prop = a_pop_12u / a_pop_2021)
+  
+  # Prepare older population value
+  a_data <- a_data %>%
+    mutate(a_pop_older = if_else(
+      is.na(older_def), a_pop_60p,
+      if_else(older_def == "45 and older", a_pop_45p,
+      if_else(older_def == "50 and older", a_pop_50p,
+              if_else(older_def == "55 and older", a_pop_55p,
+                      if_else(older_def == "60 and older", a_pop_60p,
+                              if_else(older_def == "65 and older", a_pop_65p,
+                                      a_pop_60p))
+              )
+      )
+    )))
 
   # Calculate theoretical fully vaccinated for non-reporters for current, lm, and 2m
   print(" >>> Computing theoreticaally fully vaxxed for non reporters...")
@@ -218,23 +234,47 @@ transform_vxrate_merge <- function(a_data) {
     mutate(adm_fv_hcw_repstat = if_else(is.na(adm_fv_hcw),"Not reporting", if_else(adm_fv_hcw > 0, "Reporting", "Not reporting"))) %>%
     mutate(adm_fv_60p_repstat = if_else(is.na(adm_fv_60p),"Not reporting",if_else(adm_fv_60p > 0, "Reporting", "Not reporting"))) %>%
     mutate(adm_fv_gen_repstat = if_else(is.na(adm_fv_female) | is.na(adm_fv_male),"Not reporting",if_else(adm_fv_female > 0, "Reporting", "Not reporting")))
+  
+  # Healthcare worker
+  a_data <- a_data %>%
+    mutate(hcw_flag = if_else(a_pop_hcw > adm_target_hcw, "Yes", NA_character_)) %>%
+    mutate(hcw_diff = a_pop_hcw - adm_target_hcw)
 
   # Calculate target group coverage figures
   print(" >>> Computing target group coverage figures...")
   a_data <- a_data %>%
-    mutate(adm_a1d_hcw_homo = if_else(adm_a1d_hcw > a_pop_hcw, a_pop_hcw, adm_a1d_hcw)) %>%
-    mutate(adm_fv_hcw_homo = if_else(adm_fv_hcw > a_pop_hcw, a_pop_hcw, adm_fv_hcw)) %>%
-    mutate(cov_hcw_a1d = if_else((adm_a1d_hcw / a_pop_hcw) > 1, 1, (adm_a1d_hcw / a_pop_hcw))) %>%
-    mutate(cov_hcw_fv = if_else((adm_fv_hcw_homo / a_pop_hcw) > 1, 1, (adm_fv_hcw_homo / a_pop_hcw))) %>%
     mutate(adm_fv_male_homo = if_else(adm_fv_male > a_pop_male, a_pop_male, adm_fv_male)) %>%
     mutate(cov_total_male_fv = adm_fv_male / a_pop_male) %>%
     mutate(adm_fv_fem_homo = if_else(adm_fv_female > a_pop_female, a_pop_female, adm_fv_female)) %>%
     mutate(cov_total_fem_fv = adm_fv_female / a_pop_female) %>%
-    mutate(adm_fv_60p_homo = if_else(adm_fv_60p > a_pop_60p, a_pop_60p, adm_fv_60p)) %>%
-    mutate(cov_60p_a1d = if_else((adm_a1d_60p / a_pop_60p) > 1, 1, (adm_a1d_60p / a_pop_60p))) %>%
-    mutate(cov_60p_fv = if_else((adm_fv_60p / a_pop_60p) > 1, 1, (adm_fv_60p / a_pop_60p))) %>%
     mutate(adm_fv_gen = adm_fv_male_homo + adm_fv_fem_homo)
   
+  # Calculate healthcare workers coverage
+  a_data <- a_data %>%
+    mutate(adm_a1d_hcw_homo = if_else(adm_a1d_hcw > a_pop_hcw, a_pop_hcw, adm_a1d_hcw)) %>%
+    mutate(adm_fv_hcw_homo = if_else(adm_fv_hcw > a_pop_hcw, a_pop_hcw, adm_fv_hcw)) %>%
+    mutate(cov_hcw_a1d = if_else(is.na(hcw_flag), 
+                                 if_else((adm_a1d_hcw / a_pop_hcw) > 1, 1, 
+                                         (adm_a1d_hcw / a_pop_hcw)),
+                                 if_else(
+                                   ((adm_a1d_hcw + (hcw_diff * cov_total_a1d)) / a_pop_hcw) > 1, 1,
+                                   ((adm_a1d_hcw + (hcw_diff * cov_total_a1d)) / a_pop_hcw)
+                                   )
+                                 )) %>%
+    mutate(cov_hcw_fv = if_else(is.na(hcw_flag), 
+                                 if_else((adm_fv_hcw / a_pop_hcw) > 1, 1, 
+                                         (adm_fv_hcw / a_pop_hcw)),
+                                 if_else(
+                                   ((adm_fv_hcw + (hcw_diff * cov_total_fv)) / a_pop_hcw) > 1, 1,
+                                   ((adm_fv_hcw + (hcw_diff * cov_total_fv)) / a_pop_hcw)
+                                 )
+    )) 
+  
+  # Calculating older adults coverage groups
+  a_data <- a_data %>%
+    mutate(adm_fv_60p_homo = if_else(adm_fv_60p > a_pop_older, a_pop_older, adm_fv_60p)) %>%
+    mutate(cov_60p_a1d = if_else((adm_a1d_60p / a_pop_older) > 1, 1, (adm_a1d_60p / a_pop_older))) %>%
+    mutate(cov_60p_fv = if_else((adm_fv_60p / a_pop_older) > 1, 1, (adm_fv_60p / a_pop_older)))
 
   # Calculate gender coverage difference in reporting countries
   print(" >>> Computing gender coverage difference in reporting countries...")
@@ -305,7 +345,8 @@ transform_vxrate_merge <- function(a_data) {
   print(" >>> Computing % change in 4-week average daily vxrate & assign category...")
   a_data <- a_data %>%
     mutate(dvr_4wk_td_change_lm = dvr_4wk_td - dvr_4wk_td_lm) %>%
-    mutate(dvr_4wk_td_change_lm_per = dvr_4wk_td_change_lm / dvr_4wk_td_lm) %>%
+    mutate(dvr_4wk_td_change_lm_per = if_else(is.infinite(dvr_4wk_td_change_lm / dvr_4wk_td_lm), NA_real_,
+                                              (dvr_4wk_td_change_lm / dvr_4wk_td_lm))) %>%
     mutate(
       dvr_4wk_td_change_lm_per_cat = if_else(
         dvr_4wk_td_change_lm_per <= -0.25,
