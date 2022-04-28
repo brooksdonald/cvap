@@ -523,7 +523,7 @@ absorption_per_country <- function(c_vxrate_eom) {
 first_supplies <- function(d_absorb_red) {
   print(" >> Loading supplies data from supply dataset...")
   b_supply <- data.frame(
-    read_excel("data/output/supply.xlsx",
+    read_excel("data/_input/static/supply.xlsx",
     sheet = "data"
     )
   )

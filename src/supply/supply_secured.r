@@ -17,6 +17,7 @@ transform_supp_secured <- function(supply_secured, dataset_date, c_sec_cour_lm) 
 
 extract_supply_secured <- function() {
     print(" >> Reading supply secured data...")
+     # TODO automate deleting the first 2 rows of the excel sheet
     supply_input <-
         data.frame(read_excel("data/_input/base_supply_secured_summary.xlsx",
             sheet = "supply_tracker"
@@ -56,6 +57,7 @@ extract_supply_secured <- function() {
 
 extract_sup_sec_lm <- function() {
     print(" >> Reading supply secured summary lastmonth...")
+    # TODO automate deleting the first 2 rows of the excel sheet
     b_sec_lm <-
         data.frame(
             read_excel("data/_input/base_supply_secured_summary_lastmonth.xlsx",

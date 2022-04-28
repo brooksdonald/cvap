@@ -17,7 +17,6 @@ load_sup_rec <- function() {
         data.frame(read_excel("data/_input/base_supply_received_twomonth.xlsx",
             sheet = "Delivery_Table"
         ))
-
     print(" >> Treating datasets...")
 
     b_mdb <- treat_country_name_datasource(b_mdb)
@@ -37,6 +36,10 @@ load_sup_rec <- function() {
         common_columns
     )
     colnames(b_mdb_2m)[3] <- "total_2m"
+
+    print(colnames(b_mdb))
+    print(colnames(b_mdb_lm))
+    print(colnames(b_mdb_2m))
 
     supply_received <- helper_join_dataframe_list(
         list(b_mdb, b_mdb_lm, b_mdb_2m),
@@ -215,7 +218,6 @@ treat_country_name_datasource <- function(dataframe) {
         mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
     dataframe <- dataframe[!(is.na(dataframe$iso)), ]
     dataframe <- select(dataframe, -c("Country.territory"))
-
     colnames(dataframe) <- c(
         "product",
         "bimultilat",
@@ -226,7 +228,7 @@ treat_country_name_datasource <- function(dataframe) {
         "total",
         "iso"
     )
-
+    
     return(dataframe)
 }
 
