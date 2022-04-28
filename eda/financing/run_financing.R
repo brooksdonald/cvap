@@ -4,8 +4,34 @@ run_financing <- function(a_data, env = .GlobalEnv) {
   print(" > Calculating financing overview...")
   a_data <- financing_overview(a_data)
   print(" > Done.")
+  
+  print(" > Filtering AMC covax status...")
+  a_data_amc <- amc_covax_status(a_data)
+  print(" > Done.")
+  
+  print(" > Filtering HIC income group...")
+  a_data_hic <- hic_income_group(a_data)
+  print(" > Done.")
+  
+  print(" > Filtering CoVDP csc status...")
+  a_data_csc <- covdp_csc_status(a_data)
+  print(" > Done.")
+  
+  print(" > Filtering CoVDP IFC status ...")
+  a_data_ifc <- covdp_ifc_status(a_data)
+  print(" > Done.")
+  
+  print(" > Filtering African continent...")
+  a_data_africa <- africa_continent(a_data)
+  print(" > Done.")
+  
   print(" > Loading financing summary data back to global environment...") 
   env$a_data <- a_data
+  env$a_data_amc <- a_data_amc
+  env$a_data_hic <- a_data_hic
+  env$a_data_csc <- a_data_csc
+  env$a_data_ifc <- a_data_ifc
+  env$a_data_africa <- a_data_africa
   print(" > Ok.")
   return(environment())
 }

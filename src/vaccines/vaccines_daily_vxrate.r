@@ -592,7 +592,7 @@ new_absorption_countries <- function(c_vxrate_eom) {
 second_supplies <- function(d_absorption_country_new, combined, d_absorb_red, entity_characteristics) {
   print(" >> Loading supplies data for second supplies...")
   b_supply_second <- data.frame(
-    read_excel("data/output/supply.xlsx", sheet = "supply")
+    read_excel("data/_input/static/supply.xlsx", sheet = "supply")
   )
   d_absorption_country_new <- select(
     d_absorption_country_new,

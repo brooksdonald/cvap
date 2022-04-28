@@ -67,7 +67,9 @@ load_conc_supp_list <- function() {
         "ndvp_mid_target",
         "ndvp_mid_deadline",
         "ndvp_mid_rep_rate",
-        "jj_policy"
+        "jj_policy",
+        "older_def",
+        "older_source"
     )
     return(b_adhoc)
 }

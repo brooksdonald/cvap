@@ -392,29 +392,3 @@ course_add_notes <- function(a_data, b_csc) {
     return(a_data)
 
 }
-
-# Create AMC summary table
-amc_covax_status <- function(a_data) {
-    a_data_amc <- filter(a_data, a_covax_status == "AMC")
-    return(a_data_amc)
-}
-
-hic_income_group <- function(a_data) {
-    a_data_hic <- filter(a_data, a_income_group == "HIC")
-    return(a_data_hic)
-}
-
-covdp_csc_status <- function(a_data) {
-    a_data_csc <- filter(a_data, a_csc_status == "Concerted support country")
-    return(a_data_csc)
-}
-
-covdp_ifc_status <- function(a_data) {
-    a_data_ifc <- filter(a_data, a_ifc_status == "Immediate focus")
-    return(a_data_ifc)
-}
-
-africa_continent <- function(a_data) {
-    a_data_africa <- filter(a_data, a_continent == "Africa" & intro_status == "Product introduced")
-    return(a_data_africa)
-}

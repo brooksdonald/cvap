@@ -104,7 +104,7 @@ transform_sup_rec_doses <- function(supply_received) {
         mutate(del_dose_wast = del_dose_total * 0.1)
 
     #TODO Check on del_date from output
-    supply_received_doses$del_date <- as.Date("2022-04-20")
+    supply_received_doses$del_date <- as.Date("2022-04-26")
     # Removing time from date
     supply_received_doses$del_date <- gsub(x = supply_received_doses$del_date, pattern=" 0:00:00", replacement = "", fixed = T)
     
