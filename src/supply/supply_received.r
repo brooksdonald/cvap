@@ -37,10 +37,6 @@ load_sup_rec <- function() {
     )
     colnames(b_mdb_2m)[3] <- "total_2m"
 
-    print(colnames(b_mdb))
-    print(colnames(b_mdb_lm))
-    print(colnames(b_mdb_2m))
-
     supply_received <- helper_join_dataframe_list(
         list(b_mdb, b_mdb_lm, b_mdb_2m),
         join_by = c("iso", "product")
@@ -108,12 +104,9 @@ transform_sup_rec_doses <- function(supply_received) {
 
     #TODO Check on del_date from output
     supply_received_doses$del_date <- as.Date("2022-04-26")
-    # Removing time from date
-    supply_received_doses$del_date <- gsub(x = supply_received_doses$del_date, pattern=" 0:00:00", replacement = "", fixed = T)
     
     return(supply_received_doses)
 }
-
 
 transform_sup_rec_product <- function(supply_received) {
     print(" >> Grouping doses per product...")
