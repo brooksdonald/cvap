@@ -166,7 +166,7 @@ course_progress <- function(a_data, b_smartsheet) {
     
     a_data <- a_data %>%
     mutate(ndvp_deadline = as.Date(ndvp_deadline)) %>%
-    mutate(timeto_ndvp = ndvp_deadline - refresh_date) %>%
+    mutate(timeto_ndvp = as.numeric(ndvp_deadline - refresh_date)) %>%
     mutate(a_pop_ndvp = a_pop * ndvp_target) %>%
     mutate(a_pop_ndvp_mid = a_pop * ndvp_mid_target)
 
@@ -236,9 +236,18 @@ course_progress <- function(a_data, b_smartsheet) {
     mutate(ndvp_rate_needed = if_else(
         (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - refresh_date)) < 0, 0,
         (((a_pop * ndvp_target) - adm_fv_homo) / as.numeric(ndvp_deadline - refresh_date)))) %>%
-    mutate(ndvp_rate_needed_dose = if_else(
-            ((adm_pv + ((a_pop_ndvp - adm_pv - adm_fv_homo) * 2)) / as.numeric(ndvp_deadline - refresh_date)) < 0, 0,
-            ((adm_pv + ((a_pop_ndvp - adm_pv - adm_fv_homo) * 2)) / as.numeric(ndvp_deadline - refresh_date)))) %>%
+        mutate(ndvp_rate_needed_dose = if_else(is.na(jj_policy),
+                                                   if_else(
+                                                       ((adm_pv + (if_else((a_pop_ndvp - adm_pv - adm_fv_homo) < 0, 0, (a_pop_ndvp - adm_pv - adm_fv_homo)) * 2)) / timeto_ndvp) < 0, 0,
+                                                       ((adm_pv + (if_else((a_pop_ndvp - adm_pv - adm_fv_homo) < 0, 0, (a_pop_ndvp - adm_pv - adm_fv_homo)) * 2)) / timeto_ndvp)
+                                                   ),
+                                                   if_else(jj_policy == "One dose",
+                                                           if_else(
+                                                               ((adm_pv + (if_else((a_pop_ndvp - adm_pv - adm_fv_homo) < 0, 0, (a_pop_ndvp - adm_pv - adm_fv_homo)) * 2 * (1 - del_dose_jj_prop)) + (if_else((a_pop_ndvp - adm_pv - adm_fv_homo) < 0, 0, (a_pop_ndvp - adm_pv - adm_fv_homo)) * del_dose_jj_prop)) / timeto_ndvp) < 0, 0,
+                                                               ((adm_pv + (if_else((a_pop_ndvp - adm_pv - adm_fv_homo) < 0, 0, (a_pop_ndvp - adm_pv - adm_fv_homo)) * 2 * (1 - del_dose_jj_prop)) + (if_else((a_pop_ndvp - adm_pv - adm_fv_homo) < 0, 0, (a_pop_ndvp - adm_pv - adm_fv_homo)) * del_dose_jj_prop)) / timeto_ndvp) 
+                                                           ),
+                                                           NA_real_)
+        )) %>%
     mutate(ndvp_scaleup = if_else(is.infinite(round((ndvp_rate_needed / dvr_4wk_fv),2)),NA_real_,
                                   round(ndvp_rate_needed / dvr_4wk_fv),2)) %>%
     mutate(ndvp_scaleup_dose = if_else(is.infinite(round((ndvp_rate_needed_dose / dvr_4wk_td),2)), NA_real_,
@@ -295,7 +304,7 @@ course_progress <- function(a_data, b_smartsheet) {
     ((adm_pv + (if_else((a_pop_ndvp_mid - adm_pv - adm_fv_homo) < 0, 0, (a_pop_ndvp_mid - adm_pv - adm_fv_homo)) * 2)) / timeto_t70) < 0, 0,
     ((adm_pv + (if_else((a_pop_ndvp_mid - adm_pv - adm_fv_homo) < 0, 0, (a_pop_ndvp_mid - adm_pv - adm_fv_homo)) * 2)) / timeto_t70)
     ),
-    if_else(jj_policy == "One",
+    if_else(jj_policy == "One dose",
     if_else(
     ((adm_pv + (if_else((a_pop_ndvp_mid - adm_pv - adm_fv_homo) < 0, 0, (a_pop_ndvp_mid - adm_pv - adm_fv_homo)) * 2 * (1 - del_dose_jj_prop)) + (if_else((a_pop_ndvp_mid - adm_pv - adm_fv_homo) < 0, 0, (a_pop_ndvp_mid - adm_pv - adm_fv_homo)) * del_dose_jj_prop)) / timeto_t70) < 0, 0,
     ((adm_pv + (if_else((a_pop_ndvp_mid - adm_pv - adm_fv_homo) < 0, 0, (a_pop_ndvp_mid - adm_pv - adm_fv_homo)) * 2 * (1 - del_dose_jj_prop)) + (if_else((a_pop_ndvp_mid - adm_pv - adm_fv_homo) < 0, 0, (a_pop_ndvp_mid - adm_pv - adm_fv_homo)) * del_dose_jj_prop)) / timeto_t70) 

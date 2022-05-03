@@ -14,9 +14,6 @@ write_to_excel <- function() {
         "1_secview_lm" = z_temp_lm,
         "1_secview_all" = z_secview_long,
         "1_funding_source" = b_fin_fund_del_source,
-        "2_base_data_amc" = a_data_amc,
-        "2_base_data_hic" = a_data_hic,
-        "2_base_data_africa" = a_data_africa,
         "2_dvr_perchange_count" = f_dvr_change_count,
         "2_cov_change_count" = f_cov_change_count,
         "2_dvr_perchange_count_af" = f_dvr_change_count_af,
@@ -32,7 +29,8 @@ write_to_excel <- function() {
         "8_ndvp_tar_cat" = e_ndvp_all,
         "9_values" = z_values
     )
-    write_xlsx(all_df, "data/output/210422_master.xlsx")
+    write_xlsx(all_df, "data/output/220505_output_powerbi.xlsx")
+    write_xlsx(api, "data/output/220503_output_api.xlsx")
 
 
 }
