@@ -25,6 +25,10 @@ run_financing <- function(a_data, env = .GlobalEnv) {
   a_data_africa <- africa_continent(a_data)
   print(" > Done.")
   
+  print(" > Filtering for API view...")
+  api <- api_export_table(a_data)
+  print(" > Done.")
+  
   print(" > Loading financing summary data back to global environment...") 
   env$a_data <- a_data
   env$a_data_amc <- a_data_amc
@@ -32,6 +36,7 @@ run_financing <- function(a_data, env = .GlobalEnv) {
   env$a_data_csc <- a_data_csc
   env$a_data_ifc <- a_data_ifc
   env$a_data_africa <- a_data_africa
+  env$api <- api
   print(" > Ok.")
   return(environment())
 }

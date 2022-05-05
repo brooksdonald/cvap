@@ -6,17 +6,13 @@ write_to_excel <- function() {
         "1_absorption_month" = d_absorption,
         "1_absorption_month_country" = combined,
         "1_stock" = combined_three,
-        "1_adm_dvr_long" = b_vxrate_amc,
-        "1_adm_long_smoohth" = b_vxrate_amc_smooth,
+        "1_adm_long_smooth" = b_vxrate_amc_smooth,
         "1_adm_all_long" = b_vxrate_pub,
         "1_delivery_doses" = supply_received_by_product,
         "1_secview" = z_temp,
         "1_secview_lm" = z_temp_lm,
         "1_secview_all" = z_secview_long,
         "1_funding_source" = b_fin_fund_del_source,
-        "2_base_data_amc" = a_data_amc,
-        "2_base_data_hic" = a_data_hic,
-        "2_base_data_africa" = a_data_africa,
         "2_dvr_perchange_count" = f_dvr_change_count,
         "2_cov_change_count" = f_cov_change_count,
         "2_dvr_perchange_count_af" = f_dvr_change_count_af,
@@ -32,7 +28,8 @@ write_to_excel <- function() {
         "8_ndvp_tar_cat" = e_ndvp_all,
         "9_values" = z_values
     )
-    write_xlsx(all_df, "data/output/220505_master.xlsx")
+    write_xlsx(all_df, "data/output/220505_output_powerbi.xlsx")
+    write_xlsx(api, "data/output/220505_output_api.xlsx")
 
 
 }

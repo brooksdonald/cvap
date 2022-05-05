@@ -193,6 +193,13 @@ transform_vxrate_merge <- function(a_data) {
     mutate(cov_total_fv_1m_2m = if_else((cov_total_fv_lm - cov_total_fv_2m) < 0, 0, (cov_total_fv_lm - cov_total_fv_2m))) %>%
     mutate(cov_total_fv_cur_13jan= if_else((cov_total_fv - cov_total_fv_13jan) < 0, 0, (cov_total_fv - cov_total_fv_13jan))) %>%
     mutate(cov_total_fv_less_1m_prop = cov_total_fv_less_1m / cov_total_fv)
+  
+  # Correct GRL and SJM
+  a_data$cov_total_fv[a_data$a_iso == "GRL"] <-
+    a_data$cov_total_fv[a_data$a_iso == "DNK"]
+  
+  a_data$cov_total_fv[a_data$a_iso == "SJM"] <-
+    a_data$cov_total_fv[a_data$a_iso == "NOR"]
 
 
   # Assign coverage category for current and lw
@@ -235,6 +242,21 @@ transform_vxrate_merge <- function(a_data) {
     mutate(adm_fv_60p_repstat = if_else(is.na(adm_fv_60p),"Not reporting",if_else(adm_fv_60p > 0, "Reporting", "Not reporting"))) %>%
     mutate(adm_fv_gen_repstat = if_else(is.na(adm_fv_female) | is.na(adm_fv_male),"Not reporting",if_else(adm_fv_female > 0, "Reporting", "Not reporting")))
   
+  a_data$adm_fv_hcw_repstat[a_data$a_iso == "GRL"] <-
+    a_data$adm_fv_hcw_repstat[a_data$a_iso == "DNK"]
+  a_data$adm_fv_hcw_repstat[a_data$a_iso == "SJM"] <-
+    a_data$adm_fv_hcw_repstat[a_data$a_iso == "NOR"]
+  
+  a_data$adm_fv_60p_repstat[a_data$a_iso == "GRL"] <-
+    a_data$adm_fv_60p_repstat[a_data$a_iso == "DNK"]
+  a_data$adm_fv_60p_repstat[a_data$a_iso == "SJM"] <-
+    a_data$adm_fv_60p_repstat[a_data$a_iso == "NOR"]
+  
+  a_data$adm_fv_gen_repstat[a_data$a_iso == "GRL"] <-
+    a_data$adm_fv_gen_repstat[a_data$a_iso == "DNK"]
+  a_data$adm_fv_gen_repstat[a_data$a_iso == "SJM"] <-
+    a_data$adm_fv_gen_repstat[a_data$a_iso == "NOR"]
+  
   # Healthcare worker
   a_data <- a_data %>%
     mutate(hcw_flag = if_else(a_pop_hcw > adm_target_hcw, "Yes", NA_character_)) %>%
@@ -248,6 +270,8 @@ transform_vxrate_merge <- function(a_data) {
     mutate(adm_fv_fem_homo = if_else(adm_fv_female > a_pop_female, a_pop_female, adm_fv_female)) %>%
     mutate(cov_total_fem_fv = adm_fv_female / a_pop_female) %>%
     mutate(adm_fv_gen = adm_fv_male_homo + adm_fv_fem_homo)
+  
+  
   
   # Calculate healthcare workers coverage
   a_data <- a_data %>%
@@ -275,6 +299,16 @@ transform_vxrate_merge <- function(a_data) {
     mutate(adm_fv_60p_homo = if_else(adm_fv_60p > a_pop_older, a_pop_older, adm_fv_60p)) %>%
     mutate(cov_60p_a1d = if_else((adm_a1d_60p / a_pop_older) > 1, 1, (adm_a1d_60p / a_pop_older))) %>%
     mutate(cov_60p_fv = if_else((adm_fv_60p / a_pop_older) > 1, 1, (adm_fv_60p / a_pop_older)))
+  
+  a_data$cov_hcw_fv[a_data$a_iso == "GRL"] <-
+    a_data$cov_hcw_fv[a_data$a_iso == "DNK"]
+  a_data$cov_hcw_fv[a_data$a_iso == "SJM"] <-
+    a_data$cov_hcw_fv[a_data$a_iso == "NOR"]
+  
+  a_data$cov_60p_fv[a_data$a_iso == "GRL"] <-
+    a_data$cov_60p_fv[a_data$a_iso == "DNK"]
+  a_data$cov_60p_fv[a_data$a_iso == "SJM"] <-
+    a_data$cov_60p_fv[a_data$a_iso == "NOR"]
 
   # Calculate gender coverage difference in reporting countries
   print(" >>> Computing gender coverage difference in reporting countries...")
@@ -345,7 +379,7 @@ transform_vxrate_merge <- function(a_data) {
   print(" >>> Computing % change in 4-week average daily vxrate & assign category...")
   a_data <- a_data %>%
     mutate(dvr_4wk_td_change_lm = dvr_4wk_td - dvr_4wk_td_lm) %>%
-    mutate(dvr_4wk_td_change_lm_per = if_else(is.infinite(dvr_4wk_td_change_lm / dvr_4wk_td_lm), NA_real_,
+    mutate(dvr_4wk_td_change_lm_per = if_else(is.infinite(dvr_4wk_td_change_lm / dvr_4wk_td_lm), 1,
                                               (dvr_4wk_td_change_lm / dvr_4wk_td_lm))) %>%
     mutate(
       dvr_4wk_td_change_lm_per_cat = if_else(
