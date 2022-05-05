@@ -14,6 +14,12 @@ library("openxlsx")
 library("tidyverse")
 library("httr")
 library("jsonlite")
+library("AzureAuth")
+library("dotenv")
+
+# Configuation Variables
+load_dot_env(file = ".env")
+
 
 # HELPERS
 
