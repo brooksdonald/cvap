@@ -103,7 +103,7 @@ transform_sup_rec_doses <- function(supply_received) {
         mutate(del_dose_wast = del_dose_total * 0.1)
 
     #TODO Check on del_date from output
-    supply_received_doses$del_date <- as.Date("2022-04-26")
+    supply_received_doses$del_date <- as.Date("2022-05-05")
     
     return(supply_received_doses)
 }
