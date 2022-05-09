@@ -129,7 +129,7 @@ target_group_seventy <- function(a_data) {
     ((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2)) / timeto_t70) < 0, 0,
     ((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2)) / timeto_t70)
     ),
-    if_else(jj_policy == "One",
+    if_else(jj_policy == "One dose",
     if_else(
     ((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2 * (1 - del_dose_jj_prop)) + ((a_pop_70 - adm_pv - adm_fv_homo) * del_dose_jj_prop)) / timeto_t70) < 0, 0,
     ((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2 * (1 - del_dose_jj_prop)) + ((a_pop_70 - adm_pv - adm_fv_homo) * del_dose_jj_prop)) / timeto_t70) 
