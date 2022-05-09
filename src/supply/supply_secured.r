@@ -121,7 +121,6 @@ transform_supply_secured <- function(supply_secured, dataset_date, c_sec_cour_lm
         mutate(sec_other_sum_dose = sec_eu_dose + sec_other_dose + sec_domestic_dose)
 
     print(" >> Adding dataset date...")
-    # FIXME do I need to pass in date here?
     supply_secured$sec_date <- as.Date(dataset_date)
     
     # Merge current and last month supply

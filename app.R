@@ -18,12 +18,18 @@ library("AzureAuth")
 library("dotenv")
 
 # Configuation Variables
-load_dot_env(file = ".env")
+# load_dot_env(file = ".env")
 
 # HELPERS
 
 source("helpers/joins.r")
 source("helpers/transformations.r")
+
+# STATIC DATES
+.GlobalEnv$refresh_date <- as.Date("2022-05-05")
+.GlobalEnv$t70_deadline <- as.Date("2022-06-30")
+.GlobalEnv$dataset_date <- "2022-04-28" # dataset_date is passed to sec_date
+.GlobalEnv$del_date <- as.Date("2022-05-05")
 
 # ETL
 
@@ -80,7 +86,7 @@ source("consolidate/run_consolidate.r")
 
 consolidate_env <- run_consolidate(a_data)
 
-# Export
+# EXPORT
 
 print(" > Exporting data output from pipeline to Excel Workbooks...")
 all_df <- list(
@@ -110,7 +116,7 @@ all_df <- list(
     "8_ndvp_tar_cat" = e_ndvp_all,
     "9_values" = z_values
 )
-write_xlsx(all_df, "data/output/test_powerbi.xlsx")
-write_xlsx(api, "data/output/test_output_api.xlsx")
+# write_xlsx(all_df, "data/output/220505_output_powerbi.xlsx")
+# write_xlsx(api, "data/output/220505_output_api.xlsx")
 
 print(" > Output exported successfully!")
