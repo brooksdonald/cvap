@@ -18,7 +18,7 @@ library("AzureAuth")
 library("dotenv")
 
 # Configuation Variables
-# load_dot_env(file = ".env")
+load_dot_env(file = ".env")
 
 # HELPERS
 
