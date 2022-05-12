@@ -16,7 +16,7 @@ load_finance_data <- function() {
             "Information.Type",
             "Allocation.Type",
             "Funding.Amount",
-            "Funding.Source.Type",
+            "Funding.Source.Type.2",
             "Funding.Source",
             "Double.Counting"
         )
