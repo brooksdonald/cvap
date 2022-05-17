@@ -119,4 +119,4 @@ all_df <- list(
 # write_xlsx(all_df, "data/output/220513_output_powerbi.xlsx")
 # write_xlsx(api, "data/output/220513_output_api.xlsx")
 
-print(" > Output exported successfully!")
+print(" > Output exported Excel successfully!")
