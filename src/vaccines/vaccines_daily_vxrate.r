@@ -441,27 +441,11 @@ transform_abspt_by_month <- function(b_vxrate) {
 
   c_vxrate_eom <- c_vxrate_eom %>%
     mutate(adm_td_absorbed = if_else(is.na(adm_td_absorbed), adm_td, adm_td_absorbed))
-
-  return(c_vxrate_eom)
-}
-
-# Create per country absorption table
-absorption_per_country <- function(c_vxrate_eom) {
-  print(" >> Adding per country monthly absorption table...")
-  d_absorption_country <- select(
-    c_vxrate_eom,
-    c(
-      "a_iso",
-      "a_covax_status",
-      "a_csc_status",
-      "adm_date_month",
-      "adm_td_absorbed"
-    )
-  )
-  d_absorption_country$adm_date_month_name <- helper_replace_values_with_map(
-    data = d_absorption_country$adm_date_month,
+  
+  c_vxrate_eom$adm_date_month_name <- helper_replace_values_with_map(
+    data = c_vxrate_eom$adm_date_month,
     values = c(
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
     ),
     map = c(
       "2021-01",
@@ -478,7 +462,52 @@ absorption_per_country <- function(c_vxrate_eom) {
       "2021-12",
       "2022-01",
       "2022-02",
-      "2022-03"
+      "2022-03",
+      "2022-04",
+      "2022-05"
+    )
+  )
+
+  return(c_vxrate_eom)
+}
+
+# Create per country absorption table
+absorption_per_country <- function(c_vxrate_eom) {
+  print(" >> Adding per country monthly absorption table...")
+  
+  d_absorption_country <- select(
+    c_vxrate_eom,
+    c(
+      "a_iso",
+      "a_covax_status",
+      "a_csc_status",
+      "adm_date_month",
+      "adm_td_absorbed"
+    )
+  )
+  d_absorption_country$adm_date_month_name <- helper_replace_values_with_map(
+    data = d_absorption_country$adm_date_month,
+    values = c(
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
+    ),
+    map = c(
+      "2021-01",
+      "2021-02",
+      "2021-03",
+      "2021-04",
+      "2021-05",
+      "2021-06",
+      "2021-07",
+      "2021-08",
+      "2021-09",
+      "2021-10",
+      "2021-11",
+      "2021-12",
+      "2022-01",
+      "2022-02",
+      "2022-03",
+      "2022-04",
+      "2022-05"
     )
   )
   print(" >> Selecting columns needed...")
@@ -567,7 +596,7 @@ new_absorption_countries <- function(c_vxrate_eom) {
     d_absorption_country_new$month_name <- helper_replace_values_with_map(
       data = d_absorption_country_new$adm_date_month,
       values = c(
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
       ),
       map = c(
         "2021-01",
@@ -583,7 +612,10 @@ new_absorption_countries <- function(c_vxrate_eom) {
         "2021-11",
         "2021-12",
         "2022-01",
-        "2022-02"
+        "2022-02",
+        "2022-03",
+        "2022-04",
+        "2022-05"
       )
     )
     return(d_absorption_country_new)
@@ -714,7 +746,7 @@ absorption_sum_by_month <- function(c_vxrate_eom) {
     d_absorption$adm_date_month_name <- helper_replace_values_with_map(
       data = d_absorption$adm_date_month,
       values = c(
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
       ),
       map = c(
         "2021-01",
@@ -731,7 +763,9 @@ absorption_sum_by_month <- function(c_vxrate_eom) {
         "2021-12",
         "2022-01",
         "2022-02",
-        "2022-03"
+        "2022-03",
+        "2022-04",
+        "2022-05"
       )
     )
   return(d_absorption)
