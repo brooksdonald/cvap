@@ -26,10 +26,10 @@ source("helpers/joins.r")
 source("helpers/transformations.r")
 
 # STATIC DATES
-.GlobalEnv$refresh_date <- as.Date("2022-05-13")
+.GlobalEnv$refresh_date <- as.Date("2022-05-18")
 .GlobalEnv$t70_deadline <- as.Date("2022-06-30")
-.GlobalEnv$dataset_date <- "2022-05-05" # dataset_date is passed to sec_date
-.GlobalEnv$del_date <- as.Date("2022-05-12")
+.GlobalEnv$dataset_date <- "2022-05-12" # dataset_date is passed to sec_date
+.GlobalEnv$del_date <- as.Date("2022-05-17")
 
 # ETL
 
