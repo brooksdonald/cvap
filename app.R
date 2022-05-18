@@ -53,7 +53,7 @@ source("helpers/transformations.r")
 # STATIC DATES
 .GlobalEnv$refresh_date <- as.Date("2022-05-05")
 .GlobalEnv$t70_deadline <- as.Date("2022-06-30")
-.GlobalEnv$dataset_date <- "2022-04-28" # dataset_date is passed to sec_date
+.GlobalEnv$dataset_date <- "2022-05-12" # dataset_date is passed to sec_date
 .GlobalEnv$del_date <- as.Date("2022-05-17")
 
 # ETL
