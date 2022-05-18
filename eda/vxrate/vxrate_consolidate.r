@@ -66,7 +66,6 @@ merge_dataframes <- function(
 
 transform_vxrate_merge <- function(a_data) {
   # Set static dates
-  # TODO move static dates to app.r
   print(" >>> Setting static dates")
   timeto_t70 <<- as.numeric(t70_deadline - refresh_date)
   a_data$a_refresh_date <- refresh_date
@@ -239,6 +238,14 @@ transform_vxrate_merge <- function(a_data) {
     mutate(adm_fv_hcw_repstat = if_else(is.na(adm_fv_hcw),"Not reporting", if_else(adm_fv_hcw > 0, "Reporting", "Not reporting"))) %>%
     mutate(adm_fv_60p_repstat = if_else(is.na(adm_fv_60p),"Not reporting",if_else(adm_fv_60p > 0, "Reporting", "Not reporting"))) %>%
     mutate(adm_fv_gen_repstat = if_else(is.na(adm_fv_female) | is.na(adm_fv_male),"Not reporting",if_else(adm_fv_female > 0, "Reporting", "Not reporting")))
+
+  # Converting Ingested data from API to numeric values
+  a_data$adm_fv_male <- as.numeric(a_data$adm_fv_male)
+  a_data$adm_fv_female <- as.numeric(a_data$adm_fv_female)
+  a_data$adm_a1d_hcw <- as.numeric(a_data$adm_a1d_hcw)
+  a_data$adm_fv_hcw <- as.numeric(a_data$adm_fv_hcw)
+  a_data$adm_fv_60p <- as.numeric(a_data$adm_fv_60p)
+
   
   a_data$adm_fv_hcw_repstat[a_data$a_iso == "GRL"] <-
     a_data$adm_fv_hcw_repstat[a_data$a_iso == "DNK"]
