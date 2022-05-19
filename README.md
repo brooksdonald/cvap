@@ -1,4 +1,7 @@
-# COVID-19 Vaccine Implementation Analysis & Insights
+## Contributing
+
+# This pipeline is leveraging local environments to create clean and consice analysis
+# CoVDP Core Analysis Pipeline (CCAP)
 
 
 ## Envrironment and installation
@@ -11,6 +14,4 @@ To resolve languageserver installation issues, just run
 
 
 
-## Contributing
 
-# This pipeline is leveraging local environments to create clean and consice analysis
