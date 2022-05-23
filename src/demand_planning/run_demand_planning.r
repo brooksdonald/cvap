@@ -14,5 +14,6 @@ run_dp <- function(env = .GlobalEnv) {
     print(" > Loading demand planning data back to global environment...")
     env$b_dp_red <- b_dp_red
     env$b_dp <- b_dp
+    print(" > Done.")
     return(environment())
 }

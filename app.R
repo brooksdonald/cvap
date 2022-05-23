@@ -84,6 +84,20 @@ source("eda/financing/run_financing.r")
 source("eda/rank_bin/run_rank_bin.r")
 source("eda/combination/run_combination.r")
 
+# vxrate_env <- run_vxrate(
+#     vaccines_env$c_vxrate_latest,
+#     entity_env$entity_characteristics,
+#     vxrate_env$c_vxrate_latest_red,
+#     pop_env$population_data,
+#     pop_env$uptake_gender_data,
+#     base_env$b_who_dashboard,
+#     base_env$b_smartsheet,
+#     supply_env$supply_secured,
+#     supply_env$delivery_courses_doses,
+#     demand_plan_env$b_dp,
+#     supply_env$c_delivery_product,
+#     finance_env$b_fin_fund_del_sum
+# )
 vxrate_env <- run_vxrate(
     c_vxrate_latest,
     entity_characteristics,
