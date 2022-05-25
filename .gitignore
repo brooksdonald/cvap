@@ -12,3 +12,5 @@ data/output/*
 debug.r
 covid19_vaccination_analysis.R
 debug.R
+.env
+
