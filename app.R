@@ -116,7 +116,7 @@ all_df <- list(
     "8_ndvp_tar_cat" = e_ndvp_all,
     "9_values" = z_values
 )
-write_xlsx(all_df, "data/output/220525_output_powerbi.xlsx")
-write_xlsx(api, "data/output/220525_output_api.xlsx")
+# write_xlsx(all_df, "data/output/220525_output_powerbi.xlsx")
+# write_xlsx(api, "data/output/220525_output_api.xlsx")
 
 print(" > Output exported to Excel successfully!")
