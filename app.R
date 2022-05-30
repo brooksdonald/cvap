@@ -26,10 +26,10 @@ source("helpers/joins.r")
 source("helpers/transformations.r")
 
 # STATIC DATES
-.GlobalEnv$refresh_date <- as.Date("2022-05-19")
+.GlobalEnv$refresh_date <- as.Date("2022-05-25")
 .GlobalEnv$t70_deadline <- as.Date("2022-06-30")
-.GlobalEnv$dataset_date <- "2022-05-12" # dataset_date is passed to sec_date
-.GlobalEnv$del_date <- as.Date("2022-05-17")
+.GlobalEnv$dataset_date <- "2022-05-19" # dataset_date is passed to sec_date
+.GlobalEnv$del_date <- as.Date("2022-05-23")
 
 # ETL
 
@@ -116,7 +116,7 @@ all_df <- list(
     "8_ndvp_tar_cat" = e_ndvp_all,
     "9_values" = z_values
 )
-# write_xlsx(all_df, "data/output/220519_output_powerbi.xlsx")
-# write_xlsx(api, "data/output/220519_output_api.xlsx")
+# write_xlsx(all_df, "data/output/220525_output_powerbi.xlsx")
+# write_xlsx(api, "data/output/220525_output_api.xlsx")
 
 print(" > Output exported to Excel successfully!")
