@@ -174,10 +174,10 @@ course_progress <- function(a_data, b_smartsheet) {
     print(" >>> Computing progress against country coverage targets...")
     a_data <- a_data %>%
     mutate(ndvp_goalmet = if_else(cov_total_fv >= ndvp_target, "Yes", "No")) %>%
-    mutate(ndvp_target_active = if_else(as.Date(ndvp_deadline) < Sys.Date(), NA_real_, ndvp_target)) %>%
+    mutate(ndvp_target_active = if_else(as.Date(ndvp_deadline) < refresh_date, NA_real_, ndvp_target)) %>%
     mutate(ndvp_rem = if_else((ndvp_target - cov_total_fv) < 0, 0, (ndvp_target - cov_total_fv))) %>%
     mutate(ndvp_peratpace = ((adm_fv_homo + (
-        dvr_4wk_fv * as.numeric(as.Date(ndvp_deadline) - Sys.Date())
+        dvr_4wk_fv * as.numeric(as.Date(ndvp_deadline) - refresh_date)
     )) / a_pop)) %>%
     mutate(ndvp_pertogo = if_else((ndvp_target - ndvp_peratpace) < 0, 0, (ndvp_target - ndvp_peratpace))) %>%
     mutate(ndvp_willmeet = if_else(ndvp_peratpace >= ndvp_target, "Yes", "No")) %>%
@@ -198,7 +198,7 @@ course_progress <- function(a_data, b_smartsheet) {
                 is.na(ndvp_deadline),
                 "No timeline",
                 if_else(
-                    ndvp_deadline < Sys.Date(),
+                    ndvp_deadline < refresh_date,
                     "Deadline past",
                     if_else(
                         ndvp_ontrack == "Yes",
@@ -220,7 +220,7 @@ course_progress <- function(a_data, b_smartsheet) {
                 is.na(ndvp_deadline),
                 3,
                 if_else(
-                    ndvp_deadline < Sys.Date(),
+                    ndvp_deadline < refresh_date,
                     4,
                     if_else(
                         ndvp_ontrack == "Yes",
@@ -336,7 +336,7 @@ course_add_notes <- function(a_data, b_csc) {
     # Add notes
     a_data <- a_data %>%
     mutate(note_highcov = if_else(cov_total_fv > 0.5, "High fully vaccinated coverage", "No")) %>%
-    mutate(note_recent_rollout = if_else(intro_date > (Sys.Date() - 60), "Recent rollout", "No")) %>%
+    mutate(note_recent_rollout = if_else(intro_date > (refresh_date - 60), "Recent rollout", "No")) %>%
     mutate(note_reporting_date = if_else(
         adm_date < (refresh_date - 10),
         "Likely reporting issue",
