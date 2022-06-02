@@ -101,8 +101,8 @@ transform_current_vxrate <- function(b_vxrate, entity_characteristics) {
     b_vxrate$adm_is_current <- ifelse(
       b_vxrate$adm_latest == "Yes" &
         (
-          b_vxrate$adm_date_week == isoweek(Sys.Date())
-          | b_vxrate$adm_date_week == isoweek(Sys.Date()) - 1
+          b_vxrate$adm_date_week == isoweek(refresh_date)
+          | b_vxrate$adm_date_week == isoweek(refresh_date) - 1
         ),
         "Yes",
         NA
@@ -259,11 +259,11 @@ transform_smooth_timeseries <- function(b_vxrate_amc, b_vxrate_pub) {
   df_iso_2$index <- 0
 
   #Create date_week matrix
-  df_iso_full <- data.frame(df_iso[rep(seq_len(nrow(df_iso)), each = as.numeric(Sys.Date()-as.Date("2021-01-01")-1)), ])
+  df_iso_full <- data.frame(df_iso[rep(seq_len(nrow(df_iso)), each = as.numeric(refresh_date-as.Date("2021-01-01")-1)), ])
   df_iso_full$date <- NA
   colnames(df_iso_full) <- c("iso", "date")
   df_iso_week <- as.matrix(
-    1:(as.numeric(Sys.Date() - as.Date("2021-01-01")) - 1)
+    1:(as.numeric(refresh_date - as.Date("2021-01-01")) - 1)
   )
   iso_week_temp <- rep(1:nrow(df_iso_week), df_iso_week[,1], nrow(df_iso_full))
   df_iso_week <- data.frame(df_iso_week[iso_week_temp,])
