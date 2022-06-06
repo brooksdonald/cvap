@@ -28,17 +28,62 @@ current_week <- select(
         "cov_60p_fv",
         "dvr_4wk_td",
         "del_dose_total",
-        "pu_del_rem"
+        "pu_del_rem",
+        "a_pop_male",
+        "a_pop_female",
+        "a_pop",
+        "a_pop_older"
     )
 )
 print(" > Done selecting columns needed from current week...")
+
+cw <- select(
+    current_week,
+    c(
+        "a_iso",
+        "a_name_short",
+        "a_covax_status",
+        "adm_td",
+        "adm_fv",
+        "adm_fv_hcw",
+        "adm_fv_60p",
+        "cov_total_fv",
+        "cov_hcw_fv",
+        "cov_60p_fv",
+        "dvr_4wk_td",
+        "del_dose_total",
+        "pu_del_rem",
+        "a_pop_male",
+        "a_pop_female",
+        "a_pop",
+        "a_pop_older"
+    )
+)
+colnames(cw) <- c(
+    "a_iso",
+    "a_name_short",
+    "a_covax_status",
+    "cw_adm_td",
+    "cw_adm_fv",
+    "cw_adm_fv_hcw",
+    "cw_adm_fv_60p",
+    "cw_cov_total_fv",
+    "cw_cov_hcw_fv",
+    "cw_cov_60p_fv",
+    "cw_dvr_4wk_td",
+    "cw_del_dose_total",
+    "cw_pu_del_rem",
+    "cw_a_pop_male",
+    "cw_a_pop_female",
+    "cw_a_pop",
+    "cw_a_pop_older"
+)
 
 # Filtering AMC countries from current_week
 print(" > Filtering AMC countries from current week...")
 amc_current <- filter(current_week, a_covax_status == "AMC")
 print(" > Done.")
 
-# Comparing the aggregate variables for anomalies
 ## Number of AMC92 reporting on HCW vaccination
 print(" > Obtaining number of AMC92 reporting on HCW vaccination for current week...")
 hcw_vax <- sum(!is.na(amc_current$adm_fv_hcw))
@@ -51,9 +96,19 @@ old_adults <- sum(!is.na(amc_current$adm_fv_60p))
 print(paste(" > The number of AMC92 reporting on older adults (60p) vaccination for current week is:", old_adults))
 print(" > Done.")
 
+## Number of AMC92 reporting on gender-disaggregated - males
+males <- sum(!is.na(amc_current$a_pop_male))
+print(paste(" > The number of AMC92 reporting on gender-disaggregated for males in current week is:", males))
+print(" > Done.")
+
+## Number of AMC92 reporting on gender-disaggregated - females
+females <- sum(!is.na(amc_current$a_pop_female))
+print(paste(" > The number of AMC92 reporting on gender-disaggregated for females in current week is:", females))
+print(" > Done.")
+
 ## Past week
 print(" > Ingesting past week data...")
-past_week <- data.frame(read_excel("data/output/220519_output_powerbi.xlsx"))
+past_week <- data.frame(read_excel("data/output/220525_output_powerbi.xlsx"))
 
 print(" > Selecting columns needed for quality check...")
 past_week <- select(
@@ -71,10 +126,56 @@ past_week <- select(
         "cov_60p_fv",
         "dvr_4wk_td",
         "del_dose_total",
-        "pu_del_rem"
+        "pu_del_rem",
+        "a_pop_male",
+        "a_pop_female",
+        "a_pop",
+        "a_pop_older"
     )
 )
 print(" > Done selecting columns needed from past week dataset...")
+
+pw <- select(
+    past_week,
+    c(
+        "a_iso",
+        "a_name_short",
+        "a_covax_status",
+        "adm_td",
+        "adm_fv",
+        "adm_fv_hcw",
+        "adm_fv_60p",
+        "cov_total_fv",
+        "cov_hcw_fv",
+        "cov_60p_fv",
+        "dvr_4wk_td",
+        "del_dose_total",
+        "pu_del_rem",
+        "a_pop_male",
+        "a_pop_female",
+        "a_pop",
+        "a_pop_older"
+    )
+)
+colnames(pw) <- c(
+    "a_iso",
+    "a_name_short",
+    "a_covax_status",
+    "pw_adm_td",
+    "pw_adm_fv",
+    "pw_adm_fv_hcw",
+    "pw_adm_fv_60p",
+    "pw_cov_total_fv",
+    "pw_cov_hcw_fv",
+    "pw_cov_60p_fv",
+    "pw_dvr_4wk_td",
+    "pw_del_dose_total",
+    "pw_pu_del_rem",
+    "pw_a_pop_male",
+    "pw_a_pop_female",
+    "pw_a_pop",
+    "pw_a_pop_older"
+)
 
 # Filtering AMC countries from past_week
 print(" > Filtering AMC countries from past week...")
@@ -93,8 +194,24 @@ old_adults <- sum(!is.na(amc_past$adm_fv_60p))
 print(paste(" > The number of AMC92 reporting on older adults (60p) vaccination for past week is:", old_adults))
 print(" > Done.")
 
+## Number of AMC92 reporting on gender-disaggregated - males
+males <- sum(!is.na(amc_past$a_pop_male))
+print(paste(" > The number of AMC92 reporting on gender-disaggregated for males in past week is:", males))
+print(" > Done.")
+
+## Number of AMC92 reporting on gender-disaggregated - females
+females <- sum(!is.na(amc_past$a_pop_female))
+print(paste(" > The number of AMC92 reporting on gender-disaggregated for females in past week is:", females))
+print(" > Done.")
+
 # Checking value difference between current and past week
 ## Joining the two dataframes
+df_combined <- left_join(
+    cw,
+    pw,
+    by = c("a_iso", "a_name_short", "a_covax_status")
+)
+
 print(" > Joining current and past dataframes...")
 df <- left_join(
     current_week,
@@ -117,6 +234,8 @@ cov_60p_fv <- current_week$cov_60p_fv - past_week$cov_60p_fv
 dvr_4wk_td <- current_week$dvr_4wk_td - past_week$dvr_4wk_td
 del_dose_total <- current_week$del_dose_total - past_week$del_dose_total
 pu_del_rem <- current_week$pu_del_rem - past_week$pu_del_rem
+a_pop <- current_week$a_pop - past_week$a_pop
+a_pop_older <- current_week$a_pop_older - past_week$a_pop_older
 print(" > Done calculating difference in value change...")
 
 # Create a df from the differences
@@ -133,14 +252,17 @@ df <- data.frame(
     cov_60p_fv,
     dvr_4wk_td,
     del_dose_total,
-    pu_del_rem
+    pu_del_rem,
+    a_pop,
+    a_pop_older
 )
 print(" > Done.")
 
 # Exporting quality checks df to excel output
-print(" > Exporting quality checks df to excel output...") 
+print(" > Exporting quality checks df to excel output...")
 quality_check_df <- list(
-    "quality_checks" = df
+    "Combined_numbers" = df_combined,
+    "Difference_in_Numbers" = df
 )
 write_xlsx(quality_check_df, "data/output/quality_check.xlsx")
 print(" > Done.")
