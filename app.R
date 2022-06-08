@@ -45,7 +45,7 @@ base_env <- run_base()
 entity_env <- run_entity()
 pop_env <- run_population()
 supply_env <- run_supply()
-vaccines_env <- run_vaccines(entity_characteristics)
+vaccines_env <- run_vaccines(entity_env$entity_characteristics)
 finance_env <- run_financing()
 demand_plan_env <- run_dp()
 
@@ -60,61 +60,61 @@ source("eda/rank_bin/run_rank_bin.r")
 source("eda/combination/run_combination.r")
 
 vxrate_env <- run_vxrate(
-    c_vxrate_latest,
-    entity_characteristics,
+    vaccines_env$c_vxrate_latest,
+    entity_env$entity_characteristics,
     c_vxrate_latest_red,
-    population_data,
-    uptake_gender_data,
-    b_who_dashboard,
-    b_smartsheet,
-    supply_secured,
-    delivery_courses_doses,
-    b_dp,
-    c_delivery_product,
-    b_fin_fund_del_sum
+    pop_env$population_data,
+    pop_env$uptake_gender_data,
+    base_env$b_who_dashboard,
+    base_env$b_smartsheet,
+    supply_env$supply_secured,
+    supply_env$delivery_courses_doses,
+    demand_plan_env$b_dp,
+    .GlobalEnv$c_delivery_product,
+    .GlobalEnv$b_fin_fund_del_sum
 )
-supplies_env <- run_eda_supplies(a_data)
-coverage_env <- run_coverage(a_data)
-product_env <- run_product(a_data)
-financing_env <- run_financing(a_data)
-ranking_env <- run_binning(a_data)
-combination_env <- run_combination(a_data)
+supplies_env <- run_eda_supplies(vxrate_env$a_data)
+coverage_env <- run_coverage(supplies_env$a_data)
+product_env <- run_product(coverage_env$a_data)
+financing_env <- run_financing(product_env$a_data)
+ranking_env <- run_binning(financing_env$a_data)
+combination_env <- run_combination(ranking_env$a_data)
 
 # CONSOLIDATE
 
 source("consolidate/run_consolidate.r")
 
-consolidate_env <- run_consolidate(a_data)
+consolidate_env <- run_consolidate(combination_env$a_data)
 
 # EXPORT
 
 print(" > Exporting data output from pipeline to Excel Workbooks...")
 all_df <- list(
-    "0_base_data" = a_data,
-    "1_absorption_month" = d_absorption,
-    "1_absorption_month_country" = combined,
-    "1_stock" = combined_three,
-    "1_adm_long_smooth" = b_vxrate_amc_smooth,
-    "1_adm_all_long" = b_vxrate_pub,
-    "1_delivery_doses" = supply_received_by_product,
-    "1_secview" = z_temp,
-    "1_secview_lm" = z_temp_lm,
-    "1_secview_all" = z_secview_long,
-    "1_funding_source" = b_fin_fund_del_source,
-    "2_dvr_perchange_count" = f_dvr_change_count,
-    "2_cov_change_count" = f_cov_change_count,
-    "2_dvr_perchange_count_af" = f_dvr_change_count_af,
-    "2_cov_change_count_af" = f_cov_change_count_af,
-    "8_dvr_cat" = e_vrcat_all,
-    "8_dvr_lm_trend" = e_trend_all,
-    "8_tarpast_cat" = e_tar_past_all,
-    "8_curtar_cat" = e_tar_cur_all,
-    "8_curtar_scale_cat" = e_tar_cur_scale_all,
-    "8_booster_status" = e_booster_all,
-    "8_secdelpu_cat" = e_secdelpu_all,
-    "8_cov_cat" = e_cov_all,
-    "8_ndvp_tar_cat" = e_ndvp_all,
-    "9_values" = z_values
+    "0_base_data" = combination_env$a_data,
+    "1_absorption_month" = vaccines_env$d_absorption,
+    "1_absorption_month_country" = vaccines_env$combined,
+    "1_stock" = vaccines_env$combined_three,
+    "1_adm_long_smooth" = vaccines_env$b_vxrate_amc_smooth,
+    "1_adm_all_long" = vaccines_env$b_vxrate_pub,
+    "1_delivery_doses" = .GlobalEnv$supply_received_by_product,
+    "1_secview" = .GlobalEnv$z_temp,
+    "1_secview_lm" = .GlobalEnv$z_temp_lm,
+    "1_secview_all" = .GlobalEnv$z_secview_long,
+    "1_funding_source" = finance_env$b_fin_fund_del_source,
+    "2_dvr_perchange_count" = consolidate_env$f_dvr_change_count,
+    "2_cov_change_count" = consolidate_env$f_cov_change_count,
+    "2_dvr_perchange_count_af" = consolidate_env$f_dvr_change_count_af,
+    "2_cov_change_count_af" = consolidate_env$f_cov_change_count_af,
+    "8_dvr_cat" = .GlobalEnv$e_vrcat_all,
+    "8_dvr_lm_trend" = .GlobalEnv$e_trend_all,
+    "8_tarpast_cat" = .GlobalEnv$e_tar_past_all,
+    "8_curtar_cat" = .GlobalEnv$e_tar_cur_all,
+    "8_curtar_scale_cat" = .GlobalEnv$e_tar_cur_scale_all,
+    "8_booster_status" = .GlobalEnv$e_booster_all,
+    "8_secdelpu_cat" = .GlobalEnv$e_secdelpu_all,
+    "8_cov_cat" = .GlobalEnv$e_cov_all,
+    "8_ndvp_tar_cat" = .GlobalEnv$e_ndvp_all,
+    "9_values" = .GlobalEnv$z_values
 )
 # write_xlsx(all_df, "data/output/220602_output_powerbi.xlsx")
 # write_xlsx(api, "data/output/220602_output_api.xlsx")
