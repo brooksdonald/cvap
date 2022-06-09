@@ -17,6 +17,18 @@ load_sup_rec <- function() {
         data.frame(read_excel("data/_input/base_supply_received_twomonth.xlsx",
             sheet = "Delivery_Table"
         ))
+
+    #### REMOVE THIS ####
+    b_mdb_4m <-
+        data.frame(read_excel("data/_input/base_supply_received_4m.xlsx",
+            sheet = "Delivery_Table"
+        ))
+
+    b_mdb_6m <-
+        data.frame(read_excel("data/_input/base_supply_received_6m.xlsx",
+            sheet = "Delivery_Table"
+        ))
+    
     print(" >> Treating datasets...")
 
     b_mdb <- treat_country_name_datasource(b_mdb)
@@ -38,7 +50,7 @@ load_sup_rec <- function() {
     colnames(b_mdb_2m)[3] <- "total_2m"
 
     supply_received <- helper_join_dataframe_list(
-        list(b_mdb, b_mdb_lm, b_mdb_2m),
+        list(b_mdb, b_mdb_lm, b_mdb_2m, b_mdb_4m, b_mdb_6m),
         join_by = c("iso", "product")
     )
     for (col in c(
@@ -54,8 +66,6 @@ load_sup_rec <- function() {
     ) {
         supply_received[, col] <- as.numeric(supply_received[, col])
     }
-    
-
     return(supply_received)
 }
 
@@ -72,7 +82,9 @@ transform_sup_rec_doses <- function(supply_received) {
                 "unknown",
                 "total",
                 "total_lm",
-                "total_2m"
+                "total_2m",
+                "total_4m",
+                "total_6m"
             ),
             sum,
             na.rm = TRUE
@@ -87,21 +99,23 @@ transform_sup_rec_doses <- function(supply_received) {
         "del_dose_unkwn",
         "del_dose_total",
         "del_dose_total_lm",
-        "del_dose_total_2m"
+        "del_dose_total_2m",
+        "del_dose_total_4m",
+        "del_dose_total_6m"
     )
 
     print(" >> Calculate doses delivered
                 since last and previous two months...")
     supply_received_doses <- supply_received_doses %>%
-        mutate(del_dose_since_lm = del_dose_total - del_dose_total_lm)
+        mutate(del_dose_since_lm = del_dose_total - del_dose_total_lm) # < 1 month
 
     supply_received_doses <- supply_received_doses %>%
         mutate(del_dose_prior_2m = del_dose_total_2m)
 
     supply_received_doses <- supply_received_doses %>%
-        mutate(del_dose_lm_2m = del_dose_total_lm - del_dose_total_2m) %>%
+        mutate(del_dose_lm_2m = del_dose_total_lm - del_dose_total_2m) %>% # > 1 month, < 2 month
         mutate(del_dose_wast = del_dose_total * 0.1)
-
+    
     # Introducing del_date to supply_received_doses
     supply_received_doses$del_date <- del_date
     

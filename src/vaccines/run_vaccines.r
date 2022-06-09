@@ -35,7 +35,6 @@ run_vaccines <- function(entity_characteristics, env = .GlobalEnv) {
     c_vxrate_latest <- transform_lm_data(c_vxrate_latest, b_vxrate_lm_sum)
     print(" > Done.")
 
-
     print(" > Last 2 months data")
     b_vxrate_2m_sum <- load_l2m_data()
     c_vxrate_latest <- transform_l2m_data(c_vxrate_latest, b_vxrate_2m_sum)
@@ -43,8 +42,6 @@ run_vaccines <- function(entity_characteristics, env = .GlobalEnv) {
     print(" > Week of 13 Jan")
     b_vxrate_13jan <- load_13jan_data()
     c_vxrate_latest <- transform_13jan_data(c_vxrate_latest, b_vxrate_13jan)
-
-    print(" > Done.")
 
     print(" > Loading vaccines data back to global environment...")
     env$b_vxrate <- b_vxrate

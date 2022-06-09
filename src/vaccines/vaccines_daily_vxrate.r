@@ -425,7 +425,7 @@ transform_abspt_by_month <- function(b_vxrate) {
   
   z_vxrate_eom_temp <- z_vxrate_eom_temp %>%
     mutate(adm_date_month = adm_date_month + 1)
-    colnames(z_vxrate_eom_temp) <- 
+    colnames(z_vxrate_eom_temp) <-
       c("a_iso", "adm_date_month", "adm_td_lm")
 
   ### Calculate change by month
