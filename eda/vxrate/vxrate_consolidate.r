@@ -64,7 +64,7 @@ merge_dataframes <- function(
   return(as.data.frame(a_data))
 }
 
-transform_vxrate_merge <- function(a_data, refresh_date) {
+transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   # Set static dates
   # TODO move static dates to app.r
   print(" >>> Setting static dates")
