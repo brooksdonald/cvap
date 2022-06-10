@@ -72,7 +72,7 @@ vxrate_env <- run_vxrate(
     b_dp,
     c_delivery_product,
     b_fin_fund_del_sum,
-    refresh_date
+    .GlobalEnv$refresh_date
 )
 supplies_env <- run_eda_supplies(a_data)
 coverage_env <- run_coverage(a_data)
