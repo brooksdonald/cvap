@@ -91,9 +91,9 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     mutate(csc_status_numb = if_else(a_csc_status == "Concerted support country", 1, NA_real_))
     
   # Assign population size category
-  # TODO Find a way to include the max value of max(a_data$a_pop_cat))
+  # TODO Find a way to include the max value of max(a_data$a_pop, na.rm = TRUE))
   # FIXME Don't hard code the max value
-  breaks <- c(0, 1000000, 10000000, 100000000, 2000000000)
+  breaks <- c(0, 1000000, 10000000, 100000000, 200000000000)
   tags <- c("1) <1M", "2) 1-10M", "3) 10-100M", "4) 100M+")
   a_data$a_pop_cat <- cut(
     a_data$a_pop,
