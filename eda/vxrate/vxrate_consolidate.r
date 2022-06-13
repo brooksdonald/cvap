@@ -229,9 +229,9 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
 
 
   # Assign coverage category for current and lw
-  # FIXME Find how to include max as opposed to 1 in breaks
+
   print(" >>> Assigning coverage category for current and lw...")
-  breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 0.7, 1)
+  breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 0.7, Inf)
   tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%", "4) 20-40%", "5) 40-70%", "6) 70%+")
   a_data$cov_total_fv_cat <- cut(
     a_data$cov_total_fv,
@@ -240,8 +240,8 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     right = FALSE,
     labels = tags
   )
-  # FIXME Find how to include max as opposed to 1 in breaks
-  breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 0.7, 1)
+
+  breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 0.7, Inf)
   tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%", "4) 20-40%", "5) 40-70%", "6) 70%+")
   a_data$cov_total_fv_lw_cat <- cut(
     a_data$cov_total_fv_lw,
