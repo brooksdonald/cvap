@@ -146,11 +146,13 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
       if_else(
         adm_a1d == 0 & adm_fv == 0 & adm_booster != 0,
         (adm_td - adm_booster)/ 2,
-        if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster == 0,
+        if_else(
+          adm_a1d != 0 & adm_fv == 0 & adm_booster == 0,
           adm_td - adm_a1d,
-          if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster != 0,
-          adm_td - adm_a1d - adm_booster,
-          adm_fv))))) %>%
+          if_else(
+            adm_a1d != 0 & adm_fv == 0 & adm_booster != 0,
+            adm_td - adm_a1d - adm_booster,
+            adm_fv))))) %>%
   mutate(adm_fv_lm_homo = if_else(
     adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm == 0,
     adm_td_lm / 2,
@@ -232,7 +234,8 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
 
   print(" >>> Assigning coverage category for current and lw...")
   breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 0.7, Inf)
-  tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%", "4) 20-40%", "5) 40-70%", "6) 70%+")
+  tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%",
+    "4) 20-40%", "5) 40-70%", "6) 70%+")
   a_data$cov_total_fv_cat <- cut(
     a_data$cov_total_fv,
     breaks = breaks,
@@ -242,7 +245,8 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   )
 
   breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 0.7, Inf)
-  tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%", "4) 20-40%", "5) 40-70%", "6) 70%+")
+  tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%",
+    "4) 20-40%", "5) 40-70%", "6) 70%+")
   a_data$cov_total_fv_lw_cat <- cut(
     a_data$cov_total_fv_lw,
     breaks = breaks,
