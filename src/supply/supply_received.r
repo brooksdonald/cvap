@@ -17,17 +17,6 @@ load_sup_rec <- function() {
         data.frame(read_excel("data/_input/base_supply_received_twomonth.xlsx",
             sheet = "Delivery_Table"
         ))
-
-    #### REMOVE THIS ####
-    b_mdb_4m <-
-        data.frame(read_excel("data/_input/base_supply_received_4m.xlsx",
-            sheet = "Delivery_Table"
-        ))
-
-    b_mdb_6m <-
-        data.frame(read_excel("data/_input/base_supply_received_6m.xlsx",
-            sheet = "Delivery_Table"
-        ))
     
     print(" >> Treating datasets...")
 
@@ -50,7 +39,7 @@ load_sup_rec <- function() {
     colnames(b_mdb_2m)[3] <- "total_2m"
 
     supply_received <- helper_join_dataframe_list(
-        list(b_mdb, b_mdb_lm, b_mdb_2m, b_mdb_4m, b_mdb_6m),
+        list(b_mdb, b_mdb_lm, b_mdb_2m),
         join_by = c("iso", "product")
     )
     for (col in c(
@@ -82,9 +71,7 @@ transform_sup_rec_doses <- function(supply_received) {
                 "unknown",
                 "total",
                 "total_lm",
-                "total_2m",
-                "total_4m",
-                "total_6m"
+                "total_2m"
             ),
             sum,
             na.rm = TRUE
@@ -99,9 +86,7 @@ transform_sup_rec_doses <- function(supply_received) {
         "del_dose_unkwn",
         "del_dose_total",
         "del_dose_total_lm",
-        "del_dose_total_2m",
-        "del_dose_total_4m",
-        "del_dose_total_6m"
+        "del_dose_total_2m"
     )
 
     print(" >> Calculate doses delivered
