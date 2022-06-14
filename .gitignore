@@ -13,4 +13,10 @@ debug.r
 covid19_vaccination_analysis.R
 debug.R
 .env
+src/vaccination_rate/00_Vx Throughput Analysis _ Dose Administration Data Ingestion.ipynb
+src/vaccination_rate/01_Vx Throughput Analysis _ Supply Data Ingestion.ipynb
+src/vaccination_rate/02_Vx Throughput Analysis _ Data Cleaning.ipynb
+src/vaccination_rate/03_Vx Throughput Analysis _ Analysis Output.ipynb
+src/vaccination_rate/04_Vx Throughput Analysis _ Data Fixes.ipynb
+src/vaccination_rate/vxrate_supply_data
 
