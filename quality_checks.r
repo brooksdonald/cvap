@@ -266,3 +266,54 @@ quality_check_df <- list(
 )
 write_xlsx(quality_check_df, "data/output/quality_check.xlsx")
 print(" > Done.")
+
+check_entire_file_for_changes <- function(new_file = "data/output/220602_output_powerbi.xlsx",
+        original_file = "data/output/220602_output_powerbi.xlsx") {
+    sheets_original <- readxl::excel_sheets(original_file)
+    df_original <- lapply(sheets_original, function(X) readxl::read_excel(original_file, sheet = X))
+    #if(!tibble) df_original <- lapply(df_original, as.data.frame)
+    names(df_original) <- sheets_original
+
+    sheets_new <- readxl::excel_sheets(new_file)
+    df_new <- lapply(sheets_new,
+        function(X) readxl::read_excel(new_file, sheet = X))
+    #if(!tibble) df_new <- lapply(df_new, as.data.frame)
+    names(df_new) <- sheets_new
+
+    differences = 0
+
+    if (sum(sheets_original != sheets_new) > 0) {
+        print("Sheet missing or do not match!")
+    } else {
+        sheets_list <- list()
+        sheets_list_new <- list()
+        for (sheet in df_original) {
+            sheets_list <- append(sheets_list, sheet)
+        }
+        for (sheet in df_new) {
+            sheets_list_new <- append(sheets_list_new, sheet)
+        }
+        if (length(sheets_list) != length(sheets_list_new)) {
+            print("differing number of columns")
+        } else {
+            for (column in c(1:length(sheets_list))) {
+                difference = FALSE
+                for (row in 1:length(sheets_list[column])) {
+                    if ((!is.na(unlist(sheets_list[column])[row])) &
+                        (sum(unlist(sheets_list[column])[row] !=
+                        unlist(sheets_list_new[column])[row]) > 0)) {
+                            difference = TRUE
+                        }
+                }
+                if (difference == TRUE) {
+                    differences = differences + 1
+                    print("difference in ", names(sheets_list[column]))
+                }
+            }
+        }
+        if (differences == 0) print("no differences")
+    }
+}
+
+check_entire_file_for_changes("data/output/220602_output_powerbi_seb_test4.xlsx", 
+    "data/output/220602_output_powerbi_seb_test3.xlsx")

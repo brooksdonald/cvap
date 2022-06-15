@@ -50,7 +50,8 @@ load_b_vxrate <- function() {
 
 }
 
-transform_current_vxrate <- function(b_vxrate, entity_characteristics) {
+transform_current_vxrate <- function(
+  b_vxrate, entity_characteristics, refresh_date) {
     print(" >> Transforming current vxrate...")
     ## Change population field type to numeric
     b_vxrate$a_pop <- as.numeric(b_vxrate$a_pop)
@@ -213,7 +214,8 @@ transform_subset_amc <- function(b_vxrate) {
     return(b_vxrate_amc)
 }
 
-transform_smooth_timeseries <- function(b_vxrate_amc, b_vxrate_pub) {
+transform_smooth_timeseries <- function(
+  b_vxrate_amc, b_vxrate_pub, refresh_date) {
   print(" >> Transforming smooth time series...")
   d_cov_smooth <- b_vxrate_pub
   d_cov_smooth <- select(
@@ -396,6 +398,28 @@ transform_dec21_pop_tgt <- function(b_vxrate) {
 
 }
 
+
+mapping_months <- function(data, last_month, first_month = "2021-01") {
+  input_months <- c(as.Date(paste(first_month,"-01",sep="")), 
+    as.Date(paste(last_month,"-01",sep="")))
+  month <- input_months[1]
+  month_vector <- c(substr(as.character(month), 1, 7))
+  number_of_months <- 1
+  month <- add_with_rollback(month, months(1))
+  while (month <= input_months[2]) {
+    month_vector <- c(month_vector, substr(as.character(month), 1, 7))
+    month <- add_with_rollback(month, months(1))
+    number_of_months <- number_of_months + 1
+  }
+  month_names <- helper_replace_values_with_map(
+    data = data,
+    values = 1:number_of_months,
+    map = month_vector
+  )
+  return(month_names)
+}
+
+
 transform_abspt_by_month <- function(b_vxrate) {
   print(" >> Create absorption by month table")
   ## Create absorption by month table
@@ -441,31 +465,10 @@ transform_abspt_by_month <- function(b_vxrate) {
 
   c_vxrate_eom <- c_vxrate_eom %>%
     mutate(adm_td_absorbed = if_else(is.na(adm_td_absorbed), adm_td, adm_td_absorbed))
-  
-  c_vxrate_eom$adm_date_month_name <- helper_replace_values_with_map(
-    data = c_vxrate_eom$adm_date_month,
-    values = c(
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
-    ),
-    map = c(
-      "2021-01",
-      "2021-02",
-      "2021-03",
-      "2021-04",
-      "2021-05",
-      "2021-06",
-      "2021-07",
-      "2021-08",
-      "2021-09",
-      "2021-10",
-      "2021-11",
-      "2021-12",
-      "2022-01",
-      "2022-02",
-      "2022-03",
-      "2022-04",
-      "2022-05"
-    )
+
+  c_vxrate_eom$adm_date_month_name <- mapping_months(
+    c_vxrate_eom$adm_date_month,
+    "2022-05"
   )
 
   return(c_vxrate_eom)
@@ -485,31 +488,12 @@ absorption_per_country <- function(c_vxrate_eom) {
       "adm_td_absorbed"
     )
   )
-  d_absorption_country$adm_date_month_name <- helper_replace_values_with_map(
-    data = d_absorption_country$adm_date_month,
-    values = c(
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
-    ),
-    map = c(
-      "2021-01",
-      "2021-02",
-      "2021-03",
-      "2021-04",
-      "2021-05",
-      "2021-06",
-      "2021-07",
-      "2021-08",
-      "2021-09",
-      "2021-10",
-      "2021-11",
-      "2021-12",
-      "2022-01",
-      "2022-02",
-      "2022-03",
-      "2022-04",
-      "2022-05"
-    )
+
+  d_absorption_country$adm_date_month_name <- mapping_months(
+    d_absorption_country$adm_date_month,
+    "2022-05"
   )
+
   print(" >> Selecting columns needed...")
   d_absorption_country <- select(
     d_absorption_country,
@@ -593,31 +577,12 @@ new_absorption_countries <- function(c_vxrate_eom) {
       "absorbed",
       "adm_date_month"
     )
-    d_absorption_country_new$month_name <- helper_replace_values_with_map(
-      data = d_absorption_country_new$adm_date_month,
-      values = c(
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
-      ),
-      map = c(
-        "2021-01",
-        "2021-02",
-        "2021-03",
-        "2021-04",
-        "2021-05",
-        "2021-06",
-        "2021-07",
-        "2021-08",
-        "2021-09",
-        "2021-10",
-        "2021-11",
-        "2021-12",
-        "2022-01",
-        "2022-02",
-        "2022-03",
-        "2022-04",
-        "2022-05"
-      )
+
+    d_absorption_country_new$month_name <- mapping_months(
+      d_absorption_country_new$adm_date_month,
+      "2022-05"
     )
+
     return(d_absorption_country_new)
 }
 
@@ -643,7 +608,7 @@ second_supplies <- function(d_absorption_country_new, combined, d_absorb_red, en
     combined_new,
     c("iso", "month_name", "est_stock")
   )
-  #TODO Look into this join and use a helper function
+  
   combined_three <- full_join(
     b_supply_red,
     d_absorb_red,
@@ -654,78 +619,52 @@ second_supplies <- function(d_absorption_country_new, combined, d_absorb_red, en
   return(combined_three)
 }
 
-#TODO Do a proper refactor for this function
 absorption_sum_by_month <- function(c_vxrate_eom) {
   print(" >> Summarize absorption by grouping by month...")
   ## Summarize absorption by grouping by month
+
+  groupby_and_summarize <- function(c_vxrate) {
+    suffix <- substr(deparse(substitute(c_vxrate)), 14, 30)
+    return(c_vxrate %>%
+      group_by(adm_date_month) %>%
+      summarize("absorption_{suffix}" := sum(adm_td_absorbed))
+    )
+  }
+
   ### COVAX participation = AMC
-  c_vxrate_eom_amc <- filter(c_vxrate_eom, a_covax_status == "AMC")
-  d_absorption_amc <- c_vxrate_eom_amc %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_amc = sum(adm_td_absorbed))
+  c_vxrate_eom_amc <- 
+    filter(c_vxrate_eom, a_covax_status == "AMC")
+  d_absorption_amc <- groupby_and_summarize(c_vxrate_eom_amc)
 
   #### COVAX participation = AMC91
   c_vxrate_eom_amc91 <-
     filter(c_vxrate_eom, a_covax_status == "AMC" & a_iso != "IND")
-  d_absorption_amc91 <- c_vxrate_eom_amc91 %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_amc91 = sum(adm_td_absorbed))
+  d_absorption_amc91 <- groupby_and_summarize(c_vxrate_eom_amc91)
 
   #### Concerted support status = csc
   c_vxrate_eom_csc <-
-  filter(c_vxrate_eom, a_csc_status == "Concerted support country")
-  d_absorption_csc <- c_vxrate_eom_csc %>%
-  group_by(adm_date_month) %>%
-  summarize(absorption_csc = sum(adm_td_absorbed))
+    filter(c_vxrate_eom, a_csc_status == "Concerted support country")
+  d_absorption_csc <- groupby_and_summarize(c_vxrate_eom_csc)
 
   #### Immediate focus country status = IFC
   c_vxrate_eom_ifc <-
-  filter(c_vxrate_eom, a_ifc_status == "Immediate focus")
-  d_absorption_ifc <- c_vxrate_eom_ifc %>%
-  group_by(adm_date_month) %>%
-  summarize(absorption_ifc = sum(adm_td_absorbed))
-  
+    filter(c_vxrate_eom, a_ifc_status == "Immediate focus")
+  d_absorption_ifc <- groupby_and_summarize(c_vxrate_eom_ifc)
+
   #### Continent = Africa
-  c_vxrate_eom_africa <- filter(c_vxrate_eom, a_continent == "Africa")
-  d_absorption_africa <- c_vxrate_eom_africa %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_africa = sum(adm_td_absorbed))
+  c_vxrate_eom_africa <-
+    filter(c_vxrate_eom, a_continent == "Africa")
+  d_absorption_africa <- groupby_and_summarize(c_vxrate_eom_africa)
 
-  #### WHO region = EMR
-  c_vxrate_eom_emr <- filter(c_vxrate_eom, a_who_region == "EMR")
-  d_absorption_emr <- c_vxrate_eom_emr %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_emr = sum(adm_td_absorbed))
-
-  #### WHO region = AFR
-  c_vxrate_eom_afr <- filter(c_vxrate_eom, a_who_region == "AFR")
-  d_absorption_afr <- c_vxrate_eom_afr %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_afr = sum(adm_td_absorbed))
-
-  #### WHO region = SEAR
-  c_vxrate_eom_sear <- filter(c_vxrate_eom, a_who_region == "SEAR")
-  d_absorption_sear <- c_vxrate_eom_sear %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_sear = sum(adm_td_absorbed))
-
-  #### WHO region = WPR
-  c_vxrate_eom_wpr <- filter(c_vxrate_eom, a_who_region == "WPR")
-  d_absorption_wpr <- c_vxrate_eom_wpr %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_wpr = sum(adm_td_absorbed))
-
-  #### WHO region = EUR
-  c_vxrate_eom_eur <- filter(c_vxrate_eom, a_who_region == "EUR")
-  d_absorption_eur <- c_vxrate_eom_eur %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_eur = sum(adm_td_absorbed))
-
-  #### WHO region = AMR
-  c_vxrate_eom_amr <- filter(c_vxrate_eom, a_who_region == "AMR")
-  d_absorption_amr <- c_vxrate_eom_amr %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_amr = sum(adm_td_absorbed))
+  for (region_appendix in c("EMR", "AFR", "SEAR", "WPR", "EUR", "AMR")) {
+    assign(paste0("d_absorption_", tolower(region_appendix)),
+      filter(c_vxrate_eom, a_who_region == region_appendix) %>%
+        group_by(adm_date_month) %>%
+        summarize("absorption_{tolower(region_appendix)}" :=
+          sum(adm_td_absorbed)
+        )
+    )
+  }
 
   #### Additional groupings as needed
 
@@ -743,30 +682,9 @@ absorption_sum_by_month <- function(c_vxrate_eom) {
     left_join(., d_absorption_ifc, by = "adm_date_month")
 
     ### Add full date names for visualization
-    d_absorption$adm_date_month_name <- helper_replace_values_with_map(
-      data = d_absorption$adm_date_month,
-      values = c(
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
-      ),
-      map = c(
-        "2021-01",
-        "2021-02",
-        "2021-03",
-        "2021-04",
-        "2021-05",
-        "2021-06",
-        "2021-07",
-        "2021-08",
-        "2021-09",
-        "2021-10",
-        "2021-11",
-        "2021-12",
-        "2022-01",
-        "2022-02",
-        "2022-03",
-        "2022-04",
-        "2022-05"
-      )
+    d_absorption$adm_date_month_name <- mapping_months(
+      d_absorption$adm_date_month,
+      "2022-05"
     )
   return(d_absorption)
 }
