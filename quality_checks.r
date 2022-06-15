@@ -268,7 +268,7 @@ write_xlsx(quality_check_df, "data/output/quality_check.xlsx")
 print(" > Done.")
 
 check_entire_file_for_changes <- function(new_file = "data/output/220602_output_powerbi.xlsx",
-        original_file = "data/output/220602_output_powerbi.xlsx") {
+        original_file = "data/output/220609_output_powerbi.xlsx") {
     sheets_original <- readxl::excel_sheets(original_file)
     df_original <- lapply(sheets_original, function(X) readxl::read_excel(original_file, sheet = X))
     #if(!tibble) df_original <- lapply(df_original, as.data.frame)
@@ -282,38 +282,144 @@ check_entire_file_for_changes <- function(new_file = "data/output/220602_output_
 
     differences = 0
 
-    if (sum(sheets_original != sheets_new) > 0) {
-        print("Sheet missing or do not match!")
-    } else {
-        sheets_list <- list()
-        sheets_list_new <- list()
-        for (sheet in df_original) {
-            sheets_list <- append(sheets_list, sheet)
-        }
-        for (sheet in df_new) {
-            sheets_list_new <- append(sheets_list_new, sheet)
-        }
-        if (length(sheets_list) != length(sheets_list_new)) {
-            print("differing number of columns")
+    names(df_original) = c('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y')
+    names(df_new) = c('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y')
+
+    a = df_original$A
+    b = df_original$B
+    c = df_original$C
+    d = df_original$D
+    e = df_original$E
+    f = df_original$F
+    g = df_original$G
+    h = df_original$H
+    i = df_original$I
+    j = df_original$J
+    k = df_original$K
+    l = df_original$L
+    m = df_original$M
+    n = df_original$N
+    o = df_original$O
+    p = df_original$P
+    q = df_original$Q
+    r = df_original$R
+    s = df_original$S
+    t = df_original$T
+    u = df_original$U
+    v = df_original$V
+    w = df_original$W
+    x = df_original$X
+    y = df_original$Y
+
+    a_new = df_new$A
+    b_new = df_new$B
+    c_new = df_new$C
+    d_new = df_new$D
+    e_new = df_new$E
+    f_new = df_new$F
+    g_new = df_new$G
+    h_new = df_new$H
+    i_new = df_new$I
+    j_new = df_new$J
+    k_new = df_new$K
+    l_new = df_new$L
+    m_new = df_new$M
+    n_new = df_new$N
+    o_new = df_new$O
+    p_new = df_new$P
+    q_new = df_new$Q
+    r_new = df_new$R
+    s_new = df_new$S
+    t_new = df_new$T
+    u_new = df_new$U
+    v_new = df_new$V
+    w_new = df_new$W
+    x_new = df_new$X
+    y_new = df_new$Y
+    total_differences <- 0
+    originals <- list(a, b, c, d, e, f, g, h, i, j, k, l,
+        m, n, o, p, q, r, s, t, u, v, w, x, y)
+    news <- list(a_new, b_new, c_new, d_new, e_new, f_new,
+        g_new, h_new, i_new, j_new, k_new, l_new, m_new,
+        n_new, o_new, p_new, q_new, r_new, s_new, t_new,
+        u_new, v_new, w_new, x_new, y_new)
+    test <- 0
+    for (sheet in 1:length(originals)) {
+        print(paste0("Sheet: ",sheet))
+        if (total_differences > 40){
+            print("Differences in more than 40 columns")
         } else {
-            for (column in c(1:length(sheets_list))) {
-                difference = FALSE
-                for (row in 1:length(sheets_list[column])) {
-                    if ((!is.na(unlist(sheets_list[column])[row])) &
-                        (sum(unlist(sheets_list[column])[row] !=
-                        unlist(sheets_list_new[column])[row]) > 0)) {
-                            difference = TRUE
+        for (column in 1:ncol(originals[[sheet]])) {
+            column_vector_original = data.frame(originals[[sheet]][column])
+            column_vector_new = data.frame(news[[sheet]][column])
+            name_of_column = names(column_vector_original)
+            differences_in_column <- 0
+            for (row in 1:nrow(column_vector_original)) {
+                # if (name_of_column == "ndvp_scaleup_cat" & (row == 100 | row == 101)) {
+                #     print(column_vector_original[row, 1])
+                #     print(column_vector_new[row, 1])
+                #     print(is.na(column_vector_original[row,1]))
+                #     print(is.na(column_vector_new[row,1]))
+                #     print(is.na(column_vector_original[row,1]) &
+                #     is.na(column_vector_new[row,1]) == FALSE)
+                #     print(column_vector_original[row, 1] !=
+                #         column_vector_new[row, 1])
+                # }
+                if ((is.na(column_vector_original[row,1]) &
+                    is.na(column_vector_new[row,1])) == FALSE) {
+                    if (is.na(column_vector_original[row,1]) |
+                        is.na(column_vector_new[row,1])) {
+                        differences_in_column <- differences_in_column + 1
+                        if (differences_in_column <= 5) {
+                            print("--------")
+                            print(paste0("Difference in   ", name_of_column))
+                            print(paste0("in row          ", as.character(row)))
+                            print(paste0("Original value: ",
+                                as.character(column_vector_original[row, 1])))
+                            print(paste0("New value:      ",
+                                as.character(column_vector_new[row, 1])))
                         }
-                }
-                if (difference == TRUE) {
-                    differences = differences + 1
-                    print("difference in ", names(sheets_list[column]))
+                    } else {
+                        if ((substr(column_vector_original[row, 1], 1, 10)) !=
+                        (substr(column_vector_new[row, 1], 1, 10))) {
+                            if ((is.numeric(column_vector_original[row, 1])) &
+                                is.numeric(column_vector_new[row, 1])) {
+                                    if (round(column_vector_original[row, 1], 7) !=
+                                        round(column_vector_new[row, 1], 7)) {
+                                        print("--------")
+                                        print(paste0("Difference in   ", name_of_column))
+                                        print(paste0("in row          ", as.character(row)))
+                                        print(paste0("Original value: ",
+                                            as.character(column_vector_original[row, 1])))
+                                        print(paste0("New value:      ",
+                                            as.character(column_vector_new[row, 1])))
+                                        }
+                                } else {
+                                differences_in_column <- differences_in_column + 1
+                                if (differences_in_column <= 5) {
+                                    print("--------")
+                                    print(paste0("Difference in   ", name_of_column))
+                                    print(paste0("in row          ", as.character(row)))
+                                    print(paste0("Original value: ",
+                                        as.character(column_vector_original[row, 1])))
+                                    print(paste0("New value:      ",
+                                        as.character(column_vector_new[row, 1])))
+                                }
+                            }
+                        }
+                    }
                 }
             }
-        }
-        if (differences == 0) print("no differences")
+            if (differences_in_column > 5) {
+                print(" ---------- ")
+                print(paste0(as.character(differences_in_column),
+                    " differences in column"))
+                print(" ---------- ")
+                total_differences <- total_differences + 1
+            }
+        }}
     }
 }
 
-check_entire_file_for_changes("data/output/220602_output_powerbi_seb_test4.xlsx", 
-    "data/output/220602_output_powerbi_seb_test3.xlsx")
+check_entire_file_for_changes(new_file = "data/output/220602_output_powerbi_15_June_3.xlsx",
+        original_file = "data/output/220602_output_powerbi_15_June_main.xlsx")
