@@ -1,0 +1,398 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# ### Country Vx Throughput Analysis
+#  
+# **Note:**
+# 
+# * Source:
+#   - covax_supply_chain_analytics.analysis_vx_throughput_data
+# 
+# * Target:
+#   - covax_supply_chain_analytics.analysis_vx_throughput_data_cleaned
+# 
+# * Libraries: 
+#   - Python
+# 
+# * Built by: Jeremy Cooper
+# * Current owner: Jeremy Cooper
+# * Initial Build Date: 04/28/2021
+# * Latest Build Date: 04/28/2021
+
+# ### Environment Management
+
+# In[ ]:
+
+
+# dbutils.widgets.removeAll()
+
+
+# In[ ]:
+
+
+# # Dataset Name, will be used for the Metastore Table, Folder Name for transformed outputs
+# dbutils.widgets.text("Dataset", "dataset_name")
+
+# # Project Name will be used for folder Name for transformed outputs
+# dbutils.widgets.text("Project", "project_name")
+
+# # Team name should be consistent with the Blob Storage Container
+# dbutils.widgets.text("Partner","partner_name")
+
+# # Team name should be consistent with the Blob Storage Container
+# dbutils.widgets.text("Source","data_source")
+
+# dbutils.widgets.text("iso_code", "")
+
+
+# #### Notebook Setup
+
+# ##### Import any libraries or nested notebooks
+
+# In[ ]:
+
+
+from delta.tables import *
+from pyspark.sql.types import *
+from pyspark.sql.functions import *
+from pyspark.sql.window import Window
+
+
+# ##### Initialize File Paths
+
+# In[ ]:
+
+
+storage_root = "/mnt/"+dbutils.widgets.get("Partner")+"/"
+storage_branch = "/"+dbutils.widgets.get("Source")+"/" +dbutils.widgets.get("Dataset")
+
+raw_storage_path = storage_root + "raw" +storage_branch
+dbfs_raw_storage_path = "/dbfs"+raw_storage_path
+
+transformed_storage_path = storage_root + "transformed" +storage_branch
+dbfs_transformed_storage_path = "/dbfs"+transformed_storage_path
+
+print(raw_storage_path)
+print(transformed_storage_path)
+
+
+# ### Get Data
+
+# In[ ]:
+
+
+iso_code = dbutils.widgets.get("iso_code")
+
+
+# In[ ]:
+
+
+# use this to get iso_code from country
+iso_mapping = spark.sql("SELECT * FROM country_dimension.iso_mapping")
+
+# get primary data
+who = spark.sql("SELECT * FROM covax_supply_chain_analytics.analysis_vx_throughput_data")
+
+
+# ### Transformation
+
+# In[ ]:
+
+
+# get iso code, clean additional country names
+# convert date to date_week, based on "next" Friday date
+df1 = who   .withColumn('total_doses', col('total_doses').cast(DoubleType()))   .withColumn('at_least_one_dose', col('at_least_one_dose').cast(DoubleType()))   .withColumn('fully_vaccinated', col('fully_vaccinated').cast(DoubleType()))   .withColumn('persons_booster_add_dose', col('persons_booster_add_dose').cast(DoubleType()))   .filter((col('total_doses').isNotNull()) & (col('total_doses')>0))   .select('country_name', 'date', 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose', 'date_accessed')   .withColumn('date', to_date(col('date')))   .withColumn('date_week', to_date(next_day(col('date'), 'Fri')))   .drop_duplicates()   .join(iso_mapping, 'country_name', how='left')   .withColumn('iso_code', when(col('country_name')=='Bonaire, Sint Eustatius And Saba/Saba', 'BES1')               .when(col('country_name')=='Bonaire, Sint Eustatius And Saba/Sint Eustatius', 'BES1')               .when(col('country_name')=='Bonaire, Sint Eustatius And Saba', 'BES2')               .when(col('country_name')=='Bonaire, Sint Eustatius And Saba/Bonaire', 'XAA')               .otherwise(col('iso_code'))) 
+# identify countries that have not reported for the latest week
+max_date_week = df1.select(max(col('date_week')))
+max_date_week = max_date_week.rdd.max()[0]
+
+df1 = df1   .withColumn('max_date_week', max('date_week').over(Window.partitionBy('iso_code')))   .withColumn('is_latest_week_reported', when(col('max_date_week')==max_date_week, 1).otherwise(0))   .drop('max_date_week')
+
+print(max_date_week)
+display(df1.filter(col('iso_code').isNull()))
+display(df1.filter(col('iso_code')==iso_code))
+display(df1.filter(col('is_latest_week_reported')==1))
+
+
+# ##### Total Doses Error Fix
+
+# In[ ]:
+
+
+# first round of error checking, identify the cases where total doses decreases, this is the master set of known data issues and will go into the data_errors tab in the output Excel
+df_errors1 = df1   .withColumn('total_doses_prev_period', lag(col('total_doses')).over(Window.partitionBy('iso_code').orderBy('date')))   .filter(col('total_doses').cast(IntegerType()) < col('total_doses_prev_period').cast(IntegerType()))   .select('iso_code', 'country_name', 'date', 'total_doses', 'total_doses_prev_period', (col('total_doses') - col('total_doses_prev_period')).alias('total_doses_in_period'))   .withColumn('is_data_error', lit(1)) 
+display(df_errors1.orderBy('iso_code', 'date'))
+display(df_errors1.filter(col('iso_code')==iso_code).orderBy('iso_code', 'date'))
+
+
+# In[ ]:
+
+
+display(df1.filter(col('iso_code')==iso_code).orderBy('iso_code', 'date'))
+display(df1.select('iso_code').drop_duplicates().orderBy('iso_code'))
+
+
+# In[ ]:
+
+
+# list out countries for which we are manually fixing
+manual_fix_list = ['AFG', 'AGO', 'AIA', 'ARE', 'ARM', 'ASM', 'ATG', 'AUS', 'AZE', 
+                   'BDI', 'BEN', 'BFA', 'BGR', 'BHR', 'BLR', 'BRA', 'BTN', 'BWA', 
+                   'CAN', 'CAF', 'CHN', 'COD', 'COK', 'COL', 'COM', 'CYM', 
+                   'DMK', 'DMA', 'DJI',
+                   'ESP', 'ETH',
+                   'FRA', 'FSM',
+                   'GAB', 'GBR', 'GEO', 'GLP', 'GMB', 'GNB', 'GNQ', 'GUM',
+                   'HND', 'HUN', 
+                   'IRL', 'ISL', 'ISR', 
+                   'JOR', 'JPN', 
+                   'KAZ', 'KGZ', 'KHM', 'KIR', 'KNA', 
+                   'LSO', 'LUX', 'LVA', 
+                   'MAR', 'MCO', 'MDV', 'MHL', 'MKD', 'MLT', 'MOZ', 'MYS', 
+                   'NAM', 'NER', 'NIC', 'NIU', 'NPL', 'NZL',
+                   'OMN',
+                   'PAK', 'PHL', 'POL', 'PLW', 'PYF', 'PSE',
+                   'QAT'
+                   'ROU', 'RUS', 'RWA', 
+                   'SAU', 'SDN', 'SEN', 'SLE', 'SSD', 'SVN', 'SYC', 
+                   'TCD', 'TGO', 'TKM', 'TLS', 'TUR',
+                   'UGA', 'UKR', 'USA', 'UZB', 
+                   'VCT', 'VUT',
+                   'WSM',
+                   'XKX',
+                   'YEM']
+                  
+
+# set na to 0
+df1 = df1.fillna(0)
+
+# fix data issues with total_doses
+df2 = df1   .filter(col('iso_code')!='BES1')   .withColumn('total_doses', when((col('iso_code')=='AFG') & (col('date')==('2021-08-20')), None)               .when((col('iso_code')=='AFG') & (col('date')==('2021-11-04')), None)               .when((col('iso_code')=='AFG') & (col('date')==('2022-04-03')), None)               .when((col('iso_code')=='AGO') & (col('date').between('2022-04-01', '2022-04-26')), None)               .when((col('iso_code')=='AIA') & (col('date')==('2021-04-23')), None)               .when((col('iso_code')=='ALB') & (col('date')==('2021-11-28')), None)               .when((col('iso_code')=='ARE') & (col('date')==('2021-08-11')), None)               .when((col('iso_code')=='ARM') & (col('date').between('2021-07-04', '2021-07-11')), None)               .when((col('iso_code')=='ASM') & (col('date').between('2021-04-30', '2021-05-05')), None)               .when((col('iso_code')=='ATG') & (col('date')==('2021-06-25')), None)               .when((col('iso_code')=='AUS') & (col('date')==('2021-03-30')), None)               .when((col('iso_code')=='AUS') & (col('date')==('2021-04-28')), None)               .when((col('iso_code')=='AUS') & (col('date')==('2021-08-14')), None)               .when((col('iso_code')=='AZE') & (col('date')==('2021-03-09')), None)               .when((col('iso_code')=='AZE') & (col('date')==('2021-04-04')), None)               .when((col('iso_code')=='BDI') & (col('date')==('2022-04-03')), None)               .when((col('iso_code')=='BEN') & (col('date')==('2021-05-31')), None)               .when((col('iso_code')=='BEN') & (col('date')==('2021-07-19')), None)               .when((col('iso_code')=='BEN') & (col('date').between('2021-06-10', '2021-06-24')), None)               .when((col('iso_code')=='BEN') & (col('date')==('2022-03-22')), None)               .when((col('iso_code')=='BEN') & (col('date').between('2022-04-17', '2022-05-01')), None)               .when((col('iso_code')=='BES1') & (col('date').between('2021-06-11', '2021-09-17')), None)               .when((col('iso_code')=='BES1') & (col('date').between('2021-10-08', '2021-11-12')), None)               .when((col('iso_code')=='BFA') & (col('date')==('2021-10-17')), None)               .when((col('iso_code')=='BFA') & (col('date')==('2021-07-19')), None)               .when((col('iso_code')=='BFA') & (col('date')==('2021-08-03')), None)               .when((col('iso_code')=='BGR') & (col('date')==('2021-07-25')), None)               .when((col('iso_code')=='BHR') & (col('date')==('2021-08-12')), None)               .when((col('iso_code')=='BLR') & (col('date')==('2022-03-20')), None)               .when((col('iso_code')=='BRA') & (col('date')==('2021-02-05')), None)               .when((col('iso_code')=='BRA') & (col('date')==('2022-02-18')), None)               .when((col('iso_code')=='BTN') & (col('date')==('2021-10-07')), None)               .when((col('iso_code')=='BTN') & (col('date')==('2021-10-14')), None)               .when((col('iso_code')=='BWA') & (col('date').between('2022-03-21', '2022-04-26')), None)               .when((col('iso_code')=='CAN') & (col('date')==('2021-10-01')), None)               .when((col('iso_code')=='CAN') & (col('date')==('2021-11-26')), None)               .when((col('iso_code')=='CAF') & (col('date')==('2021-09-01')), None)               .when((col('iso_code')=='CHN') & (col('date')==('2021-04-26')), None)               .when((col('iso_code')=='CHN') & (col('date')==('2021-05-25')), None)               .when((col('iso_code')=='CHN') & (col('date')==('2021-06-06')), None)               .when((col('iso_code')=='CHN') & (col('date')==('2021-08-14')), None)               .when((col('iso_code')=='COD') & (col('date')==('2022-03-24')), None)               .when((col('iso_code')=='COD') & (col('date').between('2022-04-24', '2022-05-08')), None)               .when((col('iso_code')=='COG') & (col('date')==('2021-11-06')), None)               .when((col('iso_code')=='COG') & (col('date')==('2022-05-01')), None)               .when((col('iso_code')=='COK') & (col('date')==('2022-02-06')), None)               .when((col('iso_code')=='COK') & (col('date')==('2022-03-29')), None)               .when((col('iso_code')=='COL') & (col('date')==('2021-04-23')), None)               .when((col('iso_code')=='COL') & (col('date')==('2021-05-28')), None)               .when((col('iso_code')=='COM') & (col('date')==('2021-07-19')), None)               .when((col('iso_code')=='CYM') & (col('date').between('2022-02-25', '2022-03-11')), None)               .when((col('iso_code')=='CYM') & (col('date')==('2022-04-01')), None)               .when((col('iso_code')=='DNK') & (col('date').between('2021-09-26', '2021-10-10')), None)               .when((col('iso_code')=='DNK') & (col('date').between('2022-01-02', '2022-01-09')), None)               .when((col('iso_code')=='DNK') & (col('date')==('2022-04-17')), None)               .when((col('iso_code')=='DMA') & (col('date')==('2021-04-16')), None)               .when((col('iso_code')=='DJI') & (col('date').between('2021-08-31', '2021-09-18')), None)               .when((col('iso_code')=='ETH') & (col('date')==('2022-04-10')), None)               .when((col('iso_code')=='ESP') & (col('date')==('2021-11-14')), None)               .when((col('iso_code')=='ESP') & (col('date')==('2022-01-30')), None)               .when((col('iso_code')=='FRA') & (col('date').between('2021-09-12', '2021-10-10')), None)               .when((col('iso_code')=='FSM') & (col('date').between('2021-04-30', '2021-05-05')), None)               .when((col('iso_code')=='GAB') & (col('date')==('2021-09-16')), None)               .when((col('iso_code')=='GAB') & (col('date')==('2022-01-22')), None)               .when((col('iso_code')=='GBR') & (col('date')==('2021-04-25')), None)               .when((col('iso_code')=='GBR') & (col('date')==('2021-05-08')), None)               .when((col('iso_code')=='GBR') & (col('date')==('2021-05-16')), None)               .when((col('iso_code')=='GEO') & (col('date')==('2021-03-28')), None)               .when((col('iso_code')=='GLP') & (col('date').between('2021-04-23', '2021-05-07')), None)               .when((col('iso_code')=='GLP') & (col('date').between('2022-02-11', '2022-02-18')), None)               .when((col('iso_code')=='GMB') & (col('date')==('2021-10-24')), None)               .when((col('iso_code')=='GMB') & (col('date')==('2021-11-05')), None)               .when((col('iso_code')=='GNB') & (col('date')==('2021-06-24')), None)               .when((col('iso_code')=='GNB') & (col('date')==('2021-08-20')), None)               .when((col('iso_code')=='GNB') & (col('date')==('2022-04-07')), None)               .when((col('iso_code')=='GNQ') & (col('date').between('2021-05-10', '2021-05-21')), None)               .when((col('iso_code')=='GNQ') & (col('date')==('2021-08-23')), None)               .when((col('iso_code')=='GUM') & (col('date').between('2021-05-07', '2021-05-18')), None)               .when((col('iso_code')=='GUY') & (col('date')==('2021-11-29')), None)               .when((col('iso_code')=='HND') & (col('date')==('2022-02-25')), None)               .when((col('iso_code')=='HND') & (col('date')==('2022-03-18')), None)               .when((col('iso_code')=='HND') & (col('date')==('2022-03-25')), None)               .when((col('iso_code')=='HND') & (col('date')==('2022-04-01')), None)               .when((col('iso_code')=='HUN') & (col('date')==('2021-06-06')), None)               .when((col('iso_code')=='HUN') & (col('date').between('2021-07-04', '2021-07-18')), None)               .when((col('iso_code')=='HUN') & (col('date')==('2021-08-08')), None)               .when((col('iso_code')=='IRL') & (col('date')==('2022-02-06')), None)               .when((col('iso_code')=='IRQ') & (col('date')==('2022-02-01')), None)               .when((col('iso_code')=='ISL') & (col('date').between('2021-06-27', '2021-07-11')), None)               .when((col('iso_code')=='ISL') & (col('date').between('2021-09-12', '2021-09-30')), None)               .when((col('iso_code')=='ISR') & (col('date')==('2021-11-07')), None)               .when((col('iso_code')=='ISR') & (col('date').between('2021-07-04', '2021-08-08')), None)               .when((col('iso_code')=='ISR') & (col('date').between('2021-12-12', '2021-12-26')), None)               .when((col('iso_code')=='ISR') & (col('date')==('2022-02-13')), None)               .when((col('iso_code')=='ISR') & (col('date')==('2022-03-06')), None)               .when((col('iso_code')=='JOR') & (col('date')==('2021-08-11')), None)               .when((col('iso_code')=='JOR') & (col('date')==('2021-10-27')), None)               .when((col('iso_code')=='JOR') & (col('date')==('2022-01-09')), None)               .when((col('iso_code')=='JOR') & (col('date')==('2022-04-11')), None)               .when((col('iso_code')=='JPN') & (col('date')==('2021-05-16')), None)               .when((col('iso_code')=='JPN') & (col('date')==('2022-01-03')), None)               .when((col('iso_code')=='KAZ') & (col('date').between('2021-05-02', '2021-05-09')), None)               .when((col('iso_code')=='KAZ') & (col('date').between('2021-08-22', '2021-08-29')), None)               .when((col('iso_code')=='KAZ') & (col('date')==('2021-09-12')), None)               .when((col('iso_code')=='KAZ') & (col('date')==('2021-12-12')), None)               .when((col('iso_code')=='KAZ') & (col('date').between('2022-02-06', '2022-02-20')), None)               .when((col('iso_code')=='KGZ') & (col('date')==('2021-05-02')), None)               .when((col('iso_code')=='KGZ') & (col('date')==('2021-05-30')), None)               .when((col('iso_code')=='KGZ') & (col('date')==('2021-08-22')), None)               .when((col('iso_code')=='KHM') & (col('date')==('2021-08-13')), None)               .when((col('iso_code')=='KHM') & (col('date').between('2021-10-22', '2021-10-24')), None)               .when((col('iso_code')=='KIR') & (col('date')==('2022-01-04')), None)               .when((col('iso_code')=='KNA') & (col('date')==('2022-02-11')), None)               .when((col('iso_code')=='KOR') & (col('date').between('2021-03-30', '2021-04-05')), None)               .when((col('iso_code')=='KOR') & (col('date')==('2021-10-17')), None)               .when((col('iso_code')=='KWT') & (col('date')==('2021-03-16')), None)               .when((col('iso_code')=='KWT') & (col('date')==('2021-04-28')), None)               .when((col('iso_code')=='KWT') & (col('date')==('2022-02-10')), None)               .when((col('iso_code')=='LBN') & (col('date')==('2021-08-31')), None)               .when((col('iso_code')=='LBR') & (col('date')==('2021-04-14')), None)               .when((col('iso_code')=='LBR') & (col('date')==('2021-10-08')), None)               .when((col('iso_code')=='LBR') & (col('date').between('2021-12-31', '2022-02-10')), None)               .when((col('iso_code')=='LSO') & (col('date').between('2021-05-21', '2021-05-24')), None)               .when((col('iso_code')=='LSO') & (col('date')==('2022-03-04')), None)               .when((col('iso_code')=='LUX') & (col('date').between('2021-07-18', '2021-07-25')), None)               .when((col('iso_code')=='LUX') & (col('date')==('2021-10-31')), None)               .when((col('iso_code')=='LUX') & (col('date')==('2022-02-13')), None)               .when((col('iso_code')=='LVA') & (col('date').between('2021-07-11', '2021-07-18')), None)               .when((col('iso_code')=='MAR') & (col('date')==('2022-04-26')), None)               .when((col('iso_code')=='MAR') & (col('date')==('2021-07-27')), None)               .when((col('iso_code')=='MCO') & (col('date')==('2021-07-04')), None)               .when((col('iso_code')=='MDV') & (col('date')==('2021-10-15')), None)               .when((col('iso_code')=='MHL') & (col('date')==('2021-05-07')), None)               .when((col('iso_code')=='MKD') & (col('date')==('2021-10-31')), None)               .when((col('iso_code')=='MLI') & (col('date').between('2022-04-17', '2022-04-26')), None)               .when((col('iso_code')=='MLI') & (col('date')==('2022-05-08')), None)               .when((col('iso_code')=='MLT') & (col('date').between('2021-08-15', '2021-08-22')), None)               .when((col('iso_code')=='MLT') & (col('date')==('2021-09-27')), None)               .when((col('iso_code')=='MNE') & (col('date')==('2021-08-15')), None)               .when((col('iso_code')=='MNE') & (col('date')==('2022-02-27')), None)               .when((col('iso_code')=='MOZ') & (col('date')==('2022-04-09')), None)               .when((col('iso_code')=='MOZ') & (col('date')==('2022-05-08')), None)               .when((col('iso_code')=='MRT') & (col('date')==('2021-11-14')), None)               .when((col('iso_code')=='MRT') & (col('date')==('2022-01-04')), None)               .when((col('iso_code')=='MRT') & (col('date')==('2022-04-06')), None)               .when((col('iso_code')=='MRT') & (col('date').between('2022-03-21', '2022-05-01')), None)               .when((col('iso_code')=='MUS') & (col('date')==('2022-05-08')), None)               .when((col('iso_code')=='MYS') & (col('date')==('2021-09-20')), None)               .when((col('iso_code')=='NAM') & (col('date').between('2021-08-16', '2021-09-26')), None)               .when((col('iso_code')=='NAM') & (col('date').between('2021-10-11', '2021-11-13')), None)               .when((col('iso_code')=='NER') & (col('date').between('2021-07-05', '2021-07-13')), None)               .when((col('iso_code')=='NER') & (col('date')==('2021-08-28')), None)               .when((col('iso_code')=='NIC') & (col('date')==('2021-08-09')), None) #               .when((col('iso_code')=='NIC') & (col('date').between('2021-07-17', '2021-11-28')), None) \
+              .when((col('iso_code')=='NIU') & (col('date')==('2021-07-16')), None) \
+              .when((col('iso_code')=='NPL') & (col('date')==('2021-04-28')), None) \
+              .when((col('iso_code')=='NZL') & (col('date')==('2021-08-09')), None) \
+              .when((col('iso_code')=='OMN') & (col('date')==('2021-09-27')), None) \
+              .when((col('iso_code')=='PAK') & (col('date')==('2021-11-14')), None) \
+              .when((col('iso_code')=='PAK') & (col('date')==('2021-11-18')), None) \
+              .when((col('iso_code')=='POL') & (col('date').between('2021-07-18', '2021-08-01')), None) \
+              .when((col('iso_code')=='POL') & (col('date').between('2021-10-10', '2021-11-07')), None) \
+              .when((col('iso_code')=='POL') & (col('date').between('2021-12-12', '2021-12-19')), None) \
+              .when((col('iso_code')=='PHL') & (col('date')==('2021-07-26')), None) \
+              .when((col('iso_code')=='PHL') & (col('date')==('2021-08-06')), None) \
+              .when((col('iso_code')=='PLW') & (col('date')==('2021-05-05')), None) \
+              .when((col('iso_code')=='PRI') & (col('date')==('2021-11-29')), None) \
+              .when((col('iso_code')=='PRY') & (col('date')==('2022-02-25')), None) \
+              .when((col('iso_code')=='PSE') & (col('date')==('2021-04-05')), None) \
+              .when((col('iso_code')=='PSE') & (col('date')==('2021-03-02')), None) \
+              .when((col('iso_code')=='PSE') & (col('date').between('2021-08-31', '2021-09-06')), None) \
+              .when((col('iso_code')=='PSE') & (col('date').between('2021-10-18', '2021-10-25')), None) \
+              .when((col('iso_code')=='PYF') & (col('date')==('2021-08-30')), None) \
+              .when((col('iso_code')=='QAT') & (col('date')==('2021-08-11')), None) \
+              .when((col('iso_code')=='QAT') & (col('date')==('2021-06-24')), None) \
+              .when((col('iso_code')=='RUS') & (col('date')==('2021-05-09')), None) \
+              .when((col('iso_code')=='RUS') & (col('date')==('2021-05-17')), None) \
+              .when((col('iso_code')=='ROU') & (col('date')==('2021-06-27')), None) \
+              .when((col('iso_code')=='ROU') & (col('date').between('2021-07-11', '2021-08-08')), None) \
+              .when((col('iso_code')=='RWA') & (col('date').between('2021-04-28', '2021-06-17')), None) \
+              .when((col('iso_code')=='RWA') & (col('date').between('2021-06-24', '2021-07-26')), None) \
+              .when((col('iso_code')=='RWA') & (col('date')==('2021-08-23')), None) \
+              .when((col('iso_code')=='RWA') & (col('date').between('2021-09-24', '2021-10-04')), None) \
+              .when((col('iso_code')=='RWA') & (col('date')==('2021-10-18')), None) \
+              .when((col('iso_code')=='RWA') & (col('date')==('2021-10-26')), None) \
+              .when((col('iso_code')=='RWA') & (col('date')==('2021-11-10')), None) \
+              .when((col('iso_code')=='SAU') & (col('date')==('2021-03-16')), None) \
+              .when((col('iso_code')=='SAU') & (col('date')==('2021-07-11')), None) \
+              .when((col('iso_code')=='SAU') & (col('date')==('2022-04-14')), None) \
+              .when((col('iso_code')=='SDN') & (col('date').between('2021-04-28', '2021-05-09')), None) \
+              .when((col('iso_code')=='SDN') & (col('date')==('2021-12-08')), None) \
+              .when((col('iso_code')=='SEN') & (col('date').between('2021-06-14', '2021-06-17')), None) \
+              .when((col('iso_code')=='SEN') & (col('date').between('2021-10-18', '2021-10-20')), None) \
+              .when((col('iso_code')=='SEN') & (col('date').between('2021-12-09', '2021-12-21')), None) \
+              .when((col('iso_code')=='SEN') & (col('date')==('2022-02-09')), None) \
+              .when((col('iso_code')=='SEN') & (col('date')==('2022-03-01')), None) \
+              .when((col('iso_code')=='SEN') & (col('date')==('2022-05-01')), None) \
+              .when((col('iso_code')=='SEN') & (col('date')==('2022-05-08')), None) \
+              .when((col('iso_code')=='SGP') & (col('date').between('2021-10-02', '2021-10-22')), None) \
+              .when((col('iso_code')=='SLE') & (col('date').between('2021-07-05', '2021-07-13')), None) \
+              .when((col('iso_code')=='SOM') & (col('date')==('2021-04-21')), None) \
+              .when((col('iso_code')=='SRB') & (col('date')==('2021-04-18')), None) \
+              .when((col('iso_code')=='SSD') & (col('date')==('2022-01-01')), None) \
+              .when((col('iso_code')=='STP') & (col('date').between('2022-03-07', '2022-05-01')), None) \
+              .when((col('iso_code')=='SVN') & (col('date')==('2021-07-18')), None) \
+              .when((col('iso_code')=='SVN') & (col('date').between('2022-02-13', '2022-02-20')), None) \
+              .when((col('iso_code')=='SYC') & (col('date')==('2021-03-04')), None) \
+              .when((col('iso_code')=='SYC') & (col('date')==('2021-08-25')), None) \
+              .when((col('iso_code')=='SYC') & (col('date').between('2021-04-21', '2021-04-26')), None) \
+              .when((col('iso_code')=='SYC') & (col('date')==('2021-07-10')), None) \
+              .when((col('iso_code')=='SYC') & (col('date')==('2022-05-08')), None) \
+              .when((col('iso_code')=='SYR') & (col('date')==('2022-04-08')), None) \
+              .when((col('iso_code')=='SYR') & (col('date')==('2022-04-26')), None) \
+              .when((col('iso_code')=='TCD') & (col('date')==('2021-10-21')), None) \
+              .when((col('iso_code')=='TGO') & (col('date')==('2021-05-10')), None) \
+              .when((col('iso_code')=='TKM') & (col('date').between('2021-04-04', '2021-09-05')), None) \
+              .when((col('iso_code')=='TLS') & (col('date')==('2021-10-02')), None) \
+              .when((col('iso_code')=='TUN') & (col('date').between('2021-12-28', '2022-02-27')), None) \
+              .when((col('iso_code')=='TUR') & (col('date')==('2021-05-09')), None) \
+              .when((col('iso_code')=='TUR') & (col('date')==('2021-05-17')), None) \
+              .when((col('iso_code')=='UGA') & (col('date')==('2021-05-18')), None) \
+              .when((col('iso_code')=='UGA') & (col('date')==('2021-10-13')), None) \
+              .when((col('iso_code')=='UKR') & (col('date')==('2021-04-11')), None) \
+              .when((col('iso_code')=='UKR') & (col('date')==('2021-05-23')), None) \
+              .when((col('iso_code')=='UKR') & (col('date').between('2021-02-27', '2021-03-02')), None) \
+              .when((col('iso_code')=='USA') & (col('date').between('2021-11-26', '2021-11-29')), None) \
+              .when((col('iso_code')=='UZB') & (col('date').between('2021-05-12', '2021-06-13')), None) \
+              .when((col('iso_code')=='VCT') & (col('date').between('2021-07-23', '2021-08-09')), None) \
+              .when((col('iso_code')=='VUT') & (col('date')==('2021-08-16')), None) \
+              .when((col('iso_code')=='WSM') & (col('date')==('2021-06-25')), None) \
+              .when((col('iso_code')=='XKX') & (col('date')==('2021-05-02')), None) \
+              .when((col('iso_code')=='XKX') & (col('date')==('2021-05-30')), None) \
+              .when((col('iso_code')=='XKX') & (col('date')==('2022-04-10')), None) \
+              .when((col('iso_code')=='YEM') & (col('date').between('2021-11-14', '2022-01-17')), None) \
+              .otherwise(col('total_doses'))) \
+  .filter(col('total_doses').isNotNull())
+
+# fix data issues with at_least_one_dose
+df2 = df2   .withColumn('at_least_one_dose',  when((col('iso_code')=='AFG') & (col('date').between('2021-07-14', '2021-07-27')), None)               .when((col('iso_code')=='AFG') & (col('date')==('2021-10-31')), None)               .when((col('iso_code')=='AGO') & (col('date')==('2021-08-23')), None)               .when((col('iso_code')=='AGO') & (col('date')==('2021-10-26')), None)               .when((col('iso_code')=='ALB') & (col('date')==('2021-04-24')), None)               .when((col('iso_code')=='ALB') & (col('date')==('2021-04-28')), None)               .when((col('iso_code')=='ALB') & (col('date')==('2021-05-04')), None)               .when((col('iso_code')=='AND') & (col('date').between('2021-03-19', '2021-04-12')), None)               .when((col('iso_code')=='AZE') & (col('date').between('2021-02-16', '2021-03-09')), None)               .when((col('iso_code')=='BFA') & (col('date').between('2021-10-17', '2021-10-31')), None)               .when((col('iso_code')=='BMU') & (col('date')==('2021-05-14')), None)               .when((col('iso_code')=='BMU') & (col('date')==('2021-06-25')), None)               .when((col('iso_code')=='DJI') & (col('date')==('2021-06-23')), None)               .when((col('iso_code')=='DJI') & (col('date')==('2021-08-17')), None)               .when((col('iso_code')=='COG') & (col('date')==('2021-04-14')), None)               .when((col('iso_code')=='COG') & (col('date')==('2021-07-26')), None)               .when((col('iso_code')=='COG') & (col('date').between('2021-06-08', '2021-06-10')), None)               .when((col('iso_code')=='COG') & (col('date').between('2021-11-15', '2021-11-16')), None)               .when((col('iso_code')=='COM') & (col('date')==('2021-05-31')), None)               .when((col('iso_code')=='COM') & (col('date').between('2021-08-20', '2021-09-06')), None)               .when((col('iso_code')=='DNK') & (col('date').between('2021-12-05', '2021-12-26')), None)               .when((col('iso_code')=='GMB') & (col('date')==('2021-09-02')), None)               .when((col('iso_code')=='HUN') & (col('date').between('2021-06-20', '2021-06-27')), None)               .when((col('iso_code')=='LBR') & (col('date').between('2021-08-23', '2021-09-03')), None)               .when((col('iso_code')=='STP') & (col('date')==('2021-07-26')), None)               .when((col('iso_code')=='ZAF') & (col('date')==('2021-06-20')), None)               .otherwise(col('at_least_one_dose'))) 
+# fix data issues with fully_vaccinated
+df2 = df2   .withColumn('fully_vaccinated', when((col('iso_code')=='AFG') & (col('date')==('2021-08-30')), None)               .when((col('iso_code')=='AZE') & (col('date')==('2021-02-16')), None)               .when((col('iso_code')=='CAN') & (col('date')==('2021-04-23')), None)               .when((col('iso_code')=='COG') & (col('date').between('2021-07-12', '2021-08-03')), None)               .when((col('iso_code')=='DMA') & (col('date')==('2021-07-16')), None)               .when((col('iso_code')=='DNK') & (col('date').between('2021-12-05', '2021-12-26')), None)               .when((col('iso_code')=='DZA') & (col('date').between('2021-09-25', '2021-09-28')), None)               .when((col('iso_code')=='EGY') & (col('date')==('2021-09-11')), None)               .when((col('iso_code')=='EGY') & (col('date')==('2021-09-16')), None)               .when((col('iso_code')=='EGY') & (col('date').between('2021-05-09', '2021-05-11')), None)               .when((col('iso_code')=='GUY') & (col('date')==('2021-05-07')), None)               .when((col('iso_code')=='HND') & (col('date')==('2021-04-23')), None)               .when((col('iso_code')=='HND') & (col('date')==('2021-06-04')), None)               .when((col('iso_code')=='HND') & (col('date').between('2021-08-13', '2021-08-20')), None)               .when((col('iso_code')=='HND') & (col('date').between('2021-09-03', '2021-09-10')), None)               .when((col('iso_code')=='HUN') & (col('date')==('2021-08-01')), None)               .when((col('iso_code')=='PSE') & (col('date')==('2021-09-27')), None)               .when((col('iso_code')=='SEN') & (col('date')==('2022-05-08')), None)               .when((col('iso_code')=='STP') & (col('date').between('2021-07-05', '2021-07-13')), None)               .otherwise(col('fully_vaccinated'))) 
+
+# second round of data issues, these have the manual fixes removed and "should be" one offs
+df_errors2 = df2   .withColumn('total_doses_prev_period', lag(col('total_doses')).over(Window.partitionBy('iso_code').orderBy('date')))   .filter(col('total_doses').cast(IntegerType()) < col('total_doses_prev_period').cast(IntegerType()))   .select('iso_code', 'country_name', 'date', 'total_doses', 'total_doses_prev_period', (col('total_doses') - col('total_doses_prev_period')).alias('total_doses_in_period'))   .withColumn('to_remove', lit(1))
+
+df1.cache()
+df2.cache()
+df_errors2.cache()
+
+print(iso_code)
+display(df1.filter(col('iso_code')==iso_code))
+display(df2.filter(col('iso_code')==iso_code))
+
+
+# In[ ]:
+
+
+display(df2.filter(col('iso_code')==iso_code).orderBy('date'))
+
+
+# In[ ]:
+
+
+# check on what's still showing up as an error for total doses
+df_errors1b = df2   .withColumn('total_doses_prev_period', lag(col('total_doses')).over(Window.partitionBy('iso_code').orderBy('date')))   .filter(col('total_doses').cast(IntegerType()) < col('total_doses_prev_period').cast(IntegerType()))   .select('iso_code', 'country_name', 'date', 'total_doses', 'total_doses_prev_period', (col('total_doses') - col('total_doses_prev_period')).alias('total_doses_in_period'))   .withColumn('is_data_error', lit(1)) 
+display(df_errors1b.select('iso_code').drop_duplicates().orderBy('iso_code'))
+display(df_errors1b.filter(col('iso_code')==iso_code).orderBy('iso_code', 'date'))
+display(df_errors1b.orderBy('iso_code', 'date'))
+
+
+# ##### 1st Dose Error Fix
+
+# In[ ]:
+
+
+df_errors1st = df2   .withColumn('1st_dose_prev_period', lag(col('at_least_one_dose')).over(Window.partitionBy('iso_code').orderBy('date')))   .filter(col('at_least_one_dose').cast(IntegerType()) < col('1st_dose_prev_period').cast(IntegerType()))   .select('iso_code', 'country_name', 'date', 'at_least_one_dose', '1st_dose_prev_period', (col('at_least_one_dose') - col('1st_dose_prev_period')).alias('total_doses_in_period'))   .withColumn('to_remove_1st', lit(1)) 
+display(df_errors1st.select('iso_code').drop_duplicates().orderBy('iso_code'))
+display(df_errors1st.filter(col('iso_code')==iso_code).orderBy('iso_code', 'date'))
+display(df_errors1st.orderBy('iso_code', 'date'))
+
+
+# ##### 2nd Dose Error Fix
+
+# In[ ]:
+
+
+df_errors2nd = df2   .withColumn('2nd_dose_prev_period', lag(col('fully_vaccinated')).over(Window.partitionBy('iso_code').orderBy('date')))   .filter(col('fully_vaccinated').cast(IntegerType()) < col('2nd_dose_prev_period').cast(IntegerType()))   .select('iso_code', 'country_name', 'date', 'fully_vaccinated', '2nd_dose_prev_period', (col('fully_vaccinated') - col('2nd_dose_prev_period')).alias('total_doses_in_period'))   .withColumn('to_remove_2nd', lit(1)) 
+display(df_errors2nd.select('iso_code').drop_duplicates().orderBy('iso_code'))
+display(df_errors2nd.filter(col('iso_code')==iso_code).orderBy('iso_code', 'date'))
+display(df_errors2nd.orderBy('iso_code', 'date'))
+
+
+# ##### Merge Together and Filter
+
+# In[ ]:
+
+
+# after applying the manual data fixes, this is the set of (in theory) one offs that we will remove from the dataset
+# 2 and 3 below should return no records...if we are doing our job correctly
+
+display(df_errors2)
+display(df_errors2.filter(col('iso_code')==iso_code))
+display(df_errors2.filter(col('iso_code').isin(manual_fix_list)))
+
+
+# In[ ]:
+
+
+df3 = df2   .withColumn('manual_adjustment', when(col('iso_code').isin(manual_fix_list), 1).otherwise(0))   .join(df_errors1.select('iso_code', 'date', 'is_data_error'), ['iso_code', 'date'], how='left')   .withColumn('is_data_error', when(col('is_data_error').isNull(), 0).otherwise(col('is_data_error')))   .join(df_errors2.select('iso_code', 'date', 'to_remove'), ['iso_code', 'date'], how='left')   .withColumn('to_remove', when(col('to_remove').isNull(), 0).otherwise(col('to_remove')))   .join(df_errors1st.select('iso_code', 'date', 'to_remove_1st'), ['iso_code', 'date'], how='left')   .withColumn('to_remove_1st', when(col('to_remove_1st').isNull(), 0).otherwise(col('to_remove_1st')))   .join(df_errors2nd.select('iso_code', 'date', 'to_remove_2nd'), ['iso_code', 'date'], how='left')   .withColumn('to_remove_2nd', when(col('to_remove_2nd').isNull(), 0).otherwise(col('to_remove_2nd'))) 
+
+display(df3.filter(col('iso_code')==iso_code))
+# display(df3.filter((col('to_remove')==1) | (col('to_remove_1st')==1) | (col('to_remove_2nd')==1)))
+
+
+# ### Save to Azure Storage / Register in Databricks metastore
+
+# In[ ]:
+
+
+delta_path = transformed_storage_path + '.delta'
+
+# dbutils.fs.rm(delta_path, True)
+
+df3.write.format("delta").mode("overwrite").save(delta_path)
+
+
+# In[ ]:
+
+
+# path for delta
+print(transformed_storage_path + '.delta')
+
+
+# In[ ]:
+
+
+get_ipython().run_line_magic('sql', '')
+
+DROP TABLE IF EXISTS covax_supply_chain_analytics.analysis_vx_throughput_data_cleaned;
+
+CREATE TABLE covax_supply_chain_analytics.analysis_vx_throughput_data_cleaned
+USING DELTA
+LOCATION '/mnt/covax-supply-chain-analytics/transformed/who/analysis_vx_throughput_data_cleaned.delta'
+
+
+# In[ ]:
+
+
+display(spark.sql("SELECT * FROM covax_supply_chain_analytics.analysis_vx_throughput_data_cleaned")         .orderBy(['iso_code', 'date'])) #         .select('iso_code') \
+#         .drop_duplicates()
+#        )
+
+
+# ##### Query Delta Log
+
+# In[ ]:
+
+
+display(
+  spark.sql("DESCRIBE HISTORY delta. `/mnt/covax-supply-chain-analytics/transformed/who/analysis_vx_throughput_data_cleaned.delta`")
+)
+
+
+# ### Appendix
+
+# In[ ]:
+
+
+df_changes = df1   .select('iso_code', 'date', 'total_doses', 'at_least_one_dose', 'fully_vaccinated')   .join(spark.sql("SELECT * FROM covax_supply_chain_analytics.analysis_vx_throughput_data_cleaned")           .select('iso_code', 'date', 'total_doses', 'at_least_one_dose', 'fully_vaccinated')           .withColumn('modified', lit(1)),
+        ['iso_code', 'date', 'total_doses', 'at_least_one_dose', 'fully_vaccinated'], how='left') \
+  .filter(col('modified').isNull())
+
+print(df_changes.count())
+display(df_changes.orderBy('iso_code', 'date'))
+
+
+# In[ ]:
+
+
+display(df1.filter(col('iso_code')=='ABW'))
+display(spark.sql("SELECT * FROM covax_supply_chain_analytics.analysis_vx_throughput_data_cleaned").filter(col('iso_code')=='ABW'))
+
