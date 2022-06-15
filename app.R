@@ -75,7 +75,7 @@ vxrate_env <- run_vxrate(
 )
 supplies_env <- run_eda_supplies(a_data)
 coverage_env <- run_coverage(a_data)
-product_env <- run_product(a_data)
+product_env <- run_product(a_data, base_env$b_smartsheet, b_csc, .GlobalEnv$refresh_date)
 financing_env <- run_financing(a_data)
 ranking_env <- run_binning(a_data)
 combination_env <- run_combination(a_data)
