@@ -351,8 +351,18 @@ check_entire_file_for_changes <- function(new_file = "data/output/220602_output_
             name_of_column = names(column_vector_original)
             differences_in_column <- 0
             for (row in 1:nrow(column_vector_original)) {
-                if (is.na(column_vector_original[row,1]) &
-                    is.na(column_vector_new[row,1]) == FALSE) {
+                # if (name_of_column == "ndvp_scaleup_cat" & (row == 100 | row == 101)) {
+                #     print(column_vector_original[row, 1])
+                #     print(column_vector_new[row, 1])
+                #     print(is.na(column_vector_original[row,1]))
+                #     print(is.na(column_vector_new[row,1]))
+                #     print(is.na(column_vector_original[row,1]) &
+                #     is.na(column_vector_new[row,1]) == FALSE)
+                #     print(column_vector_original[row, 1] !=
+                #         column_vector_new[row, 1])
+                # }
+                if ((is.na(column_vector_original[row,1]) &
+                    is.na(column_vector_new[row,1])) == FALSE) {
                     if (is.na(column_vector_original[row,1]) |
                         is.na(column_vector_new[row,1])) {
                         differences_in_column <- differences_in_column + 1
@@ -366,29 +376,45 @@ check_entire_file_for_changes <- function(new_file = "data/output/220602_output_
                                 as.character(column_vector_new[row, 1])))
                         }
                     } else {
-                        if (column_vector_original[row, 1] !=
-                        column_vector_new[row, 1]) {
-                            differences_in_column <- differences_in_column + 1
-                            if (differences_in_column <= 5) {
-                                print("--------")
-                                print(paste0("Difference in   ", name_of_column))
-                                print(paste0("in row          ", as.character(row)))
-                                print(paste0("Original value: ",
-                                    as.character(column_vector_original[row, 1])))
-                                print(paste0("New value:      ",
-                                    as.character(column_vector_new[row, 1])))
+                        if ((substr(column_vector_original[row, 1], 1, 10)) !=
+                        (substr(column_vector_new[row, 1], 1, 10))) {
+                            if ((is.numeric(column_vector_original[row, 1])) &
+                                is.numeric(column_vector_new[row, 1])) {
+                                    if (round(column_vector_original[row, 1], 7) !=
+                                        round(column_vector_new[row, 1], 7)) {
+                                        print("--------")
+                                        print(paste0("Difference in   ", name_of_column))
+                                        print(paste0("in row          ", as.character(row)))
+                                        print(paste0("Original value: ",
+                                            as.character(column_vector_original[row, 1])))
+                                        print(paste0("New value:      ",
+                                            as.character(column_vector_new[row, 1])))
+                                        }
+                                } else {
+                                differences_in_column <- differences_in_column + 1
+                                if (differences_in_column <= 5) {
+                                    print("--------")
+                                    print(paste0("Difference in   ", name_of_column))
+                                    print(paste0("in row          ", as.character(row)))
+                                    print(paste0("Original value: ",
+                                        as.character(column_vector_original[row, 1])))
+                                    print(paste0("New value:      ",
+                                        as.character(column_vector_new[row, 1])))
+                                }
                             }
                         }
                     }
                 }
             }
             if (differences_in_column > 5) {
+                print(" ---------- ")
                 print(paste0(as.character(differences_in_column),
                     " differences in column"))
+                print(" ---------- ")
             }
         }
     }
 }
 
-check_entire_file_for_changes(new_file = "data/output/220602_output_powerbi_15_June_product_utilization.xlsx",
-        original_file = "data/output/220602_output_powerbi_15_June_main.xlsx")
+check_entire_file_for_changes(new_file = "data/output/220602_output_powerbi_vxrate_consolidate.xlsx",
+        original_file = "data/output/220609_output_powerbi.xlsx")
