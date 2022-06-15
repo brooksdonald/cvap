@@ -364,13 +364,13 @@ check_entire_file_for_changes <- function(new_file = "data/output/220602_output_
                     } else {
                         if (column_vector_original[row, 1] !=
                         column_vector_new[row, 1]) {
-                        print("--------")
-                        print(paste0("Difference in   ", name_of_column))
-                        print(paste0("in row          ", as.character(row)))
-                        print(paste0("Original value: ",
-                            as.character(column_vector_original[row, 1])))
-                        print(paste0("New value:      ",
-                            as.character(column_vector_new[row, 1])))
+                            print("--------")
+                            print(paste0("Difference in   ", name_of_column))
+                            print(paste0("in row          ", as.character(row)))
+                            print(paste0("Original value: ",
+                                as.character(column_vector_original[row, 1])))
+                            print(paste0("New value:      ",
+                                as.character(column_vector_new[row, 1])))
                         }
                     }
                 }
