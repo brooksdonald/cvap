@@ -1,7 +1,7 @@
 # rows 119 - 596
 
 run_vaccines <- function(entity_characteristics,
-    refresh_date = .GlobalEnv$refresh_date, env = .GlobalEnv) {
+    refresh_date, env = .GlobalEnv) {
     source("src/vaccines/vaccines_daily_vxrate.r")
     source("src/vaccines/vaccines_monthly_vxrate.r")
     source("src/entity/entity_characteristics.r")
