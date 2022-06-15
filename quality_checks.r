@@ -336,6 +336,7 @@ check_entire_file_for_changes <- function(new_file = "data/output/220602_output_
     w_new = df_new$W
     x_new = df_new$X
     y_new = df_new$Y
+    total_differences <- 0
     originals <- list(a, b, c, d, e, f, g, h, i, j, k, l,
         m, n, o, p, q, r, s, t, u, v, w, x, y)
     news <- list(a_new, b_new, c_new, d_new, e_new, f_new,
@@ -345,6 +346,9 @@ check_entire_file_for_changes <- function(new_file = "data/output/220602_output_
     test <- 0
     for (sheet in 1:length(originals)) {
         print(paste0("Sheet: ",sheet))
+        if (total_differences > 40){
+            print("Differences in more than 40 columns")
+        } else {
         for (column in 1:ncol(originals[[sheet]])) {
             column_vector_original = data.frame(originals[[sheet]][column])
             column_vector_new = data.frame(news[[sheet]][column])
@@ -411,10 +415,11 @@ check_entire_file_for_changes <- function(new_file = "data/output/220602_output_
                 print(paste0(as.character(differences_in_column),
                     " differences in column"))
                 print(" ---------- ")
+                total_differences <- total_differences + 1
             }
-        }
+        }}
     }
 }
 
-check_entire_file_for_changes(new_file = "data/output/220602_output_powerbi_vxrate_consolidate.xlsx",
-        original_file = "data/output/220609_output_powerbi.xlsx")
+check_entire_file_for_changes(new_file = "data/output/220602_output_powerbi_15_June_3.xlsx",
+        original_file = "data/output/220602_output_powerbi_15_June_main.xlsx")
