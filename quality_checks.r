@@ -349,21 +349,14 @@ check_entire_file_for_changes <- function(new_file = "data/output/220602_output_
             column_vector_original = data.frame(originals[[sheet]][column])
             column_vector_new = data.frame(news[[sheet]][column])
             name_of_column = names(column_vector_original)
+            differences_in_column <- 0
             for (row in 1:nrow(column_vector_original)) {
                 if (is.na(column_vector_original[row,1]) &
                     is.na(column_vector_new[row,1]) == FALSE) {
                     if (is.na(column_vector_original[row,1]) |
                         is.na(column_vector_new[row,1])) {
-                        print("--------")
-                        print(paste0("Difference in   ", name_of_column))
-                        print(paste0("in row          ", as.character(row)))
-                        print(paste0("Original value: ",
-                            as.character(column_vector_original[row, 1])))
-                        print(paste0("New value:      ",
-                            as.character(column_vector_new[row, 1])))
-                    } else {
-                        if (column_vector_original[row, 1] !=
-                        column_vector_new[row, 1]) {
+                        differences_in_column <- differences_in_column + 1
+                        if (differences_in_column <= 5) {
                             print("--------")
                             print(paste0("Difference in   ", name_of_column))
                             print(paste0("in row          ", as.character(row)))
@@ -372,12 +365,30 @@ check_entire_file_for_changes <- function(new_file = "data/output/220602_output_
                             print(paste0("New value:      ",
                                 as.character(column_vector_new[row, 1])))
                         }
+                    } else {
+                        if (column_vector_original[row, 1] !=
+                        column_vector_new[row, 1]) {
+                            differences_in_column <- differences_in_column + 1
+                            if (differences_in_column <= 5) {
+                                print("--------")
+                                print(paste0("Difference in   ", name_of_column))
+                                print(paste0("in row          ", as.character(row)))
+                                print(paste0("Original value: ",
+                                    as.character(column_vector_original[row, 1])))
+                                print(paste0("New value:      ",
+                                    as.character(column_vector_new[row, 1])))
+                            }
+                        }
                     }
                 }
+            }
+            if (differences_in_column > 5) {
+                print(paste0(as.character(differences_in_column),
+                    " differences in column"))
             }
         }
     }
 }
 
-check_entire_file_for_changes(new_file = "data/output/220602_output_powerbi_after_changes_in_product_utilization.xlsx",
-        original_file = "data/output/220602_output_powerbi_before_changes_in_product_utilization.xlsx")
+check_entire_file_for_changes(new_file = "data/output/220602_output_powerbi_15_June_product_utilization.xlsx",
+        original_file = "data/output/220602_output_powerbi_15_June_main.xlsx")
