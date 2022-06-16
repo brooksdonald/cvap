@@ -19,6 +19,7 @@ current_week <- select(
         "a_iso",
         "a_name_short",
         "a_covax_status",
+        "a_who_region",
         "adm_td",
         "adm_fv",
         "adm_fv_hcw",
@@ -43,6 +44,7 @@ cw <- select(
         "a_iso",
         "a_name_short",
         "a_covax_status",
+        "a_who_region",
         "adm_td",
         "adm_fv",
         "adm_fv_hcw",
@@ -63,6 +65,7 @@ colnames(cw) <- c(
     "a_iso",
     "a_name_short",
     "a_covax_status",
+    "a_who_region",
     "cw_adm_td",
     "cw_adm_fv",
     "cw_adm_fv_hcw",
@@ -86,29 +89,29 @@ print(" > Done.")
 
 ## Number of AMC92 reporting on HCW vaccination
 print(" > Obtaining number of AMC92 reporting on HCW vaccination for current week...")
-hcw_vax <- sum(!is.na(amc_current$adm_fv_hcw))
-print(paste(" > The number of AMC92 reporting on HCW vaccination for current week is:", hcw_vax))
+hcw_vax_cw <- sum(!is.na(amc_current$adm_fv_hcw))
+print(paste(" > The number of AMC92 reporting on HCW vaccination for current week is:", hcw_vax_cw))
 print(" > Done.")
 
 ## Number of AMC92 reporting on older adults (60p) vaccination
 print(" > Obtaining number of AMC92 reporting on older adults (60p) vaccination for current week...")
-old_adults <- sum(!is.na(amc_current$adm_fv_60p))
-print(paste(" > The number of AMC92 reporting on older adults (60p) vaccination for current week is:", old_adults))
+old_adults_cw <- sum(!is.na(amc_current$adm_fv_60p))
+print(paste(" > The number of AMC92 reporting on older adults (60p) vaccination for current week is:", old_adults_cw))
 print(" > Done.")
 
 ## Number of AMC92 reporting on gender-disaggregated - males
-males <- sum(!is.na(amc_current$a_pop_male))
-print(paste(" > The number of AMC92 reporting on gender-disaggregated for males in current week is:", males))
+males_cw <- sum(!is.na(amc_current$a_pop_male))
+print(paste(" > The number of AMC92 reporting on gender-disaggregated for males in current week is:", males_cw))
 print(" > Done.")
 
 ## Number of AMC92 reporting on gender-disaggregated - females
-females <- sum(!is.na(amc_current$a_pop_female))
-print(paste(" > The number of AMC92 reporting on gender-disaggregated for females in current week is:", females))
+females_cw <- sum(!is.na(amc_current$a_pop_female))
+print(paste(" > The number of AMC92 reporting on gender-disaggregated for females in current week is:", females_cw))
 print(" > Done.")
 
 ## Past week
 print(" > Ingesting past week data...")
-past_week <- data.frame(read_excel("data/output/220525_output_powerbi.xlsx"))
+past_week <- data.frame(read_excel("data/output/220602_output_powerbi.xlsx"))
 
 print(" > Selecting columns needed for quality check...")
 past_week <- select(
@@ -117,6 +120,7 @@ past_week <- select(
         "a_iso",
         "a_name_short",
         "a_covax_status",
+        "a_who_region",
         "adm_td",
         "adm_fv",
         "adm_fv_hcw",
@@ -141,6 +145,7 @@ pw <- select(
         "a_iso",
         "a_name_short",
         "a_covax_status",
+        "a_who_region",
         "adm_td",
         "adm_fv",
         "adm_fv_hcw",
@@ -161,6 +166,7 @@ colnames(pw) <- c(
     "a_iso",
     "a_name_short",
     "a_covax_status",
+    "a_who_region",
     "pw_adm_td",
     "pw_adm_fv",
     "pw_adm_fv_hcw",
@@ -184,24 +190,24 @@ print(" > Done.")
 
 ## Number of AMC92 reporting on HCW vaccination
 print(" > Obtaining number of AMC92 reporting on HCW vaccination for past week...")
-hcw_vax <- sum(!is.na(amc_past$adm_fv_hcw))
-print(paste(" > The number of AMC92 reporting on HCW vaccination for past week is:", hcw_vax))
+hcw_vax_pw <- sum(!is.na(amc_past$adm_fv_hcw))
+print(paste(" > The number of AMC92 reporting on HCW vaccination for past week is:", hcw_vax_pw))
 print(" > Done.")
 
 ## Number of AMC92 reporting on older adults (60p) vaccination
 print(" > Obtaining number of AMC92 reporting on older adults (60p) vaccination for past week...")
-old_adults <- sum(!is.na(amc_past$adm_fv_60p))
-print(paste(" > The number of AMC92 reporting on older adults (60p) vaccination for past week is:", old_adults))
+old_adults_pw <- sum(!is.na(amc_past$adm_fv_60p))
+print(paste(" > The number of AMC92 reporting on older adults (60p) vaccination for past week is:", old_adults_pw))
 print(" > Done.")
 
 ## Number of AMC92 reporting on gender-disaggregated - males
-males <- sum(!is.na(amc_past$a_pop_male))
-print(paste(" > The number of AMC92 reporting on gender-disaggregated for males in past week is:", males))
+males_pw <- sum(!is.na(amc_past$a_pop_male))
+print(paste(" > The number of AMC92 reporting on gender-disaggregated for males in past week is:", males_pw))
 print(" > Done.")
 
 ## Number of AMC92 reporting on gender-disaggregated - females
-females <- sum(!is.na(amc_past$a_pop_female))
-print(paste(" > The number of AMC92 reporting on gender-disaggregated for females in past week is:", females))
+females_pw <- sum(!is.na(amc_past$a_pop_female))
+print(paste(" > The number of AMC92 reporting on gender-disaggregated for females in past week is:", females_pw))
 print(" > Done.")
 
 # Checking value difference between current and past week
@@ -209,14 +215,14 @@ print(" > Done.")
 df_combined <- left_join(
     cw,
     pw,
-    by = c("a_iso", "a_name_short", "a_covax_status")
+    by = c("a_iso", "a_name_short", "a_covax_status", "a_who_region")
 )
 
 print(" > Joining current and past dataframes...")
 df <- left_join(
     current_week,
     past_week,
-    by = c("a_iso", "a_name_short", "a_covax_status")
+    by = c("a_iso", "a_name_short", "a_covax_status", "a_who_region")
 )
 print(" > Done joining both dataframes...")
 
@@ -224,6 +230,7 @@ print(" > Done joining both dataframes...")
 print(" > Calculating difference in value change in current from past week...")
 a_iso <- df$a_iso
 a_name_short <- df$a_name_short
+a_who_region <- df$a_who_region
 adm_td <- current_week$adm_td - past_week$adm_td
 adm_fv <- current_week$adm_fv - past_week$adm_fv
 adm_fv_hcw <- current_week$adm_fv_hcw - past_week$adm_fv_hcw
@@ -243,6 +250,7 @@ print(" > Creating new df...")
 df <- data.frame(
     a_iso,
     a_name_short,
+    a_who_region,
     adm_td,
     adm_fv,
     adm_fv_hcw,
@@ -263,6 +271,14 @@ print(" > Exporting quality checks df to excel output...")
 quality_check_df <- list(
     "Combined_numbers" = df_combined,
     "Difference_in_Numbers" = df
+    # "HCW_vx_in_current_week" = hcw_vax_cw,
+    # "Older_adults_in_current_week" = old_adults_cw,
+    # "Males_in_current_week" = males_cw,
+    # "females_in_current_week" = females_cw,
+    # "HCW_vx_past_week" = hcw_vax_pw,
+    # "Older_adults_past_week" = old_adults_pw,
+    # "Males_in_past_week" = males_pw,
+    # "females_in_past_week" = females_pw
 )
 write_xlsx(quality_check_df, "data/output/quality_check.xlsx")
 print(" > Done.")
