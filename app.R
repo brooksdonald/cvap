@@ -29,7 +29,7 @@ source("helpers/transformations.r")
 .GlobalEnv$refresh_date <- as.Date("2022-06-16")
 .GlobalEnv$t70_deadline <- as.Date("2022-06-30")
 .GlobalEnv$dataset_date <- "2022-06-09" # dataset_date is passed to sec_date
-.GlobalEnv$del_date <- as.Date("2022-06-09")
+.GlobalEnv$del_date <- as.Date("2022-06-16")
 
 # ETL
 
@@ -116,7 +116,7 @@ all_df <- list(
     "8_ndvp_tar_cat" = e_ndvp_all,
     "9_values" = z_values
 )
-write_xlsx(all_df, "data/output/220616_output_powerbi.xlsx")
-write_xlsx(api, "data/output/220616_output_api.xlsx")
+# write_xlsx(all_df, "data/output/220616_output_powerbi.xlsx")
+# write_xlsx(api, "data/output/220616_output_api.xlsx")
 
 print(" > Output exported to Excel successfully!")
