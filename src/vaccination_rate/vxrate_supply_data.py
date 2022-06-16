@@ -36,7 +36,6 @@ print(" > Done.")
 
 # read in data, convert to df, validate columns, filter out blank rows
 print(" > Read in data, convert to df, validate columns, filter out blank rows...")
-df.columns = df.iloc[0]
 df = df[1:].astype(str)
 df = df[['ISO_3_CODE', 'COUNTRYNAME', 'YEAR', 'MONTH', 'DATA_SOURCE', 'MANUFACTURER_DESCRIPTION', 'TOTAL_DOSES_REC']]
 df = df[df['COUNTRYNAME']!='None']
@@ -57,66 +56,76 @@ df['date'] = df['date'].astype(str)
 df_uti = pd.DataFrame(df)
 print(" > Done.")
 
-# # logic for aggregating the Utilization data appropriately:
-# # group by (iso_code + data_source + manufacturer + date) and take max doses received
-# # group by (iso_code + data_source + date) and take the sum
-# # group by (iso_code + date) and take the max
-# df_uti = df_uti  .groupBy('iso_code', 'data_source', 'manufacturer', 'date').agg(max('doses_received')).withColumnRenamed('max(doses_received)', 'doses_received')  .groupBy('iso_code', 'data_source', 'date').agg(sum('doses_received')).withColumnRenamed('sum(doses_received)', 'doses_received')  .groupBy('iso_code', 'date').agg(max('doses_received')).withColumnRenamed('max(doses_received)', 'doses_received')  .withColumn('monthly_doses_recieved_uti', when((col('doses_received') - lag(col('doses_received')).over(Window.partitionBy('iso_code').orderBy('date'))).isNull(), col('doses_received'))              .otherwise(col('doses_received') - lag(col('doses_received')).over(Window.partitionBy('iso_code').orderBy('date'))))  .withColumnRenamed('doses_received', 'cumulative_doses_received_uti')
+# Aggregating utilization data
+# logic for aggregating the Utilization data appropriately:
+## group by (iso_code + data_source + manufacturer + date) and take max doses received
+## group by (iso_code + data_source + date) and take the sum
+## group by (iso_code + date) and take the max
+print(" > Aggregating utilization data...")
+df_uti = df_uti \
+.groupBy('iso_code', 'data_source', 'manufacturer', 'date').agg(max('doses_received')).withColumnRenamed('max(doses_received)', 'doses_received') \
+.groupBy('iso_code', 'data_source', 'date').agg(sum('doses_received')).withColumnRenamed('sum(doses_received)', 'doses_received') \
+.groupBy('iso_code', 'date').agg(max('doses_received')).withColumnRenamed('max(doses_received)', 'doses_received') \
+.withColumn('monthly_doses_recieved_uti', when((col('doses_received') - lag(col('doses_received')).over(Window.partitionBy('iso_code').orderBy('date'))).isNull(), col('doses_received')) \            
+    .otherwise(col('doses_received') - lag(col('doses_received')).over(Window.partitionBy('iso_code').orderBy('date')))) \
+.withColumnRenamed('doses_received', 'cumulative_doses_received_uti')
 
-# # datestamp dataframe
-# df_uti = df_uti.withColumn("date_accessed", current_date())
+# df_uti.groupby('iso_code', 'data_source', 'manufacturer', 'date').agg(max('doses_received'))
 
-# display(df[df['iso_code']==iso_code])
-# display(df_uti.orderBy('iso_code', 'date').filter(col('iso_code')==iso_code))
-# display(df_uti.filter(col('monthly_doses_recieved_uti')<0))
+# datestamp dataframe
+df_uti = df_uti.withColumn("date_accessed", current_date())
 
-
-# # ### Save to Azure Storage / Register in Databricks metastore
-
-# # In[ ]:
-
-
-# delta_path = transformed_storage_path + '.delta'
-
-# # dbutils.fs.rm(delta_path, True)
-
-# df_uti.write.format("delta").mode("overwrite").save(delta_path)
+display(df[df['iso_code']==iso_code])
+display(df_uti.orderBy('iso_code', 'date').filter(col('iso_code')==iso_code))
+display(df_uti.filter(col('monthly_doses_recieved_uti')<0))
 
 
-# # In[ ]:
+# ### Save to Azure Storage / Register in Databricks metastore
+
+# In[ ]:
 
 
-# # path for delta
-# print(transformed_storage_path + '.delta')
+delta_path = transformed_storage_path + '.delta'
+
+# dbutils.fs.rm(delta_path, True)
+
+df_uti.write.format("delta").mode("overwrite").save(delta_path)
 
 
-# # In[ ]:
+# In[ ]:
 
 
-# get_ipython().run_line_magic('sql', '')
-
-# DROP TABLE IF EXISTS covax_supply_chain_analytics.analysis_vx_throughput_supply;
-
-# CREATE TABLE covax_supply_chain_analytics.analysis_vx_throughput_supply
-# USING DELTA
-# LOCATION '/mnt/covax-supply-chain-analytics/transformed/who/analysis_vx_throughput_supply.delta'
+# path for delta
+print(transformed_storage_path + '.delta')
 
 
-# # In[ ]:
+# In[ ]:
 
 
-# display(spark.sql("SELECT * FROM covax_supply_chain_analytics.analysis_vx_throughput_supply").orderBy('iso_code', 'date'))
-# display(spark.sql("SELECT * FROM covax_supply_chain_analytics.analysis_vx_throughput_supply").groupby('iso_code').agg(count('*')))
+get_ipython().run_line_magic('sql', '')
+
+DROP TABLE IF EXISTS covax_supply_chain_analytics.analysis_vx_throughput_supply;
+
+CREATE TABLE covax_supply_chain_analytics.analysis_vx_throughput_supply
+USING DELTA
+LOCATION '/mnt/covax-supply-chain-analytics/transformed/who/analysis_vx_throughput_supply.delta'
 
 
-# # ##### Query Delta Log
-
-# # In[ ]:
+# In[ ]:
 
 
-# display(
-#   spark.sql("DESCRIBE HISTORY delta. `/mnt/covax-supply-chain-analytics/transformed/who/analysis_vx_throughput_supply.delta`")
-# )
+display(spark.sql("SELECT * FROM covax_supply_chain_analytics.analysis_vx_throughput_supply").orderBy('iso_code', 'date'))
+display(spark.sql("SELECT * FROM covax_supply_chain_analytics.analysis_vx_throughput_supply").groupby('iso_code').agg(count('*')))
 
 
-# # ## Appendix
+# ##### Query Delta Log
+
+# In[ ]:
+
+
+display(
+  spark.sql("DESCRIBE HISTORY delta. `/mnt/covax-supply-chain-analytics/transformed/who/analysis_vx_throughput_supply.delta`")
+)
+
+
+# ## Appendix
