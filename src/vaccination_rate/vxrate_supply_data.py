@@ -61,7 +61,7 @@ print(" > Done.")
 ## group by (iso_code + data_source + manufacturer + date) and take max doses received
 ## group by (iso_code + data_source + date) and take the sum
 ## group by (iso_code + date) and take the max
-print(" > Aggregating utilization data...")
+# print(" > Aggregating utilization data...")
 df_uti = df_uti \
 .groupBy('iso_code', 'data_source', 'manufacturer', 'date').agg(max('doses_received')).withColumnRenamed('max(doses_received)', 'doses_received') \
 .groupBy('iso_code', 'data_source', 'date').agg(sum('doses_received')).withColumnRenamed('sum(doses_received)', 'doses_received') \
@@ -69,8 +69,6 @@ df_uti = df_uti \
 .withColumn('monthly_doses_recieved_uti', when((col('doses_received') - lag(col('doses_received')).over(Window.partitionBy('iso_code').orderBy('date'))).isNull(), col('doses_received')) \            
     .otherwise(col('doses_received') - lag(col('doses_received')).over(Window.partitionBy('iso_code').orderBy('date')))) \
 .withColumnRenamed('doses_received', 'cumulative_doses_received_uti')
-
-# df_uti.groupby('iso_code', 'data_source', 'manufacturer', 'date').agg(max('doses_received'))
 
 # datestamp dataframe
 df_uti = df_uti.withColumn("date_accessed", current_date())
