@@ -33,7 +33,7 @@ print(" > Done...")
 
 # 2 data sources for Throughput, one for Europe and one for ROW
 # read in separately, clean, and then bind together
-print(" > read in data sources separately, clean, and then bind together...")
+print(" > Read in data sources separately, clean, and then bind together...")
 response = urlopen(url1)
 data_json = json.loads(response.read())
 df1 = pd.DataFrame(data_json["value"])
@@ -103,6 +103,6 @@ df_data["date_accessed"] = datetime.date.today()
 print(" > Done.")
 
 # Save to CSV file
-print(" > Saving output to csv file...")
-df_data.to_csv("data/output/dose_adm.csv", index=False)
+print(" > Saving analysis_vx_throughput_data to csv file...")
+df_data.to_csv("data/_input/supply_data/analysis_vx_throughput_data.csv", index=False)
 print(" > Done.")
