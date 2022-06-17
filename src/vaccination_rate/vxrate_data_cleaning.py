@@ -1,6 +1,5 @@
 import pandas as pd
 from datetime import datetime, timedelta
-#import pycountry
 
 print(" > Loading dataset...")
 who = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_data.csv")
@@ -48,11 +47,6 @@ df1['max_date_week'] = df1.groupby('iso_code')['date_week'].transform('max')
 df1['is_latest_week_reported'] = 0
 df1.loc[df1['max_date_week'] == max_date_week, 'is_latest_week_reported'] = 1
 df1.drop('max_date_week', axis = 1, inplace = True)
-
-
-print(" > Check for decrease in total doses...")
-##TODO later because not relevant for df1 output
-
 
 manual_fix_list =  ['AFG', 'AGO', 'AIA', 'ARE', 'ARM', 'ASM', 'ATG', 'AUS', 'AZE', 
                     'BDI', 'BEN', 'BFA', 'BGR', 'BHR', 'BLR', 'BRA', 'BTN', 'BWA', 
@@ -420,9 +414,29 @@ df_errors1st["total_doses_in_period"] =  df_errors1st["at_least_one_dose"] - df_
 df_errors1st["to_remove_1st"] = 1
 
 
+print(" > Check for Errors in Data: Second Dose Error Fix...")
 df_errors2nd = df2[['iso_code', 'country_name', 'date', 'fully_vaccinated']].copy()
 df_errors2nd["2nd_dose_prev_period"] = df_errors2nd.sort_values(by=['date'], ascending=True). \
     groupby(['iso_code'])['fully_vaccinated'].shift(1).copy()
 df_errors2nd = df_errors2nd.loc[(df_errors2nd["fully_vaccinated"] < df_errors2nd["2nd_dose_prev_period"]), :]
 df_errors2nd["total_doses_in_period"] =  df_errors2nd["fully_vaccinated"] - df_errors2nd["2nd_dose_prev_period"]
 df_errors2nd["to_remove_2nd"] = 1
+
+
+print(" > Merging error columns with dataframe")
+df3 = df2.copy()
+df3.loc[:,'manual_adjustment'] = df3["iso_code"].apply(lambda x: 1 if x in manual_fix_list else 0).astype(int)
+df3 = df3.merge(df_errors1[['iso_code', 'date', 'is_data_error']], on = ['iso_code', 'date'], how = 'left')
+df3["is_data_error"].fillna(0, inplace = True)
+df3 = df3.merge(df_errors2[['iso_code', 'date', 'to_remove']], on = ['iso_code', 'date'], how = 'left')
+df3["to_remove"].fillna(0, inplace = True)
+df3 = df3.merge(df_errors1st[['iso_code', 'date', 'to_remove_1st']], on = ['iso_code', 'date'], how = 'left')
+df3["to_remove_1st"].fillna(0, inplace = True)
+df3 = df3.merge(df_errors2nd[['iso_code', 'date', 'to_remove_2nd']], on = ['iso_code', 'date'], how = 'left')
+df3["to_remove_2nd"].fillna(0, inplace = True)
+df3[['is_data_error', 'to_remove', 'to_remove_1st', 'to_remove_2nd']].astype(int)
+
+
+print(" > Exporting the dataframe")
+df3.to_csv('data/_input/supply_data/analysis_vx_throughput_data_cleaned.csv', index = False)
+print(" > Done")
