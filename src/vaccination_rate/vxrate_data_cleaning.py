@@ -320,11 +320,8 @@ df2 = fix_issues_total_doses(df2)
 
 print(" > Fix data issues with at_least_one_dose...")
 def fix_issues_at_least_one_dose(df2):
-    print(df2.head(2))
     df2.loc[((df2['iso_code'] == 'AFG') & (df2['date'].between('2021-07-14', '2021-07-27'))), 'at_least_one_dose'] = None
-    print(df2.head(2))
     df2.loc[((df2['iso_code'] == 'AFG') & (df2['date'] == '2021-10-31')), 'at_least_one_dose'] = None
-    print(df2.head(2))
     df2.loc[((df2['iso_code'] == 'AGO') & (df2['date'] == '2021-08-23')), 'at_least_one_dose'] = None
     df2.loc[((df2['iso_code'] == 'AGO') & (df2['date'] == '2021-10-26')), 'at_least_one_dose'] = None
     df2.loc[((df2['iso_code'] == 'ALB') & (df2['date'] == '2021-04-24')), 'at_least_one_dose'] = None
