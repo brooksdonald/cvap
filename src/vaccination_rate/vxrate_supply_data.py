@@ -79,7 +79,7 @@ df_uti['date_accessed'] = str(date.today())
 
 
 # saving dataframe
-df_uti.to_csv("data/_input/supply_data/analysis_vx_throughput_supply.csv")
+df_uti.to_csv("data/_input/supply_data/analysis_vx_throughput_supply.csv", index = False)
 
 
 # =============================================================================
