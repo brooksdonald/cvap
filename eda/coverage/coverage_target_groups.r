@@ -139,7 +139,7 @@ target_group_seventy <- function(a_data) {
     
   mutate(t70_scaleup = if_else(is.infinite(round((t70_rate_needed / dvr_4wk_fv),2)), NA_real_, 
                                round((t70_rate_needed / dvr_4wk_fv), 2))) %>%
-  mutate(t70_scaleup_dose = if_else(is.infinite(round((t70_rate_needed_dose / dvr_4wk_td),2)), 0, 
+  mutate(t70_scaleup_dose = if_else(is.infinite(round((t70_rate_needed_dose / dvr_4wk_td),2)), NA_real_, 
                                     round((t70_rate_needed_dose / dvr_4wk_td),2))) %>%
     
   mutate(t70_rate_needed_dose_per = t70_rate_needed_dose / a_pop)

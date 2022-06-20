@@ -17,6 +17,12 @@ load_sup_rec <- function() {
         data.frame(read_excel("data/_input/base_supply_received_twomonth.xlsx",
             sheet = "Delivery_Table"
         ))
+    
+    b_mdb_13jan <-
+      data.frame(read_excel("data/_input/static/base_supply_weekof13jan.xlsx",
+                            sheet = "Delivery_Table"
+      ))
+    
     print(" >> Treating datasets...")
 
     b_mdb <- treat_country_name_datasource(b_mdb)
@@ -37,8 +43,15 @@ load_sup_rec <- function() {
     )
     colnames(b_mdb_2m)[3] <- "total_2m"
 
+    b_mdb_13jan <- treat_country_name_datasource(b_mdb_13jan)
+    b_mdb_13jan <- b_mdb_13jan %>% select(
+      common_columns
+    )
+    colnames(b_mdb_13jan)[3] <- "total_13jan"
+    
+    
     supply_received <- helper_join_dataframe_list(
-        list(b_mdb, b_mdb_lm, b_mdb_2m),
+        list(b_mdb, b_mdb_lm, b_mdb_2m, b_mdb_13jan),
         join_by = c("iso", "product")
     )
     for (col in c(
@@ -49,7 +62,8 @@ load_sup_rec <- function() {
         "unknown",
         "total",
         "total_lm",
-        "total_2m"
+        "total_2m",
+        "total_13jan"
     )
     ) {
         supply_received[, col] <- as.numeric(supply_received[, col])
@@ -72,7 +86,8 @@ transform_sup_rec_doses <- function(supply_received) {
                 "unknown",
                 "total",
                 "total_lm",
-                "total_2m"
+                "total_2m",
+                "total_13jan"
             ),
             sum,
             na.rm = TRUE
@@ -87,7 +102,8 @@ transform_sup_rec_doses <- function(supply_received) {
         "del_dose_unkwn",
         "del_dose_total",
         "del_dose_total_lm",
-        "del_dose_total_2m"
+        "del_dose_total_2m",
+        "del_dose_total_13jan"
     )
 
     print(" >> Calculate doses delivered
@@ -100,6 +116,7 @@ transform_sup_rec_doses <- function(supply_received) {
 
     supply_received_doses <- supply_received_doses %>%
         mutate(del_dose_lm_2m = del_dose_total_lm - del_dose_total_2m) %>%
+        mutate(del_dose_lm_13jan = del_dose_total_lm - del_dose_total_13jan) %>%
         mutate(del_dose_wast = del_dose_total * 0.1)
 
     # Introducing del_date to supply_received_doses
@@ -235,7 +252,8 @@ sr_filter_and_rename <- function(df, suffix) {
         "unknown",
         "total",
         "total_lm",
-        "total_2m"
+        "total_2m",
+        "total_13jan"
     )
 
     df <- select(
@@ -270,7 +288,8 @@ eda_sup_rec_courses <- function(supply_received, supply_received_doses) {
                 "unknown",
                 "total",
                 "total_lm",
-                "total_2m"
+                "total_2m",
+                "total_13jan"
             ),
             sum,
             na.rm = TRUE
@@ -285,7 +304,8 @@ eda_sup_rec_courses <- function(supply_received, supply_received_doses) {
         "unknown",
         "total",
         "total_lm",
-        "total_2m"
+        "total_2m",
+        "total_13jan"
     )
 
     c_delivery_courses <- c_delivery_courses[!(is.na(c_delivery_courses$iso)), ]
@@ -305,7 +325,8 @@ eda_sup_rec_courses <- function(supply_received, supply_received_doses) {
         mutate(del_cour_total = total / 2) %>%
         mutate(del_cour_wast = wast / 2) %>%
         mutate(del_cour_total_lm = total_lm / 2) %>%
-        mutate(del_cour_total_2m = total_2m / 2)
+        mutate(del_cour_total_2m = total_2m / 2) %>%
+        mutate(del_cour_total_13jan = total_13jan)
 
     print(" >> Replace NAs with 0 and round")
     # c_delivery_courses <- replace_na(c_delivery_courses, everything(), 0)
@@ -327,7 +348,8 @@ eda_sup_rec_courses <- function(supply_received, supply_received_doses) {
             "del_cour_total",
             "del_cour_wast",
             "del_cour_total_lm",
-            "del_cour_total_2m"
+            "del_cour_total_2m",
+            "del_cour_total_13jan"
         )
     )
 
@@ -340,6 +362,9 @@ eda_sup_rec_courses <- function(supply_received, supply_received_doses) {
 
     c_delivery_courses <- c_delivery_courses %>%
         mutate(del_cour_lm_2m = del_cour_total_lm - del_cour_total_2m)
+    
+    c_delivery_courses <- c_delivery_courses %>%
+      mutate(del_cour_lm_13jan = del_cour_total_lm - del_cour_total_13jan)
 
     print(" >> Combine doses and courses delivered tables")
     c_delivery <- left_join(supply_received_doses, c_delivery_courses, by = "iso")

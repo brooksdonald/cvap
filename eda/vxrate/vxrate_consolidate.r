@@ -22,7 +22,9 @@ extract_vxrate_details <- function(c_vxrate_latest) {
         "ndvp_mid_rep_rate",
         "jj_policy",
         "older_def",
-        "older_source"
+        "older_source",
+        "a_pop",
+        "a_income_group_vis"
       )
     )
 
@@ -172,6 +174,7 @@ transform_vxrate_merge <- function(a_data) {
   a_data <- a_data %>%
     mutate(adm_td_less_1m = adm_td - adm_td_lm) %>%
     mutate(adm_td_1m_2m = adm_td_lm - adm_td_2m) %>%
+    mutate(adm_td_1m_13jan = adm_td_lm - adm_td_13jan) %>%
     mutate(adm_fv_less_1m = adm_fv_homo - adm_fv_lm_homo) %>%
     mutate(adm_fv_1m_2m = adm_fv_lm_homo - adm_fv_2m_homo)
 
@@ -380,8 +383,8 @@ transform_vxrate_merge <- function(a_data) {
     mutate(dvr_4wk_td_change_lm_per = if_else(is.infinite(dvr_4wk_td_change_lm / dvr_4wk_td_lm), 1,
                                               (dvr_4wk_td_change_lm / dvr_4wk_td_lm))) %>%
     mutate(
-      dvr_4wk_td_change_lm_per_cat = if_else(
-        dvr_4wk_td_change_lm_per <= -0.25,
+      dvr_4wk_td_change_lm_per_cat = if_else(is.na(dvr_4wk_td_change_lm_per), "2) (-25)-0%",
+        if_else(dvr_4wk_td_change_lm_per <= -0.25,
         "1) < (-25)%",
         if_else(
           dvr_4wk_td_change_lm_per >= 0.25,
@@ -394,7 +397,7 @@ transform_vxrate_merge <- function(a_data) {
           )
         )
       )
-    ) %>%
+    )) %>%
     mutate(
       dvr_4wk_td_change_lm_trend = if_else(
         dvr_4wk_td_change_lm_per <= -0.25,

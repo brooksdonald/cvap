@@ -15,7 +15,6 @@ load_b_vxrate <- function() {
         b_vxrate,
         c(
           "iso_code",
-          "population",
           "date",
           "total_doses",
           "at_least_one_dose",
@@ -33,7 +32,6 @@ load_b_vxrate <- function() {
     colnames(b_vxrate) <-
       c(
         "a_iso",
-        "a_pop",
         "adm_date",
         "adm_td",
         "adm_a1d",
@@ -52,10 +50,10 @@ load_b_vxrate <- function() {
 
 transform_current_vxrate <- function(b_vxrate, entity_characteristics) {
     print(" >> Transforming current vxrate...")
-    ## Change population field type to numeric
-    b_vxrate$a_pop <- as.numeric(b_vxrate$a_pop)
     ## Add entity base data
     b_vxrate <- left_join(b_vxrate, entity_characteristics, by = "a_iso")
+    ## Change population field type to numeric
+    b_vxrate$a_pop <- as.numeric(b_vxrate$a_pop)
     ## Add year, month, and week numbers
     b_vxrate <- b_vxrate %>%
     mutate(adm_date_year = if_else(

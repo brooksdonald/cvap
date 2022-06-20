@@ -137,7 +137,8 @@ transform_lw_data <- function(b_vxrate_lw_sum, c_vxrate_latest) {
         mutate(dvr_4wk_td_change_lw_lm = dvr_4wk_td_lw - dvr_4wk_td_lw_lm) %>%
             mutate(dvr_4wk_td_change_lw_lm_per = dvr_4wk_td_change_lw_lm / dvr_4wk_td_lw_lm) %>%
                 mutate(
-                    dvr_4wk_td_change_lw_lm_per_cat = if_else(
+                    dvr_4wk_td_change_lw_lm_per_cat = if_else(is.na(dvr_4wk_td_change_lw_lm_per), "2) (-25)-0%",
+                      if_else(
                         dvr_4wk_td_change_lw_lm_per <= -0.25,
                         "1) < (-25)%",
                         if_else(
@@ -147,12 +148,13 @@ transform_lw_data <- function(b_vxrate_lw_sum, c_vxrate_latest) {
                                 dvr_4wk_td_change_lw_lm_per <= 0,
                                 "2) (-25)-0%",
                                 if_else(dvr_4wk_td_change_lw_lm_per > 0, "3) 0-25%",
+
                                 NA_character_
                             )
                         )
                     )
                 )
-            )
+            ))
 
 
     ## Select relevant columns for dvr category count change table

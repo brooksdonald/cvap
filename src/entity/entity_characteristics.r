@@ -6,6 +6,14 @@ load_entity_chars <- function() {
             sheet = "data"
         )
     )
+    
+    b_pop_who <- data.frame(
+      read_excel("data/_input/static/base_population_who.xlsx",
+                 sheet = "data"
+      )
+    )
+    
+    b_pop_who <- select(b_pop_who, c("iso","value"))
 
     print(" >> Selecting data...")
     entity_details <-
@@ -28,6 +36,8 @@ load_entity_chars <- function() {
                 "GAVI"
             )
         )
+    
+    entity_details <- full_join(entity_details, b_pop_who, c("CODE" = "iso"))
 
     print(" >> Renaming columns...")
     colnames(entity_details) <- c(
@@ -44,9 +54,12 @@ load_entity_chars <- function() {
         "a_income_group",
         "a_csc_status",
         "a_ifc_status",
-        "a_gavi_status"
+        "a_gavi_status",
+        "a_pop"
     )
     # TODO should we drop NA here since some rows are blank and we are populating it with Other later?
+    
+
 
     return(entity_details)
 }
@@ -104,6 +117,15 @@ transform_entity_chars <- function(entity_characteristics, b_adhoc) {
         ),
         map = c("HIC", "UMIC", "LMIC", "LIC"),
         na_fill = "Other"
+    )
+    
+    entity_characteristics$a_income_group_vis <- helper_replace_values_with_map(
+      data = entity_characteristics$a_income_group,
+      values = c(
+        "HIC", "UMIC", "LMIC", "LIC", "Other"
+      ),
+      map = c("4) HIC", "3) UMIC", "2) LMIC", "1) LIC", "5) Other"),
+      na_fill = "5) Other"
     )
     
     print(" >> Rework Africa sub-regions...")
