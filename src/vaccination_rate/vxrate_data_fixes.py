@@ -9,7 +9,7 @@ df1 = df1.loc[((~(df1['total_doses'].isna())) & (df1['total_doses'] > 0)), :]
 df1 = df1[['country_name', 'date', 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'date_accessed']]
 df1['date'] = pd.to_datetime(df1['date'], format = '%Y-%m-%d')
 df1.drop_duplicates(inplace = True)
-df1.merge(iso_mapping, on = 'country_name', how = 'left')
+df1 = df1.merge(iso_mapping, on = 'country_name', how = 'left')
 df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba/Saba', 'iso_code'] = 'BES1'
 df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba/Sint Eustatius', 'iso_code'] = 'BES1'
 df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba', 'iso_code'] = 'BES2'
@@ -26,6 +26,7 @@ df1.loc[df1['country_name'] == 'Kosovo', 'iso_code'] = 'KOS'
 df1.fillna(0, inplace = True)
 
 who1 = who[['iso_code', 'date', 'total_doses', 'at_least_one_dose', 'fully_vaccinated']]
+who1['date'] = pd.to_datetime(who1['date'], format = '%Y-%m-%d')
 who1['check'] = 1
 who1.fillna(0, inplace = True)
 
