@@ -141,7 +141,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   print(" >>> Computing theoreticaally fully vaxxed for non reporters...")
   a_data <- a_data %>%
   mutate(adm_fv_homo = if_else(
-    adm_a1d == 0 & adm_fv == 0 & adm_booster == 0, 
+    adm_a1d == 0 & adm_fv == 0 & adm_booster == 0,
     adm_td / 2,
       if_else(
         adm_a1d == 0 & adm_fv == 0 & adm_booster != 0,
@@ -319,7 +319,8 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
       a_pop_male)) %>%
     mutate(cov_total_male_fv = adm_fv_male / a_pop_male) %>%
     mutate(adm_fv_fem_homo = pmin(
-      adm_fv_female, a_pop_female)) %>%
+      adm_fv_female,
+      a_pop_female)) %>%
     mutate(cov_total_fem_fv = adm_fv_female / a_pop_female) %>%
     mutate(adm_fv_gen = adm_fv_male_homo + adm_fv_fem_homo)
 
@@ -378,44 +379,61 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     mutate(cov_total_gen_diff = cov_total_fem_fv - cov_total_male_fv)
   
   # Coverage categories in target groups
-  a_data <- a_data %>%
-    mutate(cov_hcw_fv_cat = if_else(
-      cov_hcw_fv < 0.1,
-      "1) 1-10%",
-      if_else(
-        cov_hcw_fv < 0.2,
-        "2) 10-20%",
-        if_else(
-          cov_hcw_fv < 0.4,
-          "3) 20-40%",
-          if_else(
-            cov_hcw_fv < 0.7,
-            "4) 40-70%",
-            if_else(cov_hcw_fv >= 0.7, "5) 70%+",
-                    NA_character_)
-          )
-        )
-      )
-    )) %>%
+
+  a_data$cov_hcw_fv_cat <- cut(
+    a_data$cov_hcw_fv,
+    breaks = c(-Inf, 0.1, 0.2, 0.4, 0.7, Inf),
+    labels = c("1) 1-10%", "2) 10-20%", "3) 20-40%", "4) 40-70%", "5) 70%+"),
+    include.lowest = TRUE,
+    right = FALSE
+  )
+
+  a_data$cov_60p_fv_cat <- cut(
+    a_data$cov_60p_fv,
+    breaks = c(-Inf, 0.1, 0.2, 0.4, 0.7, Inf),
+    labels = c("1) 1-10%", "2) 10-20%", "3) 20-40%", "4) 40-70%", "5) 70%+"),
+    include.lowest = TRUE,
+    right = FALSE
+  )
+
+  # a_data <- a_data %>%
+  #   mutate(cov_hcw_fv_cat = if_else(
+  #     cov_hcw_fv < 0.1,
+  #     "1) 1-10%",
+  #     if_else(
+  #       cov_hcw_fv < 0.2,
+  #       "2) 10-20%",
+  #       if_else(
+  #         cov_hcw_fv < 0.4,
+  #         "3) 20-40%",
+  #         if_else(
+  #           cov_hcw_fv < 0.7,
+  #           "4) 40-70%",
+  #           if_else(cov_hcw_fv >= 0.7, "5) 70%+",
+  #                   NA_character_)
+  #         )
+  #       )
+  #     )
+  #   )) %>%
     
-    mutate(cov_60p_fv_cat = if_else(
-      cov_60p_fv < 0.1,
-      "1) 1-10%",
-      if_else(
-        cov_60p_fv < 0.2,
-        "2) 10-20%",
-        if_else(
-          cov_60p_fv < 0.4,
-          "3) 20-40%",
-          if_else(
-            cov_60p_fv < 0.7,
-            "4) 40-70%",
-            if_else(cov_60p_fv >= 0.7, "5) 70%+",
-                    NA_character_)
-          )
-        )
-      )
-    ))
+  #   mutate(cov_60p_fv_cat = if_else(
+  #     cov_60p_fv < 0.1,
+  #     "1) 1-10%",
+  #     if_else(
+  #       cov_60p_fv < 0.2,
+  #       "2) 10-20%",
+  #       if_else(
+  #         cov_60p_fv < 0.4,
+  #         "3) 20-40%",
+  #         if_else(
+  #           cov_60p_fv < 0.7,
+  #           "4) 40-70%",
+  #           if_else(cov_60p_fv >= 0.7, "5) 70%+",
+  #                   NA_character_)
+  #         )
+  #       )
+  #     )
+  #   ))
   
   # Calculate 4-week average daily rates as % of pop.
   print(" >>> Computing 4-week average daily rates as % of pop...")
@@ -444,60 +462,22 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     mutate(dvr_4wk_td_change_lm_per = if_else(
       is.infinite(dvr_4wk_td_change_lm / dvr_4wk_td_lm),
       1,
-      dvr_4wk_td_change_lm / dvr_4wk_td_lm)) %>%
-    mutate(
-      dvr_4wk_td_change_lm_per_cat = if_else(
-        dvr_4wk_td_change_lm_per <= -0.25,
-        "1) < (-25)%",
-        if_else(
-          dvr_4wk_td_change_lm_per >= 0.25,
-          "4) > 25%",
-          if_else(
-            dvr_4wk_td_change_lm_per <= 0,
-            "2) (-25)-0%",
-            if_else(dvr_4wk_td_change_lm_per > 0, "3) 0-25%",
-            NA_character_)
-          )
-        )
-      )
-    ) %>%
-    mutate(
-      dvr_4wk_td_change_lm_trend = if_else(
-        dvr_4wk_td_change_lm_per <= -0.25,
-        "Downward",
-        if_else(
-          dvr_4wk_td_change_lm_per >= 0.25,
-          "Upward",
-          if_else(
-            dvr_4wk_td_change_lm_per < 0.25 &
-              dvr_4wk_td_change_lm_per > -0.25,
-            "Stable",
-            NA_character_
-          )
-        )
-      )
-    )
+      dvr_4wk_td_change_lm / dvr_4wk_td_lm))
 
+  a_data$dvr_4wk_td_change_lm_per_cat <- cut(
+    a_data$dvr_4wk_td_change_lm_per,
+    breaks = c(-Inf, -0.25, 0, 0.25, Inf),
+    labels = c("1) < (-25)%", "2) (-25)-0%", "3) 0-25%", "4) > 25%"),
+    include.lowest = TRUE,
+    right = TRUE
+  )
+
+  a_data$dvr_4wk_td_change_lm_trend <- cut(
+    a_data$dvr_4wk_td_change_lm_per,
+    breaks = c(-Inf, -0.25, 0.25, Inf),
+    labels = c("Downward", "Stable", "Upward"),
+    include.lowest = FALSE,
+    right = TRUE
+  )
   return(a_data)
 }
-
-
- # breaks <- c(-1, -0.25, 0.25, 0, 1)
-    # tags <- c("1) < (-25)%", "4) > 25%", "2) (-25)-0%", "3) 0-25%") #nolint 
-    # a_data$dvr_4wk_td_change_lm_per_cat <- cut(
-    #   a_data$dvr_4wk_td_change_lm_per,
-    #   breaks = breaks,
-    #   include.lowest = TRUE,
-    #   right = FALSE,
-    #   labels = tags
-    # )
-
- # a_data$dvr_4wk_td_change_lm_trend <- c(-1, -0.25, 0.25, 1)
-    # tags <- c("Downward", "Upward", "Stable") #nolint 
-    # group_tags <- cut(
-    #   a_data$dvr_4wk_td_change_lm_per,
-    #   breaks = breaks,
-    #   include.lowest = TRUE,
-    #   right = FALSE,
-    #   labels = tags
-    # )
