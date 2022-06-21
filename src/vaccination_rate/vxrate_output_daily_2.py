@@ -211,14 +211,20 @@ df7_median = df7.groupby(['iso_code'])['rolling_4_week_avg_fv'].median().reset_i
 df7_max.rename(columns = {'rolling_4_week_avg_fv' : 'med_rolling_4_week_avg_fv'}, inplace = True)
 df7 = df7.merge(df7_median, on = 'iso_code', how = 'left')
 
-
 df8 = df7.copy()
 
+print(' > merging data with cc and owid1...')
 df9 = df8.merge(cc, on = 'iso_code', how = 'inner')
 df9 = df9.merge(owid1, on = ['iso_code', 'date'], how = 'left')
 df9['rolling_4_week_avg_td_per100'] = 100 * df9['rolling_4_week_avg_td'] / df9['population']
 df9['rolling_8_week_avg_td_per100'] = 100 * df9['rolling_8_week_avg_td'] / df9['population']
 df9['max_rolling_4_week_avg_td_per100'] = 100 * df9['max_rolling_4_week_avg_td'] / df9['population']
 
-#df_date_week = df9.loc[df9['is_original_reported'] == 1, ['iso_code', 'date', 'total_doses']]
-#df_date_week['date_week'] = 
+print(' > Identifying countries that have not reported last week...')
+df_date_week = df9.loc[df9['is_original_reported'] == 1, ['iso_code', 'date', 'total_doses']]
+df_date_week['date'] = pd.to_datetime(df_date_week['date']) #, format = '%Y-%m-%d')
+df_date_week['date_week'] = df_date_week['date'] + pd.to_timedelta(-1, unit = 'D') + pd.to_timedelta( (4 - df_date_week['date'].dt.dayofweek) % 7 , unit = 'D')
+df_date_week.drop_duplicates()
+week_max = df_date_week.groupby(['iso_code', 'date_week'])['total_doses'].max().reset_index()
+week_max.rename(columns = {'total_doses': 'week_max'}, inplace = True)
+# df_date_week.merge(week_max) TBC
