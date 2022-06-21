@@ -223,8 +223,46 @@ df9['max_rolling_4_week_avg_td_per100'] = 100 * df9['max_rolling_4_week_avg_td']
 print(' > Identifying countries that have not reported last week...')
 df_date_week = df9.loc[df9['is_original_reported'] == 1, ['iso_code', 'date', 'total_doses']]
 df_date_week['date'] = pd.to_datetime(df_date_week['date']) #, format = '%Y-%m-%d')
-df_date_week['date_week'] = df_date_week['date'] + pd.to_timedelta(-1, unit = 'D') + pd.to_timedelta( (4 - df_date_week['date'].dt.dayofweek) % 7 , unit = 'D')
-df_date_week.drop_duplicates()
+df_date_week['date_week'] = df_date_week['date'] + pd.to_timedelta(-1, unit = 'D') + \
+    pd.to_timedelta( (4 - df_date_week['date'].dt.dayofweek) % 7 , unit = 'D')
+df_date_week.drop_duplicates(inplace = True)
+
 week_max = df_date_week.groupby(['iso_code', 'date_week'])['total_doses'].max().reset_index()
 week_max.rename(columns = {'total_doses': 'week_max'}, inplace = True)
-# df_date_week.merge(week_max) TBC
+df_date_week.merge(week_max, on = ['iso_code', 'date_week'], how = 'left')
+df_date_week = df_date_week.loc[(df_date_week['week_max'] == df_date_week['total_doses']), :]
+
+date_max = df_date_week.groupby(['iso_code', 'date_week'])['date'].max().reset_index()
+date_max.rename(columns = {'date': 'date_max'}, inplace = True)
+df_date_week.merge(date_max, on = ['iso_code', 'date_week'], how = 'left')
+df_date_week = df_date_week.loc[(df_date_week['date_max'] == df_date_week['date']), :]
+
+df_date_week = df_date_week[['iso_code', 'date', 'date_week', 'max_date_week', 'is_latest', 'week_num']]
+
+print(' > adding flag if latest week is reported...')
+df10 = df9.merge(df_date_week, on = ['iso_code', 'date'], how = 'left')
+df10 = df10.merge(df_flags[['iso_code', 'is_latest_week_reported']].drop_duplicates(), \
+    on = 'iso_clode', how = 'left')
+
+print(' > adding change from previous flag...')
+df11 = df10.copy()
+df11['prev_week_val'] = df11.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['total_doses'].shift(1)
+df11['no_change_from_previous'] = 0
+df11.loc[df11['total_doses'] == df11['prev_week_val'], 'no_change_from_previous'] = 1
+df11.drop('prev_week_val', axis = 1, inplace = True)
+
+print(' > Creating final dataframe')
+df12 = df11[['iso_code', 'entity_name', 'population', 'date', 'is_original_reported', 
+            'cumulative_doses_received', 'effective_supply',
+            'total_doses_owid', 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose',
+            'daily_rate_td', 'rolling_4_week_avg_td', 'max_rolling_4_week_avg_td', 'med_rolling_4_week_avg_td', 
+            'rolling_4_week_avg_td_lastweek', 'rolling_4_week_avg_td_lastmonth', 'rolling_8_week_avg_td', 
+            'rolling_4_week_avg_td_per100', 'rolling_8_week_avg_td_per100', 'max_rolling_4_week_avg_td_per100',
+            'daily_rate_1d', 'rolling_4_week_avg_1d', 'daily_rate_fv', 'rolling_4_week_avg_fv', 
+            'is_latest', 'is_latest_week_reported', 'no_change_from_previous']]
+
+df12 = df12.merge(who[['iso_code', 'date_accessed']].drop_duplicates(), on = 'iso_code', how = 'left')
+
+print(' > Exporting to CSV...')
+df12.to_csv('data/_input/supply_data/analysis_vx_throughput_output_daily.csv', index = False)
+print(' > Done.')
