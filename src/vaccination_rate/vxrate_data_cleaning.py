@@ -314,6 +314,16 @@ def fix_issues_total_doses(df2):
     df2 = df2.loc[~((df2['iso_code'] == 'XKX') & (df2['date'] == '2021-05-30')), :]
     df2 = df2.loc[~((df2['iso_code'] == 'XKX') & (df2['date'] == '2022-04-10')), :]
     df2 = df2.loc[~((df2['iso_code'] == 'YEM') & (df2['date'].between('2021-11-14', '2022-01-17'))), :]
+    df2 = df2.loc[~((df2['iso_code'] == 'DJI') & (df2['date'].between('2022-05-22', '2022-06-05'))), :]
+    df2 = df2.loc[~((df2['iso_code'] == 'IND') & (df2['date'] == '2022-06-07')), :]
+    df2 = df2.loc[~((df2['iso_code'] == 'MKD') & (df2['date'] == '2022-06-05')), :]
+    df2 = df2.loc[~((df2['iso_code'] == 'MNE') & (df2['date'] == '2022-06-05')), :]
+    df2 = df2.loc[~((df2['iso_code'] == 'OMN') & (df2['date'].between('2022-05-16', '2022-05-23'))), :]
+    df2 = df2.loc[~((df2['iso_code'] == 'SDN') & (df2['date'].between('2022-05-22', '2022-05-29'))), :]
+    df2 = df2.loc[~((df2['iso_code'] == 'SVN') & (df2['date'].between('2022-05-15', '2022-05-29'))), :]
+    df2 = df2.loc[~((df2['iso_code'] == 'SXM') & (df2['date'] == '2022-06-03')), :]
+    df2 = df2.loc[~((df2['iso_code'] == 'TUN') & (df2['date'].between('2022-05-22', '2022-06-05'))), :]
+    df2 = df2.loc[~((df2['iso_code'] == 'XAA') & (df2['date'] == '2022-06-10')), :]
     return df2
 
 df2 = fix_issues_total_doses(df2)
