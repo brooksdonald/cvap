@@ -212,3 +212,13 @@ df7_max.rename(columns = {'rolling_4_week_avg_fv' : 'med_rolling_4_week_avg_fv'}
 df7 = df7.merge(df7_median, on = 'iso_code', how = 'left')
 
 
+df8 = df7.copy()
+
+df9 = df8.merge(cc, on = 'iso_code', how = 'inner')
+df9 = df9.merge(owid1, on = ['iso_code', 'date'], how = 'left')
+df9['rolling_4_week_avg_td_per100'] = 100 * df9['rolling_4_week_avg_td'] / df9['population']
+df9['rolling_8_week_avg_td_per100'] = 100 * df9['rolling_8_week_avg_td'] / df9['population']
+df9['max_rolling_4_week_avg_td_per100'] = 100 * df9['max_rolling_4_week_avg_td'] / df9['population']
+
+#df_date_week = df9.loc[df9['is_original_reported'] == 1, ['iso_code', 'date', 'total_doses']]
+#df_date_week['date_week'] = 
