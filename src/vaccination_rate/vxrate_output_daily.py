@@ -62,7 +62,7 @@ uti_supply1['doses_received'] = uti_supply1['cumulative_doses_received_uti'] - u
 print(" > filling na's with cumulative_doses_received_uti...")
 uti_supply1['doses_received'].fillna(uti_supply1['cumulative_doses_received_uti'], inplace = True)
 print(" > creating uti-supply1 df...")
-uti_supply1 = pd.DataFrame(uti_supply1)
+uti_supply1.columns = ['iso_code', 'date', 'doses_received', 'cumulative_doses_received']
 print(" > Done.")
 
 # define supply threshold
@@ -145,6 +145,15 @@ df3 = df3.merge(min_vx_rollout_date, on = 'iso_code', how = 'left')
 
 
 df4 = df3.merge(uti_supply1, on = ['iso_code', 'date'], how = 'outer')
+df4.loc[:, ['iso_code', 'date', 'cumulative_doses_received']].ffill(axis = 0, inplace = True)
+df4 = df4.loc[~(df4['country_name_friendly'].isna()), :]
 
-### two more chunks to go
+df4['cumulative_doses_received'] = df4[['cumulative_doses_received', 'total_doses']].max(axis = 1)
+df4['total_doses_prev_week'] = df4.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['total_doses'].shift(1)
+df4['effective_supply'] = df4['cumulative_doses_received'] - df4['total_doses_prev_week']
+df4['cumulative_supply_20'] = df4['cumulative_doses_received'] * supply_threshold
+df4['supply_constrained'] = None
+df4.loc[(df4['effective_supply'] < df4['cumulative_supply_20']), 'supply_constrained'] = 1
+df4.loc[(df4['effective_supply'] >= df4['cumulative_supply_20']), 'supply_constrained'] = 0
+df4.drop('total_doses_prev_week', axis = 1, inplace = True)
 
