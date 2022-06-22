@@ -176,7 +176,8 @@ df5.drop('prev_total', axis = 1, inplace = True)
 
 print(' > Calculating moving averages...')
 df5['hours'] = '00.00.00'
-df5['DateTime'] = df5['date'].astype(str).str.cat(df5['hours'], sep = " ") # (df5['date'].to_string()) + ' ' + '00.00.00'
+df5['DateTime'] = df5['date'].astype(str).str.cat(df5['hours'], sep = " ") 
+df5.drop("hours", axis = 1, inplace = True)
 df5.DateTime = df5.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H.%M.%S'))
 df5.index = df5.DateTime
 df5.sort_index(inplace = True)
@@ -188,42 +189,50 @@ rolling_4_week_avg_td.rename(columns = {'total_doses': 'rolling_4_week_avg_td'},
 rolling_8_week_avg_td = df5.groupby(['iso_code'])['total_doses'].rolling(str(days_in_weeks8) + 'D').mean().reset_index()
 rolling_8_week_avg_td.rename(columns = {'total_doses': 'rolling_8_week_avg_td'}, inplace = True)
 
-
-print(' > last week\'s moving averages...')
-df5a = df5.copy()
-df5a.Time = pd.to_timedelta(7, unit='D')
-df5a.index = df5a.index + df5a.Time
-df5c = df5.copy()
-df5c['total_doses'] = None
-df5b = pd.concat([df5a, df5c], ignore_index = False)
-df5b.sort_index(inplace = True)
-
-rolling_4_week_avg_1d_lastweek = df5b.groupby(['iso_code'])['total_doses'].rolling(str(days_in_weeks4) + 'D').mean().reset_index()
-rolling_4_week_avg_1d_lastweek.rename(columns = {'total_doses': 'rolling_4_week_avg_1d_lastweek'}, inplace = True)
-
-print(' > last month\'s moving averages...')
-df5d = df5.copy()
-df5d.Time = pd.to_timedelta(days_in_weeks4 + 1, unit='D')
-df5d.index = df5d.index + df5d.Time
-df5e = df5.copy()
-df5e['total_doses'] = None
-df5f = pd.concat([df5d, df5e], ignore_index = False)
-df5f.sort_index(inplace = True)
-
-rolling_4_week_avg_td_lastmonth = df5f.groupby(['iso_code'])['total_doses'].rolling(str(days_in_weeks4) + 'D').mean().reset_index()
-rolling_4_week_avg_td_lastmonth.rename(columns = {'total_doses': 'rolling_4_week_avg_td_lastmonth'}, inplace = True)
-
 df5.index.names = ['index']
-df5.reset_index()
+df5.reset_index(inplace = True)
 df5 = df5.merge(rolling_4_week_avg_td, on = ['iso_code', 'DateTime'], how = 'left')
 df5 = df5.merge(rolling_8_week_avg_td, on = ['iso_code', 'DateTime'], how = 'left')
-df5 = df5.merge(rolling_4_week_avg_1d_lastweek, on = ['iso_code', 'DateTime'], how = 'left')
-df5 = df5.merge(rolling_4_week_avg_td_lastmonth, on = ['iso_code', 'DateTime'], how = 'left')
+
+
+print(' > last week\'s moving averages...')
+# df5a = df5.copy()
+# df5a.Time = pd.to_timedelta(7, unit='D')
+# df5a.index = df5a.index + df5a.Time
+# df5c = df5.copy()
+# df5c['total_doses'] = None
+# df5b = pd.concat([df5a, df5c], ignore_index = False)
+# df5b.sort_index(inplace = True)
+
+# rolling_4_week_avg_td_lastweek = df5b.groupby(['iso_code'])['total_doses'].rolling(str(days_in_weeks4) + 'D').mean().reset_index()
+# rolling_4_week_avg_td_lastweek.rename(columns = {'total_doses': 'rolling_4_week_avg_1d_lastweek'}, inplace = True)
+
+# rolling_4_week_avg_td_lastweek = df5.groupby(['iso_code'])['total_doses'].rolling(str(days_in_weeks4) + 'D').mean()
+df5['rolling_4_week_avg_td_lastweek'] = df5.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['rolling_4_week_avg_td'].shift(7) ## using the assumption that observations are daily and continuous
+
+print(' > last month\'s moving averages...')
+df5['rolling_4_week_avg_td_lastmonth'] = df5.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['rolling_4_week_avg_td'].shift(7 * 4)
+
+
+# df5d = df5.copy()
+# df5d.Time = pd.to_timedelta(days_in_weeks4 + 1, unit='D')
+# df5d.index = df5d.index + df5d.Time
+# df5e = df5.copy()
+# df5e['total_doses'] = None
+# df5f = pd.concat([df5d, df5e], ignore_index = False)
+# df5f.sort_index(inplace = True)
+
+# rolling_4_week_avg_td_lastmonth = df5f.groupby(['iso_code'])['total_doses'].rolling(str(days_in_weeks4) + 'D').mean().reset_index()
+# rolling_4_week_avg_td_lastmonth.rename(columns = {'total_doses': 'rolling_4_week_avg_td_lastmonth'}, inplace = True)
+
+
+# df5 = df5.merge(rolling_4_week_avg_td_lastweek, on = ['iso_code', 'DateTime'], how = 'left')
+# df5 = df5.merge(rolling_4_week_avg_td_lastmonth, on = ['iso_code', 'DateTime'], how = 'left')
 df5.drop('DateTime', axis = 1, inplace = True)
-if 'rolling_4_week_avg_td_x' in df5.columns:
-    df5.rename(columns = {'rolling_4_week_avg_td_x' : 'rolling_4_week_avg_td'}, inplace = True)
-if 'rolling_4_week_avg_td_y' in df5.columns:
-    df5.rename(columns = {'rolling_4_week_avg_td_y' : 'rolling_4_week_avg_td'}, inplace = True)
+# if 'rolling_4_week_avg_td_x' in df5.columns:
+#     df5.rename(columns = {'rolling_4_week_avg_td_x' : 'rolling_4_week_avg_td'}, inplace = True)
+# if 'rolling_4_week_avg_td_y' in df5.columns:
+#     df5.rename(columns = {'rolling_4_week_avg_td_y' : 'rolling_4_week_avg_td'}, inplace = True)
 
 print(' > Maximum and median moving average...')
 df5_max = df5.groupby(['iso_code'])['rolling_4_week_avg_td'].max().reset_index() 
@@ -248,6 +257,7 @@ df6.drop('prev_total', axis = 1, inplace = True)
 print(' > Calculating moving averages...')
 df6['hours'] = '00.00.00'
 df6['DateTime'] = df6['date'].astype(str).str.cat(df6['hours'], sep = " ") 
+df6.drop("hours", axis = 1, inplace = True)
 df6.DateTime = df6.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H.%M.%S'))
 df6.index = df6.DateTime
 df6.sort_index(inplace = True)
