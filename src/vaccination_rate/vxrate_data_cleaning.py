@@ -443,6 +443,7 @@ df3 = df3.merge(df_errors2nd[['iso_code', 'date', 'to_remove_2nd']], on = ['iso_
 df3["to_remove_2nd"].fillna(0, inplace = True)
 df3[['is_data_error', 'to_remove', 'to_remove_1st', 'to_remove_2nd']].astype(int)
 
+df3 = df3[['iso_code','date','country_name','total_doses','at_least_one_dose','fully_vaccinated','persons_booster_add_dose','date_accessed','date_week','is_latest_week_reported','manual_adjustment','is_data_error','to_remove','to_remove_1st','to_remove_2nd']]
 
 print(" > Exporting the dataframe")
 df3.to_csv('data/_input/supply_data/analysis_vx_throughput_data_cleaned.csv', index = False)
