@@ -17,7 +17,8 @@ print(" > Done.")
 
 # get dose administration data for comparison
 print(" > Getting dose administration data for comparison...")
-owid = pd.read_csv('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
+owid = pd.read_csv('data/_input/supply_data/owid-covid-data.csv')
+#owid = pd.read_csv('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
 print(" > Done.")
 
 # get primary data
@@ -202,17 +203,15 @@ print(' > last month\'s moving averages...')
 df5['rolling_4_week_avg_td_lastmonth'] = df5.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['rolling_4_week_avg_td'].shift(7 * 4)
 
 df5.drop('DateTime', axis = 1, inplace = True)
-
 print(' > Maximum and median moving average...')
 df5_max = df5.groupby(['iso_code'])['rolling_4_week_avg_td'].max().reset_index() 
-df5_max.rename(columns = {'rolling_4_week_avg_td' : 'max_rolling_4_week_avg_1d'}, inplace = True)
-df5 = df5.merge(df5_max, on = 'iso_code', how = 'left')
+df5_max.rename(columns = {'rolling_4_week_avg_td' : 'max_rolling_4_week_avg_td'}, inplace = True)
 df5_median = df5.groupby(['iso_code'])['rolling_4_week_avg_td'].median().reset_index() 
-df5_max.rename(columns = {'rolling_4_week_avg_td' : 'med_rolling_4_week_avg_1d'}, inplace = True)
+df5_median.rename(columns = {'rolling_4_week_avg_td' : 'med_rolling_4_week_avg_td'}, inplace = True)
+df5 = df5.merge(df5_max, on = 'iso_code', how = 'left')
 df5 = df5.merge(df5_median, on = 'iso_code', how = 'left')
 
 ## td from here 1d
-
 df6 = df5.copy()
 
 print(" > Calculating daily rate...")
@@ -261,7 +260,7 @@ df6_max = df6.groupby(['iso_code'])['rolling_4_week_avg_1d'].max().reset_index()
 df6_max.rename(columns = {'rolling_4_week_avg_1d' : 'max_rolling_4_week_avg_1d'}, inplace = True)
 df6 = df6.merge(df6_max, on = 'iso_code', how = 'left')
 df6_median = df6.groupby(['iso_code'])['rolling_4_week_avg_1d'].median().reset_index() 
-df6_max.rename(columns = {'rolling_4_week_avg_1d' : 'med_rolling_4_week_avg_1d'}, inplace = True)
+df6_median.rename(columns = {'rolling_4_week_avg_1d' : 'med_rolling_4_week_avg_1d'}, inplace = True)
 df6 = df6.merge(df6_median, on = 'iso_code', how = 'left')
 
 
@@ -312,10 +311,10 @@ df7.drop('DateTime', axis = 1, inplace = True)
 
 print(' > Maximum and median moving average...')
 df7_max = df7.groupby(['iso_code'])['rolling_4_week_avg_fv'].max().reset_index() 
-df7_max.rename(columns = {'rolling_4_week_avg_fv' : 'max_rolling_4_week_avg_1d'}, inplace = True)
+df7_max.rename(columns = {'rolling_4_week_avg_fv' : 'max_rolling_4_week_avg_fv'}, inplace = True)
 df7 = df7.merge(df7_max, on = 'iso_code', how = 'left')
 df7_median = df7.groupby(['iso_code'])['rolling_4_week_avg_fv'].median().reset_index() 
-df7_max.rename(columns = {'rolling_4_week_avg_fv' : 'med_rolling_4_week_avg_1d'}, inplace = True)
+df7_median.rename(columns = {'rolling_4_week_avg_fv' : 'med_rolling_4_week_avg_fv'}, inplace = True)
 df7 = df7.merge(df7_median, on = 'iso_code', how = 'left')
 
 
@@ -460,13 +459,16 @@ df7 = df7.merge(df7_median, on = 'iso_code', how = 'left')
 # df7 = df7.merge(df7_median, on = 'iso_code', how = 'left')
 
 df8 = df7.copy()
-
 print(' > merging data with cc and owid1...')
+cc.rename(columns = {'ISO': 'iso_code', 'Population': 'population'}, inplace = True)
+cc['population'] = cc['population'].str.replace(',', '').astype(float)
 df9 = df8.merge(cc, on = 'iso_code', how = 'inner')
+df9['date'] = df9['date'].astype(str)
 df9 = df9.merge(owid1, on = ['iso_code', 'date'], how = 'left')
-df9['rolling_4_week_avg_td_per100'] = 100 * df9['rolling_4_week_avg_td'] / df9['population']
-df9['rolling_8_week_avg_td_per100'] = 100 * df9['rolling_8_week_avg_td'] / df9['population']
-df9['max_rolling_4_week_avg_td_per100'] = 100 * df9['max_rolling_4_week_avg_td'] / df9['population']
+print(df9.columns)
+df9['rolling_4_week_avg_td_per100'] = 100 * df9['rolling_4_week_avg_td'] / df9['population'] #data from cc is used. Ambigious reference!
+df9['rolling_8_week_avg_td_per100'] = 100 * df9['rolling_8_week_avg_td'] / df9['population'] 
+df9['max_rolling_4_week_avg_td_per100'] = 100 * df9['max_rolling_4_week_avg_td'] / df9['population'] 
 
 print(' > Identifying countries that have not reported last week...')
 df_date_week = df9.loc[(df9['is_original_reported'] == 1), ['iso_code', 'date', 'total_doses']]
@@ -477,14 +479,21 @@ df_date_week.drop_duplicates(inplace = True)
 
 week_max = df_date_week.groupby(['iso_code', 'date_week'])['total_doses'].max().reset_index()
 week_max.rename(columns = {'total_doses': 'week_max'}, inplace = True)
-df_date_week.merge(week_max, on = ['iso_code', 'date_week'], how = 'left')
+df_date_week = df_date_week.merge(week_max, on = ['iso_code', 'date_week'], how = 'left')
 df_date_week = df_date_week.loc[(df_date_week['week_max'] == df_date_week['total_doses']), :]
 
 date_max = df_date_week.groupby(['iso_code', 'date_week'])['date'].max().reset_index()
 date_max.rename(columns = {'date': 'date_max'}, inplace = True)
-df_date_week.merge(date_max, on = ['iso_code', 'date_week'], how = 'left')
+df_date_week = df_date_week.merge(date_max, on = ['iso_code', 'date_week'], how = 'left')
 df_date_week = df_date_week.loc[(df_date_week['date_max'] == df_date_week['date']), :]
 
+max_date_week = df_date_week.groupby(['iso_code'])['date_week'].max().reset_index()
+max_date_week.rename(columns = {'date_week': 'max_date_week'}, inplace = True)
+df_date_week = df_date_week.merge(max_date_week, on = ['iso_code', 'date_week'], how = 'left')
+
+df_date_week['is_latest'] = 0
+df_date_week[(df_date_week['max_date_week'] == df_date_week['date_week']), 'is_latest'] = 1
+df_date_week['week_num'] = df_date_week.sort_values('date_week').groupby(['iso_code']).cumcount() + 1
 df_date_week = df_date_week[['iso_code', 'date', 'date_week', 'max_date_week', 'is_latest', 'week_num']]
 
 print(' > adding flag if latest week is reported...')
@@ -500,7 +509,7 @@ df11.loc[(df11['total_doses'] == df11['prev_week_val']), 'no_change_from_previou
 df11.drop('prev_week_val', axis = 1, inplace = True)
 
 print(' > Creating final dataframe')
-df12 = df11[['iso_code', 'entity_name', 'population', 'date', 'is_original_reported', 
+df12 = df11[['iso_code', 'entity_name', 'Population', 'date', 'is_original_reported', 
             'cumulative_doses_received', 'effective_supply',
             'total_doses_owid', 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose',
             'daily_rate_td', 'rolling_4_week_avg_td', 'max_rolling_4_week_avg_td', 'med_rolling_4_week_avg_td', 
