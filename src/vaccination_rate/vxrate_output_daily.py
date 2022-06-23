@@ -181,10 +181,10 @@ df5.sort_index(inplace = True)
 
 print(' > this week\'s moving averages...')
 # df5['rolling_4_week_avg_td'] = df5.sort_values('date').groupby(['iso_code'])['daily_rate_td'].transform(lambda x: x.rolling(days_in_weeks4, 1).mean())#.reset_index()
-rolling_4_week_avg_td = df5.groupby(['iso_code'])['daily_rate_td'].rolling(str(days_in_weeks4) + 'D').mean().reset_index()
+rolling_4_week_avg_td = df5.groupby(['iso_code'])['daily_rate_td'].rolling(str(days_in_weeks4 + 1) + 'D').mean().reset_index()
 rolling_4_week_avg_td.rename(columns = {'daily_rate_td': 'rolling_4_week_avg_td'}, inplace = True)
 
-rolling_8_week_avg_td = df5.groupby(['iso_code'])['daily_rate_td'].rolling(str(days_in_weeks8) + 'D').mean().reset_index()
+rolling_8_week_avg_td = df5.groupby(['iso_code'])['daily_rate_td'].rolling(str(days_in_weeks8 + 1) + 'D').mean().reset_index()
 rolling_8_week_avg_td.rename(columns = {'daily_rate_td': 'rolling_8_week_avg_td'}, inplace = True)
 
 df5.index.names = ['index']
@@ -231,11 +231,11 @@ df6.index = df6.DateTime
 df6.sort_index(inplace = True)
 
 print(' > this week\'s moving averages...')
-rolling_4_week_avg_1d = df6.groupby(['iso_code'])['at_least_one_dose'].rolling(str(days_in_weeks4) + 'D').mean().reset_index()
-rolling_4_week_avg_1d.rename(columns = {'at_least_one_dose': 'rolling_4_week_avg_1d'}, inplace = True)
+rolling_4_week_avg_1d = df6.groupby(['iso_code'])['daily_rate_1d'].rolling(str(days_in_weeks4 + 1) + 'D').mean().reset_index()
+rolling_4_week_avg_1d.rename(columns = {'daily_rate_1d': 'rolling_4_week_avg_1d'}, inplace = True)
 
-rolling_8_week_avg_1d = df6.groupby(['iso_code'])['at_least_one_dose'].rolling(str(days_in_weeks8) + 'D').mean().reset_index()
-rolling_8_week_avg_1d.rename(columns = {'at_least_one_dose': 'rolling_8_week_avg_1d'}, inplace = True)
+rolling_8_week_avg_1d = df6.groupby(['iso_code'])['daily_rate_1d'].rolling(str(days_in_weeks8 + 1) + 'D').mean().reset_index()
+rolling_8_week_avg_1d.rename(columns = {'daily_rate_1d': 'rolling_8_week_avg_1d'}, inplace = True)
 
 df6.index.names = ['index1']
 df6.reset_index(inplace = True)
@@ -285,11 +285,11 @@ df7.index = df7.DateTime
 df7.sort_index(inplace = True)
 
 print(' > this week\'s moving averages...')
-rolling_4_week_avg_fv = df7.groupby(['iso_code'])['fully_vaccinated'].rolling(str(days_in_weeks4) + 'D').mean().reset_index()
-rolling_4_week_avg_fv.rename(columns = {'fully_vaccinated': 'rolling_4_week_avg_fv'}, inplace = True)
+rolling_4_week_avg_fv = df7.groupby(['iso_code'])['daily_rate_fv'].rolling(str(days_in_weeks4 + 1) + 'D').mean().reset_index()
+rolling_4_week_avg_fv.rename(columns = {'daily_rate_fv': 'rolling_4_week_avg_fv'}, inplace = True)
 
-rolling_8_week_avg_fv = df7.groupby(['iso_code'])['fully_vaccinated'].rolling(str(days_in_weeks8) + 'D').mean().reset_index()
-rolling_8_week_avg_fv.rename(columns = {'fully_vaccinated': 'rolling_8_week_avg_fv'}, inplace = True)
+rolling_8_week_avg_fv = df7.groupby(['iso_code'])['daily_rate_fv'].rolling(str(days_in_weeks8 + 1) + 'D').mean().reset_index()
+rolling_8_week_avg_fv.rename(columns = {'daily_rate_fv': 'rolling_8_week_avg_fv'}, inplace = True)
 
 df7.index.names = ['index2']
 df7.reset_index(inplace = True)
@@ -379,6 +379,8 @@ df12 = df11[['iso_code', 'entity_name', 'population', 'date', 'is_original_repor
             'is_latest', 'is_latest_week_reported', 'no_change_from_previous']]
 
 df12 = df12.merge(who[['iso_code', 'date_accessed']].drop_duplicates(), on = 'iso_code', how = 'left')
+
+df12.sort_values(by = ['iso_code', 'date'], ascending=True, inplace = True)
 
 print(' > Exporting to CSV...')
 df12.to_csv('data/_input/supply_data/analysis_vx_throughput_output_daily.csv', index = False)
