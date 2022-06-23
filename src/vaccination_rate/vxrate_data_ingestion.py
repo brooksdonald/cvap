@@ -43,10 +43,6 @@ df1.columns = ['entity', 'date', 'total_doses', 'at_least_one_dose', 'fully_vacc
 df1['country_name'] = df1['entity'].str.title()
 df1 = pd.DataFrame(df1).drop_duplicates()
 print(" > Done...")
-print(" > printing df")
-print(df1)
-print(" > Done...")
-
 
 try:
   response = urlopen(url2)
@@ -61,7 +57,6 @@ df2 = df2[df2['COUNTRY_FK']!='None']
 df2.columns = ['entity', 'date', 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose', 'source']
 df2['country_name'] = df2['entity'].str.title()
 df2 = pd.DataFrame(df2).drop_duplicates()
-print(df2)
 
 print(" > Joining 2 df to one...")
 df3=pd.concat([df1,df2], ignore_index = True)
