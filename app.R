@@ -34,6 +34,7 @@ source("helpers/transformations.r")
 
 # ETL
 
+source_python("src/vaccination_rate/vxrate_data_ingestion.py", envir = globalenv(), convert = TRUE)
 source("src/base/run_base.r")
 source("src/entity/run_entity.r")
 source("src/population/run_population.r")
@@ -41,6 +42,7 @@ source("src/supply/run_supply.R")
 source("src/vaccines/run_vaccines.r")
 source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
+
 
 base_env <- run_base()
 entity_env <- run_entity()
