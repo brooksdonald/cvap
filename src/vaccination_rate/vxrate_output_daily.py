@@ -1,13 +1,12 @@
 from datetime import date
 import datetime
 import pandas as pd
-#import requests
 import io
 
   
 # Get Data
 print(" > Getting ISO mapping...")
-iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv")
+iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv") # never actually used
 print(" > Done.")
 
 ## get uti_supply
@@ -35,8 +34,7 @@ print(" > Done.")
 print(" > Getting country dimensions...")
 country_dimension = pd.read_csv("data/_input/supply_data/country_dimension.csv")
 country = country_dimension[['iso_code', 'country_name_friendly', 'sub_region_name', 'region_name', 'wb_income_group', 'is_amc92', 'affiliation', 'min_vx_rollout_date', 'first_covax_arrival_date', 'first_vx_shipment_received_date']]
-country = country.loc[country['is_amc92'] == 1, :]
-
+#country = country.loc[country['is_amc92'] == 1, :]
 # Transformation
 print(" > Owid transformation...")
 owid1 = owid[['iso_code', 'date', 'total_vaccinations']]
@@ -47,22 +45,23 @@ print(" > Done.")
 # # supply side
 
 # alternate supply, sourced by Marta
-print(" uti alternate supply (supply1)...")
+print(" > uti alternate supply (supply1)...")
 uti_supply1 = uti_supply[['iso_code', 'date', 'cumulative_doses_received_uti']]
 # print(" > Fill forward...")
 # uti_supply1[['iso_code', 'date', 'cumulative_doses_received_uti']].fillna( method ='ffill', inplace = True)
 print(" > changing cumulative_doses_received_uti data type...")
-uti_supply1['cumulative_doses_received_uti'] = uti_supply1['cumulative_doses_received_uti'].astype(float)
+pd.set_option('mode.chained_assignment', None)
+uti_supply1.loc[:, 'cumulative_doses_received_uti'] = uti_supply1['cumulative_doses_received_uti'].astype(float)
 print(" > changing date t date time...")
-uti_supply1['date'] = pd.to_datetime(uti_supply1['date'])
+uti_supply1.loc[:, 'date'] = pd.to_datetime(uti_supply1['date'])
 print(" > filling all na's with 0...")
-uti_supply1.fillna(0, inplace = True)
+uti_supply1 = uti_supply1.fillna(0).copy()
 print(" > lag intro...")
-uti_supply1['doses_received'] = uti_supply1.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['cumulative_doses_received_uti'].shift(1)
+uti_supply1.loc[:, 'doses_received'] = uti_supply1.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['cumulative_doses_received_uti'].shift(1)
 print(" > Calculating doses received column...")
-uti_supply1['doses_received'] = uti_supply1['cumulative_doses_received_uti'] - uti_supply1['doses_received']
+uti_supply1.loc[:, 'doses_received'] = uti_supply1.loc[:, 'cumulative_doses_received_uti'] - uti_supply1.loc[:, 'doses_received']
 print(" > filling na's with cumulative_doses_received_uti...")
-uti_supply1['doses_received'].fillna(uti_supply1['cumulative_doses_received_uti'], inplace = True)
+uti_supply1.loc[:, 'doses_received'] = uti_supply1.loc[:, 'doses_received'].fillna(uti_supply1.loc[:, 'cumulative_doses_received_uti'])
 print(" > creating uti-supply1 df...")
 uti_supply1.columns = ['iso_code', 'date', 'doses_received', 'cumulative_doses_received']
 print(" > Done.")
@@ -89,6 +88,7 @@ min_date = df1.groupby('iso_code')['date'].min().reset_index()
 min_date.rename(columns = {'date': 'min_date'}, inplace = True)
 df1 = df1.merge(min_date, on = 'iso_code', how = 'left')
 df1.loc[(df1['min_vx_rollout_date'] >= df1['min_date']), 'min_vx_rollout_date'] = df1['min_date'] - pd.to_timedelta(1, unit='D')
+df1 = df1.loc[~(df1['iso_code'] == 'MTQ'), :] 
 
 df1['days_since_vx_intro'] = df1['date'] - df1['min_vx_rollout_date']
 df1['date_prev'] = df1.sort_values(by = 'date', ascending = True) \
@@ -180,11 +180,12 @@ df5.index = df5.DateTime
 df5.sort_index(inplace = True)
 
 print(' > this week\'s moving averages...')
-rolling_4_week_avg_td = df5.groupby(['iso_code'])['total_doses'].rolling(str(days_in_weeks4) + 'D').mean().reset_index()
-rolling_4_week_avg_td.rename(columns = {'total_doses': 'rolling_4_week_avg_td'}, inplace = True)
+# df5['rolling_4_week_avg_td'] = df5.sort_values('date').groupby(['iso_code'])['daily_rate_td'].transform(lambda x: x.rolling(days_in_weeks4, 1).mean())#.reset_index()
+rolling_4_week_avg_td = df5.groupby(['iso_code'])['daily_rate_td'].rolling(str(days_in_weeks4) + 'D').mean().reset_index()
+rolling_4_week_avg_td.rename(columns = {'daily_rate_td': 'rolling_4_week_avg_td'}, inplace = True)
 
-rolling_8_week_avg_td = df5.groupby(['iso_code'])['total_doses'].rolling(str(days_in_weeks8) + 'D').mean().reset_index()
-rolling_8_week_avg_td.rename(columns = {'total_doses': 'rolling_8_week_avg_td'}, inplace = True)
+rolling_8_week_avg_td = df5.groupby(['iso_code'])['daily_rate_td'].rolling(str(days_in_weeks8) + 'D').mean().reset_index()
+rolling_8_week_avg_td.rename(columns = {'daily_rate_td': 'rolling_8_week_avg_td'}, inplace = True)
 
 df5.index.names = ['index']
 df5.reset_index(inplace = True)
@@ -324,7 +325,7 @@ cc['population'] = cc['population'].str.replace(',', '').astype(float)
 df9 = df8.merge(cc, on = 'iso_code', how = 'inner')
 df9['date'] = df9['date'].astype(str)
 df9 = df9.merge(owid1, on = ['iso_code', 'date'], how = 'left')
-print(df9.columns)
+df9['total_doses_owid'] = df9['total_doses_owid'].interpolate(method='linear', limit_direction='forward')
 df9['rolling_4_week_avg_td_per100'] = 100 * df9['rolling_4_week_avg_td'] / df9['population'] #data from cc is used. Ambigious reference!
 df9['rolling_8_week_avg_td_per100'] = 100 * df9['rolling_8_week_avg_td'] / df9['population'] 
 df9['max_rolling_4_week_avg_td_per100'] = 100 * df9['max_rolling_4_week_avg_td'] / df9['population'] 
