@@ -1,13 +1,12 @@
 from datetime import date
 import datetime
 import pandas as pd
-#import requests
 import io
 
   
 # Get Data
 print(" > Getting ISO mapping...")
-iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv")
+iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv") # never actually used
 print(" > Done.")
 
 ## get uti_supply
@@ -35,8 +34,7 @@ print(" > Done.")
 print(" > Getting country dimensions...")
 country_dimension = pd.read_csv("data/_input/supply_data/country_dimension.csv")
 country = country_dimension[['iso_code', 'country_name_friendly', 'sub_region_name', 'region_name', 'wb_income_group', 'is_amc92', 'affiliation', 'min_vx_rollout_date', 'first_covax_arrival_date', 'first_vx_shipment_received_date']]
-country = country.loc[country['is_amc92'] == 1, :]
-
+#country = country.loc[country['is_amc92'] == 1, :]
 # Transformation
 print(" > Owid transformation...")
 owid1 = owid[['iso_code', 'date', 'total_vaccinations']]
@@ -89,6 +87,7 @@ min_date = df1.groupby('iso_code')['date'].min().reset_index()
 min_date.rename(columns = {'date': 'min_date'}, inplace = True)
 df1 = df1.merge(min_date, on = 'iso_code', how = 'left')
 df1.loc[(df1['min_vx_rollout_date'] >= df1['min_date']), 'min_vx_rollout_date'] = df1['min_date'] - pd.to_timedelta(1, unit='D')
+df1 = df1.loc[~(df1['iso_code'] == 'MTQ'), :] 
 
 df1['days_since_vx_intro'] = df1['date'] - df1['min_vx_rollout_date']
 df1['date_prev'] = df1.sort_values(by = 'date', ascending = True) \
@@ -180,11 +179,12 @@ df5.index = df5.DateTime
 df5.sort_index(inplace = True)
 
 print(' > this week\'s moving averages...')
-rolling_4_week_avg_td = df5.groupby(['iso_code'])['total_doses'].rolling(str(days_in_weeks4) + 'D').mean().reset_index()
-rolling_4_week_avg_td.rename(columns = {'total_doses': 'rolling_4_week_avg_td'}, inplace = True)
+# df5['rolling_4_week_avg_td'] = df5.sort_values('date').groupby(['iso_code'])['daily_rate_td'].transform(lambda x: x.rolling(days_in_weeks4, 1).mean())#.reset_index()
+rolling_4_week_avg_td = df5.groupby(['iso_code'])['daily_rate_td'].rolling(str(days_in_weeks4) + 'D').mean().reset_index()
+rolling_4_week_avg_td.rename(columns = {'daily_rate_td': 'rolling_4_week_avg_td'}, inplace = True)
 
-rolling_8_week_avg_td = df5.groupby(['iso_code'])['total_doses'].rolling(str(days_in_weeks8) + 'D').mean().reset_index()
-rolling_8_week_avg_td.rename(columns = {'total_doses': 'rolling_8_week_avg_td'}, inplace = True)
+rolling_8_week_avg_td = df5.groupby(['iso_code'])['daily_rate_td'].rolling(str(days_in_weeks8) + 'D').mean().reset_index()
+rolling_8_week_avg_td.rename(columns = {'daily_rate_td': 'rolling_8_week_avg_td'}, inplace = True)
 
 df5.index.names = ['index']
 df5.reset_index(inplace = True)
@@ -324,7 +324,7 @@ cc['population'] = cc['population'].str.replace(',', '').astype(float)
 df9 = df8.merge(cc, on = 'iso_code', how = 'inner')
 df9['date'] = df9['date'].astype(str)
 df9 = df9.merge(owid1, on = ['iso_code', 'date'], how = 'left')
-print(df9.columns)
+df9['total_doses_owid'] = df9['total_doses_owid'].interpolate(method='linear', limit_direction='forward')
 df9['rolling_4_week_avg_td_per100'] = 100 * df9['rolling_4_week_avg_td'] / df9['population'] #data from cc is used. Ambigious reference!
 df9['rolling_8_week_avg_td_per100'] = 100 * df9['rolling_8_week_avg_td'] / df9['population'] 
 df9['max_rolling_4_week_avg_td_per100'] = 100 * df9['max_rolling_4_week_avg_td'] / df9['population'] 
