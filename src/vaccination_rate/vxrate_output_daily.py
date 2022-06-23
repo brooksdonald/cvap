@@ -45,22 +45,23 @@ print(" > Done.")
 # # supply side
 
 # alternate supply, sourced by Marta
-print(" uti alternate supply (supply1)...")
+print(" > uti alternate supply (supply1)...")
 uti_supply1 = uti_supply[['iso_code', 'date', 'cumulative_doses_received_uti']]
 # print(" > Fill forward...")
 # uti_supply1[['iso_code', 'date', 'cumulative_doses_received_uti']].fillna( method ='ffill', inplace = True)
 print(" > changing cumulative_doses_received_uti data type...")
-uti_supply1['cumulative_doses_received_uti'] = uti_supply1['cumulative_doses_received_uti'].astype(float)
+pd.set_option('mode.chained_assignment', None)
+uti_supply1.loc[:, 'cumulative_doses_received_uti'] = uti_supply1['cumulative_doses_received_uti'].astype(float)
 print(" > changing date t date time...")
-uti_supply1['date'] = pd.to_datetime(uti_supply1['date'])
+uti_supply1.loc[:, 'date'] = pd.to_datetime(uti_supply1['date'])
 print(" > filling all na's with 0...")
-uti_supply1.fillna(0, inplace = True)
+uti_supply1 = uti_supply1.fillna(0).copy()
 print(" > lag intro...")
-uti_supply1['doses_received'] = uti_supply1.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['cumulative_doses_received_uti'].shift(1)
+uti_supply1.loc[:, 'doses_received'] = uti_supply1.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['cumulative_doses_received_uti'].shift(1)
 print(" > Calculating doses received column...")
-uti_supply1['doses_received'] = uti_supply1['cumulative_doses_received_uti'] - uti_supply1['doses_received']
+uti_supply1.loc[:, 'doses_received'] = uti_supply1.loc[:, 'cumulative_doses_received_uti'] - uti_supply1.loc[:, 'doses_received']
 print(" > filling na's with cumulative_doses_received_uti...")
-uti_supply1['doses_received'].fillna(uti_supply1['cumulative_doses_received_uti'], inplace = True)
+uti_supply1.loc[:, 'doses_received'] = uti_supply1.loc[:, 'doses_received'].fillna(uti_supply1.loc[:, 'cumulative_doses_received_uti'])
 print(" > creating uti-supply1 df...")
 uti_supply1.columns = ['iso_code', 'date', 'doses_received', 'cumulative_doses_received']
 print(" > Done.")
