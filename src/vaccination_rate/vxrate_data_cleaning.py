@@ -1,85 +1,100 @@
 import pandas as pd
 from datetime import datetime, timedelta
 
-print(" > Loading dataset...")
-who = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_data.csv")
-iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv")
 
-print(" > Converting data types") ## these rows are technically obsolete because data is read in as float automatically
-who["total_doses"] = who["total_doses"].astype(float)
-who["at_least_one_dose"] = who["at_least_one_dose"].astype(float)
-who["fully_vaccinated"] = who["fully_vaccinated"].astype(float)
-who["persons_booster_add_dose"] = who["persons_booster_add_dose"].astype(float)
+def import_data():
+    print(" > Loading dataset...")
+    who = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_data.csv")
+    iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv")
+    return who, iso_mapping
 
-print(" > Remove NA...")
-who = who[who['total_doses'].notna()]
-who = who[who['total_doses'] > 0]
 
-print(" > Selecting relevant columns...")
-df1 = who[['country_name', 'date', 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose', 'date_accessed']]
+def convert_data_types(who):
+    print(" > Converting data types") ## these rows are technically obsolete because data is read in as float automatically
+    who["total_doses"] = who["total_doses"].astype(float)
+    who["at_least_one_dose"] = who["at_least_one_dose"].astype(float)
+    who["fully_vaccinated"] = who["fully_vaccinated"].astype(float)
+    who["persons_booster_add_dose"] = who["persons_booster_add_dose"].astype(float)
+    return who
 
-print(" > Converting date to date_week...")
-df1['date'] = pd.to_datetime(df1['date'], format = '%Y-%m-%d')
-df1['date_week'] = df1['date'] + pd.to_timedelta( (4 - df1['date'].dt.dayofweek) % 7 , unit = 'D')
 
-print(" > Dropping duplicates...")
-df1.drop_duplicates(inplace = True)
+def cleaning(who):
+    print(" > Remove NA...")
+    who = who[who['total_doses'].notna()]
+    who = who[who['total_doses'] > 0]
 
-print(" > Mapping ISO codes...")
-iso_mapping['country_name'] = iso_mapping['country_name'].str.title()
-df1 = df1.merge(iso_mapping, on = 'country_name', how = 'left')
-df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba/Saba', 'iso_code'] = 'BES1'
-df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba/Sint Eustatius', 'iso_code'] = 'BES1'
-df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba', 'iso_code'] = 'BES2'
-df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba/Bonaire', 'iso_code'] = 'XAA'
-df1.loc[df1['country_name'] == 'Occupied Palestinian Territory, Including East Jerusalem', 'iso_code'] = 'PSE'
-df1.loc[df1['country_name'] == 'Sint Maarten', 'iso_code'] = 'SXM'
-df1.loc[df1['country_name'] == 'Wallis And Futuna', 'iso_code'] = 'WLF'
-df1.loc[df1['country_name'] == 'Pitcairn Islands', 'iso_code'] = 'PCN'
-df1.loc[df1['country_name'] == 'Northern Mariana Islands (Commonwealth Of The)', 'iso_code'] = 'MNP'
-df1.loc[df1['country_name'] == 'The United Kingdom', 'iso_code'] = 'GBR'
-df1.loc[df1['country_name'] == 'Turkey', 'iso_code'] = 'TUR'
-df1.loc[df1['country_name'] == 'Kosovo', 'iso_code'] = 'KOS'
+    print(" > Selecting relevant columns...")
+    df1 = who[['country_name', 'date', 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose', 'date_accessed']]
+    return df1
 
-print(" > Identifying countries that have not reported for the latest week...")
-max_date_week = df1['date_week'].max()
-df1['max_date_week'] = df1.groupby('iso_code')['date_week'].transform('max')
-df1['is_latest_week_reported'] = 0
-df1.loc[df1['max_date_week'] == max_date_week, 'is_latest_week_reported'] = 1
-df1.drop('max_date_week', axis = 1, inplace = True)
 
-manual_fix_list =  ['AFG', 'AGO', 'AIA', 'ARE', 'ARM', 'ASM', 'ATG', 'AUS', 'AZE', 
-                    'BDI', 'BEN', 'BFA', 'BGR', 'BHR', 'BLR', 'BRA', 'BTN', 'BWA', 
-                    'CAN', 'CAF', 'CHN', 'COD', 'COK', 'COL', 'COM', 'CYM', 
-                    'DMK', 'DMA', 'DJI',
-                    'ESP', 'ETH',
-                    'FRA', 'FSM',
-                    'GAB', 'GBR', 'GEO', 'GLP', 'GMB', 'GNB', 'GNQ', 'GUM',
-                    'HND', 'HUN', 
-                    'IRL', 'ISL', 'ISR', 
-                    'JOR', 'JPN', 
-                    'KAZ', 'KGZ', 'KHM', 'KIR', 'KNA', 
-                    'LSO', 'LUX', 'LVA', 
-                    'MAR', 'MCO', 'MDV', 'MHL', 'MKD', 'MLT', 'MOZ', 'MYS', 
-                    'NAM', 'NER', 'NIC', 'NIU', 'NPL', 'NZL',
-                    'OMN',
-                    'PAK', 'PHL', 'POL', 'PLW', 'PYF', 'PSE',
-                    'QAT'
-                    'ROU', 'RUS', 'RWA', 
-                    'SAU', 'SDN', 'SEN', 'SLE', 'SSD', 'SVN', 'SYC', 
-                    'TCD', 'TGO', 'TKM', 'TLS', 'TUR',
-                    'UGA', 'UKR', 'USA', 'UZB', 
-                    'VCT', 'VUT',
-                    'WSM',
-                    'XKX',
-                    'YEM']
+def date_to_date_week(df1):
+    print(" > Converting date to date_week...")
+    df1['date'] = pd.to_datetime(df1['date'], format = '%Y-%m-%d')
+    df1['date_week'] = df1['date'] + pd.to_timedelta( (4 - df1['date'].dt.dayofweek) % 7 , unit = 'D')
 
-print(" > Remove missing values...")
-df1 = df1.fillna(0)
+    print(" > Dropping duplicates...")
+    df1.drop_duplicates(inplace = True)
+    return df1
 
-print(" > Fix data issues with total_doses...")
-df2 = df1[df1['iso_code'] != 'BES1']
+
+def map_iso_codes(df1, iso_mapping):
+    print(" > Mapping ISO codes...")
+    iso_mapping['country_name'] = iso_mapping['country_name'].str.title()
+    df1 = df1.merge(iso_mapping, on = 'country_name', how = 'left')
+    df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba/Saba', 'iso_code'] = 'BES1'
+    df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba/Sint Eustatius', 'iso_code'] = 'BES1'
+    df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba', 'iso_code'] = 'BES2'
+    df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba/Bonaire', 'iso_code'] = 'XAA'
+    df1.loc[df1['country_name'] == 'Occupied Palestinian Territory, Including East Jerusalem', 'iso_code'] = 'PSE'
+    df1.loc[df1['country_name'] == 'Sint Maarten', 'iso_code'] = 'SXM'
+    df1.loc[df1['country_name'] == 'Wallis And Futuna', 'iso_code'] = 'WLF'
+    df1.loc[df1['country_name'] == 'Pitcairn Islands', 'iso_code'] = 'PCN'
+    df1.loc[df1['country_name'] == 'Northern Mariana Islands (Commonwealth Of The)', 'iso_code'] = 'MNP'
+    df1.loc[df1['country_name'] == 'The United Kingdom', 'iso_code'] = 'GBR'
+    df1.loc[df1['country_name'] == 'Turkey', 'iso_code'] = 'TUR'
+    df1.loc[df1['country_name'] == 'Kosovo', 'iso_code'] = 'KOS'
+
+    print(" > Identifying countries that have not reported for the latest week...")
+    max_date_week = df1['date_week'].max()
+    df1['max_date_week'] = df1.groupby('iso_code')['date_week'].transform('max')
+    df1['is_latest_week_reported'] = 0
+    df1.loc[df1['max_date_week'] == max_date_week, 'is_latest_week_reported'] = 1
+    df1.drop('max_date_week', axis = 1, inplace = True)
+    
+    print(" > Remove missing values...")
+    df1 = df1.fillna(0)
+    df2 = df1[df1['iso_code'] != 'BES1']
+    return df1, df2
+
+
 def fix_issues_total_doses(df2):
+    print(" > Fix data issues with total_doses...")
+    manual_fix_list =  ['AFG', 'AGO', 'AIA', 'ARE', 'ARM', 'ASM', 'ATG', 'AUS', 'AZE', 
+                        'BDI', 'BEN', 'BFA', 'BGR', 'BHR', 'BLR', 'BRA', 'BTN', 'BWA', 
+                        'CAN', 'CAF', 'CHN', 'COD', 'COK', 'COL', 'COM', 'CYM', 
+                        'DMK', 'DMA', 'DJI',
+                        'ESP', 'ETH',
+                        'FRA', 'FSM',
+                        'GAB', 'GBR', 'GEO', 'GLP', 'GMB', 'GNB', 'GNQ', 'GUM',
+                        'HND', 'HUN', 
+                        'IRL', 'ISL', 'ISR', 
+                        'JOR', 'JPN', 
+                        'KAZ', 'KGZ', 'KHM', 'KIR', 'KNA', 
+                        'LSO', 'LUX', 'LVA', 
+                        'MAR', 'MCO', 'MDV', 'MHL', 'MKD', 'MLT', 'MOZ', 'MYS', 
+                        'NAM', 'NER', 'NIC', 'NIU', 'NPL', 'NZL',
+                        'OMN',
+                        'PAK', 'PHL', 'POL', 'PLW', 'PYF', 'PSE',
+                        'QAT'
+                        'ROU', 'RUS', 'RWA', 
+                        'SAU', 'SDN', 'SEN', 'SLE', 'SSD', 'SVN', 'SYC', 
+                        'TCD', 'TGO', 'TKM', 'TLS', 'TUR',
+                        'UGA', 'UKR', 'USA', 'UZB', 
+                        'VCT', 'VUT',
+                        'WSM',
+                        'XKX',
+                        'YEM']
     df2 = df2.loc[~((df2['iso_code'] == 'AFG') & (df2['date'] == '2021-08-20')), :]
     df2 = df2.loc[~((df2['iso_code'] == 'AFG') & (df2['date'] == '2021-11-04')), :]
     df2 = df2.loc[~((df2['iso_code'] == 'AFG') & (df2['date'] == '2022-04-03')), :]
@@ -324,12 +339,11 @@ def fix_issues_total_doses(df2):
     df2 = df2.loc[~((df2['iso_code'] == 'SXM') & (df2['date'] == '2022-06-03')), :]
     df2 = df2.loc[~((df2['iso_code'] == 'TUN') & (df2['date'].between('2022-05-22', '2022-06-05'))), :]
     df2 = df2.loc[~((df2['iso_code'] == 'XAA') & (df2['date'] == '2022-06-10')), :]
-    return df2
+    return df2, manual_fix_list
 
-df2 = fix_issues_total_doses(df2)
 
-print(" > Fix data issues with at_least_one_dose...")
 def fix_issues_at_least_one_dose(df2):
+    print(" > Fix data issues with at_least_one_dose...")
     df2.loc[((df2['iso_code'] == 'AFG') & (df2['date'].between('2021-07-14', '2021-07-27'))), 'at_least_one_dose'] = None
     df2.loc[((df2['iso_code'] == 'AFG') & (df2['date'] == '2021-10-31')), 'at_least_one_dose'] = None
     df2.loc[((df2['iso_code'] == 'AGO') & (df2['date'] == '2021-08-23')), 'at_least_one_dose'] = None
@@ -358,10 +372,9 @@ def fix_issues_at_least_one_dose(df2):
     df2.loc[((df2['iso_code'] == 'ZAF') & (df2['date'] == '2021-06-20')), 'at_least_one_dose'] = None
     return df2
 
-df2 = fix_issues_at_least_one_dose(df2)
 
-print(" > Fix data issues with fully_vaccinated...")
 def fix_issues_fully_vaccinated(df2):
+    print(" > Fix data issues with fully_vaccinated...")
     df2.loc[((df2['iso_code'] == 'AFG') & (df2['date'] == '2021-08-30')), 'fully_vaccinated'] = None
     df2.loc[((df2['iso_code'] == 'AZE') & (df2['date'] == '2021-02-16')), 'fully_vaccinated'] = None
     df2.loc[((df2['iso_code'] == 'CAN') & (df2['date'] == '2021-04-23')), 'fully_vaccinated'] = None
@@ -383,68 +396,94 @@ def fix_issues_fully_vaccinated(df2):
     df2.loc[((df2['iso_code'] == 'STP') & (df2['date'].between('2021-07-05', '2021-07-13'))), 'fully_vaccinated'] = None
     return df2
 
+
+def check_for_total_dose_decreases_1(df1):
+    # first round of error checking, identify the cases where total doses decreases, this is the master set of known data issues and will go into the data_errors tab in the output Excel
+    print(" > Check for Errors in Data: Finding decreases in the total doses in df1...")
+    df_errors1 = df1[['iso_code', 'country_name', 'date', 'total_doses']].copy()
+    df_errors1["total_doses_prev_period"] = df_errors1.sort_values(by=['date'], ascending=True). \
+        groupby(['iso_code'])['total_doses'].shift(1).copy()
+    df_errors1 = df_errors1.loc[(df_errors1["total_doses"] < df_errors1["total_doses_prev_period"]), :]
+    df_errors1["total_doses_in_period"] = df_errors1["total_doses"] - df_errors1["total_doses_prev_period"]
+    df_errors1["is_data_error"] = 1
+    return df_errors1
+
+
+def check_for_total_dose_decreases_2(df2):
+    # second round of data issues, these have the manual fixes removed and "should be" one offs
+    print(" > Check for Errors in Data: Finding decreases in the total doses in df2...")
+    df_errors2 = df2[['iso_code', 'country_name', 'date', 'total_doses']].copy()
+    df_errors2["total_doses_prev_period"] = df_errors2.sort_values(by=['date'], ascending=True). \
+        groupby(['iso_code'])['total_doses'].shift(1).copy()
+    df_errors2 = df_errors2.loc[(df_errors2["total_doses"] < df_errors2["total_doses_prev_period"]), :]
+    df_errors2["total_doses_in_period"] =  df_errors2["total_doses"] - df_errors2["total_doses_prev_period"]
+    df_errors2["to_remove"] = 1
+
+    # check on what's still showing up as an error for total doses
+    print(" > Check for Errors in Data: finding other errors...")
+    df_errors1b = df_errors2.copy()
+    df_errors1b = df_errors1b.rename({'to_remove': 'is_data_error'}, axis = 1)
+    return df_errors2, df_errors1b
+
+
+def check_for_first_dose_decreases(df2):
+    print(" > Check for Errors in Data: First Dose Error Fix...")
+    df_errors1st = df2[['iso_code', 'country_name', 'date', 'at_least_one_dose']].copy()
+    df_errors1st["1st_dose_prev_period"] = df_errors1st.sort_values(by=['date'], ascending=True). \
+        groupby(['iso_code'])['at_least_one_dose'].shift(1).copy()
+    df_errors1st = df_errors1st.loc[(df_errors1st["at_least_one_dose"] < df_errors1st["1st_dose_prev_period"]), :]
+    df_errors1st["total_doses_in_period"] =  df_errors1st["at_least_one_dose"] - df_errors1st["1st_dose_prev_period"]
+    df_errors1st["to_remove_1st"] = 1
+    return df_errors1st
+
+
+def check_for_second_dose_decreases(df2):
+    print(" > Check for Errors in Data: Second Dose Error Fix...")
+    df_errors2nd = df2[['iso_code', 'country_name', 'date', 'fully_vaccinated']].copy()
+    df_errors2nd["2nd_dose_prev_period"] = df_errors2nd.sort_values(by=['date'], ascending=True). \
+        groupby(['iso_code'])['fully_vaccinated'].shift(1).copy()
+    df_errors2nd = df_errors2nd.loc[(df_errors2nd["fully_vaccinated"] < df_errors2nd["2nd_dose_prev_period"]), :]
+    df_errors2nd["total_doses_in_period"] =  df_errors2nd["fully_vaccinated"] - df_errors2nd["2nd_dose_prev_period"]
+    df_errors2nd["to_remove_2nd"] = 1
+    return df_errors2nd
+
+
+def join_errors_with_df(df2, df_errors1, df_errors2, df_errors1st, df_errors2nd, manual_fix_list):
+    print(" > Merging error columns with dataframe")
+    df3 = df2.copy()
+    df3.loc[:,'manual_adjustment'] = df3["iso_code"].apply(lambda x: 1 if x in manual_fix_list else 0).astype(int)
+    df3 = df3.merge(df_errors1[['iso_code', 'date', 'is_data_error']], on = ['iso_code', 'date'], how = 'left')
+    df3["is_data_error"].fillna(0, inplace = True)
+    df3 = df3.merge(df_errors2[['iso_code', 'date', 'to_remove']], on = ['iso_code', 'date'], how = 'left')
+    df3["to_remove"].fillna(0, inplace = True)
+    df3 = df3.merge(df_errors1st[['iso_code', 'date', 'to_remove_1st']], on = ['iso_code', 'date'], how = 'left')
+    df3["to_remove_1st"].fillna(0, inplace = True)
+    df3 = df3.merge(df_errors2nd[['iso_code', 'date', 'to_remove_2nd']], on = ['iso_code', 'date'], how = 'left')
+    df3["to_remove_2nd"].fillna(0, inplace = True)
+    df3[['is_data_error', 'to_remove', 'to_remove_1st', 'to_remove_2nd']].astype(int)
+
+    df3 = df3[['iso_code','date','country_name','total_doses','at_least_one_dose','fully_vaccinated','persons_booster_add_dose','date_accessed','date_week','is_latest_week_reported','manual_adjustment','is_data_error','to_remove','to_remove_1st','to_remove_2nd']]
+    return df3
+
+
+def export_data(df3):
+    print(" > Saving analysis_vx_throughput_data_cleaned to csv file...")
+    df3.to_csv('data/_input/supply_data/analysis_vx_throughput_data_cleaned.csv', index = False)
+    print(" > Done")
+
+
+
+who, iso_mapping = import_data()
+who = convert_data_types(who)
+df1 = cleaning(who)
+df1 = date_to_date_week(df1)
+df1, df2 = map_iso_codes(df1, iso_mapping)
+df2, manual_fix_list = fix_issues_total_doses(df2)
+df2 = fix_issues_at_least_one_dose(df2)
 df2 = fix_issues_fully_vaccinated(df2)
-
-
-
-# first round of error checking, identify the cases where total doses decreases, this is the master set of known data issues and will go into the data_errors tab in the output Excel
-print(" > Check for Errors in Data: Finding decreases in the total doses in df1...")
-df_errors1 = df1[['iso_code', 'country_name', 'date', 'total_doses']].copy()
-df_errors1["total_doses_prev_period"] = df_errors1.sort_values(by=['date'], ascending=True). \
-    groupby(['iso_code'])['total_doses'].shift(1).copy()
-df_errors1 = df_errors1.loc[(df_errors1["total_doses"] < df_errors1["total_doses_prev_period"]), :]
-df_errors1["total_doses_in_period"] = df_errors1["total_doses"] - df_errors1["total_doses_prev_period"]
-df_errors1["is_data_error"] = 1
-
-
-# second round of data issues, these have the manual fixes removed and "should be" one offs
-print(" > Check for Errors in Data: Finding decreases in the total doses in df2...")
-df_errors2 = df2[['iso_code', 'country_name', 'date', 'total_doses']].copy()
-df_errors2["total_doses_prev_period"] = df_errors2.sort_values(by=['date'], ascending=True). \
-    groupby(['iso_code'])['total_doses'].shift(1).copy()
-df_errors2 = df_errors2.loc[(df_errors2["total_doses"] < df_errors2["total_doses_prev_period"]), :]
-df_errors2["total_doses_in_period"] =  df_errors2["total_doses"] - df_errors2["total_doses_prev_period"]
-df_errors2["to_remove"] = 1
-
-# check on what's still showing up as an error for total doses
-print(" > Check for Errors in Data: finding other errors...")
-df_errors1b = df_errors2.copy()
-df_errors1b = df_errors1b.rename({'to_remove': 'is_data_error'}, axis = 1)
-
-
-print(" > Check for Errors in Data: First Dose Error Fix...")
-df_errors1st = df2[['iso_code', 'country_name', 'date', 'at_least_one_dose']].copy()
-df_errors1st["1st_dose_prev_period"] = df_errors1st.sort_values(by=['date'], ascending=True). \
-    groupby(['iso_code'])['at_least_one_dose'].shift(1).copy()
-df_errors1st = df_errors1st.loc[(df_errors1st["at_least_one_dose"] < df_errors1st["1st_dose_prev_period"]), :]
-df_errors1st["total_doses_in_period"] =  df_errors1st["at_least_one_dose"] - df_errors1st["1st_dose_prev_period"]
-df_errors1st["to_remove_1st"] = 1
-
-
-print(" > Check for Errors in Data: Second Dose Error Fix...")
-df_errors2nd = df2[['iso_code', 'country_name', 'date', 'fully_vaccinated']].copy()
-df_errors2nd["2nd_dose_prev_period"] = df_errors2nd.sort_values(by=['date'], ascending=True). \
-    groupby(['iso_code'])['fully_vaccinated'].shift(1).copy()
-df_errors2nd = df_errors2nd.loc[(df_errors2nd["fully_vaccinated"] < df_errors2nd["2nd_dose_prev_period"]), :]
-df_errors2nd["total_doses_in_period"] =  df_errors2nd["fully_vaccinated"] - df_errors2nd["2nd_dose_prev_period"]
-df_errors2nd["to_remove_2nd"] = 1
-
-
-print(" > Merging error columns with dataframe")
-df3 = df2.copy()
-df3.loc[:,'manual_adjustment'] = df3["iso_code"].apply(lambda x: 1 if x in manual_fix_list else 0).astype(int)
-df3 = df3.merge(df_errors1[['iso_code', 'date', 'is_data_error']], on = ['iso_code', 'date'], how = 'left')
-df3["is_data_error"].fillna(0, inplace = True)
-df3 = df3.merge(df_errors2[['iso_code', 'date', 'to_remove']], on = ['iso_code', 'date'], how = 'left')
-df3["to_remove"].fillna(0, inplace = True)
-df3 = df3.merge(df_errors1st[['iso_code', 'date', 'to_remove_1st']], on = ['iso_code', 'date'], how = 'left')
-df3["to_remove_1st"].fillna(0, inplace = True)
-df3 = df3.merge(df_errors2nd[['iso_code', 'date', 'to_remove_2nd']], on = ['iso_code', 'date'], how = 'left')
-df3["to_remove_2nd"].fillna(0, inplace = True)
-df3[['is_data_error', 'to_remove', 'to_remove_1st', 'to_remove_2nd']].astype(int)
-
-df3 = df3[['iso_code','date','country_name','total_doses','at_least_one_dose','fully_vaccinated','persons_booster_add_dose','date_accessed','date_week','is_latest_week_reported','manual_adjustment','is_data_error','to_remove','to_remove_1st','to_remove_2nd']]
-
-print(" > Saving analysis_vx_throughput_data_cleaned to csv file...")
-df3.to_csv('data/_input/supply_data/analysis_vx_throughput_data_cleaned.csv', index = False)
-print(" > Done")
+df_errors1 = check_for_total_dose_decreases_1(df1)
+df_errors2, df_errors1b = check_for_total_dose_decreases_2(df2)
+df_errors1st = check_for_first_dose_decreases(df2)
+df_errors2nd = check_for_second_dose_decreases(df2)
+df3 = join_errors_with_df(df2, df_errors1, df_errors2, df_errors1st, df_errors2nd, manual_fix_list)
+export_data(df3)
