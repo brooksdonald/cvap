@@ -472,7 +472,7 @@ def export_data(df3):
     print(" > Done")
 
 
-
+# running the above functions
 who, iso_mapping = import_data()
 who = convert_data_types(who)
 df1 = cleaning(who)

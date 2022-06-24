@@ -68,11 +68,3 @@ def export_data(df_uti):
     df_uti.to_csv("data/_input/supply_data/analysis_vx_throughput_supply.csv", index = False)
     print(" > Done.")
     return df_uti
-
-
-df = import_data()
-df = validate_and_filter(df)
-df_uti = create_date_column(df)
-df_uti = aggregate_util_data(df_uti)
-df_uti = add_timestamp(df_uti)
-export_data(df_uti)
