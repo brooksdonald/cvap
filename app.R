@@ -34,11 +34,7 @@ source("helpers/transformations.r")
 
 # ETL
 
-source_python("src/vaccination_rate/vxrate_data_ingestion.py", envir = globalenv(), convert = TRUE)
-source_python("src/vaccination_rate/run_vaccination_rate.py", envir = globalenv(), convert = TRUE)
-source_python("src/vaccination_rate/vxrate_data_cleaning.py", envir = globalenv(), convert = TRUE)
-source_python("src/vaccination_rate/vxrate_output_daily.py", envir = globalenv(), convert = TRUE)
-source_python("src/vaccination_rate/vxrate_data_fixes.py", envir = globalenv(), convert = TRUE)
+source("src/vaccination_rate/run_vaccination_rate_in_r.r")
 source("src/base/run_base.r")
 source("src/entity/run_entity.r")
 source("src/population/run_population.r")
@@ -47,7 +43,7 @@ source("src/vaccines/run_vaccines.r")
 source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
 
-
+python_env <- run_vaccination_rate_in_r()
 base_env <- run_base()
 entity_env <- run_entity()
 pop_env <- run_population()
