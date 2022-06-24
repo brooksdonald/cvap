@@ -133,10 +133,11 @@ transform_vxrate_merge <- function(a_data) {
               if_else(older_def == "55 and older", a_pop_55p,
                       if_else(older_def == "60 and older", a_pop_60p,
                               if_else(older_def == "65 and older", a_pop_65p,
+                                      if_else(older_def == "70 and older", a_pop_70p,
                                       a_pop_60p))
               )
       )
-    )))
+    ))))
 
   # Calculate theoretical fully vaccinated for non-reporters for current, lm, and 2m
   print(" >>> Computing theoreticaally fully vaxxed for non reporters...")
@@ -278,6 +279,8 @@ transform_vxrate_merge <- function(a_data) {
   a_data <- a_data %>%
     mutate(adm_a1d_hcw_homo = if_else(adm_a1d_hcw > a_pop_hcw, a_pop_hcw, adm_a1d_hcw)) %>%
     mutate(adm_fv_hcw_homo = if_else(adm_fv_hcw > a_pop_hcw, a_pop_hcw, adm_fv_hcw)) %>%
+    mutate(adm_booster_hcw_homo = if_else(adm_booster_hcw > a_pop_hcw, a_pop_hcw, adm_booster_hcw)) %>%
+    mutate(adm_fv_hcw_adjust = (adm_fv_hcw + (hcw_diff * cov_total_fv))) %>%
     mutate(cov_hcw_a1d = if_else(is.na(hcw_flag), 
                                  if_else((adm_a1d_hcw / a_pop_hcw) > 1, 1, 
                                          (adm_a1d_hcw / a_pop_hcw)),
@@ -290,16 +293,89 @@ transform_vxrate_merge <- function(a_data) {
                                  if_else((adm_fv_hcw / a_pop_hcw) > 1, 1, 
                                          (adm_fv_hcw / a_pop_hcw)),
                                  if_else(
-                                   ((adm_fv_hcw + (hcw_diff * cov_total_fv)) / a_pop_hcw) > 1, 1,
-                                   ((adm_fv_hcw + (hcw_diff * cov_total_fv)) / a_pop_hcw)
+                                   (adm_fv_hcw_adjust / a_pop_hcw) > 1, 1,
+                                   (adm_fv_hcw_adjust / a_pop_hcw)
                                  )
-    )) 
+    )) %>%
+    
+    mutate(cov_hcw_booster = if_else((adm_booster_hcw / a_pop_hcw) > 1, 1, 
+                                     (adm_booster_hcw / a_pop_hcw))) %>%
+    
+    mutate(
+      adm_booster_hcw_status = if_else(is.na(adm_booster_hcw),
+                                       "Not reporting on booster/additional dose administration",
+                                       if_else(
+        adm_booster_hcw > 0,
+        "Administering booster/additional doses",
+        "Not reporting on booster/additional dose administration"
+      )
+    )) %>%
+    
+    mutate(cov_hcw_booster_cat = if_else(
+      is.na(adm_fv_hcw) | adm_fv_hcw == 0, "0) Not reporting on HCW uptake",
+      if_else(is.na(cov_hcw_booster) & is.na(adm_fv_hcw) == FALSE, "1) Not reporting on HCW boosters",
+      if_else(cov_hcw_booster > .5,
+      "5) >50%",
+      if_else(
+        cov_hcw_booster > .25,
+        "4) 25-49.9%",
+        if_else(
+          cov_hcw_booster > .1,
+          "3) 10-24.9%",
+          if_else(
+            cov_hcw_booster > 0,
+            "2) 0-9.9%",
+            if_else(
+              cov_hcw_booster == 0,
+              "1) Not reporting on HCW boosters",
+              NA_character_
+            )
+          )
+        )
+      )
+    ))))
+  
   
   # Calculating older adults coverage groups
   a_data <- a_data %>%
     mutate(adm_fv_60p_homo = if_else(adm_fv_60p > a_pop_older, a_pop_older, adm_fv_60p)) %>%
     mutate(cov_60p_a1d = if_else((adm_a1d_60p / a_pop_older) > 1, 1, (adm_a1d_60p / a_pop_older))) %>%
-    mutate(cov_60p_fv = if_else((adm_fv_60p / a_pop_older) > 1, 1, (adm_fv_60p / a_pop_older)))
+    mutate(cov_60p_fv = if_else((adm_fv_60p / a_pop_older) > 1, 1, (adm_fv_60p / a_pop_older))) %>%
+    mutate(cov_60p_booster = if_else((adm_booster_60p / a_pop_older) > 1, 1, 
+                                     (adm_booster_60p / a_pop_older))) %>%
+    mutate(
+      adm_booster_60p_status = if_else(is.na(adm_booster_60p),
+                                       "Not reporting on booster/additional dose administration",
+                                       if_else(
+                                         adm_booster_60p > 0,
+                                         "Administering booster/additional doses",
+                                         "Not reporting on booster/additional dose administration"
+                                       )
+      )) %>%
+    
+    mutate(cov_60p_booster_cat = if_else(
+      is.na(adm_fv_60p) | adm_fv_60p == 0, "0) Not reporting on older adult uptake",
+      if_else(is.na(cov_60p_booster) & is.na(adm_fv_60p) == FALSE, "1) Not reporting on older adult boosters",
+              if_else(cov_60p_booster > .5,
+                      "5) >50%",
+                      if_else(
+                        cov_60p_booster > .25,
+                        "4) 25-49.9%",
+                        if_else(
+                          cov_60p_booster > .1,
+                          "3) 10-24.9%",
+                          if_else(
+                            cov_60p_booster > 0,
+                            "2) 0-9.9%",
+                            if_else(
+                              cov_60p_booster == 0,
+                              "1) Not reporting on older adult boosters",
+                              NA_character_
+                            )
+                          )
+                        )
+                      )
+              ))))
   
   a_data$cov_hcw_fv[a_data$a_iso == "GRL"] <-
     a_data$cov_hcw_fv[a_data$a_iso == "DNK"]

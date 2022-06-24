@@ -1,8 +1,8 @@
 vxrate <- function(condense_list) {
     name_list <- list("amc", "africa", "emr", "amr")
 
-    col_names_value <- list("dvr_cat", "dvr_trend", "booster_stat")
-    col_names_name <- list("cat_", "trend_", "booster_")
+    col_names_value <- list("dvr_cat", "dvr_trend", "booster_stat", "booster_hcw_stat")
+    col_names_name <- list("cat_", "trend_", "booster_", "booster_hcw_")
     data_list <- list()
 
     for (colname in col_names_value) {
@@ -16,7 +16,8 @@ vxrate <- function(condense_list) {
         aggregate_col_list <- list(
             df$dvr_4wk_td_per_cat,
             df$dvr_4wk_td_change_lm_trend,
-            df$booster_status
+            df$booster_status,
+            df$cov_hcw_booster_cat
         )
         for (i in seq_len(length(col_names_value))) {
             df_value <- aggregate(df$a_name_short,
@@ -40,10 +41,14 @@ vxrate <- function(condense_list) {
     e_booster_all <- helper_join_dataframe_list(
         data_list[["booster_"]], join_by = "booster_stat"
     )
+    e_booster_hcw <- helper_join_dataframe_list(
+      data_list[["booster_hcw_"]], join_by = "booster_hcw_stat"
+    )
     return(list(
         "all" = e_vrcat_all,
         "trend" = e_trend_month_emr,
-        "booster" = e_booster_all
+        "booster" = e_booster_all,
+        "booster_hcw" = e_booster_hcw
         )
     )
 }

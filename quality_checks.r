@@ -1,3 +1,6 @@
+#  Clear environment
+rm(list = ls())
+
 # Load required packages
 library("readxl")
 library("writexl")
@@ -111,7 +114,7 @@ print(" > Done.")
 
 ## Past week
 print(" > Ingesting past week data...")
-past_week <- data.frame(read_excel("data/output/220609_output_powerbi.xlsx"))
+past_week <- data.frame(read_excel("data/output/220616_output_powerbi.xlsx"))
 
 print(" > Selecting columns needed for quality check...")
 past_week <- select(
@@ -225,6 +228,33 @@ df <- left_join(
     by = c("a_iso", "a_name_short", "a_covax_status", "a_who_region")
 )
 print(" > Done joining both dataframes...")
+
+#Rearrange for easy visualization
+df_combined <- select(df_combined, c(
+  "a_name_short",
+  "a_covax_status",
+  "a_who_region",
+  "cw_adm_td",
+  "pw_adm_td",
+  "cw_adm_fv",
+  "pw_adm_fv",
+  "cw_adm_fv_hcw",
+  "pw_adm_fv_hcw",
+  "cw_adm_fv_60p",
+  "pw_adm_fv_60p",
+  "cw_cov_total_fv",
+  "pw_cov_total_fv",
+  "cw_cov_hcw_fv",
+  "pw_cov_hcw_fv",
+  "cw_cov_60p_fv",
+  "pw_cov_60p_fv",
+  "cw_dvr_4wk_td",
+  "pw_dvr_4wk_td",
+  "cw_del_dose_total",
+  "pw_del_dose_total",
+  "cw_pu_del_rem",
+  "pw_pu_del_rem"
+))
 
 # Get difference in value change in current from past week
 print(" > Calculating difference in value change in current from past week...")

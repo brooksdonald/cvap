@@ -26,10 +26,10 @@ source("helpers/joins.r")
 source("helpers/transformations.r")
 
 # STATIC DATES
-.GlobalEnv$refresh_date <- as.Date("2022-06-16")
+.GlobalEnv$refresh_date <- as.Date("2022-06-23")
 .GlobalEnv$t70_deadline <- as.Date("2022-06-30")
-.GlobalEnv$dataset_date <- "2022-06-09" # dataset_date is passed to sec_date
-.GlobalEnv$del_date <- as.Date("2022-06-16")
+.GlobalEnv$dataset_date <- "2022-06-16" # dataset_date is passed to sec_date
+.GlobalEnv$del_date <- as.Date("2022-06-20")
 
 # ETL
 
@@ -111,12 +111,14 @@ all_df <- list(
     "8_curtar_cat" = e_tar_cur_all,
     "8_curtar_scale_cat" = e_tar_cur_scale_all,
     "8_booster_status" = e_booster_all,
+    "8_booster_hcw" = e_booster_hcw,
     "8_secdelpu_cat" = e_secdelpu_all,
     "8_cov_cat" = e_cov_all,
     "8_ndvp_tar_cat" = e_ndvp_all,
     "9_values" = z_values
 )
-write_xlsx(all_df, "data/output/220616_output_powerbi.xlsx")
-write_xlsx(api, "data/output/220616_output_api.xlsx")
+write_xlsx(all_df, "data/output/220623_output_powerbi.xlsx")
+write_xlsx(all_df, "data/output/output_master.xlsx")
+write_xlsx(api, "data/output/220623_output_api.xlsx")
 
 print(" > Output exported to Excel successfully!")
