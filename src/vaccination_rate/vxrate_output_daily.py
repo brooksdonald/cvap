@@ -389,7 +389,7 @@ df12 = df12.merge(who[['iso_code', 'date_accessed']].drop_duplicates(), on = 'is
 
 df12.sort_values(by = ['iso_code', 'date'], ascending=True, inplace = True)
 
-df12.fillna('null', inplace = True)
+df12.fillna('null', inplace = True) # consider deleting this line for compatibility with R
 
 print(' > Exporting to CSV...')
 df12.to_csv('data/_input/supply_data/analysis_vx_throughput_output_daily_to_compare_3.csv', index = False)
