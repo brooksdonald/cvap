@@ -6,7 +6,7 @@ import io
 def import_data():
     # Get Data
     print(" > Getting ISO mapping...")
-    iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv") # never actually used
+    iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv")
     print(" > Done.")
 
     ## get uti_supply
@@ -27,14 +27,13 @@ def import_data():
 
     # get country characteristics
     print(" > Getting country characteristics...")
-    # cc = pd.read_excel("data/_input/supply_data/country_characteristics.xlsx")
     cc = pd.read_csv("data/_input/supply_data/country_characteristics.csv")
     print(" > Done.")
 
     print(" > Getting country dimensions...")
     country_dimension = pd.read_csv("data/_input/supply_data/country_dimension.csv")
     country = country_dimension[['iso_code', 'country_name_friendly', 'sub_region_name', 'region_name', 'wb_income_group', 'is_amc92', 'affiliation', 'min_vx_rollout_date', 'first_covax_arrival_date', 'first_vx_shipment_received_date']]
-    #country = country.loc[country['is_amc92'] == 1, :]
+
     # Transformation
     print(" > Owid transformation...")
     owid1 = owid[['iso_code', 'date', 'total_vaccinations']]
@@ -192,7 +191,7 @@ def moving_averages_td(df4, days_in_weeks4, days_in_weeks8):
     df5.index = df5.DateTime
     df5.sort_index(inplace = True)
 
-    print(' > this week\'s moving averages...')
+    print(" > This week's moving avaerages...")
     # df5['rolling_4_week_avg_td'] = df5.sort_values('date').groupby(['iso_code'])['daily_rate_td'].transform(lambda x: x.rolling(days_in_weeks4, 1).mean())#.reset_index()
     rolling_4_week_avg_td = df5.groupby(['iso_code'])['daily_rate_td'].rolling(str(days_in_weeks4 + 1) + 'D').mean().reset_index()
     rolling_4_week_avg_td.rename(columns = {'daily_rate_td': 'rolling_4_week_avg_td'}, inplace = True)
@@ -418,7 +417,7 @@ def final_variable_selection(df11):
 
 
 def export_data(df12):
-    print(' > Exporting to CSV...')
+    print(' > Saving /analysis_vx_throughput_output_daily_to_compare_3 to csv file......')
     df12.to_csv('data/_input/supply_data/analysis_vx_throughput_output_daily_to_compare_3.csv', index = False)
     print(' > Done.')
 

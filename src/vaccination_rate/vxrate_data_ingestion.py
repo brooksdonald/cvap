@@ -2,14 +2,7 @@
 # coding: utf-8
 
 # ### Country Vx Throughput Analysis - Data
-#  
 # **Note:** Gets data for the WHO/BMGF/Gavi Vx Throughput task force
-# 
-# * Source:
-# 
-# * Libraries: 
-#   - Python
-# 
 # * Built by: Jeremy Cooper
 # * Current owner: Jeremy Cooper
 # * Initial Build Date: 06/14/2021
