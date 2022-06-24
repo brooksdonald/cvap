@@ -81,7 +81,9 @@ def merge_who_country(who, country):
     df1 = df1.merge(country, on = 'iso_code', how = 'left')
     return df1
 
+
 def filter_data(df1):
+    print(' > Filter data...')
     df1 = df1.loc[~(df1['country_name_friendly'].isna()), :]
     df1['min_vx_rollout_date'] = pd.to_datetime(df1['min_vx_rollout_date'], format = '%Y-%m-%d')
     min_date = df1.groupby('iso_code')['date'].min().reset_index()
@@ -93,6 +95,7 @@ def filter_data(df1):
 
 
 def exploding_dates(df1):
+    print(' > Exploding dates for continuous dataset...')
     df1['days_since_vx_intro'] = df1['date'] - df1['min_vx_rollout_date']
     df1['date_prev'] = df1.sort_values(by = 'date', ascending = True) \
         .groupby(['iso_code'])['date'].shift(1)
@@ -118,7 +121,7 @@ def exploding_dates(df1):
 
 
 def interpolate_data(df_inter):
-    print(" > Interpolating missing values")
+    print(" > Interpolating missing values...")
     date_start = df_inter.groupby('iso_code')['date'].min().reset_index()
     date_start.rename(columns = {'date': 'date_start'}, inplace = True)
     df_inter = df_inter.merge(date_start, on = 'iso_code', how = 'left')
@@ -147,6 +150,7 @@ def interpolate_data(df_inter):
 
 
 def minimum_rollout_date(df_inter, country):
+    print(' > Calculating minimum rollout date...')
     df3 = df_inter.merge(country[['iso_code', 'country_name_friendly']], on = 'iso_code', how = 'left')
     df3['is_original_reported'] = 0
     df3.loc[~(df3['min_vx_rollout_date'].isna()), 'is_original_reported'] = 1
@@ -159,6 +163,7 @@ def minimum_rollout_date(df_inter, country):
 
 
 def merge_with_supply(df3, uti_supply1):
+    print(' > Merging data with supply...')
     df4 = df3.merge(uti_supply1, on = ['iso_code', 'date'], how = 'outer')
     df4.loc[:, ['iso_code', 'date', 'cumulative_doses_received']].ffill(axis = 0, inplace = True)
     df4 = df4.loc[~(df4['country_name_friendly'].isna()), :]
@@ -223,8 +228,6 @@ def moving_averages_td(df4, days_in_weeks4, days_in_weeks8):
     df5_median.rename(columns = {'rolling_4_week_avg_td' : 'med_rolling_4_week_avg_td'}, inplace = True)
     df5 = df5.merge(df5_max, on = 'iso_code', how = 'left')
     df5 = df5.merge(df5_median, on = 'iso_code', how = 'left')
-
-    ## td from here 1d
     return df5
 
 
@@ -276,7 +279,6 @@ def moving_averages_1d(df5, days_in_weeks4, days_in_weeks8):
     df6_median = df6.groupby(['iso_code'])['rolling_4_week_avg_1d'].median().reset_index() 
     df6_median.rename(columns = {'rolling_4_week_avg_1d' : 'med_rolling_4_week_avg_1d'}, inplace = True)
     df6 = df6.merge(df6_median, on = 'iso_code', how = 'left')
-
     return df6
 
 
