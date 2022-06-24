@@ -2,11 +2,10 @@ from datetime import date
 import datetime
 import pandas as pd
 import io
-
   
 # Get Data
 print(" > Getting ISO mapping...")
-iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv") # never actually used
+iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv")
 print(" > Done.")
 
 ## get uti_supply
@@ -17,7 +16,6 @@ print(" > Done.")
 # get dose administration data for comparison
 print(" > Getting dose administration data for comparison...")
 owid = pd.read_csv('data/_input/supply_data/owid-covid-data.csv')
-#owid = pd.read_csv('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
 print(" > Done.")
 
 # get primary data
@@ -27,14 +25,13 @@ print(" > Done.")
 
 # get country characteristics
 print(" > Getting country characteristics...")
-# cc = pd.read_excel("data/_input/supply_data/country_characteristics.xlsx")
 cc = pd.read_csv("data/_input/supply_data/country_characteristics.csv")
 print(" > Done.")
 
 print(" > Getting country dimensions...")
 country_dimension = pd.read_csv("data/_input/supply_data/country_dimension.csv")
 country = country_dimension[['iso_code', 'country_name_friendly', 'sub_region_name', 'region_name', 'wb_income_group', 'is_amc92', 'affiliation', 'min_vx_rollout_date', 'first_covax_arrival_date', 'first_vx_shipment_received_date']]
-#country = country.loc[country['is_amc92'] == 1, :]
+
 # Transformation
 print(" > Owid transformation...")
 owid1 = owid[['iso_code', 'date', 'total_vaccinations']]
@@ -179,7 +176,7 @@ df5.DateTime = df5.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m
 df5.index = df5.DateTime
 df5.sort_index(inplace = True)
 
-print(' > this week\'s moving averages...')
+print(" > This week's moving avaerages...")
 # df5['rolling_4_week_avg_td'] = df5.sort_values('date').groupby(['iso_code'])['daily_rate_td'].transform(lambda x: x.rolling(days_in_weeks4, 1).mean())#.reset_index()
 rolling_4_week_avg_td = df5.groupby(['iso_code'])['daily_rate_td'].rolling(str(days_in_weeks4 + 1) + 'D').mean().reset_index()
 rolling_4_week_avg_td.rename(columns = {'daily_rate_td': 'rolling_4_week_avg_td'}, inplace = True)
@@ -391,6 +388,6 @@ df12.sort_values(by = ['iso_code', 'date'], ascending=True, inplace = True)
 
 df12.fillna('null', inplace = True) # consider deleting this line for compatibility with R
 
-print(' > Exporting to CSV...')
+print(' > Saving /analysis_vx_throughput_output_daily_to_compare_3 to csv file......')
 df12.to_csv('data/_input/supply_data/analysis_vx_throughput_output_daily_to_compare_3.csv', index = False)
 print(' > Done.')

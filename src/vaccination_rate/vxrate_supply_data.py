@@ -48,6 +48,6 @@ print(" > Timestamp data")
 df_uti['date_accessed'] = str(date.today())
 print(" > Done.")
 
-print(" > Export CSV")
+print(" > Saving analysis_vx_throughput_supply to csv file...")
 df_uti.to_csv("data/_input/supply_data/analysis_vx_throughput_supply.csv", index = False)
 print(" > Done.")
