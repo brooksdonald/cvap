@@ -324,8 +324,15 @@ cc.rename(columns = {'ISO': 'iso_code', 'Population': 'population', 'Entity': 'e
 cc['population'] = cc['population'].str.replace(',', '').astype(float)
 df9 = df8.merge(cc, on = 'iso_code', how = 'inner')
 df9['date'] = df9['date'].astype(str)
+
+print(" > Merge with owid data and interpolate")
+def interpolate_owid(df):
+    df.sort_values(by=['iso_code', 'date'], ascending=True, inplace=True)
+    df['total_doses_owid'] = df['total_doses_owid'].interpolate(method='linear', limit_direction='forward')
+    return df
+
 df9 = df9.merge(owid1, on = ['iso_code', 'date'], how = 'left')
-df9['total_doses_owid'] = df9['total_doses_owid'].interpolate(method='linear', limit_direction='forward')
+df9 = df9.groupby('iso_code').apply(interpolate_owid)
 df9['rolling_4_week_avg_td_per100'] = 100 * df9['rolling_4_week_avg_td'] / df9['population'] #data from cc is used. Ambigious reference!
 df9['rolling_8_week_avg_td_per100'] = 100 * df9['rolling_8_week_avg_td'] / df9['population'] 
 df9['max_rolling_4_week_avg_td_per100'] = 100 * df9['max_rolling_4_week_avg_td'] / df9['population'] 
@@ -383,5 +390,5 @@ df12 = df12.merge(who[['iso_code', 'date_accessed']].drop_duplicates(), on = 'is
 df12.sort_values(by = ['iso_code', 'date'], ascending=True, inplace = True)
 
 print(' > Exporting to CSV...')
-df12.to_csv('data/_input/supply_data/analysis_vx_throughput_output_daily.csv', index = False)
+df12.to_csv('data/_input/supply_data/analysis_vx_throughput_output_daily_to_compare.csv', index = False)
 print(' > Done.')
