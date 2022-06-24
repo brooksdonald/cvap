@@ -86,3 +86,6 @@ def fix_dates(df3):
   df_data.to_csv("data/_input/supply_data/analysis_vx_throughput_data.csv", index=False)
   print(" > Done.")
   return df_data
+
+df3 = get_data()
+df_data = fix_dates(df3)
