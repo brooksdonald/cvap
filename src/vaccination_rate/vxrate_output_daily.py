@@ -32,7 +32,9 @@ def import_data():
 
     print(" > Getting country dimensions...")
     country_dimension = pd.read_csv("data/_input/supply_data/country_dimension.csv")
-    country = country_dimension[['iso_code', 'country_name_friendly', 'sub_region_name', 'region_name', 'wb_income_group', 'is_amc92', 'affiliation', 'min_vx_rollout_date', 'first_covax_arrival_date', 'first_vx_shipment_received_date']]
+    country = country_dimension[['iso_code', 'country_name_friendly', 'sub_region_name', 'region_name',
+        'wb_income_group', 'is_amc92', 'affiliation', 'min_vx_rollout_date', 'first_covax_arrival_date',
+        'first_vx_shipment_received_date']]
 
     # Transformation
     print(" > Owid transformation...")
@@ -59,9 +61,11 @@ def import_data():
     uti_supply1.loc[:, 'doses_received'] = uti_supply1.sort_values(by=['date'], ascending=True) \
         .groupby(['iso_code'])['cumulative_doses_received_uti'].shift(1)
     print(" > Calculating doses received column...")
-    uti_supply1.loc[:, 'doses_received'] = uti_supply1.loc[:, 'cumulative_doses_received_uti'] - uti_supply1.loc[:, 'doses_received']
+    uti_supply1.loc[:, 'doses_received'] = \
+        uti_supply1.loc[:, 'cumulative_doses_received_uti'] - uti_supply1.loc[:, 'doses_received']
     print(" > filling na's with cumulative_doses_received_uti...")
-    uti_supply1.loc[:, 'doses_received'] = uti_supply1.loc[:, 'doses_received'].fillna(uti_supply1.loc[:, 'cumulative_doses_received_uti'])
+    uti_supply1.loc[:, 'doses_received'] = \
+        uti_supply1.loc[:, 'doses_received'].fillna(uti_supply1.loc[:, 'cumulative_doses_received_uti'])
     print(" > creating uti-supply1 df...")
     uti_supply1.columns = ['iso_code', 'date', 'doses_received', 'cumulative_doses_received']
     print(" > Done.")
@@ -89,7 +93,8 @@ def filter_data(df1):
     min_date = df1.groupby('iso_code')['date'].min().reset_index()
     min_date.rename(columns = {'date': 'min_date'}, inplace = True)
     df1 = df1.merge(min_date, on = 'iso_code', how = 'left')
-    df1.loc[(df1['min_vx_rollout_date'] >= df1['min_date']), 'min_vx_rollout_date'] = df1['min_date'] - pd.to_timedelta(1, unit='D')
+    df1.loc[(df1['min_vx_rollout_date'] >= df1['min_date']), 'min_vx_rollout_date'] = \
+        df1['min_date'] - pd.to_timedelta(1, unit='D')
     df1 = df1.loc[~(df1['iso_code'] == 'MTQ'), :]  # this has been manually added. Consider removing
     return df1
 
@@ -125,10 +130,14 @@ def interpolate_data(df_inter):
     date_start = df_inter.groupby('iso_code')['date'].min().reset_index()
     date_start.rename(columns = {'date': 'date_start'}, inplace = True)
     df_inter = df_inter.merge(date_start, on = 'iso_code', how = 'left')
-    df_inter.loc[((df_inter['date'] == df_inter['date_start']) & (df_inter['at_least_one_dose'].isna())), 'at_least_one_dose'] = 0
-    df_inter.loc[((df_inter['date'] == df_inter['date_start']) & (df_inter['total_doses'].isna())), 'total_doses'] = 0
-    df_inter.loc[((df_inter['date'] == df_inter['date_start']) & (df_inter['fully_vaccinated'].isna())), 'fully_vaccinated'] = 0
-    df_inter.loc[((df_inter['date'] == df_inter['date_start']) & (df_inter['persons_booster_add_dose'].isna())), 'persons_booster_add_dose'] = 0
+    df_inter.loc[((df_inter['date'] == df_inter['date_start']) & \
+        (df_inter['at_least_one_dose'].isna())), 'at_least_one_dose'] = 0
+    df_inter.loc[((df_inter['date'] == df_inter['date_start']) & \
+        (df_inter['total_doses'].isna())), 'total_doses'] = 0
+    df_inter.loc[((df_inter['date'] == df_inter['date_start']) & \
+        (df_inter['fully_vaccinated'].isna())), 'fully_vaccinated'] = 0
+    df_inter.loc[((df_inter['date'] == df_inter['date_start']) & \
+        (df_inter['persons_booster_add_dose'].isna())), 'persons_booster_add_dose'] = 0
 
     df_inter['total_doses_int'] = df_inter['total_doses']
     df_inter['at_least_one_dose_int'] = df_inter['at_least_one_dose']
@@ -137,10 +146,14 @@ def interpolate_data(df_inter):
 
     def interpolate_measures(df): # consider moving outside of the function
         df.sort_values(by=['iso_code', 'date'], ascending=True, inplace=True)
-        df['total_doses_int'] = df['total_doses_int'].interpolate(method='linear', limit_direction='forward')
-        df['at_least_one_dose_int'] = df['at_least_one_dose_int'].interpolate(method='linear', limit_direction='forward')
-        df['fully_vaccinated_int'] = df['fully_vaccinated_int'].interpolate(method='linear', limit_direction='forward')
-        df['persons_booster_add_dose_int'] = df['persons_booster_add_dose_int'].interpolate(method='linear', limit_direction='forward')
+        df['total_doses_int'] = \
+            df['total_doses_int'].interpolate(method='linear', limit_direction='forward')
+        df['at_least_one_dose_int'] = \
+            df['at_least_one_dose_int'].interpolate(method='linear', limit_direction='forward')
+        df['fully_vaccinated_int'] = \
+            df['fully_vaccinated_int'].interpolate(method='linear', limit_direction='forward')
+        df['persons_booster_add_dose_int'] = \
+            df['persons_booster_add_dose_int'].interpolate(method='linear', limit_direction='forward')
         return df
 
     df_inter = df_inter.groupby('iso_code').apply(interpolate_measures)
@@ -154,8 +167,10 @@ def minimum_rollout_date(df_inter, country):
     df3 = df_inter.merge(country[['iso_code', 'country_name_friendly']], on = 'iso_code', how = 'left')
     df3['is_original_reported'] = 0
     df3.loc[~(df3['min_vx_rollout_date'].isna()), 'is_original_reported'] = 1
-    df3 = df3[['iso_code', 'date', 'country_name_friendly', 'min_vx_rollout_date', 'total_doses_int', 'at_least_one_dose_int', 'fully_vaccinated_int', 'persons_booster_add_dose_int', 'is_original_reported']]
-    df3.columns = ['iso_code', 'date', 'country_name_friendly', 'min_vx_rollout_date', 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose', 'is_original_reported']
+    df3 = df3[['iso_code', 'date', 'country_name_friendly', 'min_vx_rollout_date', 'total_doses_int',
+        'at_least_one_dose_int', 'fully_vaccinated_int', 'persons_booster_add_dose_int', 'is_original_reported']]
+    df3.columns = ['iso_code', 'date', 'country_name_friendly', 'min_vx_rollout_date', 'total_doses',
+        'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose', 'is_original_reported']
     min_vx_rollout_date = df3.groupby('iso_code')['min_vx_rollout_date'].min().reset_index()
     min_vx_rollout_date.rename(columns = {'min_vx_rollout_date': 'min_vx_rollout_date'}, inplace = True)
     df3 = df3.merge(min_vx_rollout_date, on = 'iso_code', how = 'left')
@@ -187,7 +202,6 @@ def moving_averages_td(df4, days_in_weeks4, days_in_weeks8):
     df5['daily_rate_td'].fillna(df5['total_doses'], inplace = True)
     df5.drop('prev_total', axis = 1, inplace = True)
 
-
     print(' > Calculating moving averages...')
     df5['hours'] = '00.00.00'
     df5['DateTime'] = df5['date'].astype(str).str.cat(df5['hours'], sep = " ") 
@@ -197,11 +211,12 @@ def moving_averages_td(df4, days_in_weeks4, days_in_weeks8):
     df5.sort_index(inplace = True)
 
     print(" > This week's moving avaerages...")
-    # df5['rolling_4_week_avg_td'] = df5.sort_values('date').groupby(['iso_code'])['daily_rate_td'].transform(lambda x: x.rolling(days_in_weeks4, 1).mean())#.reset_index()
-    rolling_4_week_avg_td = df5.groupby(['iso_code'])['daily_rate_td'].rolling(str(days_in_weeks4 + 1) + 'D').mean().reset_index()
+    rolling_4_week_avg_td = df5.groupby(['iso_code'])['daily_rate_td'] \
+        .rolling(str(days_in_weeks4 + 1) + 'D').mean().reset_index()
     rolling_4_week_avg_td.rename(columns = {'daily_rate_td': 'rolling_4_week_avg_td'}, inplace = True)
 
-    rolling_8_week_avg_td = df5.groupby(['iso_code'])['daily_rate_td'].rolling(str(days_in_weeks8 + 1) + 'D').mean().reset_index()
+    rolling_8_week_avg_td = df5.groupby(['iso_code'])['daily_rate_td'] \
+        .rolling(str(days_in_weeks8 + 1) + 'D').mean().reset_index()
     rolling_8_week_avg_td.rename(columns = {'daily_rate_td': 'rolling_8_week_avg_td'}, inplace = True)
 
     df5.index.names = ['index']
@@ -215,10 +230,12 @@ def moving_averages_td(df4, days_in_weeks4, days_in_weeks8):
         df5.rename(columns = {'rolling_4_week_avg_td_y' : 'rolling_4_week_avg_td'}, inplace = True)
 
     print(' > last week\'s moving averages...')
-    df5['rolling_4_week_avg_td_lastweek'] = df5.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['rolling_4_week_avg_td'].shift(7) ## using the assumption that observations are daily and continuous
+    df5['rolling_4_week_avg_td_lastweek'] = df5.sort_values(by=['date'], ascending=True) \
+        .groupby(['iso_code'])['rolling_4_week_avg_td'].shift(7) ## using the assumption that observations are daily and continuous
 
     print(' > last month\'s moving averages...')
-    df5['rolling_4_week_avg_td_lastmonth'] = df5.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['rolling_4_week_avg_td'].shift(7 * 4)
+    df5['rolling_4_week_avg_td_lastmonth'] = df5.sort_values(by=['date'], ascending=True) \
+        .groupby(['iso_code'])['rolling_4_week_avg_td'].shift(7 * 4)
 
     df5.drop('DateTime', axis = 1, inplace = True)
     print(' > Maximum and median moving average...')
@@ -248,10 +265,12 @@ def moving_averages_1d(df5, days_in_weeks4, days_in_weeks8):
     df6.sort_index(inplace = True)
 
     print(' > this week\'s moving averages...')
-    rolling_4_week_avg_1d = df6.groupby(['iso_code'])['daily_rate_1d'].rolling(str(days_in_weeks4 + 1) + 'D').mean().reset_index()
+    rolling_4_week_avg_1d = df6.groupby(['iso_code'])['daily_rate_1d'] \
+        .rolling(str(days_in_weeks4 + 1) + 'D').mean().reset_index()
     rolling_4_week_avg_1d.rename(columns = {'daily_rate_1d': 'rolling_4_week_avg_1d'}, inplace = True)
 
-    rolling_8_week_avg_1d = df6.groupby(['iso_code'])['daily_rate_1d'].rolling(str(days_in_weeks8 + 1) + 'D').mean().reset_index()
+    rolling_8_week_avg_1d = df6.groupby(['iso_code'])['daily_rate_1d'] \
+        .rolling(str(days_in_weeks8 + 1) + 'D').mean().reset_index()
     rolling_8_week_avg_1d.rename(columns = {'daily_rate_1d': 'rolling_8_week_avg_1d'}, inplace = True)
 
     df6.index.names = ['index1']
@@ -264,11 +283,13 @@ def moving_averages_1d(df5, days_in_weeks4, days_in_weeks8):
     if 'rolling_4_week_avg_1d_y' in df6.columns:
         df6.rename(columns = {'rolling_4_week_avg_1d_y' : 'rolling_4_week_avg_1d'}, inplace = True)
 
-    print(' > last week\'s moving averages...')
-    df6['rolling_4_week_avg_1d_lastweek'] = df6.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['rolling_4_week_avg_1d'].shift(7) ## using the assumption that observations are daily and continuous
+    print(" > last week\'s moving averages...")
+    df6['rolling_4_week_avg_1d_lastweek'] = df6.sort_values(by=['date'], ascending=True) \
+        .groupby(['iso_code'])['rolling_4_week_avg_1d'].shift(7) ## using the assumption that observations are daily and continuous
 
     print(' > last month\'s moving averages...')
-    df6['rolling_4_week_avg_1d_lastmonth'] = df6.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['rolling_4_week_avg_1d'].shift(7 * 4)
+    df6['rolling_4_week_avg_1d_lastmonth'] = df6.sort_values(by=['date'], ascending=True) \
+        .groupby(['iso_code'])['rolling_4_week_avg_1d'].shift(7 * 4)
 
     df6.drop('DateTime', axis = 1, inplace = True)
 
@@ -285,7 +306,8 @@ def moving_averages_1d(df5, days_in_weeks4, days_in_weeks8):
 def moving_averages_fv(df6, days_in_weeks4, days_in_weeks8):
     df7 = df6.copy()
     print(" > Calculating daily rate...")
-    df7['prev_total'] = df6.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['fully_vaccinated'].shift(1)
+    df7['prev_total'] = df6.sort_values(by=['date'], ascending=True) \
+        .groupby(['iso_code'])['fully_vaccinated'].shift(1)
     df7['daily_rate_fv'] = df7['fully_vaccinated'] - df7['prev_total']
     df7['daily_rate_fv'].fillna(df7['fully_vaccinated'], inplace = True)
     df7.drop('prev_total', axis = 1, inplace = True)
@@ -299,10 +321,12 @@ def moving_averages_fv(df6, days_in_weeks4, days_in_weeks8):
     df7.sort_index(inplace = True)
 
     print(' > this week\'s moving averages...')
-    rolling_4_week_avg_fv = df7.groupby(['iso_code'])['daily_rate_fv'].rolling(str(days_in_weeks4 + 1) + 'D').mean().reset_index()
+    rolling_4_week_avg_fv = df7.groupby(['iso_code'])['daily_rate_fv'] \
+        .rolling(str(days_in_weeks4 + 1) + 'D').mean().reset_index()
     rolling_4_week_avg_fv.rename(columns = {'daily_rate_fv': 'rolling_4_week_avg_fv'}, inplace = True)
 
-    rolling_8_week_avg_fv = df7.groupby(['iso_code'])['daily_rate_fv'].rolling(str(days_in_weeks8 + 1) + 'D').mean().reset_index()
+    rolling_8_week_avg_fv = df7.groupby(['iso_code'])['daily_rate_fv'] \
+        .rolling(str(days_in_weeks8 + 1) + 'D').mean().reset_index()
     rolling_8_week_avg_fv.rename(columns = {'daily_rate_fv': 'rolling_8_week_avg_fv'}, inplace = True)
 
     df7.index.names = ['index2']
@@ -317,10 +341,12 @@ def moving_averages_fv(df6, days_in_weeks4, days_in_weeks8):
 
 
     print(' > last week\'s moving averages...')
-    df7['rolling_4_week_avg_fv_lastweek'] = df7.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['rolling_4_week_avg_fv'].shift(7) ## using the assumption that observations are daily and continuous
+    df7['rolling_4_week_avg_fv_lastweek'] = df7.sort_values(by=['date'], ascending=True) \
+        .groupby(['iso_code'])['rolling_4_week_avg_fv'].shift(7) ## using the assumption that observations are daily and continuous
 
     print(' > last month\'s moving averages...')
-    df7['rolling_4_week_avg_fv_lastmonth'] = df7.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['rolling_4_week_avg_fv'].shift(7 * 4)
+    df7['rolling_4_week_avg_fv_lastmonth'] = df7.sort_values(by=['date'], ascending=True) \
+        .groupby(['iso_code'])['rolling_4_week_avg_fv'].shift(7 * 4)
 
     df7.drop('DateTime', axis = 1, inplace = True)
 
