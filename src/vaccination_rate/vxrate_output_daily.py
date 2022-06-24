@@ -419,8 +419,8 @@ def final_variable_selection(df11):
 
 
 def export_data(df12):
-    print(' > Saving /analysis_vx_throughput_output_daily_to_compare_3 to csv file......')
-    df12.to_csv('data/_input/supply_data/analysis_vx_throughput_output_daily_to_compare_3.csv', index = False)
+    print(' > Saving /analysis_vx_throughput_output_daily to csv file......')
+    df12.to_csv('data/_input/supply_data/analysis_vx_throughput_output_daily.csv', index = False)
     print(' > Done.')
 
 
