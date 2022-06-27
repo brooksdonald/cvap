@@ -380,61 +380,22 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   
   # Coverage categories in target groups
 
-  # a_data$cov_hcw_fv_cat <- cut(
-  #   a_data$cov_hcw_fv,
-  #   breaks = c(-Inf, 0.1, 0.2, 0.4, 0.7, Inf),
-  #   labels = c("1) 1-10%", "2) 10-20%", "3) 20-40%", "4) 40-70%", "5) 70%+"),
-  #   include.lowest = TRUE,
-  #   right = FALSE
-  # )
+  a_data$cov_hcw_fv_cat <- cut(
+    a_data$cov_hcw_fv,
+    breaks = c(-Inf, 0.1, 0.2, 0.4, 0.7, Inf),
+    labels = c("1) 1-10%", "2) 10-20%", "3) 20-40%", "4) 40-70%", "5) 70%+"),
+    include.lowest = TRUE,
+    right = FALSE
+  )
 
-  # a_data$cov_60p_fv_cat <- cut(
-  #   a_data$cov_60p_fv,
-  #   breaks = c(-Inf, 0.1, 0.2, 0.4, 0.7, Inf),
-  #   labels = c("1) 1-10%", "2) 10-20%", "3) 20-40%", "4) 40-70%", "5) 70%+"),
-  #   include.lowest = TRUE,
-  #   right = FALSE
-  # )
+  a_data$cov_60p_fv_cat <- cut(
+    a_data$cov_60p_fv,
+    breaks = c(-Inf, 0.1, 0.2, 0.4, 0.7, Inf),
+    labels = c("1) 1-10%", "2) 10-20%", "3) 20-40%", "4) 40-70%", "5) 70%+"),
+    include.lowest = TRUE,
+    right = FALSE
+  )
 
-  a_data <- a_data %>%
-    mutate(cov_hcw_fv_cat = if_else(
-      cov_hcw_fv < 0.1,
-      "1) 1-10%",
-      if_else(
-        cov_hcw_fv < 0.2,
-        "2) 10-20%",
-        if_else(
-          cov_hcw_fv < 0.4,
-          "3) 20-40%",
-          if_else(
-            cov_hcw_fv < 0.7,
-            "4) 40-70%",
-            if_else(cov_hcw_fv >= 0.7, "5) 70%+",
-                    NA_character_)
-          )
-        )
-      )
-    )) %>%
-  
-  mutate(cov_60p_fv_cat = if_else(
-      cov_60p_fv < 0.1,
-      "1) 1-10%",
-      if_else(
-        cov_60p_fv < 0.2,
-        "2) 10-20%",
-        if_else(
-          cov_60p_fv < 0.4,
-          "3) 20-40%",
-          if_else(
-            cov_60p_fv < 0.7,
-            "4) 40-70%",
-            if_else(cov_60p_fv >= 0.7, "5) 70%+",
-                    NA_character_)
-          )
-        )
-      )
-    ))
-  
   # Calculate 4-week average daily rates as % of pop.
   print(" >>> Computing 4-week average daily rates as % of pop...")
   a_data <- a_data %>%
