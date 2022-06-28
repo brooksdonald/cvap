@@ -74,8 +74,10 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   print(" >>> Computing JJ doses KPIs")
   a_data <- a_data %>%
       mutate(del_dose_minjj = del_dose_total  - del_dose_jj) %>% 
-      mutate(del_dose_jj_prop = if_else(is.na(del_dose_jj), 0,
-                                        (del_dose_jj / del_dose_total)))
+      mutate(del_dose_jj_prop = if_else(
+        is.na(del_dose_jj),
+        0,
+        del_dose_jj / del_dose_total))
 
   # Calculate introduction status
   print(" >>> Computing introduction status...")
@@ -86,7 +88,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
       "Product introduced"
     )
   )
-  
+
   a_data <- a_data %>%
     mutate(csc_status_numb = if_else(
       a_csc_status == "Concerted support country",
@@ -104,7 +106,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     right = FALSE,
     labels = tags
   )
-  
+
   # Calculate population percentages
   print(" >>> Computing pop percentages...")
   a_data <- a_data %>%
