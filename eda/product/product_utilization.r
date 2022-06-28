@@ -151,8 +151,7 @@ course_sufficiency <- function(a_data) {
     return(a_data)
 }
 
-course_progress <- function(a_data, b_smartsheet) {
-    
+course_progress <- function(a_data, b_smartsheet, timeto_t70) {
     # Homogenize country coverage targets
     print(" >>>> Homogenizing country coverage targets...")
     a_data <- a_data %>%
@@ -332,7 +331,7 @@ course_progress <- function(a_data, b_smartsheet) {
     return(a_data)
 }
 
-course_add_notes <- function(a_data, b_csc) {
+course_add_notes <- function(a_data) {
     # Add notes
     a_data <- a_data %>%
     mutate(note_highcov = if_else(cov_total_fv > 0.5, "High fully vaccinated coverage", "No")) %>%

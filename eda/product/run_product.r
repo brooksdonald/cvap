@@ -1,6 +1,6 @@
 # rows 2258 - 2569
 
-run_product <- function(a_data, b_smartsheet, b_csc, env = .GlobalEnv) {
+run_product <- function(a_data, b_smartsheet, timeto_t70, env = .GlobalEnv) {
     source("eda/product/product_utilization.r")
 
     print(" > Starting local environment for product utilization eda")
@@ -18,11 +18,11 @@ run_product <- function(a_data, b_smartsheet, b_csc, env = .GlobalEnv) {
     print(" > Done.")
 
     print(" > Calculating progress against country coverage targets...")
-    a_data <- course_progress(a_data, b_smartsheet)
+    a_data <- course_progress(a_data, b_smartsheet, timeto_t70)
     print(" > Done.")
 
     print(" > Adding additional notes...")
-    a_data <- course_add_notes(a_data, b_csc)
+    a_data <- course_add_notes(a_data)
     print(" > Done.")
 
     print(" > Loading eda product utilization data back to global environment...") 

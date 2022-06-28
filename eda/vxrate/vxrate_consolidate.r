@@ -67,7 +67,7 @@ merge_dataframes <- function(
 transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   # Set static dates
   print(" >>> Setting static dates")
-  timeto_t70 <<- as.numeric(t70_deadline - refresh_date)
+  timeto_t70 <- as.numeric(t70_deadline - refresh_date)
   a_data$a_refresh_date <- refresh_date
 
   #Calculate JJ proportion
@@ -442,5 +442,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     include.lowest = FALSE,
     right = TRUE
   )
-  return(a_data)
+  datalist = list("a_data" = a_data,
+    "timeto_t70" = timeto_t70)
+  return(datalist)
 }
