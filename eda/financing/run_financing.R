@@ -29,8 +29,7 @@ run_financing <- function(a_data, env = .GlobalEnv) {
   api <- api_export_table(a_data)
   print(" > Done.")
   
-  print(" > Loading financing summary data back to global environment...") 
-  env$a_data <- a_data
+  print(" > Loading financing summary data back to global environment...")
   env$a_data_amc <- a_data_amc
   env$a_data_hic <- a_data_hic
   env$a_data_csc <- a_data_csc
