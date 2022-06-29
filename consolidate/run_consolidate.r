@@ -1,6 +1,7 @@
 # rows 2698 - 3280
 
-run_consolidate <- function(a_data, env = .GlobalEnv) {
+run_consolidate <- function(a_data, a_data_amc, a_data_africa,
+    a_data_csc, a_data_ifc, env = .GlobalEnv) {
     source("consolidate/consolidate_base_file.r")
     source("consolidate/consolidate_vxrate.r")
     source("consolidate/consolidate_targets.r")
@@ -25,7 +26,7 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     print(" > Done.")
 
     print(" > Creating values table...")
-    z_values <- values_table(a_data_amc)
+    z_values <- values_table(a_data_amc, a_data_africa, a_data_csc, a_data_ifc)
     print(" > Done.")
 
     print(" > Change count tables, daily vxrate % change category...")

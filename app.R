@@ -84,7 +84,12 @@ combination_env <- run_combination(ranking_env$a_data)
 
 source("consolidate/run_consolidate.r")
 
-consolidate_env <- run_consolidate(combination_env$a_data)
+consolidate_env <- run_consolidate(
+    combination_env$a_data,
+    financing_env$a_data_amc,
+    financing_env$a_data_africa,
+    financing_env$a_data_csc,
+    financing_env$a_data_ifc)
 
 # EXPORT
 
@@ -118,6 +123,6 @@ all_df <- list(
 )
 write_xlsx(all_df, "data/output/220602_output_powerbi_29_June_app_4.xlsx")
 # write_xlsx(all_df, "data/output/220602_output_powerbi.xlsx)
-# write_xlsx(api, "data/output/220602_output_api.xlsx")
+# write_xlsx(financing_env$api, "data/output/220602_output_api.xlsx")
 
 print(" > Output exported to Excel successfully!")
