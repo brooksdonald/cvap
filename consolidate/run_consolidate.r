@@ -45,23 +45,15 @@ run_consolidate <- function(a_data, env = .GlobalEnv) {
     print(" > Done.")
     
     print(" > Loading eda consolidation data back to global environment...") 
-    env$vrcat_list <- vrcat_list
-    env$e_vrcat_all <- vrcat_list[["all"]]
-    env$e_trend_all <- vrcat_list[["trend"]]
-    env$e_booster_all <- vrcat_list[["booster"]]
-    env$tgt_list <- tgt_list
-    env$e_tar_past_all <- tgt_list[["tenperc"]]
-    env$e_tar_cur_all <- tgt_list[["seventyperc"]]
-    env$e_tar_cur_scale_all <- tgt_list[["scale"]]
-    env$e_ndvp_all <- tgt_list[["ndvp"]]
-    env$supp_list <- supp_list
-    env$e_secdelpu_all <- supp_list[["all"]]
-    env$e_cov_all <- supp_list[["coverage"]]
-    env$z_values <- z_values
-    env$f_dvr_change_count <- f_dvr_change_count
-    env$f_cov_change_count <- f_cov_change_count
-    env$f_dvr_change_count_af <- f_dvr_change_count_af
-    env$f_cov_change_count_af <- f_cov_change_count_af
+    e_vrcat_all <- vrcat_list[["all"]]
+    e_trend_all <- vrcat_list[["trend"]]
+    e_booster_all <- vrcat_list[["booster"]]
+    e_tar_past_all <- tgt_list[["tenperc"]]
+    e_tar_cur_all <- tgt_list[["seventyperc"]]
+    e_tar_cur_scale_all <- tgt_list[["scale"]]
+    e_ndvp_all <- tgt_list[["ndvp"]]
+    e_secdelpu_all <- supp_list[["all"]]
+    e_cov_all <- supp_list[["coverage"]]
     print(" > Ok.")
     return(environment())
 }
