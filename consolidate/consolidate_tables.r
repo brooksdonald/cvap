@@ -1,6 +1,6 @@
 # Create values table
 
-values_table <- function(a_data_amc) {
+values_table <- function(a_data, a_data_amc, a_data_africa, a_data_csc, a_data_ifc) {
     z_values <- data.frame(c("Text"))
 
     z_values$ig_amc_lic <- 25

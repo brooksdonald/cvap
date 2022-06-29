@@ -15,9 +15,5 @@ run_binning <- function(a_data, env = .GlobalEnv) {
     a_data <- grouping_by_three(a_data)
     print(" > Done.")
 
-    print(" > Loading ranking and binning data back to global environment...") 
-    env$a_data <- a_data
-    print(" > Ok.")
-
     return(environment())
 }

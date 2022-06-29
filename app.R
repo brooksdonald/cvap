@@ -45,7 +45,7 @@ base_env <- run_base()
 entity_env <- run_entity()
 pop_env <- run_population()
 supply_env <- run_supply()
-vaccines_env <- run_vaccines(entity_characteristics, refresh_date)
+vaccines_env <- run_vaccines(entity_env$entity_characteristics, refresh_date)
 finance_env <- run_financing()
 demand_plan_env <- run_dp()
 
@@ -60,65 +60,70 @@ source("eda/rank_bin/run_rank_bin.r")
 source("eda/combination/run_combination.r")
 
 vxrate_env <- run_vxrate(
-    c_vxrate_latest,
-    entity_characteristics,
-    c_vxrate_latest_red,
-    population_data,
-    uptake_gender_data,
-    b_who_dashboard,
-    b_smartsheet,
-    supply_secured,
-    delivery_courses_doses,
-    b_dp,
-    c_delivery_product,
-    b_fin_fund_del_sum,
+    vaccines_env$c_vxrate_latest,
+    entity_env$entity_characteristics,
+    pop_env$population_data,
+    pop_env$uptake_gender_data,
+    base_env$b_who_dashboard,
+    base_env$b_smartsheet,
+    supply_env$supply_secured,
+    supply_env$delivery_courses_doses,
+    demand_plan_env$b_dp,
+    .GlobalEnv$c_delivery_product,
+    .GlobalEnv$b_fin_fund_del_sum,
     .GlobalEnv$refresh_date,
     .GlobalEnv$t70_deadline
 )
-supplies_env <- run_eda_supplies(a_data)
-coverage_env <- run_coverage(a_data, vxrate_env$timeto_t70)
-product_env <- run_product(a_data, base_env$b_smartsheet, .GlobalEnv$refresh_date, vxrate_env$timeto_t70)
-financing_env <- run_financing(a_data)
-ranking_env <- run_binning(a_data)
-combination_env <- run_combination(a_data)
+supplies_env <- run_eda_supplies(vxrate_env$a_data)
+coverage_env <- run_coverage(supplies_env$a_data, vxrate_env$timeto_t70)
+product_env <- run_product(coverage_env$a_data, base_env$b_smartsheet, .GlobalEnv$refresh_date, vxrate_env$timeto_t70)
+financing_env <- run_financing(product_env$a_data)
+ranking_env <- run_binning(financing_env$a_data)
+combination_env <- run_combination(ranking_env$a_data)
 
 # CONSOLIDATE
 
 source("consolidate/run_consolidate.r")
 
-consolidate_env <- run_consolidate(a_data)
+consolidate_env <- run_consolidate(
+    combination_env$a_data,
+    financing_env$a_data_amc,
+    financing_env$a_data_africa,
+    financing_env$a_data_csc,
+    financing_env$a_data_ifc)
 
 # EXPORT
 
 print(" > Exporting data output from pipeline to Excel Workbooks...")
 all_df <- list(
-    "0_base_data" = a_data,
-    "1_absorption_month" = d_absorption,
-    "1_absorption_month_country" = combined,
-    "1_stock" = combined_three,
-    "1_adm_long_smooth" = b_vxrate_amc_smooth,
-    "1_adm_all_long" = b_vxrate_pub,
-    "1_delivery_doses" = supply_received_by_product,
-    "1_secview" = z_temp,
-    "1_secview_lm" = z_temp_lm,
-    "1_secview_all" = z_secview_long,
-    "1_funding_source" = b_fin_fund_del_source,
-    "2_dvr_perchange_count" = f_dvr_change_count,
-    "2_cov_change_count" = f_cov_change_count,
-    "2_dvr_perchange_count_af" = f_dvr_change_count_af,
-    "2_cov_change_count_af" = f_cov_change_count_af,
-    "8_dvr_cat" = e_vrcat_all,
-    "8_dvr_lm_trend" = e_trend_all,
-    "8_tarpast_cat" = e_tar_past_all,
-    "8_curtar_cat" = e_tar_cur_all,
-    "8_curtar_scale_cat" = e_tar_cur_scale_all,
-    "8_booster_status" = e_booster_all,
-    "8_secdelpu_cat" = e_secdelpu_all,
-    "8_cov_cat" = e_cov_all,
-    "8_ndvp_tar_cat" = e_ndvp_all,
-    "9_values" = z_values
+    "0_base_data" = combination_env$a_data,
+    "1_absorption_month" = vaccines_env$d_absorption,
+    "1_absorption_month_country" = vaccines_env$combined,
+    "1_stock" = vaccines_env$combined_three,
+    "1_adm_long_smooth" = vaccines_env$b_vxrate_amc_smooth,
+    "1_adm_all_long" = vaccines_env$b_vxrate_pub,
+    "1_delivery_doses" = .GlobalEnv$supply_received_by_product,
+    "1_secview" = .GlobalEnv$z_temp,
+    "1_secview_lm" = .GlobalEnv$z_temp_lm,
+    "1_secview_all" = .GlobalEnv$z_secview_long,
+    "1_funding_source" = finance_env$b_fin_fund_del_source,
+    "2_dvr_perchange_count" = consolidate_env$f_dvr_change_count,
+    "2_cov_change_count" = consolidate_env$f_cov_change_count,
+    "2_dvr_perchange_count_af" = consolidate_env$f_dvr_change_count_af,
+    "2_cov_change_count_af" = consolidate_env$f_cov_change_count_af,
+    "8_dvr_cat" = consolidate_env$e_vrcat_all,
+    "8_dvr_lm_trend" = consolidate_env$e_trend_all,
+    "8_tarpast_cat" = consolidate_env$e_tar_past_all,
+    "8_curtar_cat" = consolidate_env$e_tar_cur_all,
+    "8_curtar_scale_cat" = consolidate_env$e_tar_cur_scale_all,
+    "8_booster_status" = consolidate_env$e_booster_all,
+    "8_secdelpu_cat" = consolidate_env$e_secdelpu_all,
+    "8_cov_cat" = consolidate_env$e_cov_all,
+    "8_ndvp_tar_cat" = consolidate_env$e_ndvp_all,
+    "9_values" = consolidate_env$z_values
 )
-# write_xlsx(all_df, "data/output/220602_output_powerbi.xlsx")
-# write_xlsx(api, "data/output/220602_output_api.xlsx")
+write_xlsx(all_df, "data/output/220602_output_powerbi_29_June_app_4.xlsx")
+# write_xlsx(all_df, "data/output/220602_output_powerbi.xlsx)
+# write_xlsx(financing_env$api, "data/output/220602_output_api.xlsx")
 
 print(" > Output exported to Excel successfully!")

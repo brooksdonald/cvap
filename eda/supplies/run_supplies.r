@@ -12,9 +12,5 @@ run_eda_supplies <- function(
     )
     print(" > Done.")
 
-    print(" > Loading eda supplies data back to global environment...")
-    env$a_data <- a_data
-    print(" > Ok.")
-
     return(environment())
 }

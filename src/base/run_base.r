@@ -12,8 +12,5 @@ run_base <- function(env = .GlobalEnv) {
 
     print(" > Returning to local environment. ")
 
-    print(" > Loading data back to global environment...")
-    env$b_smartsheet <- b_smartsheet
-    env$b_who_dashboard <- b_who_dashboard
     return(environment())
 }

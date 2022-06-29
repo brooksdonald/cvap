@@ -26,9 +26,5 @@ run_product <- function(a_data, b_smartsheet, refresh_date, timeto_t70, env = .G
 
     print(" > Done.")
 
-    print(" > Loading eda product utilization data back to global environment...") 
-    env$a_data <- a_data
-    print(" > Ok.")
-
     return(environment())
 }

@@ -3,7 +3,6 @@
 run_vxrate <- function(
     c_vxrate_latest,
     entity_characteristics,
-    c_vxrate_latest_red,
     population_data,
     uptake_gender_data,
     b_who_dashboard,
@@ -50,12 +49,5 @@ run_vxrate <- function(
     a_data <- datalist$a_data
     timeto_t70 <- datalist$timeto_t70
     print(" > Done.")
-
-    print(" > Loading consolidated vxrate data back to global environment...")
-    env$c_vxrate_latest_red <- c_vxrate_latest_red
-    env$a_data <- a_data
-    env$timeto_t70 <- timeto_t70
-    print(" > Ok.")
-
     return(environment())
 }
