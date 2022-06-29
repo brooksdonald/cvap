@@ -3,7 +3,6 @@
 run_vxrate <- function(
     c_vxrate_latest,
     entity_characteristics,
-    c_vxrate_latest_red,
     population_data,
     uptake_gender_data,
     b_who_dashboard,
@@ -46,11 +45,6 @@ run_vxrate <- function(
     print(" > Calculating merged data")
     a_data <- transform_vxrate_merge(a_data)
     print(" > Done.")
-
-    print(" > Loading consolidated vxrate data back to global environment...")
-    env$c_vxrate_latest_red <- c_vxrate_latest_red
-    env$a_data <- a_data
-    print(" > Ok.")
 
     return(environment())
 }

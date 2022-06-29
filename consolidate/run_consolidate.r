@@ -26,7 +26,8 @@ run_consolidate <- function(a_data, a_data_amc, a_data_africa,
     print(" > Done.")
 
     print(" > Creating values table...")
-    z_values <- values_table(a_data_amc, a_data_africa, a_data_csc, a_data_ifc)
+    z_values <- values_table(a_data, a_data_amc, a_data_africa,
+        a_data_csc, a_data_ifc)
     print(" > Done.")
 
     print(" > Change count tables, daily vxrate % change category...")

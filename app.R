@@ -62,7 +62,6 @@ source("eda/combination/run_combination.r")
 vxrate_env <- run_vxrate(
     vaccines_env$c_vxrate_latest,
     entity_env$entity_characteristics,
-    c_vxrate_latest_red,
     pop_env$population_data,
     pop_env$uptake_gender_data,
     base_env$b_who_dashboard,
