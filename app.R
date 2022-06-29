@@ -122,8 +122,7 @@ all_df <- list(
     "8_ndvp_tar_cat" = consolidate_env$e_ndvp_all,
     "9_values" = consolidate_env$z_values
 )
-write_xlsx(all_df, "data/output/220602_output_powerbi_29_June_app_4.xlsx")
-# write_xlsx(all_df, "data/output/220602_output_powerbi.xlsx)
+# write_xlsx(all_df, "data/output/220602_output_powerbi.xlsx")
 # write_xlsx(financing_env$api, "data/output/220602_output_api.xlsx")
 
 print(" > Output exported to Excel successfully!")

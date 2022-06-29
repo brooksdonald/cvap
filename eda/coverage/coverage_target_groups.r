@@ -8,7 +8,7 @@ target_group_ten <- function(a_data, timeto_t70) {
     mutate(t10_goalmet_sep = if_else(a_iso == "BDI", "No", t10_goalmet_sep)) %>%
     mutate(t10_goalmet_after = if_else(cov_total_fv >= 0.1, "Yes", "No")) %>%
     mutate(t10_notmet = if_else(cov_total_fv < 0.1, "Yes", "No"))
-  a_data <- helper_goal_target_groups(a_data, 10)
+  a_data <- helper_goal_target_groups(a_data, 10, timeto_t70)
     return(a_data)
 
 }
@@ -20,7 +20,7 @@ target_group_twenty_forty <- function(a_data, timeto_t70) {
   a_data <- a_data %>%
     mutate(t20_goalmet_after = if_else(cov_total_fv >= 0.2, "Yes", "No")) %>%
     mutate(t20_notmet = if_else(cov_total_fv < 0.2, "Yes", "No")) %>%
-    helper_goal_target_groups(20)
+    helper_goal_target_groups(20, timeto_t70)
 
   a_data <- a_data %>%
     mutate(t40_goalmet_dec = if_else(

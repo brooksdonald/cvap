@@ -33,7 +33,7 @@ helper_add_char_to_list <- function(l, char = "Y") {
     return(sprintf(paste0(char, "%s"), l))
 }
 
-helper_goal_target_groups <- function(a_data, group) {
+helper_goal_target_groups <- function(a_data, group, timeto_t70) {
     a_pop_var <- paste0("a_pop_", group)
     appendix <- if (group == 10 | group == "10") {
         "sep"
