@@ -28,7 +28,6 @@ target_group_twenty_forty <- function(a_data) {
       t40_goalmet_dec)) %>%
     mutate(t40_goalmet_after = if_else(cov_total_fv >= 0.4, "Yes", "No")) %>%
     mutate(t40_notmet = if_else(cov_total_fv < 0.4, "Yes", "No")) %>%
-  #a_data <- helper_goal_target_groups(a_data, 40)
 
     mutate(t40_timeto = round(if_else(
       ((adm_pv + ((a_pop_40 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td) < 0,
