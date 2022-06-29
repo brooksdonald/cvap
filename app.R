@@ -86,6 +86,17 @@ source("consolidate/run_consolidate.r")
 
 consolidate_env <- run_consolidate(combination_env$a_data)
 
+# TESTING
+
+print(".GlobalEnv$supply_received_by_product")
+print(.GlobalEnv$supply_received_by_product)
+
+print("supply_env$supply_received_produ")
+print(supply_env$supply_received_produ)
+
+print("supply_env$supply_received_by_product")
+print(supply_env$supply_received_by_product)
+
 # EXPORT
 
 print(" > Exporting data output from pipeline to Excel Workbooks...")
