@@ -20,10 +20,6 @@ run_coverage <- function(a_data, env = .GlobalEnv) {
     print(" > booster doses...")
     a_data <- booster_doses(a_data)
     print(" > Done.")
-
-    print(" > Loading eda coverage data back to global environment...")
-    env$a_data <- a_data
-    print(" > Ok.")
   
     return(environment())
 
