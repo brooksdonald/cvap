@@ -105,18 +105,19 @@ all_df <- list(
     "2_cov_change_count" = consolidate_env$f_cov_change_count,
     "2_dvr_perchange_count_af" = consolidate_env$f_dvr_change_count_af,
     "2_cov_change_count_af" = consolidate_env$f_cov_change_count_af,
-    "8_dvr_cat" = .GlobalEnv$e_vrcat_all,
-    "8_dvr_lm_trend" = .GlobalEnv$e_trend_all,
-    "8_tarpast_cat" = .GlobalEnv$e_tar_past_all,
-    "8_curtar_cat" = .GlobalEnv$e_tar_cur_all,
-    "8_curtar_scale_cat" = .GlobalEnv$e_tar_cur_scale_all,
-    "8_booster_status" = .GlobalEnv$e_booster_all,
-    "8_secdelpu_cat" = .GlobalEnv$e_secdelpu_all,
-    "8_cov_cat" = .GlobalEnv$e_cov_all,
-    "8_ndvp_tar_cat" = .GlobalEnv$e_ndvp_all,
-    "9_values" = .GlobalEnv$z_values
+    "8_dvr_cat" = consolidate_env$e_vrcat_all,
+    "8_dvr_lm_trend" = consolidate_env$e_trend_all,
+    "8_tarpast_cat" = consolidate_env$e_tar_past_all,
+    "8_curtar_cat" = consolidate_env$e_tar_cur_all,
+    "8_curtar_scale_cat" = consolidate_env$e_tar_cur_scale_all,
+    "8_booster_status" = consolidate_env$e_booster_all,
+    "8_secdelpu_cat" = consolidate_env$e_secdelpu_all,
+    "8_cov_cat" = consolidate_env$e_cov_all,
+    "8_ndvp_tar_cat" = consolidate_env$e_ndvp_all,
+    "9_values" = consolidate_env$z_values
 )
-# write_xlsx(all_df, "data/output/220602_output_powerbi.xlsx")
+write_xlsx(all_df, "data/output/220602_output_powerbi_29_June_app_3.xlsx")
+# write_xlsx(all_df, "data/output/220602_output_powerbi.xlsx)
 # write_xlsx(api, "data/output/220602_output_api.xlsx")
 
 print(" > Output exported to Excel successfully!")
