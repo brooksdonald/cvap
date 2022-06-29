@@ -25,9 +25,5 @@ run_product <- function(a_data, b_smartsheet, b_csc, env = .GlobalEnv) {
     a_data <- course_add_notes(a_data, b_csc)
     print(" > Done.")
 
-    print(" > Loading eda product utilization data back to global environment...") 
-    env$a_data <- a_data
-    print(" > Ok.")
-
     return(environment())
 }
