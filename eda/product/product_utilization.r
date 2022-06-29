@@ -137,7 +137,7 @@ course_sufficiency <- function(a_data, refresh_date) {
     return(a_data)
 }
 
-course_progress <- function(a_data, b_smartsheet, refresh_date) {
+course_progress <- function(a_data, b_smartsheet, refresh_date, timeto_t70) {
     # Homogenize country coverage targets
     print(" >>>> Homogenizing country coverage targets...")
     a_data <- a_data %>%
@@ -339,7 +339,7 @@ course_progress <- function(a_data, b_smartsheet, refresh_date) {
     return(a_data)
 }
 
-course_add_notes <- function(a_data, b_csc, refresh_date) {
+course_add_notes <- function(a_data, refresh_date) {
     # Add notes
     a_data <- a_data %>%
     mutate(note_highcov = if_else(

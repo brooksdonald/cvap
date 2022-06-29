@@ -1,4 +1,4 @@
-target_group_ten <- function(a_data) {
+target_group_ten <- function(a_data, timeto_t70) {
   print(" >>> Getting 10% target progress against coverage targets...")
   # Progress against coverage targets
   ## 10% target
@@ -13,7 +13,7 @@ target_group_ten <- function(a_data) {
 
 }
 
-target_group_twenty_forty <- function(a_data) {
+target_group_twenty_forty <- function(a_data, timeto_t70) {
   ## 20% - 40% target
   a_data <- left_join(a_data, c_vxrate_dec_t2040, by = "a_iso")
 
@@ -60,7 +60,7 @@ target_group_twenty_forty <- function(a_data) {
   return(a_data)
 }
 
-target_group_seventy <- function(a_data) {
+target_group_seventy <- function(a_data, timeto_t70) {
   ## 70% target
   a_data <- a_data %>%
   mutate(t70_goalmet = if_else(

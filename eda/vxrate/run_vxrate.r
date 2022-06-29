@@ -13,6 +13,8 @@ run_vxrate <- function(
     b_dp,
     c_delivery_product,
     b_fin_fund_del_sum,
+    refresh_date,
+    t70_deadline,
     env = .GlobalEnv
 ) {
     source("eda/vxrate/vxrate_consolidate.r")
@@ -44,12 +46,15 @@ run_vxrate <- function(
     print(" > Done.")
 
     print(" > Calculating merged data")
-    a_data <- transform_vxrate_merge(a_data)
+    datalist <- transform_vxrate_merge(a_data, refresh_date, t70_deadline)
+    a_data <- datalist$a_data
+    timeto_t70 <- datalist$timeto_t70
     print(" > Done.")
 
     print(" > Loading consolidated vxrate data back to global environment...")
     env$c_vxrate_latest_red <- c_vxrate_latest_red
     env$a_data <- a_data
+    env$timeto_t70 <- timeto_t70
     print(" > Ok.")
 
     return(environment())

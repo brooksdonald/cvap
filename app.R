@@ -71,11 +71,13 @@ vxrate_env <- run_vxrate(
     delivery_courses_doses,
     b_dp,
     c_delivery_product,
-    b_fin_fund_del_sum
+    b_fin_fund_del_sum,
+    .GlobalEnv$refresh_date,
+    .GlobalEnv$t70_deadline
 )
 supplies_env <- run_eda_supplies(a_data)
-coverage_env <- run_coverage(a_data)
-product_env <- run_product(a_data, base_env$b_smartsheet, b_csc, .GlobalEnv$refresh_date)
+coverage_env <- run_coverage(a_data, vxrate_env$timeto_t70)
+product_env <- run_product(a_data, base_env$b_smartsheet, vxrate_env$timeto_t70)
 financing_env <- run_financing(a_data)
 ranking_env <- run_binning(a_data)
 combination_env <- run_combination(a_data)
