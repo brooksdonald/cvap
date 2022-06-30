@@ -83,3 +83,47 @@ helper_goal_target_groups <- function(a_data, group, timeto_t70) {
         )))
     return(a_data)
 }
+
+helper_mapping_months <- function(data, last_month, first_month = "2021-01") {
+  input_months <- c(as.Date(paste(first_month,"-01",sep="")), 
+    as.Date(paste(last_month,"-01",sep="")))
+  month <- input_months[1]
+  month_vector <- c(substr(as.character(month), 1, 7))
+  number_of_months <- 1
+  month <- add_with_rollback(month, months(1))
+  while (month <= input_months[2]) {
+    month_vector <- c(month_vector, substr(as.character(month), 1, 7))
+    month <- add_with_rollback(month, months(1))
+    number_of_months <- number_of_months + 1
+  }
+  month_names <- helper_replace_values_with_map(
+    data = data,
+    values = 1:number_of_months,
+    map = month_vector
+  )
+  return(month_names)
+}
+
+helper_calculate_cov_total_fv <- function(data) {
+  data <- data %>%
+  mutate(
+    cov_total_fv = if_else(
+      adm_a1d == 0 & adm_fv == 0 & adm_booster == 0,
+        (adm_td / 2) / a_pop,
+        if_else(
+          adm_a1d == 0 & adm_fv == 0 & adm_booster != 0,
+          ((adm_td - adm_booster) / 2) / a_pop,
+          if_else(
+            adm_a1d != 0 & adm_fv == 0 & adm_booster == 0,
+            (adm_td - adm_a1d) / a_pop,
+            if_else(
+              adm_a1d != 0 & adm_fv == 0 & adm_booster != 0,
+              (adm_td - adm_a1d - adm_booster) / a_pop,
+              adm_fv / a_pop
+            )
+          )
+        )
+      )
+    )
+  return(data)
+}

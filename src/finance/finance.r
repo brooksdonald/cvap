@@ -77,14 +77,13 @@ transform_finance_data <- function(b_fin_funding, entity_characteristics) {
         ),
         drop_rest = FALSE
     )
-    b_fin_fund_del_sum <<- b_fin_fund_del %>%
+    b_fin_fund_del_sum <- b_fin_fund_del %>%
     group_by(a_iso) %>%
     summarize_at("fund_total", sum, na.rm = TRUE) %>%
     mutate_if(is.numeric, round)
 
     b_fin_fund_del_source <- b_fin_fund_del %>%
     group_by(a_iso, funding_source, funder) %>%
-    # group_by(a_iso, funder) %>%
     summarize_at("fund_total", sum, na.rm = TRUE) %>%
     mutate_if(is.numeric, round)
 
@@ -93,5 +92,7 @@ transform_finance_data <- function(b_fin_funding, entity_characteristics) {
         entity_characteristics,
         by = "a_iso"
     )
-    return(b_fin_fund_del_source)
+    datalist <- list("b_fin_fund_del_source" = b_fin_fund_del_source,
+        "b_fin_fund_del_sum" = b_fin_fund_del_sum)
+    return(datalist)
 }

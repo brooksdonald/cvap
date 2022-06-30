@@ -133,7 +133,7 @@ transform_lw_data <- function(b_vxrate_lw_sum, c_vxrate_latest) {
     print(" >> Transform last week data...")
 
     tags <- c("1) < (-25)%", "2) (-25)-0%", "3) 0-25%", "4) > 25%")
-    b_vxrate_change_lw <<- b_vxrate_lw_sum %>%
+    b_vxrate_change_lw <- b_vxrate_lw_sum %>%
         mutate(dvr_4wk_td_change_lw_lm_per =
             (dvr_4wk_td_lw - dvr_4wk_td_lw_lm) / dvr_4wk_td_lw_lm) %>%
             mutate(dvr_4wk_td_change_lw_lm_per_cat =
@@ -147,7 +147,7 @@ transform_lw_data <- function(b_vxrate_lw_sum, c_vxrate_latest) {
             )
 
     ## Select relevant columns for dvr category count change table
-    b_vxrate_change_lw <<-
+    b_vxrate_change_lw <-
         select(
             b_vxrate_change_lw,
             "a_iso",
@@ -158,8 +158,9 @@ transform_lw_data <- function(b_vxrate_lw_sum, c_vxrate_latest) {
     b_vxrate_cov <- select(b_vxrate_lw_sum, "a_iso", "adm_fv_lw")
 
     c_vxrate_latest <- merge_with_summary(c_vxrate_latest, b_vxrate_cov)
-
-    return(c_vxrate_latest)
+    datalist <- list("c_vxrate_latest" = c_vxrate_latest,
+        "b_vxrate_change_lw" = b_vxrate_change_lw)
+    return(datalist)
 }
 
 merge_with_summary <- function(c_vxrate_latest, b_vxrate) {

@@ -44,8 +44,8 @@ source("src/demand_planning/run_demand_planning.r")
 base_env <- run_base()
 entity_env <- run_entity()
 pop_env <- run_population()
-supply_env <- run_supply()
-vaccines_env <- run_vaccines(entity_env$entity_characteristics, refresh_date)
+supply_env <- run_supply(.GlobalEnv$dataset_date, .GlobalEnv$del_date)
+vaccines_env <- run_vaccines(entity_env$entity_characteristics, .GlobalEnv$refresh_date)
 finance_env <- run_financing()
 demand_plan_env <- run_dp()
 
@@ -69,8 +69,8 @@ vxrate_env <- run_vxrate(
     supply_env$supply_secured,
     supply_env$delivery_courses_doses,
     demand_plan_env$b_dp,
-    .GlobalEnv$c_delivery_product,
-    .GlobalEnv$b_fin_fund_del_sum,
+    supply_env$c_delivery_product,
+    finance_env$b_fin_fund_del_sum,
     .GlobalEnv$refresh_date,
     .GlobalEnv$t70_deadline
 )
@@ -83,14 +83,15 @@ combination_env <- run_combination(ranking_env$a_data)
 
 # CONSOLIDATE
 
-source("consolidate/run_consolidate.r")
+source("data/interim/consolidate/run_consolidate.r")
 
 consolidate_env <- run_consolidate(
     combination_env$a_data,
     financing_env$a_data_amc,
     financing_env$a_data_africa,
     financing_env$a_data_csc,
-    financing_env$a_data_ifc)
+    financing_env$a_data_ifc,
+    vaccines_env$b_vxrate_change_lw)
 
 # EXPORT
 

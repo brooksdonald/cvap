@@ -1,6 +1,7 @@
 # Create values table
 
-values_table <- function(a_data, a_data_amc, a_data_africa, a_data_csc, a_data_ifc) {
+values_table <- function(a_data, a_data_amc, a_data_africa,
+    a_data_csc, a_data_ifc) {
     z_values <- data.frame(c("Text"))
 
     z_values$ig_amc_lic <- 25
@@ -101,7 +102,7 @@ vxrate_change_cat <- function(a_data, b_vxrate_change_lw) {
         )
     )
     f_dvr_change_count <- left_join(c_data_dvr_lm_cat, b_vxrate_change_lw, by = "a_iso")
-    f_dvr_change_count_af <<- filter(
+    f_dvr_change_count_af <- filter(
         f_dvr_change_count,
         a_continent == "Africa" &
         intro_status == "Product introduced"
@@ -140,17 +141,19 @@ vxrate_change_cat <- function(a_data, b_vxrate_change_lw) {
             "cat",
             "count_lw"
         )
-    f_dvr_change_count <- left_join(f_dvr_change_count_cur, f_dvr_change_count_lw, by = "cat")
+    f_dvr_change_count <- left_join(
+        f_dvr_change_count_cur, f_dvr_change_count_lw, by = "cat")
     f_dvr_change_count <- f_dvr_change_count %>%
         mutate(count_change = count_cur - count_lw)
-
-    return(f_dvr_change_count)
+    datalist <- list("f_dvr_change_count" = f_dvr_change_count,
+        "f_dvr_change_count_af" = f_dvr_change_count_af)
+    return(datalist)
 
 }
 
 # New add
 ## DVR change: Africa
-dvr_change_af <- function() {
+dvr_change_af <- function(f_dvr_change_count_af) {
     f_dvr_change_count_af <-
     select(
         f_dvr_change_count_af,
@@ -257,4 +260,3 @@ cov_cat_af <- function(a_data) {
     mutate(count_change = count_cur - count_lw)
     return(f_cov_change_count_af)
 }
-

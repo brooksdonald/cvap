@@ -21,8 +21,6 @@ load_sup_rec <- function() {
 
     b_mdb <- treat_country_name_datasource(b_mdb)
 
-    # TODO should this be DRY as well?
-    # TODO is there a way to optimise/automate this last and 2m creation?
     common_columns <- c("iso", "product", "total")
 
     b_mdb_lm <- treat_country_name_datasource(b_mdb_lm)
@@ -59,7 +57,7 @@ load_sup_rec <- function() {
     return(supply_received)
 }
 
-transform_sup_rec_doses <- function(supply_received) {
+transform_sup_rec_doses <- function(supply_received, del_date) {
     print(" >> Grouping all doses...")
     supply_received_doses <- supply_received %>%
         group_by(iso) %>%
@@ -188,10 +186,10 @@ transform_sup_rec_product <- function(supply_received) {
     c_delivery_product <- filter(c_delivery_product, product_short == "J&J")
     c_delivery_product <- select(c_delivery_product, -c("product_short"))
     colnames(c_delivery_product) <- c("a_iso", "del_dose_jj")
-    
-    # FIXME make Do I make c_delivery_product global variable in run_supply?
-    c_delivery_product <<- c_delivery_product
-    return(supply_received_by_product)
+
+    datalist <- list("supply_received_by_product" = supply_received_by_product,
+    "c_delivery_product" = c_delivery_product)
+    return(datalist)
 }
 
 treat_country_name_datasource <- function(dataframe) {
@@ -344,7 +342,7 @@ eda_sup_rec_courses <- function(supply_received, supply_received_doses) {
     print(" >> Combine doses and courses delivered tables")
     c_delivery <- left_join(supply_received_doses, c_delivery_courses, by = "iso")
 
-    print(" >> Renaming delivery_courses_doeses iso to a_iso")
+    print(" >> Renaming delivery_courses_doses iso to a_iso")
 
     colnames(c_delivery)[1] <- c("a_iso")
     return(c_delivery)
