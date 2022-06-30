@@ -46,7 +46,7 @@ entity_env <- run_entity()
 pop_env <- run_population()
 supply_env <- run_supply(.GlobalEnv$dataset_date, .GlobalEnv$del_date)
 vaccines_env <- run_vaccines(entity_env$entity_characteristics, .GlobalEnv$refresh_date)
-finance_env <- run_financing()
+finance_env <- run_financing(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
 
 # EDA
@@ -75,7 +75,7 @@ vxrate_env <- run_vxrate(
     .GlobalEnv$t70_deadline
 )
 supplies_env <- run_eda_supplies(vxrate_env$a_data)
-coverage_env <- run_coverage(supplies_env$a_data, vxrate_env$timeto_t70)
+coverage_env <- run_coverage(supplies_env$a_data, vxrate_env$timeto_t70, vaccines_env$c_vxrate_sept_t10, vaccines_env$c_vxrate_dec_t2040)
 product_env <- run_product(coverage_env$a_data, base_env$b_smartsheet, .GlobalEnv$refresh_date, vxrate_env$timeto_t70)
 financing_env <- run_financing(product_env$a_data)
 ranking_env <- run_binning(financing_env$a_data)
@@ -103,7 +103,7 @@ all_df <- list(
     "1_stock" = vaccines_env$combined_three,
     "1_adm_long_smooth" = vaccines_env$b_vxrate_amc_smooth,
     "1_adm_all_long" = vaccines_env$b_vxrate_pub,
-    "1_delivery_doses" = .GlobalEnv$supply_received_by_product,
+    "1_delivery_doses" = supply_env$supply_received_by_product,
     "1_secview" = .GlobalEnv$z_temp,
     "1_secview_lm" = .GlobalEnv$z_temp_lm,
     "1_secview_all" = .GlobalEnv$z_secview_long,

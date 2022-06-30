@@ -30,10 +30,5 @@ run_population <- function(env = .GlobalEnv) {
     )
 
     print(" > Returning to global environment. ")
-
-    print(" > Loading data back to global environment...")
-    env$population_data <- population_data
-    env$uptake_gender_data <- uptake_gender_data
-
     return(environment())
 }
