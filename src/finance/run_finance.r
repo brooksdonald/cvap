@@ -1,4 +1,4 @@
-run_financing <- function(env = .GlobalEnv) {
+run_financing <- function(entity_characteristics, env = .GlobalEnv) {
     source("src/finance/finance.r")
     
     print(" > Starting local environment for fiancing module")
@@ -15,11 +15,6 @@ run_financing <- function(env = .GlobalEnv) {
     print(" > Done.")
 
     print(" > Returning to global environment. ")
-
-    print(" > Loading financing data back to global environment...")
-    env$b_fin_funding <- b_fin_funding
-    env$b_fin_fund_del_source <- b_fin_fund_del_source
-    env$b_fin_fund_del_sum <- b_fin_fund_del_sum
 
     return(environment())
 }

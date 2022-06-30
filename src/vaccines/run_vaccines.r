@@ -53,28 +53,6 @@ run_vaccines <- function(entity_characteristics,
     c_vxrate_latest <- merge_with_summary(c_vxrate_latest, b_vxrate_13jan)
 
     print(" > Done.")
-
-    print(" > Loading vaccines data back to global environment...")
-    env$b_vxrate <- b_vxrate
-    env$b_vxrate_pub <- b_vxrate_pub
-    env$b_vxrate_amc <- b_vxrate_amc
-    env$b_vxrate_amc_smooth <- b_vxrate_amc_smooth
-    env$c_vxrate_sept_t10 <- c_vxrate_sept_t10
-    env$c_vxrate_dec_t2040 <- c_vxrate_dec_t2040
-    env$c_vxrate_eom <- c_vxrate_eom
-    env$d_absorption <- d_absorption
-    env$c_vxrate_latest <- c_vxrate_latest
-    env$b_vxrate_lw_sum <- b_vxrate_lw_sum
-    env$b_vxrate_lm_sum <- b_vxrate_lm_sum
-    env$b_vxrate_2m_sum <- b_vxrate_2m_sum
-    env$b_vxrate_13jan <- b_vxrate_13jan
-    env$d_absorb_red <- d_absorb_red
-    env$combined <- combined
-    env$d_absorption_country_new <- d_absorption_country_new
-    env$combined_three <- combined_three
-    env$b_vxrate_change_lw <- b_vxrate_change_lw
-    print(" > Done.")
-
     return(environment())
 
 }

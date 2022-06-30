@@ -25,15 +25,5 @@ run_supply <- function(dataset_date, del_date, env = .GlobalEnv) {
     )
     print(" > Done.")
 
-
-    print(" > Loading supply data back to global environment...")
-    env$supply_secured <- supply_secured
-    env$c_sec_cour_lm <- as.data.frame(datalist1[2])
-    env$delivery_courses_doses <- delivery_courses_doses
-    env$supply_received_by_product <- supply_received_by_product
-    env$supply_received_doses <- supply_received_doses
-    env$c_delivery_product <- c_delivery_product
-    print(" > OK.")
-
     return(environment())
 }
