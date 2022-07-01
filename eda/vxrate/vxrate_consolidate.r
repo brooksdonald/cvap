@@ -269,6 +269,7 @@ transform_vxrate_merge <- function(a_data) {
 
   # Calculate target group coverage figures
   print(" >>> Computing target group coverage figures...")
+  a_data$adm_fv_male <- as.double(a_data$adm_fv_male)
   a_data <- a_data %>%
     mutate(adm_fv_male_homo = if_else(adm_fv_male > a_pop_male, a_pop_male, adm_fv_male)) %>%
     mutate(cov_total_male_fv = adm_fv_male / a_pop_male) %>%
