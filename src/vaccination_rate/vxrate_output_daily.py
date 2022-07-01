@@ -440,13 +440,12 @@ def final_variable_selection(df11):
 
     df12 = df12.merge(who[['iso_code', 'date_accessed']].drop_duplicates(), on = 'iso_code', how = 'left')
     df12.sort_values(by = ['iso_code', 'date'], ascending=True, inplace = True)
-    df12.fillna('null', inplace = True) # consider deleting this line for compatibility with R
     return df12
 
 
 def export_data(df12):
     print(' > Saving /analysis_vx_throughput_output_daily to csv file......')
-    df12.to_csv('data/_input/supply_data/analysis_vx_throughput_output_daily.csv', index = False)
+    df12.to_csv('data/_input/supply_data/analysis_vx_throughput_output_daily_30_June.csv', index = False)
     print(' > Done.')
 
 
