@@ -22,12 +22,12 @@ run_population <- function(env = .GlobalEnv) {
     print(" > Done.")
 
     print(" > Population uptake...")
-
     datalist <- load_population_uptake()
     uptake_gender_data <- transform_population_uptake(
         as.data.frame(datalist[1]),
         as.data.frame(datalist[2])
     )
+    print(" > Done.")
 
     print(" > Returning to global environment. ")
     return(environment())
