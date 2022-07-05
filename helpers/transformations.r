@@ -127,3 +127,19 @@ helper_calculate_cov_total_fv <- function(data) {
     )
   return(data)
 }
+
+helper_check_for_duplicates <- function(data) {
+    data <- data %>%
+        group_by(a_iso, target_group) %>%
+        mutate(max_n_vacc = max(adm_fv, na.rm = T)) %>%
+        arrange(a_iso, data, target_group) %>%
+        filter(adm_fv == max_n_vacc | is.na(adm_fv)) %>%
+        distinct(a_iso, target_group, .keep_all = TRUE) %>%
+        mutate(max_n_vacc = if_else(
+            max_n_vacc == -Inf,
+            NA_real_,
+            max_n_vacc)) %>%
+        mutate(adm_fv = max_n_vacc) %>%
+        select(-max_n_vacc)
+    return(data)
+}

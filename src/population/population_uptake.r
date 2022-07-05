@@ -98,6 +98,8 @@ load_pop_target_groups <- function(headers) {
         "adm_target"
     )
 
+    print(" >> Removing duplicates...")
+    uptake_target_group <- helper_check_for_duplicates(uptake_target_group)
     return(uptake_target_group)
 }
 
