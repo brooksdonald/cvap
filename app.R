@@ -17,6 +17,12 @@ library("jsonlite")
 library("AzureAuth")
 library("dotenv")
 
+# STATIC DATES
+.GlobalEnv$refresh_date <- as.Date("2022-06-02")
+.GlobalEnv$t70_deadline <- as.Date("2022-06-30")
+.GlobalEnv$dataset_date <- "2022-05-26" # dataset_date is passed to sec_date
+.GlobalEnv$del_date <- as.Date("2022-05-30")
+
 # Configuation Variables
 # load_dot_env(file = ".env")
 
@@ -24,12 +30,6 @@ library("dotenv")
 
 source("helpers/joins.r")
 source("helpers/transformations.r")
-
-# STATIC DATES
-.GlobalEnv$refresh_date <- as.Date("2022-06-02")
-.GlobalEnv$t70_deadline <- as.Date("2022-06-30")
-.GlobalEnv$dataset_date <- "2022-05-26" # dataset_date is passed to sec_date
-.GlobalEnv$del_date <- as.Date("2022-05-30")
 
 # ETL
 

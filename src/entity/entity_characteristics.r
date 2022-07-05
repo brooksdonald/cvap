@@ -46,7 +46,6 @@ load_entity_chars <- function() {
         "a_ifc_status",
         "a_gavi_status"
     )
-    # TODO should we drop NA here since some rows are blank and we are populating it with Other later?
 
     return(entity_details)
 }

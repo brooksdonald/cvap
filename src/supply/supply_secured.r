@@ -107,8 +107,6 @@ transform_supply_secured <- function(supply_secured, dataset_date, c_sec_cour_lm
     print(" >> Multiplying last month supply summary by a million...")
     c_sec_cour_lm <- c_sec_cour_lm %>%
         mutate(sec_total_dose_lm = sec_total_dose_lm * 1000000)
-
-    # FIXME replacing NA with 0 is NOT a good idea for data repr
     print(" >> Replacing NAs...")
     supply_secured <- supply_secured %>% replace(is.na(.), 0)
     c_sec_cour_lm <- c_sec_cour_lm %>% replace(is.na(.), 0)

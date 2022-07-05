@@ -203,8 +203,6 @@ treat_country_name_datasource <- function(dataframe) {
 
 
     print(" >>> Handling special cases...")
-    # handling special cases
-    # TODO Hong Kong and Macao?
     dataframe <- dataframe %>%
         mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
     dataframe <- dataframe[!(is.na(dataframe$iso)), ]
