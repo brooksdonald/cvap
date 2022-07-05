@@ -288,6 +288,13 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
         adm_fv_female > 0,
         "Reporting",
         "Not reporting")))
+
+  # Converting Ingested data from API to numeric values
+  a_data$adm_fv_male <- as.numeric(a_data$adm_fv_male)
+  a_data$adm_fv_female <- as.numeric(a_data$adm_fv_female)
+  a_data$adm_a1d_hcw <- as.numeric(a_data$adm_a1d_hcw)
+  a_data$adm_fv_hcw <- as.numeric(a_data$adm_fv_hcw)
+  a_data$adm_fv_60p <- as.numeric(a_data$adm_fv_60p)
   
   a_data$adm_fv_hcw_repstat[a_data$a_iso == "GRL"] <-
     a_data$adm_fv_hcw_repstat[a_data$a_iso == "DNK"]
@@ -314,6 +321,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
 
   # Calculate target group coverage figures
   print(" >>> Computing target group coverage figures...")
+  a_data$adm_fv_male <- as.double(a_data$adm_fv_male)
   a_data <- a_data %>%
     mutate(adm_fv_male_homo = pmin(
       adm_fv_male,
