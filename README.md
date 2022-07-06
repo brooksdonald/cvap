@@ -50,10 +50,20 @@ quality_checks.r | quality check script to compare current week outputs from pre
 ### Diagram
 ![covax architecture](https://user-images.githubusercontent.com/36184732/177362152-eca32704-22c5-44e4-818d-7d6aaec4874f.PNG)
 ### Design Principles
-
+Design principles (rules) abided by while building & contributing to this architecture include:
+1. Separation of Concerns (SoC)
+Each distinct sections are separated to address different individual concerns.
+2. Don't Repeat Yourself (DRY)
+Minimal to no repition of software patterns are observed. The system is designed with a single, authoritative and unambiguous representation for every piece of knowledge.
+3. Keep it short and simple (KISS)
+Simple design to building the architecture is observed.
+4. SOLID
+The design principles used are dedicated to making software designs flexible, maintainable, and flexible.  
 ## Running the pipeline
-- All modules contain run files with run functions named after the specific module. Each module can be tested by calling the run function at the end of the script e.g., run_base() for the base module.
-- To collectively run all modules at once, app.R file is used.
+- All modules contain run files with run functions named after the specific module. 
+- Each module can be tested by calling the run function at the end of the script e.g., run_base() for the base module.
+- To collectively run all modules at once, run app.R file.
+- Ensure static dates are changed for each new week, with the exception of t70_deadline.
 ### app.R file content
 - All libraries/packages needed to run the R code.
 - Static global variable dates.
@@ -71,6 +81,8 @@ quality_checks.r | quality check script to compare current week outputs from pre
 - Exporting analyzed data to excel using write_xlsx package.
 
 ## How to contribute
-
+To build on to the architecture, modify or enhance the current code base, reach out to Donald Brooks (brooksd@who.int) for access to the private repository.
 ## Next development
-
+1. Cleaning of time series data.
+2. De-link dvr scripts.
+3. Automate manual cleaning process of vaccination rates.
