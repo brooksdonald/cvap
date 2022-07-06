@@ -1,5 +1,13 @@
+from pickle import TRUE
 import pandas as pd
-from datetime import datetime, timedelta
+import datetime
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
+sns.set(rc={"figure.dpi":400, 'savefig.dpi':400})
+newpath = r'data/cleaning_log' 
+if not os.path.exists(newpath):
+    os.makedirs(newpath)
 
 
 def import_data():
@@ -517,8 +525,147 @@ def join_errors_with_df(df2, df_errors1, df_errors2, df_errors1st, df_errors2nd,
 
 def export_data(df3):
     print(" > Saving analysis_vx_throughput_data_cleaned to csv file...")
-    df3.to_csv('data/_input/supply_data/analysis_vx_throughput_data_cleaned.csv', index = False)
+    df3.sort_values(by = ['iso_code', 'date'], ascending = True, inplace = True)
+    df3.to_csv('data/_input/supply_data/analysis_vx_throughput_data_cleaned_no_cl.csv', index = False)
     print(" > Done")
+
+def monotonic(series):
+    if len(series) <= 1:
+        return True
+    else:
+        if series[0] >= series[1]:
+            series.pop(0)
+            return monotonic(series)
+        else:
+            return False
+
+def delete_row(country_data, df, row, log):
+    country_data.reset_index(drop = True, inplace = True)
+    country_name = country_data.loc[row,'iso_code']
+    date = country_data.loc[row,'date']
+    df.loc[((df['iso_code'] == country_name) & (df['date'] == date)),'to_delete_automized_clean'] = 1
+    country_data.drop(row, axis = 0, inplace = True)
+    print(" > Cleaning: Deleting", country_name, "from", date)
+    addition = pd.DataFrame({'country': [country_name], 'date': [date]})
+    log = pd.concat([log, addition], ignore_index = True)
+    return country_data, df, log
+
+# def deep_clean(country_data, df):
+#     # Adding moving average to all rows
+#     country_data['hours'] = '00.00.00'
+#     country_data['DateTime'] = country_data['date'].astype(str).str.cat(country_data['hours'], sep = " ") 
+#     country_data.drop("hours", axis = 1, inplace = True)
+#     country_data.DateTime = country_data.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H.%M.%S'))
+#     country_data.index = country_data.DateTime
+#     country_data.sort_index(inplace = True)
+
+#     rolling_8_week_avg = country_data.groupby(['iso_code'])['total_doses'] \
+#         .rolling('56D', center = True).mean().reset_index()
+#     rolling_8_week_avg.rename(columns = {'total_doses': 'rolling_8_week_avg'}, inplace = True)
+#     country_data.index.names = ['index']
+#     country_data.reset_index(inplace = True, drop=True)
+#     country_data = country_data.merge(rolling_8_week_avg, on = ['iso_code', 'DateTime'], how = 'left')
+
+#     while monotonic(list(country_data['total_doses'])) == False:
+#         country_data['difference_to_average'] = abs(country_data['total_doses'] - country_data['rolling_8_week_avg'])
+#         country_data.reset_index(inplace = True, drop=True)
+#         row_to_delete = country_data['difference_to_average'].idxmax()
+#         country_data, df = delete_row(country_data, df, row_to_delete)
+
+#     country = country_data['iso_code'].unique()[0]
+#     country_data = df.loc[df2['iso_code'] == country, :].copy()
+#     country_data = country_data.loc[country_data['to_delete_automized_clean'] == 0, :].copy()
+#     country_data.sort_values(by = ['date'], ascending = False, inplace = True)
+
+#     return country_data, df
+
+def row_check(country_data, row, df, log):
+    ## check previous
+    if len(country_data) > row:
+        country_data, df, log = row_check(country_data, row + 1, df, log)
+    else:
+        return country_data, df, log
+    
+    ## check itself
+    if country_data.iloc[min(row, len(country_data) - 1), 2] > country_data.iloc[max(row - 1, 0), 2]: # is it larger than next one?
+        if country_data.iloc[min(row + 1, len(country_data) - 1), 2] > country_data.iloc[max(row - 1, 0), 2]: # is previous larger than next?
+            count_previous_larger = 0
+            count_after_smaller = 0
+            row_backwards_check = row
+            row_forward_check = row - 1
+            not_exhausted = True
+            while (country_data.iloc[min(row - 1, len(country_data) - 1), 2] < country_data.iloc[min(row_backwards_check, len(country_data) - 1), 2]) and not_exhausted:
+                count_previous_larger += 1
+                row_backwards_check += 1
+                if row_backwards_check > len(country_data) - 1:
+                    not_exhausted = False
+            not_exhausted = True
+            while (country_data.iloc[min(row, len(country_data) - 1), 2] > country_data.iloc[max(row_forward_check, 0), 2]) and not_exhausted:
+                count_after_smaller += 1
+                row_forward_check -= 1
+                if row_forward_check < 0:
+                    not_exhausted = False
+            if count_previous_larger <= count_after_smaller:
+                country_data, df, log = delete_row(country_data, df, row, log) # maybe implement multiple rows to be deleted?
+            else:
+                country_data, df, log = delete_row(country_data, df, row - 1, log)
+        else:
+            country_data, df, log = delete_row(country_data, df, row, log)
+    return country_data, df, log
+
+def automized_cleaning(df2):
+    uncleaned = df2.copy()
+    log = pd.DataFrame({'country': [], 'date': []})
+    pd.set_option('mode.chained_assignment', None)
+    # asking for user input whether cleaning should be performed
+    print(" > Would you like to run the automized cleaning? (y/n):")
+    response = input()
+    if response in ["y", "Y", "yes", "Yes", "true", "True"]:
+        print(" > Starting the automized cleaning process...")
+
+        # looping through all countries in the dataset
+        countries = df2['iso_code'].unique()
+        #countries.sort()
+        df2['to_delete_automized_clean'] = 0
+        for country in countries:
+            country_data = df2.loc[df2['iso_code'] == country, :].copy()
+            country_data.sort_values(by = ['date'], ascending = False, inplace = True)
+            
+            # preliminary check if all values are increasing
+            if monotonic(list(country_data['total_doses'])):
+                pass
+
+            else:
+                while monotonic(list(country_data['total_doses'])) == False:
+                    row = 0
+                    country_data, df2, log = row_check(country_data, row, df2, log)
+                country_data = df2.loc[df2['iso_code'] == country, :].copy()
+                uncleaned_c = uncleaned.loc[uncleaned['iso_code'] == country, :].copy()
+                country_data.sort_values(by = ['date'], ascending = False, inplace = True)
+                country_data = country_data.loc[country_data['to_delete_automized_clean'] == 0, :]
+                country_data['type'] = 'cleaned'
+                uncleaned_c['type'] = 'original'
+                plot_data = pd.concat([country_data[['date', 'total_doses', 'type']],
+                    uncleaned_c[['date', 'total_doses', 'type']]], ignore_index = True)
+                plot_data['total_doses'] = plot_data['total_doses'].copy()/1000000
+                plot_data.rename({'total_doses': 'Total Doses (in million)', 'date': 'Time'}, inplace = True, axis = 1)
+                # changes = list(log.loc[log['country'] == country, 'date'])
+                # for date_change in range(len(changes)):
+                #     row_from = max(list(plot_data['Time']).index(changes[date_change]) - 10, 0)
+                #     row_to = min(list(plot_data['Time']).index(changes[date_change]) + 10, len(plot_data['Time']))
+                #     plot_data_range = plot_data.loc[row_from:row_to, :]
+                plt.clf()
+                sns.lineplot(data = plot_data, y = 'Total Doses (in million)', x = 'Time', # change to plot_data_range
+                    hue = 'type', style = 'type').set(title = country)
+                plt.savefig('data/cleaning_log/cleaning_' + country) # + '_' + str(date_change))
+
+        df2 = df2.loc[df2['to_delete_automized_clean'] == 0, :]
+        return df2
+
+    else:
+        print(" > No automized cleaning will be performed.")
+        print(" > Careful: Data may include issues.")
+        return df2
 
 
 # running the above functions
@@ -528,6 +675,7 @@ df1 = cleaning(who)
 df1 = date_to_date_week(df1)
 df1, df2 = map_iso_codes(df1, iso_mapping)
 df2, manual_fix_list = fix_issues_total_doses(df2)
+df2 = automized_cleaning(df2)
 df2 = fix_issues_at_least_one_dose(df2)
 df2 = fix_issues_fully_vaccinated(df2)
 df_errors1 = check_for_total_dose_decreases_1(df1)

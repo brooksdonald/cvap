@@ -2,6 +2,7 @@ data/*
 data/_input/*
 data/interim/*
 data/output/*
+data/cleaning_log
 .RData
 .RHistory
 */.RData

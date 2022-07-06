@@ -210,7 +210,7 @@ def moving_averages_td(df4, days_in_weeks4, days_in_weeks8):
     df5.index = df5.DateTime
     df5.sort_index(inplace = True)
 
-    print(" > This week's moving avaerages...")
+    print(" > This week's moving averages...")
     rolling_4_week_avg_td = df5.groupby(['iso_code'])['daily_rate_td'] \
         .rolling(str(days_in_weeks4 + 1) + 'D').mean().reset_index()
     rolling_4_week_avg_td.rename(columns = {'daily_rate_td': 'rolling_4_week_avg_td'}, inplace = True)
