@@ -1,5 +1,6 @@
 from pickle import TRUE
 import pandas as pd
+import numpy as np
 import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -530,6 +531,9 @@ def export_data(df3):
     print(" > Done")
 
 def monotonic(series):
+    """
+    This function checks whether a list of numbers is monotonically decreasing.
+    """
     if len(series) <= 1:
         return True
     else:
@@ -540,6 +544,11 @@ def monotonic(series):
             return False
 
 def delete_row(country_data, df, row, log):
+    """
+    This function deletes a specified row from `country_data`,
+    adds a flag to the respective row in `df`,
+    and reports the deleted row in `log`.
+    """
     country_data.reset_index(drop = True, inplace = True)
     country_name = country_data.loc[row,'iso_code']
     date = country_data.loc[row,'date']
@@ -579,7 +588,52 @@ def delete_row(country_data, df, row, log):
 
 #     return country_data, df
 
+def deep_clean(country_data, row, df, log):
+    """
+    This function checks for the best way to deal with more complicated cases,
+    that is, when the next observation is lower than at least two previous observations.
+
+    The logic used is:
+    1. How many rows would have to be deleted before and including the current
+        observation to remove the decrease in "total_doses"? Return count.
+    2. How many rows woul dhave to be deleted after the current observation
+        to have an increase from the current to the next observation? Return count.
+    3. If count of 1. is greater than 2., then remove the next observation.
+    4. If count of 1. is smaller than 2., then remove the current observation.
+    """
+    count_previous_larger = 0
+    count_after_smaller = 0
+    row_backwards_check = row
+    row_forward_check = row - 1
+    not_exhausted = True
+    while (country_data.iloc[min(row - 1, len(country_data) - 1), 2] < country_data.iloc[min(row_backwards_check, len(country_data) - 1), 2]) and not_exhausted:
+        count_previous_larger += 1
+        row_backwards_check += 1
+        if row_backwards_check > len(country_data) - 1:
+            not_exhausted = False
+    not_exhausted = True
+    while (country_data.iloc[min(row, len(country_data) - 1), 2] > country_data.iloc[max(row_forward_check, 0), 2]) and not_exhausted:
+        count_after_smaller += 1
+        row_forward_check -= 1
+        if row_forward_check < 0:
+            not_exhausted = False
+    if count_previous_larger <= count_after_smaller:
+        country_data, df, log = delete_row(country_data, df, row, log)
+    else:
+        country_data, df, log = delete_row(country_data, df, row - 1, log)
+    return country_data, df, log
+
 def row_check(country_data, row, df, log):
+    """
+    This is a recursive function that checks a row of the `country_data` dataframe.
+    It determines whether an observation should be deleted if there is a decrease in total_doses.
+    The logical steps are:
+    1. Is current observation (t) larger than the next observation (t+1)?
+        a. If true, is the previous observation (t-1) also larger than the next observation (t+1)? 
+            i. If true, perfrom deep clean.
+            ii. If false, delete current observation. (Using the inductive bias that recent data is better.)
+        b. If false, do not delete observation.
+    """
     ## check previous
     if len(country_data) > row:
         country_data, df, log = row_check(country_data, row + 1, df, log)
@@ -589,49 +643,67 @@ def row_check(country_data, row, df, log):
     ## check itself
     if country_data.iloc[min(row, len(country_data) - 1), 2] > country_data.iloc[max(row - 1, 0), 2]: # is it larger than next one?
         if country_data.iloc[min(row + 1, len(country_data) - 1), 2] > country_data.iloc[max(row - 1, 0), 2]: # is previous larger than next?
-            count_previous_larger = 0
-            count_after_smaller = 0
-            row_backwards_check = row
-            row_forward_check = row - 1
-            not_exhausted = True
-            while (country_data.iloc[min(row - 1, len(country_data) - 1), 2] < country_data.iloc[min(row_backwards_check, len(country_data) - 1), 2]) and not_exhausted:
-                count_previous_larger += 1
-                row_backwards_check += 1
-                if row_backwards_check > len(country_data) - 1:
-                    not_exhausted = False
-            not_exhausted = True
-            while (country_data.iloc[min(row, len(country_data) - 1), 2] > country_data.iloc[max(row_forward_check, 0), 2]) and not_exhausted:
-                count_after_smaller += 1
-                row_forward_check -= 1
-                if row_forward_check < 0:
-                    not_exhausted = False
-            if count_previous_larger <= count_after_smaller:
-                country_data, df, log = delete_row(country_data, df, row, log) # maybe implement multiple rows to be deleted?
-            else:
-                country_data, df, log = delete_row(country_data, df, row - 1, log)
+            country_data, df, log = deep_clean(country_data, row, df, log)
         else:
             country_data, df, log = delete_row(country_data, df, row, log)
     return country_data, df, log
 
+
+def export_plots_of_changes(df2, uncleaned, country, log):
+    """
+    This function produces a lineplot comparing the cleaned and uncleaned 'total_doses' for a country.
+    TODO: Zooming in on changes for better visibility.
+    """
+    country_data = df2.loc[df2['iso_code'] == country, :].copy()
+    uncleaned_c = uncleaned.loc[uncleaned['iso_code'] == country, :].copy()
+    country_data.sort_values(by = ['date'], ascending = False, inplace = True)
+    country_data = country_data.loc[country_data['to_delete_automized_clean'] == 0, :]
+    country_data['type'] = 'cleaned'
+    uncleaned_c['type'] = 'original'
+    plot_data = pd.concat([country_data[['date', 'total_doses', 'type']],
+        uncleaned_c[['date', 'total_doses', 'type']]], ignore_index = True)
+    plot_data['total_doses'] = plot_data['total_doses'].copy()/1000000
+    plot_data.rename({'total_doses': 'Total Doses (in million)', 'date': 'Time'}, inplace = True, axis = 1)
+
+    # the commented out part is a first attempt to "zoom in" on the change. It has not yet been finished.
+
+    # changes = list(log.loc[log['country'] == country, 'date'])
+    # for date_change in range(len(changes)):
+    #     row_from = max(list(plot_data['Time']).index(changes[date_change]) - 10, 0)
+    #     row_to = min(list(plot_data['Time']).index(changes[date_change]) + 10, len(plot_data['Time']))
+    #     plot_data_range = plot_data.loc[row_from:row_to, :]
+    plt.clf()
+    sns.lineplot(data = plot_data, y = 'Total Doses (in million)', x = 'Time', # change to plot_data_range
+        hue = 'type', style = 'type').set(title = country)
+    plt.savefig('data/cleaning_log/cleaning_' + country) # + '_' + str(date_change))
+
+
 def automized_cleaning(df2):
-    uncleaned = df2.copy()
-    log = pd.DataFrame({'country': [], 'date': []})
-    pd.set_option('mode.chained_assignment', None)
+    """
+    This automatized cleaning function loops through all countries to
+    1. check whether the total_doses are monotonically increasing over time,
+    2. call the recursive "row check" function if there is a decrease in doses,
+    3. produce figures of the changes made.
+    """
     # asking for user input whether cleaning should be performed
     print(" > Would you like to run the automized cleaning? (y/n):")
     response = input()
     if response in ["y", "Y", "yes", "Yes", "true", "True"]:
         print(" > Starting the automized cleaning process...")
-
-        # looping through all countries in the dataset
-        countries = df2['iso_code'].unique()
-        #countries.sort()
+        
+        print(" > Initializing variables.")
+        uncleaned = df2.copy()
+        log = pd.DataFrame({'country': [], 'date': []})
+        pd.set_option('mode.chained_assignment', None)
         df2['to_delete_automized_clean'] = 0
+        
+        print(" > Looping through all countries to check for decreases in 'total_doses'.")
+        countries = df2['iso_code'].unique()
+        countries = np.sort(countries)
         for country in countries:
             country_data = df2.loc[df2['iso_code'] == country, :].copy()
             country_data.sort_values(by = ['date'], ascending = False, inplace = True)
             
-            # preliminary check if all values are increasing
             if monotonic(list(country_data['total_doses'])):
                 pass
 
@@ -639,28 +711,7 @@ def automized_cleaning(df2):
                 while monotonic(list(country_data['total_doses'])) == False:
                     row = 0
                     country_data, df2, log = row_check(country_data, row, df2, log)
-                country_data = df2.loc[df2['iso_code'] == country, :].copy()
-                uncleaned_c = uncleaned.loc[uncleaned['iso_code'] == country, :].copy()
-                country_data.sort_values(by = ['date'], ascending = False, inplace = True)
-                country_data = country_data.loc[country_data['to_delete_automized_clean'] == 0, :]
-                country_data['type'] = 'cleaned'
-                uncleaned_c['type'] = 'original'
-                plot_data = pd.concat([country_data[['date', 'total_doses', 'type']],
-                    uncleaned_c[['date', 'total_doses', 'type']]], ignore_index = True)
-                plot_data['total_doses'] = plot_data['total_doses'].copy()/1000000
-                plot_data.rename({'total_doses': 'Total Doses (in million)', 'date': 'Time'}, inplace = True, axis = 1)
-
-                # the commented out part is a first attempt to "zoom in" on the change. It has not yet been finished.
-
-                # changes = list(log.loc[log['country'] == country, 'date'])
-                # for date_change in range(len(changes)):
-                #     row_from = max(list(plot_data['Time']).index(changes[date_change]) - 10, 0)
-                #     row_to = min(list(plot_data['Time']).index(changes[date_change]) + 10, len(plot_data['Time']))
-                #     plot_data_range = plot_data.loc[row_from:row_to, :]
-                plt.clf()
-                sns.lineplot(data = plot_data, y = 'Total Doses (in million)', x = 'Time', # change to plot_data_range
-                    hue = 'type', style = 'type').set(title = country)
-                plt.savefig('data/cleaning_log/cleaning_' + country) # + '_' + str(date_change))
+                export_plots_of_changes(df2, uncleaned, country, log)
 
         df2 = df2.loc[df2['to_delete_automized_clean'] == 0, :]
         return df2
