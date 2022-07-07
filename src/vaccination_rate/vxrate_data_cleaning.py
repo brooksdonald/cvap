@@ -652,7 +652,7 @@ def row_check(country_data, row, df, log):
 def export_plots_of_changes(df2, uncleaned, country, log):
     """
     This function produces a lineplot comparing the cleaned and uncleaned 'total_doses' for a country.
-    TODO: Zooming in on changes for better visibility.
+    TODO: Grouping the individual changes to reduce duplicate graphs
     """
     country_data = df2.loc[df2['iso_code'] == country, :].copy()
     uncleaned_c = uncleaned.loc[uncleaned['iso_code'] == country, :].copy()
@@ -665,17 +665,19 @@ def export_plots_of_changes(df2, uncleaned, country, log):
     plot_data['total_doses'] = plot_data['total_doses'].copy()/1000000
     plot_data.rename({'total_doses': 'Total Doses (in million)', 'date': 'Time'}, inplace = True, axis = 1)
 
-    # the commented out part is a first attempt to "zoom in" on the change. It has not yet been finished.
-
-    # changes = list(log.loc[log['country'] == country, 'date'])
-    # for date_change in range(len(changes)):
-    #     row_from = max(list(plot_data['Time']).index(changes[date_change]) - 10, 0)
-    #     row_to = min(list(plot_data['Time']).index(changes[date_change]) + 10, len(plot_data['Time']))
-    #     plot_data_range = plot_data.loc[row_from:row_to, :]
-    plt.clf()
-    sns.lineplot(data = plot_data, y = 'Total Doses (in million)', x = 'Time', # change to plot_data_range
-        hue = 'type', style = 'type').set(title = country)
-    plt.savefig('data/cleaning_log/cleaning_' + country) # + '_' + str(date_change))
+    changes = list(log.loc[log['country'] == country, 'date'])
+    changes.sort()
+    uncleaned_c.sort_values(by = ['date'], ascending = False, inplace = True)
+    uncleaned_c.reset_index(drop = True, inplace = True)
+    for date_change in range(len(changes)):
+        date_to = uncleaned_c.loc[max(list(uncleaned_c['date']).index(changes[date_change]) - 15, 0), 'date']
+        date_from = uncleaned_c.loc[min(list(uncleaned_c['date']).index(changes[date_change]) + 16, len(uncleaned_c['date']) - 1), 'date']
+        plot_data_range = plot_data.loc[plot_data['Time'] >= date_from, :].copy()
+        plot_data_range = plot_data_range.loc[plot_data['Time'] <= date_to, :].copy()
+        plt.clf()
+        sns.lineplot(data = plot_data_range, y = 'Total Doses (in million)', x = 'Time', 
+            hue = 'type', style = 'type').set(title = country + ": Change " + str(date_change + 1) + "/" + str(len(changes)))
+        plt.savefig('data/cleaning_log/cleaning_' + country + '_' + str(date_change + 1))
 
 
 def automized_cleaning(df2):
@@ -714,6 +716,7 @@ def automized_cleaning(df2):
                 export_plots_of_changes(df2, uncleaned, country, log)
 
         df2 = df2.loc[df2['to_delete_automized_clean'] == 0, :]
+        log.to_csv('data/cleaning_log/logged_changes', index = False)
         return df2
 
     else:
