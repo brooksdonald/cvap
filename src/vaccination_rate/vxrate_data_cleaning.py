@@ -693,13 +693,13 @@ def automized_cleaning(df2):
     if response in ["y", "Y", "yes", "Yes", "true", "True"]:
         print(" > Starting the automized cleaning process...")
         
-        print(" > Initializing variables.")
+        print(" > Initializing variables...")
         uncleaned = df2.copy()
         log = pd.DataFrame({'country': [], 'date': []})
         pd.set_option('mode.chained_assignment', None)
         df2['to_delete_automized_clean'] = 0
         
-        print(" > Looping through all countries to check for decreases in 'total_doses'.")
+        print(" > Looping through all countries to check for decreases in 'total_doses'...")
         countries = df2['iso_code'].unique()
         countries = np.sort(countries)
         for country in countries:
@@ -714,14 +714,15 @@ def automized_cleaning(df2):
                     row = 0
                     country_data, df2, log = row_check(country_data, row, df2, log)
                 export_plots_of_changes(df2, uncleaned, country, log)
-
+        print(" > Saving plots of cleaned changes to data/cleaning_log...")
         df2 = df2.loc[df2['to_delete_automized_clean'] == 0, :]
-        log.to_csv('data/cleaning_log/logged_changes', index = False)
+        print(" > Saving logged_changes to csv...")
+        log.to_csv('data/cleaning_log/logged_changes.csv', index = False)
         return df2
 
     else:
         print(" > No automized cleaning will be performed.")
-        print(" > Careful: Data may include issues.")
+        print(" > Warning: Data may include issues.")
         return df2
 
 
