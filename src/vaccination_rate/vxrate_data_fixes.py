@@ -55,9 +55,10 @@ def export_dataframe(df2):
     print(" > Done")
 
 
-iso_mapping, raw, who = import_data()
-df1 = clean_country_names(raw, iso_mapping)
-who1 = clean_who_data(who)
-df2 = merge_dataframes(df1, who1)
-export_dataframe(df2)
-print(" > Closing Python Environment")
+if __name__ == '__main__':
+    iso_mapping, raw, who = import_data()
+    df1 = clean_country_names(raw, iso_mapping)
+    who1 = clean_who_data(who)
+    df2 = merge_dataframes(df1, who1)
+    export_dataframe(df2)
+    print(" > Closing Python Environment")

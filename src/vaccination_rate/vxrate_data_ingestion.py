@@ -87,5 +87,6 @@ def fix_dates(df3):
   print(" > Done.")
   return df_data
 
-df3 = get_data()
-df_data = fix_dates(df3)
+if __name__ == '__main__':
+  df3 = get_data()
+  df_data = fix_dates(df3)

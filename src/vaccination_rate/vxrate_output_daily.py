@@ -449,23 +449,24 @@ def export_data(df12):
     print(' > Done.')
 
 
-supply_threshold = 0.0
-days_in_weeks4 = 27
-days_in_weeks8 = 55
+if __name__ == '__main__':
+    supply_threshold = 0.0
+    days_in_weeks4 = 27
+    days_in_weeks8 = 55
 
-who, iso_mapping, cc, country, owid1, uti_supply1 = import_data()
-df_flags = flags(who)
-df1 = merge_who_country(who, country)
-df1 = filter_data(df1)
-df_inter = exploding_dates(df1)
-df_inter = interpolate_data(df_inter)
-df3 = minimum_rollout_date(df_inter, country)
-df4 = merge_with_supply(df3, uti_supply1)
-df5 = moving_averages_td(df4, days_in_weeks4, days_in_weeks8)
-df6 = moving_averages_1d(df5, days_in_weeks4, days_in_weeks8)
-df8 = moving_averages_fv(df6, days_in_weeks4, days_in_weeks8)
-df9 = join_with_cc_and_owid(df8, cc, owid1)
-df10 = identifying_missing_countries(df9)
-df11 = adding_flags_for_changes(df10)
-df12 = final_variable_selection(df11)
-export_data(df12)
+    who, iso_mapping, cc, country, owid1, uti_supply1 = import_data()
+    df_flags = flags(who)
+    df1 = merge_who_country(who, country)
+    df1 = filter_data(df1)
+    df_inter = exploding_dates(df1)
+    df_inter = interpolate_data(df_inter)
+    df3 = minimum_rollout_date(df_inter, country)
+    df4 = merge_with_supply(df3, uti_supply1)
+    df5 = moving_averages_td(df4, days_in_weeks4, days_in_weeks8)
+    df6 = moving_averages_1d(df5, days_in_weeks4, days_in_weeks8)
+    df8 = moving_averages_fv(df6, days_in_weeks4, days_in_weeks8)
+    df9 = join_with_cc_and_owid(df8, cc, owid1)
+    df10 = identifying_missing_countries(df9)
+    df11 = adding_flags_for_changes(df10)
+    df12 = final_variable_selection(df11)
+    export_data(df12)

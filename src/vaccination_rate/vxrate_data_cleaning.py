@@ -649,6 +649,9 @@ def automized_cleaning(df2):
                     uncleaned_c[['date', 'total_doses', 'type']]], ignore_index = True)
                 plot_data['total_doses'] = plot_data['total_doses'].copy()/1000000
                 plot_data.rename({'total_doses': 'Total Doses (in million)', 'date': 'Time'}, inplace = True, axis = 1)
+
+                # the commented out part is a first attempt to "zoom in" on the change. It has not yet been finished.
+
                 # changes = list(log.loc[log['country'] == country, 'date'])
                 # for date_change in range(len(changes)):
                 #     row_from = max(list(plot_data['Time']).index(changes[date_change]) - 10, 0)
@@ -668,19 +671,19 @@ def automized_cleaning(df2):
         return df2
 
 
-# running the above functions
-who, iso_mapping = import_data()
-who = convert_data_types(who)
-df1 = cleaning(who)
-df1 = date_to_date_week(df1)
-df1, df2 = map_iso_codes(df1, iso_mapping)
-df2, manual_fix_list = fix_issues_total_doses(df2)
-df2 = automized_cleaning(df2)
-df2 = fix_issues_at_least_one_dose(df2)
-df2 = fix_issues_fully_vaccinated(df2)
-df_errors1 = check_for_total_dose_decreases_1(df1)
-df_errors2, df_errors1b = check_for_total_dose_decreases_2(df2)
-df_errors1st = check_for_first_dose_decreases(df2)
-df_errors2nd = check_for_second_dose_decreases(df2)
-df3 = join_errors_with_df(df2, df_errors1, df_errors2, df_errors1st, df_errors2nd, manual_fix_list)
-export_data(df3)
+if __name__ == '__main__':
+    who, iso_mapping = import_data()
+    who = convert_data_types(who)
+    df1 = cleaning(who)
+    df1 = date_to_date_week(df1)
+    df1, df2 = map_iso_codes(df1, iso_mapping)
+    df2, manual_fix_list = fix_issues_total_doses(df2)
+    df2 = automized_cleaning(df2)
+    df2 = fix_issues_at_least_one_dose(df2)
+    df2 = fix_issues_fully_vaccinated(df2)
+    df_errors1 = check_for_total_dose_decreases_1(df1)
+    df_errors2, df_errors1b = check_for_total_dose_decreases_2(df2)
+    df_errors1st = check_for_first_dose_decreases(df2)
+    df_errors2nd = check_for_second_dose_decreases(df2)
+    df3 = join_errors_with_df(df2, df_errors1, df_errors2, df_errors1st, df_errors2nd, manual_fix_list)
+    export_data(df3)
