@@ -559,35 +559,6 @@ def delete_row(country_data, df, row, log):
     log = pd.concat([log, addition], ignore_index = True)
     return country_data, df, log
 
-# def deep_clean(country_data, df):
-#     # Adding moving average to all rows
-#     country_data['hours'] = '00.00.00'
-#     country_data['DateTime'] = country_data['date'].astype(str).str.cat(country_data['hours'], sep = " ") 
-#     country_data.drop("hours", axis = 1, inplace = True)
-#     country_data.DateTime = country_data.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H.%M.%S'))
-#     country_data.index = country_data.DateTime
-#     country_data.sort_index(inplace = True)
-
-#     rolling_8_week_avg = country_data.groupby(['iso_code'])['total_doses'] \
-#         .rolling('56D', center = True).mean().reset_index()
-#     rolling_8_week_avg.rename(columns = {'total_doses': 'rolling_8_week_avg'}, inplace = True)
-#     country_data.index.names = ['index']
-#     country_data.reset_index(inplace = True, drop=True)
-#     country_data = country_data.merge(rolling_8_week_avg, on = ['iso_code', 'DateTime'], how = 'left')
-
-#     while monotonic(list(country_data['total_doses'])) == False:
-#         country_data['difference_to_average'] = abs(country_data['total_doses'] - country_data['rolling_8_week_avg'])
-#         country_data.reset_index(inplace = True, drop=True)
-#         row_to_delete = country_data['difference_to_average'].idxmax()
-#         country_data, df = delete_row(country_data, df, row_to_delete)
-
-#     country = country_data['iso_code'].unique()[0]
-#     country_data = df.loc[df2['iso_code'] == country, :].copy()
-#     country_data = country_data.loc[country_data['to_delete_automized_clean'] == 0, :].copy()
-#     country_data.sort_values(by = ['date'], ascending = False, inplace = True)
-
-#     return country_data, df
-
 def deep_clean(country_data, row, df, log):
     """
     This function checks for the best way to deal with more complicated cases,
