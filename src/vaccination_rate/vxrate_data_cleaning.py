@@ -530,6 +530,7 @@ def export_data(df3):
     df3.to_csv('data/_input/supply_data/analysis_vx_throughput_data_cleaned_no_cl.csv', index = False)
     print(" > Done")
 
+
 def monotonic(series):
     """
     This function checks whether a list of numbers is monotonically decreasing.
@@ -542,6 +543,7 @@ def monotonic(series):
             return monotonic(series)
         else:
             return False
+
 
 def delete_row(country_data, df, row, log):
     """
@@ -558,6 +560,7 @@ def delete_row(country_data, df, row, log):
     addition = pd.DataFrame({'country': [country_name], 'date': [date]})
     log = pd.concat([log, addition], ignore_index = True)
     return country_data, df, log
+
 
 def deep_clean(country_data, row, df, log):
     """
@@ -593,6 +596,7 @@ def deep_clean(country_data, row, df, log):
     else:
         country_data, df, log = delete_row(country_data, df, row - 1, log)
     return country_data, df, log
+
 
 def row_check(country_data, row, df, log):
     """
