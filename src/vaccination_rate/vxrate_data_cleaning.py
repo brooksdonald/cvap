@@ -3,9 +3,10 @@ import pandas as pd
 import numpy as np
 import datetime
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter
 import seaborn as sns
-import os
 sns.set(rc={"figure.dpi":400, 'savefig.dpi':400})
+import os
 newpath = r'data/cleaning_log' 
 if not os.path.exists(newpath):
     os.makedirs(newpath)
@@ -294,7 +295,7 @@ def fix_issues_total_doses(df2):
     df2 = df2.loc[~((df2['iso_code'] == 'NER') & (df2['date'].between('2021-07-05', '2021-07-13'))), :]
     df2 = df2.loc[~((df2['iso_code'] == 'NER') & (df2['date'] == '2021-08-28')), :]
     df2 = df2.loc[~((df2['iso_code'] == 'NIC') & (df2['date'] == '2021-08-09')), :]
-#     df2 = df2.loc[~((df2['iso_code'] == 'NIC') & (df2['date'].between('2021-07-17', '2021-11-28')), :]
+    # df2 = df2.loc[~((df2['iso_code'] == 'NIC') & (df2['date'].between('2021-07-17', '2021-11-28'))), :]
     df2 = df2.loc[~((df2['iso_code'] == 'NIU') & (df2['date'] == '2021-07-16')), :]
     df2 = df2.loc[~((df2['iso_code'] == 'NLD') & (df2['date'].between('2022-04-10', '2022-05-15'))), :]
     df2 = df2.loc[~((df2['iso_code'] == 'NPL') & (df2['date'] == '2021-04-28')), :]
@@ -605,7 +606,7 @@ def row_check(country_data, row, df, log):
     The logical steps are:
     1. Is current observation (t) larger than the next observation (t+1)?
         a. If true, is the previous observation (t-1) also larger than the next observation (t+1)? 
-            i. If true, perfrom deep clean.
+            i. If true, perfrom deep clean (see function above.)
             ii. If false, delete current observation. (Using the inductive bias that recent data is better.)
         b. If false, do not delete observation.
     """
@@ -627,7 +628,8 @@ def row_check(country_data, row, df, log):
 def export_plots_of_changes(df2, uncleaned, country, log):
     """
     This function produces a lineplot comparing the cleaned and uncleaned 'total_doses' for a country.
-    TODO: Grouping the individual changes to reduce duplicate graphs
+    
+    TODO: add documentation
     """
     country_data = df2.loc[df2['iso_code'] == country, :].copy()
     uncleaned_c = uncleaned.loc[uncleaned['iso_code'] == country, :].copy()
@@ -635,8 +637,8 @@ def export_plots_of_changes(df2, uncleaned, country, log):
     country_data = country_data.loc[country_data['to_delete_automized_clean'] == 0, :]
     country_data['type'] = 'cleaned'
     uncleaned_c['type'] = 'original'
-    plot_data = pd.concat([country_data[['date', 'total_doses', 'type']],
-        uncleaned_c[['date', 'total_doses', 'type']]], ignore_index = True)
+    plot_data = pd.concat([uncleaned_c[['date', 'total_doses', 'type']],
+        country_data[['date', 'total_doses', 'type']]], ignore_index = True)
     plot_data['total_doses'] = plot_data['total_doses'].copy()/1000000
     plot_data.rename({'total_doses': 'Total Doses (in million)', 'date': 'Time'}, inplace = True, axis = 1)
 
@@ -644,15 +646,42 @@ def export_plots_of_changes(df2, uncleaned, country, log):
     changes.sort()
     uncleaned_c.sort_values(by = ['date'], ascending = False, inplace = True)
     uncleaned_c.reset_index(drop = True, inplace = True)
+    min_date = uncleaned_c['date'].min()
+    max_date = uncleaned_c['date'].max()
+    group_together = False
+    count = 0
     for date_change in range(len(changes)):
         date_to = uncleaned_c.loc[max(list(uncleaned_c['date']).index(changes[date_change]) - 15, 0), 'date']
-        date_from = uncleaned_c.loc[min(list(uncleaned_c['date']).index(changes[date_change]) + 16, len(uncleaned_c['date']) - 1), 'date']
-        plot_data_range = plot_data.loc[plot_data['Time'] >= date_from, :].copy()
-        plot_data_range = plot_data_range.loc[plot_data['Time'] <= date_to, :].copy()
-        plt.clf()
-        sns.lineplot(data = plot_data_range, y = 'Total Doses (in million)', x = 'Time', 
-            hue = 'type', style = 'type').set(title = country + ": Change " + str(date_change + 1) + "/" + str(len(changes)))
-        plt.savefig('data/cleaning_log/cleaning_' + country + '_' + str(date_change + 1))
+        if group_together:
+            date_from = date_from_grouped
+        else:
+            date_from = uncleaned_c.loc[min(list(uncleaned_c['date']).index(changes[date_change]) + 16, len(uncleaned_c['date']) - 1), 'date']
+        if date_change < len(changes) - 1:
+            date_from_next_change = uncleaned_c.loc[min(list(uncleaned_c['date']).index(changes[date_change + 1]) + 16, len(uncleaned_c['date']) - 1), 'date']
+            if date_to > (date_from_next_change - datetime.timedelta(days = 2)):
+                group_together = True
+                date_from_grouped = date_from
+            else:
+                group_together = False
+        if not group_together:
+            count += 1
+            plot_data_range = plot_data.loc[plot_data['Time'] >= date_from, :].copy()
+            plot_data_range = plot_data_range.loc[plot_data['Time'] <= date_to, :].copy()
+
+            ## zooming in where possible to give impression of continuous data
+            zoom_lower_bound = datetime.timedelta(days = 0)
+            zoom_upper_bound = datetime.timedelta(days = 0)
+            if min_date + datetime.timedelta(days = 2) < date_from:
+                zoom_lower_bound = datetime.timedelta(days = 2)
+            if max_date - datetime.timedelta(days = 2) > date_to:
+                zoom_upper_bound = datetime.timedelta(days = 2)
+            
+            plt.clf()
+            sns.lineplot(data = plot_data_range, y = 'Total Doses (in million)', x = 'Time', 
+                hue = 'type', style = 'type').set(title = country + ": Change " + str(count))
+            plt.xticks(rotation = 25)
+            plt.xlim((date_from + zoom_lower_bound, date_to - zoom_upper_bound))
+            plt.savefig('data/cleaning_log/cleaning_' + country + '_' + str(count))
 
 
 def automized_cleaning(df2):
@@ -681,11 +710,8 @@ def automized_cleaning(df2):
             country_data = df2.loc[df2['iso_code'] == country, :].copy()
             country_data.sort_values(by = ['date'], ascending = False, inplace = True)
             
-            if monotonic(list(country_data['total_doses'])):
-                pass
-
-            else:
-                while monotonic(list(country_data['total_doses'])) == False:
+            if not monotonic(list(country_data['total_doses'])):
+                while not monotonic(list(country_data['total_doses'])):
                     row = 0
                     country_data, df2, log = row_check(country_data, row, df2, log)
                 export_plots_of_changes(df2, uncleaned, country, log)
