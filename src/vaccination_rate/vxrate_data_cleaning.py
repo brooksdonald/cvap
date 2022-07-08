@@ -528,7 +528,7 @@ def join_errors_with_df(df2, df_errors1, df_errors2, df_errors1st, df_errors2nd,
 def export_data(df3):
     print(" > Saving analysis_vx_throughput_data_cleaned to csv file...")
     df3.sort_values(by = ['iso_code', 'date'], ascending = True, inplace = True)
-    df3.to_csv('data/_input/supply_data/analysis_vx_throughput_data_cleaned_no_cl.csv', index = False)
+    df3.to_csv('data/_input/supply_data/analysis_vx_throughput_data_cleaned.csv', index = False)
     print(" > Done")
 
 
