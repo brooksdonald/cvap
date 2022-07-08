@@ -629,7 +629,10 @@ def export_plots_of_changes(df2, uncleaned, country, log):
     """
     This function produces a lineplot comparing the cleaned and uncleaned 'total_doses' for a country.
     
-    TODO: add documentation
+    1. Filter data for the respective country.
+    2. Create a list of all changes and group them if there are closer than 20 observations apart.
+    3. Produce a plot for all groups of changes.
+    4. Export the plots to `data/logged_changes`.
     """
     country_data = df2.loc[df2['iso_code'] == country, :].copy()
     uncleaned_c = uncleaned.loc[uncleaned['iso_code'] == country, :].copy()
