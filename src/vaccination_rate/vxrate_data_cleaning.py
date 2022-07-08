@@ -692,6 +692,7 @@ def automized_cleaning(df2):
         print(" > Saving plots of cleaned changes to data/cleaning_log...")
         df2 = df2.loc[df2['to_delete_automized_clean'] == 0, :]
         print(" > Saving logged_changes to csv...")
+        log.rename({'date': 'deleted dates'}, axis = 1, inplace = True)
         log.to_csv('data/cleaning_log/logged_changes.csv', index = False)
         return df2
 
