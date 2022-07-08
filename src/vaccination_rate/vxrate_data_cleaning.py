@@ -672,16 +672,17 @@ def export_plots_of_changes(df2, uncleaned, country, log):
             plot_data_range = plot_data_range.loc[plot_data['Time'] <= date_to, :].copy()
 
             ## zooming in where possible to give impression of continuous data
-            zoom_lower_bound = datetime.timedelta(days = 0)
-            zoom_upper_bound = datetime.timedelta(days = 0)
-            if min_date + datetime.timedelta(days = 2) < date_from:
+            zoom_lower_bound = datetime.timedelta(days = -2)
+            zoom_upper_bound = datetime.timedelta(days = -2)
+            if min_date + datetime.timedelta(days = 15) < date_from:
                 zoom_lower_bound = datetime.timedelta(days = 2)
-            if max_date - datetime.timedelta(days = 2) > date_to:
+            if max_date - datetime.timedelta(days = 15) > date_to:
                 zoom_upper_bound = datetime.timedelta(days = 2)
             
             plt.clf()
             sns.lineplot(data = plot_data_range, y = 'Total Doses (in million)', x = 'Time', 
-                hue = 'type', style = 'type').set(title = country + ": Change " + str(count))
+                hue = 'type', style = 'type') \
+                    .set(title = country + ": Change " + str(count))
             plt.xticks(rotation = 25)
             plt.xlim((date_from + zoom_lower_bound, date_to - zoom_upper_bound))
             plt.savefig('data/cleaning_log/cleaning_' + country + '_' + str(count))
