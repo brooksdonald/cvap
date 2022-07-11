@@ -1,4 +1,4 @@
-run_financing <- function(entity_characteristics, env = .GlobalEnv) {
+run_financing <- function(entity_characteristics) {
     source("src/finance/finance.r")
     
     print(" > Starting local environment for fiancing module")

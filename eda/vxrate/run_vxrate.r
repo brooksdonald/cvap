@@ -13,8 +13,7 @@ run_vxrate <- function(
     c_delivery_product,
     b_fin_fund_del_sum,
     refresh_date,
-    t70_deadline,
-    env = .GlobalEnv
+    t70_deadline
 ) {
     source("eda/vxrate/vxrate_consolidate.r")
 

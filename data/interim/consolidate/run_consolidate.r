@@ -1,7 +1,7 @@
 # rows 2698 - 3280
 
 run_consolidate <- function(a_data, a_data_amc, a_data_africa,
-    a_data_csc, a_data_ifc, b_vxrate_change_lw, env = .GlobalEnv) {
+    a_data_csc, a_data_ifc, b_vxrate_change_lw) {
     source("data/interim/consolidate/consolidate_base_file.r")
     source("data/interim/consolidate/consolidate_vxrate.r")
     source("data/interim/consolidate/consolidate_targets.r")

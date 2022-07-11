@@ -1,4 +1,4 @@
-run_financing <- function(a_data, env = .GlobalEnv) {
+run_financing <- function(a_data) {
   source("eda/financing/financing_overview.r")
   print(" > Starting local environment for financing summary")
   print(" > Calculating financing overview...")
