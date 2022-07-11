@@ -6,15 +6,15 @@ run_coverage <- function(a_data, env = .GlobalEnv) {
     print(" > Starting local environment for eda coverage module...")
 
     print(" > 10% target...")
-    a_data <- target_group_ten(a_data)
+    a_data <- target_ten(a_data)
     print(" > Done.")
 
     print(" > 20% and 40% target...")
-    a_data <- target_group_twenty_forty(a_data)
+    a_data <- target_twenty_forty(a_data)
     print(" > Done.")
 
     print(" > 70% target...")
-    a_data <- target_group_seventy(a_data)
+    a_data <- target_seventy(a_data)
     print(" > Done.")
 
     print(" > booster doses...")

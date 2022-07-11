@@ -1,23 +1,23 @@
 
-load_lw_data <- function() {
+load_lw_data <- function(c_vxrate_lastweek) {
     print(" >> Loading last week dataset...")
-    b_vxrate_lw_sum <- data.frame(
-        read_excel(
-            "data/_input/base_dvr_lastweek.xlsx",
-            sheet = "data_summary"
-        )
-    )
+    #b_vxrate_lw_sum <- data.frame(
+     #   read_excel(
+      #      "data/_input/base_dvr_lastweek.xlsx",
+       #     sheet = "data_summary"
+      #  )
+    #)
 
     # Last week dataset
     ## Select relevant columns and rename
     print(" >> Selecting last week data...")
     b_vxrate_lw_sum <- select(
-        b_vxrate_lw_sum,
+      c_vxrate_lastweek,
         c(
-            "iso_code",
-            "rolling_4_week_avg_td",
-            "rolling_4_week_avg_td_lastmonth",
-            "fully_vaccinated"
+            "a_iso",
+            "dvr_4wk_td",
+            "dvr_4wk_td_lm",
+            "adm_fv"
         )
     )
     print(" >> Renaming last week dataset columns...")
@@ -31,24 +31,24 @@ load_lw_data <- function() {
   return(b_vxrate_lw_sum)
 }
 
-load_lm_data <- function() {
+load_lm_data <- function(c_vxrate_lastmonth) {
     print(" >> Loading last month dataset...")
-    b_vxrate_lm_sum <- data.frame(
-        read_excel(
-            "data/_input/base_dvr_lastmonth.xlsx",
-            sheet = "data_summary"
-        )
-    )
+    #b_vxrate_lm_sum <- data.frame(
+     #   read_excel(
+      #      "data/_input/base_dvr_lastmonth.xlsx",
+       #     sheet = "data_summary"
+        #)
+    #)
 
     print(" >> Selecting relevant columns from last month data...")
     b_vxrate_lm_sum <- select(
-        b_vxrate_lm_sum,
+      c_vxrate_lastmonth,
         c(
-            "iso_code",
-            "total_doses",
-            "fully_vaccinated",
-            "at_least_one_dose",
-            "persons_booster_add_dose"
+            "a_iso",
+            "adm_td",
+            "adm_fv",
+            "adm_a1d",
+            "adm_booster"
         )
     )
 
@@ -66,25 +66,25 @@ load_lm_data <- function() {
 
 }
 
-load_l2m_data <- function() {
+load_l2m_data <- function(c_vxrate_twomonth) {
     print(" >> Loading last two month dataset...")
-    b_vxrate_2m_sum <- data.frame(
-        read_excel(
-            "data/_input/base_dvr_twomonth.xlsx",
-            sheet = "data_summary"
-        )
-    )
+    #b_vxrate_2m_sum <- data.frame(
+     #   read_excel(
+      #      "data/_input/base_dvr_twomonth.xlsx",
+       #     sheet = "data_summary"
+       # )
+    #)
 
     # Two month dataset
     ## Select relevant columns and rename
     print(" >> Selecting last 2 month data...")
     b_vxrate_2m_sum <- select(
-        b_vxrate_2m_sum,
+        c_vxrate_twomonth,
         c(
-            "iso_code",
-            "total_doses",
-            "fully_vaccinated",
-            "at_least_one_dose"
+            "a_iso",
+            "adm_td",
+            "adm_fv",
+            "adm_a1d"
         )
     )
 

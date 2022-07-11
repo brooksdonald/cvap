@@ -7,10 +7,10 @@ load_supply_secured_data <- function() {
     return(list(supply_secured, c_sec_cour_lm))
 }
 
-transform_supp_secured <- function(supply_secured, dataset_date, c_sec_cour_lm) { # nolint
+transform_supp_secured <- function(supply_secured, sec_date, c_sec_cour_lm) { # nolint
     print(" >> Transform supply secured and c_sec_cour_lm...")
     supply_secured <- transform_supply_secured(
-        supply_secured, dataset_date, c_sec_cour_lm
+        supply_secured, sec_date, c_sec_cour_lm
     )
     return(supply_secured)
 }
@@ -83,7 +83,7 @@ extract_sup_sec_lm <- function() {
 
 }
 
-transform_supply_secured <- function(supply_secured, dataset_date, c_sec_cour_lm) { #nolint
+transform_supply_secured <- function(supply_secured, sec_date, c_sec_cour_lm) { #nolint
     ## supply secured current
     print(" >> Transforming and cleaning supply secured...")
     multiplier <- 1000000
@@ -122,7 +122,7 @@ transform_supply_secured <- function(supply_secured, dataset_date, c_sec_cour_lm
 
     print(" >> Adding dataset date...")
     # FIXME do I need to pass in date here?
-    supply_secured$sec_date <- as.Date(dataset_date)
+    supply_secured$sec_date <- sec_date
     
     # Merge current and last month supply
     supply_secured <- left_join(supply_secured, c_sec_cour_lm, by = "a_iso")

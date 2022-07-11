@@ -194,7 +194,8 @@ transform_vxrate_merge <- function(a_data) {
     mutate(cov_total_fv_less_1m = if_else((cov_total_fv - cov_total_fv_lm) < 0, 0, (cov_total_fv - cov_total_fv_lm)))  %>%
     mutate(cov_total_fv_1m_2m = if_else((cov_total_fv_lm - cov_total_fv_2m) < 0, 0, (cov_total_fv_lm - cov_total_fv_2m))) %>%
     mutate(cov_total_fv_cur_13jan= if_else((cov_total_fv - cov_total_fv_13jan) < 0, 0, (cov_total_fv - cov_total_fv_13jan))) %>%
-    mutate(cov_total_fv_less_1m_prop = cov_total_fv_less_1m / cov_total_fv)
+    mutate(cov_total_fv_less_1m_prop = cov_total_fv_less_1m / cov_total_fv) %>%
+    mutate(cov_total_fv_1m_13jan= if_else((cov_total_fv_lm - cov_total_fv_13jan) < 0, 0, (cov_total_fv_lm - cov_total_fv_13jan)))
   
   # Correct GRL and SJM
   a_data$cov_total_fv[a_data$a_iso == "GRL"] <-
@@ -230,7 +231,7 @@ transform_vxrate_merge <- function(a_data) {
   # Calculate linear population coverage projection by 30 June 2022
   print(" >>> Computing linear population coverage projection by 30 June 2022...")
   a_data <- a_data %>%
-    mutate(cov_total_fv_atpace_30jun = if_else(((adm_fv_homo + (dvr_4wk_fv * (
+    mutate(cov_total_fv_atpace_31dec = if_else(((adm_fv_homo + (dvr_4wk_fv * (
       timeto_t70
     ))) / a_pop) > 1, 1, ((adm_fv_homo + (dvr_4wk_fv * (
       timeto_t70
@@ -271,7 +272,20 @@ transform_vxrate_merge <- function(a_data) {
     mutate(cov_total_male_fv = adm_fv_male / a_pop_male) %>%
     mutate(adm_fv_fem_homo = if_else(adm_fv_female > a_pop_female, a_pop_female, adm_fv_female)) %>%
     mutate(cov_total_fem_fv = adm_fv_female / a_pop_female) %>%
-    mutate(adm_fv_gen = adm_fv_male_homo + adm_fv_fem_homo)
+    mutate(adm_fv_gen = adm_fv_male_homo + adm_fv_fem_homo) %>%
+    mutate(adm_booster_fem_homo = if_else(adm_booster_female > a_pop_female, a_pop_female, adm_booster_female)) %>%
+    mutate(adm_booster_male_homo = if_else(adm_booster_male > a_pop_male, a_pop_male, adm_booster_male)) %>%
+    mutate(cov_total_booster_fem = adm_booster_fem_homo / a_pop_female) %>%
+    mutate(cov_total_booster_male = adm_booster_male_homo / a_pop_male) %>%
+    mutate(adm_booster_gen_status = if_else(is.na(adm_fv_male) | is.na(adm_fv_female) | adm_fv_male == 0 | adm_fv_female == 0, 
+                                     "Not reporting on gender-disaggregated uptake",
+                                     if_else(is.na(cov_total_booster_fem) & 
+                                               (is.na(adm_fv_female) == FALSE | is.na(adm_fv_male) == FALSE), 
+                                             "Reporting on gender-disaggregated uptake, but not boosters",
+                                             if_else(adm_booster_female > 0,
+                                                     "Reporting on gender-disaggregated boosters",
+                                                     "Reporting on gender-disaggregated uptake, but not boosters"
+                                             ))))
   
   
   
@@ -302,14 +316,15 @@ transform_vxrate_merge <- function(a_data) {
                                      (adm_booster_hcw / a_pop_hcw))) %>%
     
     mutate(
-      adm_booster_hcw_status = if_else(is.na(adm_booster_hcw),
-                                       "Not reporting on booster/additional dose administration",
-                                       if_else(
-        adm_booster_hcw > 0,
-        "Administering booster/additional doses",
-        "Not reporting on booster/additional dose administration"
-      )
-    )) %>%
+      adm_booster_hcw_status = if_else(is.na(adm_fv_hcw) | adm_fv_hcw == 0, 
+                                       "3) Not reporting on HCW uptake",
+                                       if_else(is.na(cov_hcw_booster) & 
+                                                 is.na(adm_fv_hcw) == FALSE, 
+                                               "2) Reporting on HCW uptake, but not boosters",
+                                               if_else(adm_booster_hcw > 0,
+                                                       "1) Reporting on HCW boosters",
+                                                       "2) Reporting on HCW uptake, but not boosters"
+                                               )))) %>%
     
     mutate(cov_hcw_booster_cat = if_else(
       is.na(adm_fv_hcw) | adm_fv_hcw == 0, "0) Not reporting on HCW uptake",
@@ -344,14 +359,15 @@ transform_vxrate_merge <- function(a_data) {
     mutate(cov_60p_booster = if_else((adm_booster_60p / a_pop_older) > 1, 1, 
                                      (adm_booster_60p / a_pop_older))) %>%
     mutate(
-      adm_booster_60p_status = if_else(is.na(adm_booster_60p),
-                                       "Not reporting on booster/additional dose administration",
-                                       if_else(
-                                         adm_booster_60p > 0,
-                                         "Administering booster/additional doses",
-                                         "Not reporting on booster/additional dose administration"
-                                       )
-      )) %>%
+      adm_booster_60p_status = if_else(is.na(adm_fv_60p) | adm_fv_60p == 0, 
+                                       "3) Not reporting on 60+ uptake",
+                                       if_else(is.na(cov_60p_booster) & 
+                                                 is.na(adm_fv_60p) == FALSE, 
+                                               "2) Reporting on 60+ uptake, but not boosters",
+                                               if_else(adm_booster_60p > 0,
+                                                       "1) Reporting on 60+ boosters",
+                                                       "2) Reporting on 60+ uptake, but not boosters"
+                                               )))) %>%
     
     mutate(cov_60p_booster_cat = if_else(
       is.na(adm_fv_60p) | adm_fv_60p == 0, "0) Not reporting on older adult uptake",
@@ -475,8 +491,8 @@ transform_vxrate_merge <- function(a_data) {
       )
     )) %>%
     mutate(
-      dvr_4wk_td_change_lm_trend = if_else(
-        dvr_4wk_td_change_lm_per <= -0.25,
+      dvr_4wk_td_change_lm_trend = if_else(is.na(dvr_4wk_td_change_lm_per), "Stable",
+        if_else(dvr_4wk_td_change_lm_per <= -0.25,
         "Downward",
         if_else(
           dvr_4wk_td_change_lm_per >= 0.25,
@@ -489,7 +505,7 @@ transform_vxrate_merge <- function(a_data) {
           )
         )
       )
-    )
+    ))
 
   return(a_data)
 }

@@ -46,7 +46,8 @@ load_pop_target_gender <- function() {
                 "DATE",
                 "GENDER",
                 "N_VACC_DOSE1",
-                "N_VACC_LAST_DOSE"
+                "N_VACC_LAST_DOSE",
+                "N_VACC_BOOSTER_DOSE"
             )
         )
 
@@ -56,7 +57,8 @@ load_pop_target_gender <- function() {
         "date",
         "gender",
         "adm_a1d",
-        "adm_fv"
+        "adm_fv",
+        "adm_booster"
     )
 
     return(uptake_gender)
@@ -105,7 +107,7 @@ transform_pop_target_gender <- function(uptake_gender) {
     print(" >>> Transforming gender df...")
     data_frames <- list()
 
-    var_columns <- c("adm_a1d", "adm_fv")
+    var_columns <- c("adm_a1d", "adm_fv", "adm_booster")
     for (g in c("MALE", "FEMALE")) {
         df <- uptake_gender %>%
             filter(

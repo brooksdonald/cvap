@@ -1,4 +1,8 @@
-#  Clear environment
+
+# Set working directory
+setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
+
+# Clear environment
 rm(list = ls())
 
 # Load packages
@@ -26,10 +30,10 @@ source("helpers/joins.r")
 source("helpers/transformations.r")
 
 # STATIC DATES
-.GlobalEnv$refresh_date <- as.Date("2022-06-23")
-.GlobalEnv$t70_deadline <- as.Date("2022-06-30")
-.GlobalEnv$dataset_date <- "2022-06-16" # dataset_date is passed to sec_date
-.GlobalEnv$del_date <- as.Date("2022-06-20")
+.GlobalEnv$refresh_date <- as.Date("2022-07-08")
+.GlobalEnv$t70_deadline <- as.Date("2022-12-31")
+.GlobalEnv$sec_date <- as.Date("2022-06-30")
+.GlobalEnv$del_date <- as.Date("2022-07-04")
 
 # ETL
 
@@ -93,6 +97,7 @@ all_df <- list(
     "0_base_data" = a_data,
     "1_absorption_month" = d_absorption,
     "1_absorption_month_country" = combined,
+    "1_cum_absorb_month_country" = d_absorption_country_new,
     "1_stock" = combined_three,
     "1_adm_long_smooth" = b_vxrate_amc_smooth,
     "1_adm_all_long" = b_vxrate_pub,
@@ -108,17 +113,21 @@ all_df <- list(
     "8_dvr_cat" = e_vrcat_all,
     "8_dvr_lm_trend" = e_trend_all,
     "8_tarpast_cat" = e_tar_past_all,
-    "8_curtar_cat" = e_tar_cur_all,
-    "8_curtar_scale_cat" = e_tar_cur_scale_all,
     "8_booster_status" = e_booster_all,
     "8_booster_hcw" = e_booster_hcw,
+    "8_curtar_all" = e_tar_cur_all,
     "8_secdelpu_cat" = e_secdelpu_all,
     "8_cov_cat" = e_cov_all,
     "8_ndvp_tar_cat" = e_ndvp_all,
-    "9_values" = z_values
+    "9_values" = z_values,
+    "1_funding_long" = b_fin_fund_del_long,
+    "1_funding_urgent" = base_fin_urg_fun_sum,
+    "1_fund_urg_long" = base_fin_urg_fun_long,
+    "1_fund_cds_long" = base_fin_cds_red
 )
-write_xlsx(all_df, "data/output/220623_output_powerbi.xlsx")
-write_xlsx(all_df, "data/output/output_master.xlsx")
-write_xlsx(api, "data/output/220623_output_api.xlsx")
 
-print(" > Output exported to Excel successfully!")
+write_xlsx(all_df, "data/output/220707_output_powerbi.xlsx")
+write_xlsx(api, "data/output/220707_output_api.xlsx")
+write_xlsx(all_df, "data/output/output_master.xlsx")
+
+print(" > Outputs exported to Excel successfully")

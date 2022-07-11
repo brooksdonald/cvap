@@ -26,6 +26,7 @@ values_table <- function(a_data_amc) {
     z_values$pop_ifc <- sum(a_data_ifc$a_pop, na.rm = TRUE)
     z_values$count_amc <- 90
     z_values$count_africa <- 53
+    z_values$refresh_date_value <- refresh_date
 
     z_values$pop_amc_10 <- z_values$pop_amc * 0.1
     z_values$pop_amc_20 <- z_values$pop_amc * 0.2
