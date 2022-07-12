@@ -119,7 +119,8 @@ consolidate_env <- run_consolidate(
     financing_env$a_data_africa,
     financing_env$a_data_csc,
     financing_env$a_data_ifc,
-    vaccines_env$b_vxrate_change_lw)
+    vaccines_env$b_vxrate_change_lw
+)
 
 # EXPORT
 

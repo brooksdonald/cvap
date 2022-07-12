@@ -33,56 +33,48 @@ values_table <- function(a_data, a_data_amc, a_data_africa,
     z_values$pop_amc_40 <- z_values$pop_amc * 0.4
     z_values$pop_amc_70 <- z_values$pop_amc * 0.7
 
-    z_values$ig_amc_hcw_lic <- sum(a_data$adm_fv_hcw_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_income_group == "LIC", na.rm=TRUE)
-    z_values$ig_amc_hcw_lmic <- sum(a_data$adm_fv_hcw_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_income_group == "LMIC", na.rm=TRUE)
-    z_values$ig_amc_hcw_umic <- sum(a_data$adm_fv_hcw_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_income_group == "UMIC", na.rm=TRUE)
-
-    z_values$pop_amc_hcw_1m <- sum(a_data$adm_fv_hcw_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_pop_cat == "1) <1M", na.rm=TRUE)
-    z_values$pop_amc_hcw_10m <- sum(a_data$adm_fv_hcw_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_pop_cat == "2) 1-10M", na.rm=TRUE)
-    z_values$pop_amc_hcw_100m <- sum(a_data$adm_fv_hcw_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_pop_cat == "3) 10-100M", na.rm=TRUE)
-    z_values$pop_amc_hcw_100mp <- sum(a_data$adm_fv_hcw_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_pop_cat == "4) 100M+", na.rm=TRUE)
-
-    z_values$wr_amc_hcw_afr <- sum(a_data$adm_fv_hcw_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "AFR", na.rm=TRUE)
-    z_values$wr_amc_hcw_amr <- sum(a_data$adm_fv_hcw_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "AMR", na.rm=TRUE)
-    z_values$wr_amc_hcw_emr <- sum(a_data$adm_fv_hcw_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "EMR", na.rm=TRUE)
-    z_values$wr_amc_hcw_eur <- sum(a_data$adm_fv_hcw_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "EUR", na.rm=TRUE)
-    z_values$wr_amc_hcw_sear <- sum(a_data$adm_fv_hcw_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "SEAR", na.rm=TRUE)
-    z_values$wr_amc_hcw_wpr <- sum(a_data$adm_fv_hcw_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "WPR", na.rm=TRUE)
-
-    z_values$ig_amc_60p_lic <- sum(a_data$adm_fv_60p_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_income_group == "LIC", na.rm=TRUE)
-    z_values$ig_amc_60p_lmic <- sum(a_data$adm_fv_60p_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_income_group == "LMIC", na.rm=TRUE)
-    z_values$ig_amc_60p_umic <- sum(a_data$adm_fv_60p_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_income_group == "UMIC", na.rm=TRUE)
-
-    z_values$pop_amc_60p_1m <- sum(a_data$adm_fv_60p_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_pop_cat == "1) <1M", na.rm=TRUE)
-    z_values$pop_amc_60p_10m <- sum(a_data$adm_fv_60p_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_pop_cat == "2) 1-10M", na.rm=TRUE)
-    z_values$pop_amc_60p_100m <- sum(a_data$adm_fv_60p_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_pop_cat == "3) 10-100M", na.rm=TRUE)
-    z_values$pop_amc_60p_100mp <- sum(a_data$adm_fv_60p_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_pop_cat == "4) 100M+", na.rm=TRUE)
-
-    z_values$wr_amc_60p_afr <- sum(a_data$adm_fv_60p_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "AFR", na.rm=TRUE)
-    z_values$wr_amc_60p_amr <- sum(a_data$adm_fv_60p_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "AMR", na.rm=TRUE)
-    z_values$wr_amc_60p_emr <- sum(a_data$adm_fv_60p_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "EMR", na.rm=TRUE)
-    z_values$wr_amc_60p_eur <- sum(a_data$adm_fv_60p_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "EUR", na.rm=TRUE)
-    z_values$wr_amc_60p_sear <- sum(a_data$adm_fv_60p_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "SEAR", na.rm=TRUE)
-    z_values$wr_amc_60p_wpr <- sum(a_data$adm_fv_60p_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "WPR", na.rm=TRUE)
-
-    z_values$ig_amc_gen_lic <- sum(a_data$adm_fv_gen_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_income_group == "LIC", na.rm=TRUE)
-    z_values$ig_amc_gen_lmic <- sum(a_data$adm_fv_gen_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_income_group == "LMIC", na.rm=TRUE)
-    z_values$ig_amc_gen_umic <- sum(a_data$adm_fv_gen_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_income_group == "UMIC", na.rm=TRUE)
-
-    z_values$pop_amc_gen_1m <- sum(a_data$adm_fv_gen_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_pop_cat == "1) <1M", na.rm=TRUE)
-    z_values$pop_amc_gen_10m <- sum(a_data$adm_fv_gen_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_pop_cat == "2) 1-10M", na.rm=TRUE)
-    z_values$pop_amc_gen_100m <- sum(a_data$adm_fv_gen_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_pop_cat == "3) 10-100M", na.rm=TRUE)
-    z_values$pop_amc_gen_100mp <- sum(a_data$adm_fv_gen_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_pop_cat == "4) 100M+", na.rm=TRUE)
-
-    z_values$wr_amc_gen_afr <- sum(a_data$adm_fv_gen_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "AFR", na.rm=TRUE)
-    z_values$wr_amc_gen_amr <- sum(a_data$adm_fv_gen_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "AMR", na.rm=TRUE)
-    z_values$wr_amc_gen_emr <- sum(a_data$adm_fv_gen_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "EMR", na.rm=TRUE)
-    z_values$wr_amc_gen_eur <- sum(a_data$adm_fv_gen_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "EUR", na.rm=TRUE)
-    z_values$wr_amc_gen_sear <- sum(a_data$adm_fv_gen_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "SEAR", na.rm=TRUE)
-    z_values$wr_amc_gen_wpr <- sum(a_data$adm_fv_gen_repstat == "Reporting" & a_data$a_covax_status == "AMC" & a_data$a_who_region == "WPR", na.rm=TRUE)
-
+    for (group in c("hcw", "60p", "gen")) {
+        if (group == "hcw") {
+            repstat_vector <- a_data$adm_fv_hcw_repstat
+        }
+        if (group == "60p") {
+            repstat_vector <- a_data$adm_fv_60p_repstat
+        }
+        if (group == "gen") {
+            repstat_vector <- a_data$adm_fv_gen_repstat
+        }
+        for (inc_group in c("lic", "lmic", "umic")) {
+            z_values <- z_values %>%
+                mutate("ig_amc_{{group}}_{{inc_group}}" := sum(
+                    repstat_vector == "Reporting" &
+                    a_data$a_covax_status == "AMC" &
+                    a_data$a_income_group == toupper(inc_group),
+                    na.rm = TRUE
+                ))
+        }
+        labels <- c("1) <1M", "2) 1-10M", "3) 10-100M", "4) 100M+")
+        variable_suffix <- c("1m", "10m", "100m", "100mp")
+        for (i in seq_len(length(labels))) {
+            suffix = variable_suffix[i]
+            z_values <- z_values %>%
+                mutate("pop_amc_{{group}}_{{suffix}}" := sum(
+                    repstat_vector == "Reporting" &
+                    a_data$a_covax_status == "AMC" &
+                    a_data$a_pop_cat == labels[i],
+                    na.rm = TRUE
+                ))
+        }
+        for (region in c("afr", "amr", "emr", "eur", "sear", "wpr")) {
+            z_values <- z_values %>%
+                mutate("wr_amc_{{group}}_{{region}}" := sum(
+                    repstat_vector == "Reporting" &
+                    a_data$a_covax_status == "AMC" &
+                    a_data$a_who_region == toupper(region),
+                    na.rm = TRUE
+                ))
+        }
+    }
     return(z_values)
-
 }
 
 # Change count tables

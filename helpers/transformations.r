@@ -85,22 +85,22 @@ helper_goal_target_groups <- function(a_data, group, timeto_t70) {
 }
 
 helper_mapping_months <- function(data, last_month, first_month = "2021-01") {
-  input_months <- c(as.Date(paste(first_month,"-01",sep="")), 
-    as.Date(paste(last_month,"-01",sep="")))
-  month <- input_months[1]
-  month_vector <- c(substr(as.character(month), 1, 7))
-  number_of_months <- 1
-  month <- add_with_rollback(month, months(1))
-  while (month <= input_months[2]) {
-    month_vector <- c(month_vector, substr(as.character(month), 1, 7))
+    input_months <- c(as.Date(paste(first_month,"-01",sep="")), 
+        as.Date(paste(last_month,"-01",sep="")))
+    month <- input_months[1]
+    month_vector <- c(substr(as.character(month), 1, 7))
+    number_of_months <- 1
     month <- add_with_rollback(month, months(1))
-    number_of_months <- number_of_months + 1
-  }
-  month_names <- helper_replace_values_with_map(
-    data = data,
-    values = 1:number_of_months,
-    map = month_vector
-  )
+    while (month <= input_months[2]) {
+        month_vector <- c(month_vector, substr(as.character(month), 1, 7))
+        month <- add_with_rollback(month, months(1))
+        number_of_months <- number_of_months + 1
+    }
+    month_names <- helper_replace_values_with_map(
+        data = data,
+        values = 1:number_of_months,
+        map = month_vector
+    )
   return(month_names)
 }
 
