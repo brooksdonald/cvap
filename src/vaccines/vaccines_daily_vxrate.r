@@ -9,7 +9,7 @@ load_b_vxrate <- function() {
         )
     )
 
-    print(" >> Selecting relevant columns and rename...")
+    print(" >> Selecting relevant current daily vaccination rate columns...")
     b_vxrate <-
       select(
         b_vxrate,
@@ -28,7 +28,7 @@ load_b_vxrate <- function() {
         )
       )
 
-    print(" >> Renaming current vxrate columns...")
+    print(" >> Renaming current daily vaccination rate columns...")
     colnames(b_vxrate) <-
       c(
         "a_iso",
@@ -49,7 +49,7 @@ load_b_vxrate <- function() {
 }
 
 transform_current_vxrate <- function(b_vxrate, entity_characteristics) {
-    print(" >> Transforming current vxrate...")
+    print(" >> Transforming current daily vaccination rate...")
     ## Add entity base data
     b_vxrate <- left_join(b_vxrate, entity_characteristics, by = "a_iso")
     ## Change population field type to numeric

@@ -33,8 +33,7 @@ load_base_smartsheet <- function() {
                 "ISO3",
                 "NDVP...Coverage.target..",
                 "NDVP...Coverage.deadline",
-                "At.risk.for.expiry",
-                "Driving.factors"
+                "At.risk.for.expiry"
             )
         )
 
@@ -43,8 +42,7 @@ load_base_smartsheet <- function() {
         "a_iso",
         "ss_target",
         "ss_deadline",
-        "expiry_risk",
-        "note_ss_drivers"
+        "expiry_risk"
     )
 
     return(b_smartsheet)
@@ -78,7 +76,7 @@ load_who_dashboard <- function() {
         "a_iso",
         "prod_inuse",
         "intro_date",
-        "cov_total_fv_per100"
+        "cov_total_fv_per100_whodb"
     )
 
     return(b_who_dashboard)

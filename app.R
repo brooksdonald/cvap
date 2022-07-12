@@ -6,16 +6,14 @@ setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
 rm(list = ls())
 
 # Load packages
+library("tidyverse")
+library("openxlsx")
 library("readxl")
 library("writexl")
 library("countrycode")
-library("dplyr")
 library("lubridate")
-library("tidyr")
 library("data.table")
 library("bit64")
-library("openxlsx")
-library("tidyverse")
 library("httr")
 library("jsonlite")
 library("AzureAuth")
@@ -30,10 +28,11 @@ source("helpers/joins.r")
 source("helpers/transformations.r")
 
 # STATIC DATES
-.GlobalEnv$refresh_date <- as.Date("2022-07-08")
-.GlobalEnv$t70_deadline <- as.Date("2022-12-31")
+
 .GlobalEnv$sec_date <- as.Date("2022-06-30")
 .GlobalEnv$del_date <- as.Date("2022-07-04")
+.GlobalEnv$refresh_date <- as.Date("2022-07-08")
+.GlobalEnv$t70_deadline <- as.Date("2022-12-31")
 
 # ETL
 
@@ -92,7 +91,7 @@ consolidate_env <- run_consolidate(a_data)
 
 # EXPORT
 
-print(" > Exporting data output from pipeline to Excel Workbooks...")
+print(" > Exporting data outputs from pipeline to Excel workbooks...")
 all_df <- list(
     "0_base_data" = a_data,
     "1_absorption_month" = d_absorption,
@@ -130,4 +129,4 @@ write_xlsx(all_df, "data/output/220707_output_powerbi.xlsx")
 write_xlsx(api, "data/output/220707_output_api.xlsx")
 write_xlsx(all_df, "data/output/output_master.xlsx")
 
-print(" > Outputs exported to Excel successfully")
+print(" > Outputs exported to Excel successfully.")
