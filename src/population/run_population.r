@@ -1,6 +1,6 @@
 # rows 600 - 978
 
-run_population <- function(env = .GlobalEnv) {
+run_population <- function() {
     source("src/population/population_base.r")
     source("src/population/population_hcw.r")
     source("src/population/population_uptake.r")

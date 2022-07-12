@@ -1,6 +1,6 @@
 # rows 2258 - 2569
 
-run_product <- function(a_data, b_smartsheet, refresh_date, timeto_t70, env = .GlobalEnv) {
+run_product <- function(a_data, b_smartsheet, refresh_date, timeto_t70) {
     source("eda/product/product_utilization.r")
 
     print(" > Starting local environment for product utilization eda")

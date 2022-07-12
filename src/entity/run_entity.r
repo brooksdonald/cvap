@@ -1,6 +1,6 @@
 # 40 - 117 lines of original code
 
-run_entity <- function(env = .GlobalEnv) {
+run_entity <- function() {
     source("src/entity/entity_characteristics.r")
 
     print(" > Loading entity characteristics data...")

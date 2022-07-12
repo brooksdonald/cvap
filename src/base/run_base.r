@@ -1,6 +1,6 @@
 # Rows 1648 - 1719
 
-run_base <- function(env = .GlobalEnv) {
+run_base <- function() {
     source("src/base/base_smartsheet.r")
 
     print(" > Starting local environment for base data...")

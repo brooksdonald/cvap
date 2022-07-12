@@ -1,4 +1,4 @@
-run_combination <- function(a_data, env = .GlobalEnv) {
+run_combination <- function(a_data) {
   source("eda/combination/combination.r")
   print(" > Starting local environment for supply & administation summary")
   print(" > Overlaying supply and administration data...")

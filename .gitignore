@@ -11,3 +11,5 @@ debug.r
 covid19_vaccination_analysis.R
 .env
 debug.R
+.DS_Store
+data/.DS_Store
