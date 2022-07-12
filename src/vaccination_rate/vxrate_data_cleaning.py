@@ -2,14 +2,20 @@ from pickle import TRUE
 import pandas as pd
 import numpy as np
 import datetime
-import matplotlib.pyplot as plt
-from matplotlib.ticker import FormatStrFormatter
-import seaborn as sns
-sns.set(rc={"figure.dpi":400, 'savefig.dpi':400})
-import os
-newpath = r'data/cleaning_log' 
-if not os.path.exists(newpath):
-    os.makedirs(newpath)
+
+def create_new_path():
+    print(" > Importing Python Libraries for plotting...")
+    import os
+    import matplotlib.pyplot as plt
+    from matplotlib.ticker import FormatStrFormatter
+    import seaborn as sns
+    sns.set(rc={"figure.dpi":400, 'savefig.dpi':400})
+
+    print(" > Creating new folder to store plots: data/cleaning_log/...")
+    newpath = r'data/cleaning_log' 
+    if not os.path.exists(newpath):
+        os.makedirs(newpath)
+    print(" > New folder created.")
 
 
 def import_data():
@@ -685,6 +691,7 @@ def export_plots_of_changes(df2, uncleaned, country, log):
                     .set(title = country + ": Change " + str(count))
             plt.xticks(rotation = 25)
             plt.xlim((date_from + zoom_lower_bound, date_to - zoom_upper_bound))
+            plt.tight_layout()
             plt.savefig('data/cleaning_log/cleaning_' + country + '_' + str(count))
 
 
@@ -696,10 +703,11 @@ def automized_cleaning(df2):
     3. produce figures of the changes made.
     """
     # asking for user input whether cleaning should be performed
-    print(" > Would you like to run the automized cleaning? (y/n):")
+    print(" > Would you like to run the automized cleaning process? (y/n):")
     response = input()
     if response in ["y", "Y", "yes", "Yes", "true", "True"]:
         print(" > Starting the automized cleaning process...")
+        create_new_path()
         
         print(" > Initializing variables...")
         uncleaned = df2.copy()

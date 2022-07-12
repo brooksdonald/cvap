@@ -48,7 +48,7 @@ base_env <- run_base()
 entity_env <- run_entity()
 pop_env <- run_population()
 supply_env <- run_supply()
-vaccines_env <- run_vaccines(entity_characteristics)
+vaccines_env <- run_vaccines(entity_characteristics, python_env$adm_data)
 finance_env <- run_financing()
 demand_plan_env <- run_dp()
 

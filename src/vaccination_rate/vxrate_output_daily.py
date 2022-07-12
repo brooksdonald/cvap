@@ -428,7 +428,7 @@ def adding_flags_for_changes(df10):
 
 
 def final_variable_selection(df11):
-    print(' > Creating final dataframe')
+    print(' > Creating final dataframe...')
     df12 = df11[['iso_code', 'entity_name', 'population', 'date', 'is_original_reported', 
                 'cumulative_doses_received', 'effective_supply',
                 'total_doses_owid', 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose',

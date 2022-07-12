@@ -1,6 +1,6 @@
 # rows 119 - 596
 
-run_vaccines <- function(entity_characteristics, env = .GlobalEnv) {
+run_vaccines <- function(entity_characteristics, adm_data, env = .GlobalEnv) {
     source("src/vaccines/vaccines_daily_vxrate.r")
     source("src/vaccines/vaccines_monthly_vxrate.r")
     source("src/entity/entity_characteristics.r")
@@ -8,7 +8,7 @@ run_vaccines <- function(entity_characteristics, env = .GlobalEnv) {
     print(" > Starting local environment for vaccinations")
 
     print(" > Daily current vaccinations")
-    b_vxrate <- load_b_vxrate()
+    b_vxrate <- load_b_vxrate(adm_data)
     b_vxrate <- transform_current_vxrate(b_vxrate, entity_characteristics)
     b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate) 
     b_vxrate_amc <- transform_subset_amc(b_vxrate) 
