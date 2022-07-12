@@ -1,7 +1,7 @@
 # rows 119 - 596
 
 run_vaccines <- function(entity_characteristics,
-    refresh_date) {
+    refresh_date, adm_data) {
     source("src/vaccines/vaccines_daily_vxrate.r")
     source("src/vaccines/vaccines_monthly_vxrate.r")
     source("src/entity/entity_characteristics.r")
@@ -9,7 +9,7 @@ run_vaccines <- function(entity_characteristics,
     print(" > Starting local environment for vaccinations")
 
     print(" > Daily current vaccinations")
-    b_vxrate <- load_b_vxrate()
+    b_vxrate <- load_b_vxrate(adm_data)
     b_vxrate <- transform_current_vxrate(
         b_vxrate, entity_characteristics, refresh_date)
     b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate)
@@ -43,7 +43,6 @@ run_vaccines <- function(entity_characteristics,
     c_vxrate_latest <- merge_with_summary(c_vxrate_latest, b_vxrate_lm_sum)
     print(" > Done.")
 
-
     print(" > Last 2 months data")
     b_vxrate_2m_sum <- load_l2m_data()
     c_vxrate_latest <- merge_with_summary(c_vxrate_latest, b_vxrate_2m_sum)
@@ -54,5 +53,4 @@ run_vaccines <- function(entity_characteristics,
 
     print(" > Done.")
     return(environment())
-
 }

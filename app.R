@@ -16,6 +16,7 @@ library("httr")
 library("jsonlite")
 library("AzureAuth")
 library("dotenv")
+library("reticulate")
 
 # STATIC DATES
 .GlobalEnv$refresh_date <- as.Date("2022-06-02")
@@ -58,6 +59,7 @@ source("helpers/transformations.r")
 
 # ETL
 
+source("src/vaccination_rate/run_vaccination_rate.r")
 source("src/base/run_base.r")
 source("src/entity/run_entity.r")
 source("src/population/run_population.r")
@@ -66,11 +68,12 @@ source("src/vaccines/run_vaccines.r")
 source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
 
+python_env <- run_vaccination_rate()
 base_env <- run_base()
 entity_env <- run_entity()
 pop_env <- run_population()
 supply_env <- run_supply(.GlobalEnv$dataset_date, .GlobalEnv$del_date)
-vaccines_env <- run_vaccines(entity_env$entity_characteristics, .GlobalEnv$refresh_date)
+vaccines_env <- run_vaccines(entity_env$entity_characteristics, .GlobalEnv$refresh_date, python_env$adm_data)
 finance_env <- run_financing(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
 

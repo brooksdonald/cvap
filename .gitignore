@@ -1,5 +1,6 @@
 data/_input/*
 data/output/*
+data/cleaning_log
 .RData
 .RHistory
 */.RData
@@ -8,8 +9,8 @@ data/output/*
 */*/.RHistory
 */*/.Rhistory
 debug.r
-covid19_vaccination_analysis.R
 .env
 debug.R
 .DS_Store
 data/.DS_Store
+src/vaccination_rate/__pycache__

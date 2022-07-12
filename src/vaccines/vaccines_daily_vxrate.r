@@ -1,14 +1,20 @@
 
 # load current daily vxrate
-load_b_vxrate <- function() {
-    print(" >> Loading current daily vaccination rate...")
+load_b_vxrate <- function(adm_data) {
+  use_api <- readline(prompt = " >> Would you like to use data from the API? \n 'y' uses data from API, 'n' uses data from Excel: ")
+  if (use_api %in% c('y', 'Y', 'yes', 'Yes')) {
+    print(" >> Using data from API...")
+    b_vxrate <- as.data.frame(adm_data)
+    b_vxrate$date <- as.Date(b_vxrate$date, format = "%Y-%m-%d")
+  } else {
+    print(" >> Loading current daily vaccination rate from Excel...")
     b_vxrate <-
         data.frame(
             read_excel("data/_input/base_dvr_current.xlsx",
             sheet = "data"
         )
     )
-
+  }
     print(" >> Selecting relevant columns and rename...")
     b_vxrate <-
       select(
@@ -403,7 +409,7 @@ transform_abspt_by_month <- function(b_vxrate) {
   
   z_vxrate_eom_temp <- z_vxrate_eom_temp %>%
     mutate(adm_date_month = adm_date_month + 1)
-    colnames(z_vxrate_eom_temp) <- 
+    colnames(z_vxrate_eom_temp) <-
       c("a_iso", "adm_date_month", "adm_td_lm")
 
   ### Calculate change by month

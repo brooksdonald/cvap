@@ -32,7 +32,7 @@ load_pop_target_gender <- function(headers) {
         "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_GENDER_LAST_MONTH_LONG", #nolint
         headers
     )
-    json <- content(response, "text") # retrieve the contents of a request as a character vector
+    json <- content(response, "text", encoding = "UTF-8") # retrieve the contents of a request as a character vector
     uptake_gender <- fromJSON(json)
     uptake_gender <- uptake_gender$value
     # Reduce columns & rename
@@ -68,7 +68,7 @@ load_pop_target_groups <- function(headers) {
         "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_TARGETGROUP_LAST_MONTH_LONG", #nolint
         headers
     )
-    json <- content(response, "text")
+    json <- content(response, "text", encoding = "UTF-8")
     uptake_target_group <- fromJSON(json)
     uptake_target_group <- uptake_target_group$value
     # Reduce columns & rename
