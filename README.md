@@ -35,7 +35,7 @@ src/finance | Extraction, ingestion and transformation of finance data from UNIC
 src/population | Extraction, ingestion and transformation of population data from UNPOP and WIISEmart.
 src/supply | Extraction, ingestion and transformation of vaccine supply data from IMF vaccine tracker and UNICEF market dashboard.
 src/vaccines | Extraction, ingestion and transformation of vaccines data from Jeremy's script.
-eda/combination | 
+eda/combination | Combining of supply data summary
 eda/coverage | Exploratory data analysis of coverage target data. 
 eda/financing | Exploratory data analysis of finance data consolidation.
 eda/product | exploratory data analysis of product utilization data. 
