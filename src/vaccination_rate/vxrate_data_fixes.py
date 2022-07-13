@@ -27,7 +27,7 @@ def clean_country_names(raw, iso_mapping):
     df1.loc[df1['country_name'] == 'Northern Mariana Islands (Commonwealth Of The)', 'iso_code'] = 'MNP'
     df1.loc[df1['country_name'] == 'The United Kingdom', 'iso_code'] = 'GBR'
     df1.loc[df1['country_name'] == 'Turkey', 'iso_code'] = 'TUR'
-    df1.loc[df1['country_name'] == 'Kosovo', 'iso_code'] = 'KOS'
+    df1.loc[df1['country_name'] == 'Kosovo', 'iso_code'] = 'XKX'
     df1.fillna(0, inplace = True)
     return df1
 

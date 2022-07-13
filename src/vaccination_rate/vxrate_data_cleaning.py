@@ -2,15 +2,14 @@ from pickle import TRUE
 import pandas as pd
 import numpy as np
 import datetime
+import os
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter
+import seaborn as sns
+sns.set(rc={"figure.dpi":400, 'savefig.dpi':400})
 
 def create_new_path():
-    print(" > Importing Python Libraries for plotting...")
-    import os
-    import matplotlib.pyplot as plt
-    from matplotlib.ticker import FormatStrFormatter
-    import seaborn as sns
-    sns.set(rc={"figure.dpi":400, 'savefig.dpi':400})
-
+    # print(" > Importing Python Libraries for plotting...")
     print(" > Creating new folder to store plots: data/cleaning_log/...")
     newpath = r'data/cleaning_log' 
     if not os.path.exists(newpath):
@@ -69,7 +68,7 @@ def map_iso_codes(df1, iso_mapping):
     df1.loc[df1['country_name'] == 'Northern Mariana Islands (Commonwealth Of The)', 'iso_code'] = 'MNP'
     df1.loc[df1['country_name'] == 'The United Kingdom', 'iso_code'] = 'GBR'
     df1.loc[df1['country_name'] == 'Turkey', 'iso_code'] = 'TUR'
-    df1.loc[df1['country_name'] == 'Kosovo', 'iso_code'] = 'KOS'
+    df1.loc[df1['country_name'] == 'Kosovo', 'iso_code'] = 'XKX'
 
     print(" > Identifying countries that have not reported for the latest week...")
     max_date_week = df1['date_week'].max()
