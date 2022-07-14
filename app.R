@@ -1,6 +1,6 @@
 
 # Set working directory
-# setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald # TODO uncomment if needed
+# setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
 
 # Clear environment
 rm(list = ls())
