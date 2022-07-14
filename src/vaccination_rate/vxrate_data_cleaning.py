@@ -6,7 +6,7 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import seaborn as sns
-sns.set(rc={"figure.dpi":400, 'savefig.dpi':400})
+sns.set(rc={"figure.dpi":600, 'savefig.dpi':600})
 
 def create_new_path():
     print(" > Creating new folder to store plots: data/cleaning_log/...")
@@ -565,7 +565,7 @@ def delete_row(country_data, df, row, log):
     date = country_data.loc[row,'date']
     df.loc[((df['iso_code'] == country_name) & (df['date'] == date)),'to_delete_automized_clean'] = 1
     country_data.drop(row, axis = 0, inplace = True)
-    print(" > Cleaning: Deleting", country_name, "from", date)
+    print(" > Cleaning: Deleting observation.  Country: ", country_name, "  Date:", date.strftime("%d %b %Y"))
     addition = pd.DataFrame({'country': [country_name], 'date': [date]})
     log = pd.concat([log, addition], ignore_index = True)
     return country_data, df, log
@@ -651,7 +651,7 @@ def export_plots_of_changes(df2, uncleaned, country, log):
     plot_data = pd.concat([uncleaned_c[['date', 'total_doses', 'type']],
         country_data[['date', 'total_doses', 'type']]], ignore_index = True)
     plot_data['total_doses'] = plot_data['total_doses'].copy()/1000000
-    plot_data.rename({'total_doses': 'Total Doses (in million)', 'date': 'Time'}, inplace = True, axis = 1)
+    plot_data.rename({'total_doses': 'Total Doses (in million)', 'date': 'Date'}, inplace = True, axis = 1)
 
     changes = list(log.loc[log['country'] == country, 'date'])
     changes.sort()
@@ -676,8 +676,8 @@ def export_plots_of_changes(df2, uncleaned, country, log):
                 group_together = False
         if not group_together:
             count += 1
-            plot_data_range = plot_data.loc[plot_data['Time'] >= date_from, :].copy()
-            plot_data_range = plot_data_range.loc[plot_data['Time'] <= date_to, :].copy()
+            plot_data_range = plot_data.loc[plot_data['Date'] >= date_from, :].copy()
+            plot_data_range = plot_data_range.loc[plot_data['Date'] <= date_to, :].copy()
 
             ## zooming in where possible to give impression of continuous data
             zoom_lower_bound = datetime.timedelta(days = -2)
@@ -688,12 +688,12 @@ def export_plots_of_changes(df2, uncleaned, country, log):
                 zoom_upper_bound = datetime.timedelta(days = 2)
             
             plt.clf()
-            sns.lineplot(data = plot_data_range, y = 'Total Doses (in million)', x = 'Time', 
+            sns.lineplot(data = plot_data_range, y = 'Total Doses (in million)', x = 'Date', 
                 hue = 'type', style = 'type') \
                     .set(title = country + ": Change " + str(count))
             plt.xticks(rotation = 25)
             plt.xlim((date_from + zoom_lower_bound, date_to - zoom_upper_bound))
-            plt.tight_layout()
+            plt.subplots_adjust(bottom = 0.2, left = 0.15)
             plt.savefig('data/cleaning_log/cleaning_' + country + '_' + str(count))
 
 
