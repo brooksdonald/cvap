@@ -1,12 +1,12 @@
 
-load_population_uptake <- function() {
+load_population_uptake <- function(headers) {
     print(" >> Load target groups and gender...")
-    uptake_gender <- load_pop_target_gender()
-    uptake_groups <- load_pop_target_groups()
-
-    return(list(uptake_gender, uptake_groups))
+    uptake_gender <- load_pop_target_gender(headers)
+    uptake_groups <- load_pop_target_groups(headers)
+    datalist <- list("uptake_gender" = uptake_gender,
+        "uptake_groups" = uptake_groups)
+    return(datalist)
 }
-
 
 transform_population_uptake <- function(uptake_gender, uptake_groups) {
     print(" >> Transform target groups and gender...")
@@ -27,14 +27,17 @@ transform_population_uptake <- function(uptake_gender, uptake_groups) {
     return(output)
 }
 
-load_pop_target_gender <- function() {
+load_pop_target_gender <- function(headers) {
     print(" >> Loading COV Uptake gender data...")
-    uptake_gender <- data.frame(
-        read_excel(
-            "data/_input/data_export_WIISE_V_COV_UPTAKE_GENDER_LAST_MONTH_LONG.xlsx",
-            sheet = "v_COV_UPTAKE_GENDER_LAST_MONTH_"
-        )
+    print(" >> Calling who.int API...")
+    response <- GET(
+        "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_GENDER_LAST_MONTH_LONG", #nolint
+        headers
     )
+    # retrieve the contents of a request as a character vector
+    json <- content(response, "text", encoding = "UTF-8")
+    uptake_gender <- fromJSON(json)
+    uptake_gender <- uptake_gender$value
     # Reduce columns & rename
     print(" >> Selecting uptake gender data...")
     uptake_gender <-
@@ -64,15 +67,16 @@ load_pop_target_gender <- function() {
     return(uptake_gender)
 }
 
-load_pop_target_groups <- function() {
+load_pop_target_groups <- function(headers) {
     print(" >> Loading COV Uptake target group data...")
-    uptake_target_group <- data.frame(
-        read_excel(
-            "data/_input/data_export_WIISE_V_COV_UPTAKE_TARGETGROUP_LAST_MONTH_LONG.xlsx",
-            sheet = "v_COV_UPTAKE_TARGETGROUP_LAST_M"
-        )
+    print(" >> Calling who.int API...")
+    response <- GET(
+        "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_TARGETGROUP_LAST_MONTH_LONG", #nolint
+        headers
     )
-
+    json <- content(response, "text", encoding = "UTF-8")
+    uptake_target_group <- fromJSON(json)
+    uptake_target_group <- uptake_target_group$value
     # Reduce columns & rename
     print(" >> Reducing columns and renaming them...")
     uptake_target_group <-
@@ -100,6 +104,8 @@ load_pop_target_groups <- function() {
         "adm_target"
     )
 
+    print(" >> Removing duplicates...")
+    uptake_target_group <- helper_check_for_duplicates(uptake_target_group)
     return(uptake_target_group)
 }
 

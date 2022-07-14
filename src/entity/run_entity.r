@@ -1,6 +1,6 @@
 # 40 - 117 lines of original code
 
-run_entity <- function(env = .GlobalEnv) {
+run_entity <- function() {
     source("src/entity/entity_characteristics.r")
 
     print(" > Loading entity characteristics data...")
@@ -14,10 +14,5 @@ run_entity <- function(env = .GlobalEnv) {
     print(" > Transforming entity characteristics data...")
     entity_characteristics <- transform_entity_chars(ec, b_adhoc)
     print(" > Done.")
-
-    print(" > Loading entity_characteristics data back to global environment...")
-    env$b_adhoc <- b_adhoc
-    env$entity_characteristics <- entity_characteristics
-
     return(environment())
 }

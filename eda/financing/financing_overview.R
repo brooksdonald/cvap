@@ -256,35 +256,6 @@ api_export_table <- function(a_data) {
   return(api)
 }
 
-reporting_export_table <- function(a_data) {
-    
-    reporting <- filter(
-      a_data,
-      a_covax_status == "AMC" |
-        a_csc_status == "Concerted support country"
-    )
-    
-    reporting <- select(
-      reporting,
-      c(
-        "a_name_short",
-        "a_iso",
-        "a_who_region",
-        "a_income_group",
-        "a_income_group_vis",
-        "a_covax_status",
-        "a_csc_status",
-        "adm_booster_60p_status",
-        "adm_booster_hcw_status",
-        "adm_booster_gen_status",
-        "adm_booster",
-        "adm_fv_hcw_repstat",
-        "adm_fv_60p_repstat",
-        "adm_fv_gen_repstat"
-      )
-    )
-  }
-  
 covdp_ifc_status <- function(a_data) {
   a_data_ifc <- filter(a_data, a_ifc_status == "Immediate focus")
   return(a_data_ifc)

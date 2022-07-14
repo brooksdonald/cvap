@@ -1,4 +1,4 @@
-run_dp <- function(env = .GlobalEnv) {
+run_dp <- function() {
     source("src/demand_planning/demand_planning.r")
     print(" > Starting local environment for demand planning")
     print(" > Loading demand planning data...")
@@ -11,8 +11,5 @@ run_dp <- function(env = .GlobalEnv) {
     
     print(" > Returning to global environment. ")
 
-    print(" > Loading demand planning data back to global environment...")
-    env$b_dp_red <- b_dp_red
-    env$b_dp <- b_dp
     return(environment())
 }

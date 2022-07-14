@@ -3,8 +3,9 @@ load_supply_secured_data <- function() {
     print(" >> Load supply secured data...")
     supply_secured <- extract_supply_secured()
     c_sec_cour_lm <- extract_sup_sec_lm()
-
-    return(list(supply_secured, c_sec_cour_lm))
+    datalist <- list("supply_secured" = supply_secured,
+        "c_sec_cour_lm" = c_sec_cour_lm)
+    return(datalist)
 }
 
 transform_supp_secured <- function(supply_secured, sec_date, c_sec_cour_lm) { # nolint
@@ -17,11 +18,14 @@ transform_supp_secured <- function(supply_secured, sec_date, c_sec_cour_lm) { # 
 
 extract_supply_secured <- function() {
     print(" >> Reading supply secured data...")
-     # TODO automate deleting the first 2 rows of the excel sheet
     supply_input <-
         data.frame(read_excel("data/_input/base_supply_secured_summary.xlsx",
-            sheet = "supply_tracker"
-        ))
+            sheet = "supply_tracker",
+            skip = 2))
+
+    ## This function can be deleted in the future.
+    ## It was added in July 2022 to aid the transition.
+    helper_check_if_two_rows_were_deleted(supply_input)
 
     # pick only relevant columns and rename
     supply_secured <-
@@ -57,13 +61,18 @@ extract_supply_secured <- function() {
 
 extract_sup_sec_lm <- function() {
     print(" >> Reading supply secured summary lastmonth...")
-    # TODO automate deleting the first 2 rows of the excel sheet
     b_sec_lm <-
         data.frame(
             read_excel("data/_input/base_supply_secured_summary_lastmonth.xlsx",
-                sheet = "supply_tracker"
+                sheet = "supply_tracker",
+                skip = 2
             )
         )
+
+    ## This function can be deleted in the future.
+    ## It was added in July 2022 to aid the transition.
+    helper_check_if_two_rows_were_deleted(b_sec_lm)
+    
     # Pick only relevant columns and rename them
     c_sec_cour_lm <-
     select(
@@ -107,8 +116,6 @@ transform_supply_secured <- function(supply_secured, sec_date, c_sec_cour_lm) { 
     print(" >> Multiplying last month supply summary by a million...")
     c_sec_cour_lm <- c_sec_cour_lm %>%
         mutate(sec_total_dose_lm = sec_total_dose_lm * 1000000)
-
-    # FIXME replacing NA with 0 is NOT a good idea for data repr
     print(" >> Replacing NAs...")
     supply_secured <- supply_secured %>% replace(is.na(.), 0)
     c_sec_cour_lm <- c_sec_cour_lm %>% replace(is.na(.), 0)
@@ -121,8 +128,7 @@ transform_supply_secured <- function(supply_secured, sec_date, c_sec_cour_lm) { 
         mutate(sec_other_sum_dose = sec_eu_dose + sec_other_dose + sec_domestic_dose)
 
     print(" >> Adding dataset date...")
-    # FIXME do I need to pass in date here?
-    supply_secured$sec_date <- sec_date
+    supply_secured$sec_date <- dataset_date
     
     # Merge current and last month supply
     supply_secured <- left_join(supply_secured, c_sec_cour_lm, by = "a_iso")

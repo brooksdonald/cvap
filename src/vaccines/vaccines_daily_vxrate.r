@@ -1,55 +1,62 @@
 
 # load current daily vxrate
-load_b_vxrate <- function() {
-    print(" >> Loading current daily vaccination rate...")
+load_b_vxrate <- function(adm_data) {
+  use_api <- readline(prompt = " >> Would you like to use administration data from the API? \n 'y' uses data from API, 'n' uses data from Excel: ")
+  if (use_api %in% c('y', 'Y', 'yes', 'Yes')) {
+    print(" >> Using data from API...")
+    b_vxrate <- as.data.frame(adm_data)
+    b_vxrate$date <- as.Date(b_vxrate$date, format = "%Y-%m-%d")
+  } else {
+    print(" >> Loading current daily vaccination rate from Excel...")
     b_vxrate <-
         data.frame(
             read_excel("data/_input/base_dvr_current.xlsx",
             sheet = "data"
         )
     )
-
-    print(" >> Selecting relevant current daily vaccination rate columns...")
-    b_vxrate <-
-      select(
-        b_vxrate,
-        c(
-          "iso_code",
-          "date",
-          "total_doses",
-          "at_least_one_dose",
-          "fully_vaccinated",
-          "persons_booster_add_dose",
-          "rolling_4_week_avg_td",
-          "rolling_4_week_avg_fv",
-          "max_rolling_4_week_avg_td",
-          "rolling_4_week_avg_td_lastmonth",
-          "no_change_from_previous"
-        )
-      )
-
-    print(" >> Renaming current daily vaccination rate columns...")
-    colnames(b_vxrate) <-
+  }
+  print(" >> Selecting relevant current daily vaccination rate columns...")
+  b_vxrate <-
+    select(
+      b_vxrate,
       c(
-        "a_iso",
-        "adm_date",
-        "adm_td",
-        "adm_a1d",
-        "adm_fv",
-        "adm_booster",
-        "dvr_4wk_td",
-        "dvr_4wk_fv",
-        "dvr_4wk_td_max",
-        "dvr_4wk_td_lm",
-        "note_nochange"
+        "iso_code",
+        "date",
+        "total_doses",
+        "at_least_one_dose",
+        "fully_vaccinated",
+        "persons_booster_add_dose",
+        "rolling_4_week_avg_td",
+        "rolling_4_week_avg_fv",
+        "max_rolling_4_week_avg_td",
+        "rolling_4_week_avg_td_lastmonth",
+        "no_change_from_previous"
       )
+    )
 
-    return(b_vxrate)
+  print(" >> Renaming current daily vaccination rate columns...")
+  colnames(b_vxrate) <-
+    c(
+      "a_iso",
+      "adm_date",
+      "adm_td",
+      "adm_a1d",
+      "adm_fv",
+      "adm_booster",
+      "dvr_4wk_td",
+      "dvr_4wk_fv",
+      "dvr_4wk_td_max",
+      "dvr_4wk_td_lm",
+      "note_nochange"
+    )
+
+  return(b_vxrate)
 
 }
 
-transform_current_vxrate <- function(b_vxrate, entity_characteristics) {
-    print(" >> Transforming current daily vaccination rate...")
+transform_current_vxrate <- function(
+  b_vxrate, entity_characteristics, refresh_date) {
+    print(" >> Transforming current vxrate...")
     ## Add entity base data
     b_vxrate <- left_join(b_vxrate, entity_characteristics, by = "a_iso")
     ## Change population field type to numeric
@@ -238,7 +245,8 @@ transform_subset_amc <- function(b_vxrate) {
     return(b_vxrate_amc)
 }
 
-transform_smooth_timeseries <- function(b_vxrate_amc, b_vxrate_pub) {
+transform_smooth_timeseries <- function(
+  b_vxrate_amc, b_vxrate_pub, refresh_date) {
   print(" >> Transforming smooth time series...")
   d_cov_smooth <- b_vxrate_pub
   d_cov_smooth <- select(
@@ -284,7 +292,8 @@ transform_smooth_timeseries <- function(b_vxrate_amc, b_vxrate_pub) {
   df_iso_2$index <- 0
 
   #Create date_week matrix
-  df_iso_full <- data.frame(df_iso[rep(seq_len(nrow(df_iso)), each = as.numeric(refresh_date-as.Date("2021-01-01")-1)), ])
+  df_iso_full <- data.frame(df_iso[rep(seq_len(nrow(df_iso)),
+    each = as.numeric(refresh_date-as.Date("2021-01-01")-1)), ])
   df_iso_full$date <- NA
   colnames(df_iso_full) <- c("iso", "date")
   df_iso_week <- as.matrix(
@@ -302,7 +311,8 @@ transform_smooth_timeseries <- function(b_vxrate_amc, b_vxrate_pub) {
 
   df_iso_new <- select(df_iso_new, c("iso", "date"))
 
-  d_cov_smooth_new <- left_join(df_iso_new, d_cov_smooth, by = c("iso" = "a_iso", "date" = "adm_date"))
+  d_cov_smooth_new <- left_join(df_iso_new, d_cov_smooth,
+    by = c("iso" = "a_iso", "date" = "adm_date"))
   d_cov_smooth_new <- arrange(d_cov_smooth_new,iso, date)
 
   d_cov_smooth_new <- d_cov_smooth_new %>%
@@ -351,20 +361,8 @@ transform_sept21_pop_tgt <- function(b_vxrate) {
   )
 
   #### Calculate cov_total_fv at end of September 2021
-  c_vxrate_sept <- c_vxrate_sept %>%
-    mutate(
-      cov_total_fv = if_else(
-        adm_a1d == 0 & adm_fv == 0 & adm_booster == 0, ((adm_td / 2) / a_pop),
-          if_else(adm_a1d == 0 & adm_fv == 0 & adm_booster != 0, (((adm_td - adm_booster)/ 2) / a_pop),
-            if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster == 0, ((adm_td - adm_a1d) / a_pop),
-              if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster != 0, ((adm_td - adm_a1d - adm_booster) / a_pop),
-                (adm_fv / a_pop)
-              )
-            )
-          )
-        )
-      )
-        
+  c_vxrate_sept <- helper_calculate_cov_total_fv(c_vxrate_sept)
+
   #### Indicate if cov_total_fv is greater than or equal to 10%
   c_vxrate_sept <- c_vxrate_sept %>%
     mutate(t10_goalmet_sep = if_else(cov_total_fv >= .1, "Yes", "No"))
@@ -376,7 +374,6 @@ transform_sept21_pop_tgt <- function(b_vxrate) {
   colnames(c_vxrate_sept_t10) <- c("a_iso","cov_total_fv_30sep", "t10_goalmet_sep")
 
   return(c_vxrate_sept_t10)
-
 }
 
 transform_dec21_pop_tgt <- function(b_vxrate) {
@@ -390,19 +387,7 @@ transform_dec21_pop_tgt <- function(b_vxrate) {
     )
 
   #### Calculate cov_total_fv at end of December 2021
-  c_vxrate_dec <- c_vxrate_dec %>% 
-    mutate(
-      cov_total_fv = if_else(
-        adm_a1d == 0 & adm_fv == 0 & adm_booster == 0, ((adm_td / 2) / a_pop),
-          if_else(adm_a1d == 0 & adm_fv == 0 & adm_booster != 0, (((adm_td - adm_booster)/ 2) / a_pop),
-            if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster == 0, ((adm_td - adm_a1d) / a_pop),
-              if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster != 0, ((adm_td - adm_a1d - adm_booster) / a_pop),
-                (adm_fv / a_pop)
-              )
-            )
-          )
-        )
-      )
+  c_vxrate_dec <- helper_calculate_cov_total_fv(c_vxrate_dec)
 
   #### Indicate if cov_total_fv is greater than or equal to 20%
   c_vxrate_dec <- c_vxrate_dec %>%
@@ -415,20 +400,15 @@ transform_dec21_pop_tgt <- function(b_vxrate) {
   #### Reduce to a_iso, t20_goalmet_dec, t40_goalmet_dec
   c_vxrate_dec_t2040 <-
     select(c_vxrate_dec,
-      c("a_iso", "cov_total_fv", "t20_goalmet_dec", "t40_goalmet_dec"
-    )
-  )
-  
-  colnames(c_vxrate_dec_t2040) <- c("a_iso","cov_total_fv_31dec", "t20_goalmet_dec",
-                                    "t40_goalmet_dec")
+      c("a_iso", "cov_total_fv", "t20_goalmet_dec", "t40_goalmet_dec")) %>%
+    rename(cov_total_fv_31dec = cov_total_fv)
 
   return(c_vxrate_dec_t2040)
-
 }
 
 
 
-transform_abspt_by_month <- function(b_vxrate) {
+transform_abspt_by_month <- function(b_vxrate, current_month) {
   print(" >> Create absorption by month table")
   ## Create absorption by month table
   c_vxrate_eom <- filter(b_vxrate, adm_date_eom == "Yes")
@@ -457,7 +437,7 @@ transform_abspt_by_month <- function(b_vxrate) {
   
   z_vxrate_eom_temp <- z_vxrate_eom_temp %>%
     mutate(adm_date_month = adm_date_month + 1)
-    colnames(z_vxrate_eom_temp) <- 
+    colnames(z_vxrate_eom_temp) <-
       c("a_iso", "adm_date_month", "adm_td_lm")
 
   ### Calculate change by month
@@ -472,41 +452,22 @@ transform_abspt_by_month <- function(b_vxrate) {
     mutate(adm_td_absorbed = adm_td - adm_td_lm)
 
   c_vxrate_eom <- c_vxrate_eom %>%
-    mutate(adm_td_absorbed = if_else(is.na(adm_td_absorbed), adm_td, adm_td_absorbed))
-  
-  c_vxrate_eom$adm_date_month_name <- helper_replace_values_with_map(
-    data = c_vxrate_eom$adm_date_month,
-    values = c(
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
-    ),
-    map = c(
-      "2021-01",
-      "2021-02",
-      "2021-03",
-      "2021-04",
-      "2021-05",
-      "2021-06",
-      "2021-07",
-      "2021-08",
-      "2021-09",
-      "2021-10",
-      "2021-11",
-      "2021-12",
-      "2022-01",
-      "2022-02",
-      "2022-03",
-      "2022-04",
-      "2022-05",
-      "2022-06",
-      "2022-07"
-    )
+    mutate(adm_td_absorbed = if_else(
+      is.na(adm_td_absorbed),
+      adm_td,
+      adm_td_absorbed))
+
+  ## Note: list of months is automatically generated from "2021-01" to month of refresh_date
+  c_vxrate_eom$adm_date_month_name <- helper_mapping_months( 
+    c_vxrate_eom$adm_date_month,
+    current_month
   )
 
   return(c_vxrate_eom)
 }
 
 # Create per country absorption table
-absorption_per_country <- function(c_vxrate_eom) {
+absorption_per_country <- function(c_vxrate_eom, current_month) {
   print(" >> Adding per country monthly absorption table...")
   
   d_absorption_country <- select(
@@ -519,33 +480,12 @@ absorption_per_country <- function(c_vxrate_eom) {
       "adm_td_absorbed"
     )
   )
-  d_absorption_country$adm_date_month_name <- helper_replace_values_with_map(
-    data = d_absorption_country$adm_date_month,
-    values = c(
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
-    ),
-    map = c(
-      "2021-01",
-      "2021-02",
-      "2021-03",
-      "2021-04",
-      "2021-05",
-      "2021-06",
-      "2021-07",
-      "2021-08",
-      "2021-09",
-      "2021-10",
-      "2021-11",
-      "2021-12",
-      "2022-01",
-      "2022-02",
-      "2022-03",
-      "2022-04",
-      "2022-05",
-      "2022-06",
-      "2022-07"
-    )
+  ## Note: list of months is automatically generated from "2021-01" to month of refresh_date
+  d_absorption_country$adm_date_month_name <- helper_mapping_months(
+    d_absorption_country$adm_date_month,
+    current_month
   )
+
   print(" >> Selecting columns needed...")
   d_absorption_country <- select(
     d_absorption_country,
@@ -566,7 +506,6 @@ absorption_per_country <- function(c_vxrate_eom) {
     "month_name"
   )
   d_absorption_country$type <- "Absorbed"
-  d_absorption_country <<- d_absorption_country
   print(" >> Selecting columns needed from d_absorption_country for d_absorb_red...") #nolint
   d_absorb_red <- select(
     d_absorption_country,
@@ -582,10 +521,12 @@ absorption_per_country <- function(c_vxrate_eom) {
     "month_name",
     "absorbed"
   )
-  return(d_absorb_red)
+  datalist <- list("d_absorb_red" = d_absorb_red,
+    "d_absorption_country" = d_absorption_country)
+  return(datalist)
 }
 
-first_supplies <- function(d_absorb_red) {
+first_supplies <- function(d_absorb_red, d_absorption_country) {
   print(" >> Loading supplies data from supply dataset...")
   b_supply <- data.frame(
     read_excel("data/_input/static/supply.xlsx",
@@ -607,13 +548,12 @@ first_supplies <- function(d_absorb_red) {
     "month_name",
     "received"
   )
-  #TODO Where do I fix this b_supply_red variable?
-  b_supply_red <<- b_supply_red
   combined <- rbind(d_absorption_country, b_supply)
-  return(combined)
+  datalist <- list("combined" = combined, "b_supply_red" = b_supply_red)
+  return(datalist)
 }
 
-new_absorption_countries <- function(c_vxrate_eom) {
+new_absorption_countries <- function(c_vxrate_eom, current_month) {
   print(" >> Selecting columns from c_vxrate_eom for d_absorption_country_new...")
   d_absorption_country_new <- select(
       c_vxrate_eom,
@@ -629,37 +569,18 @@ new_absorption_countries <- function(c_vxrate_eom) {
       "absorbed",
       "adm_date_month"
     )
-    d_absorption_country_new$month_name <- helper_replace_values_with_map(
-      data = d_absorption_country_new$adm_date_month,
-      values = c(
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
-      ),
-      map = c(
-        "2021-01",
-        "2021-02",
-        "2021-03",
-        "2021-04",
-        "2021-05",
-        "2021-06",
-        "2021-07",
-        "2021-08",
-        "2021-09",
-        "2021-10",
-        "2021-11",
-        "2021-12",
-        "2022-01",
-        "2022-02",
-        "2022-03",
-        "2022-04",
-        "2022-05",
-        "2022-06",
-        "2022-07"
-      )
+
+  ## Note: list of months is automatically generated from "2021-01" to month of refresh_date
+    d_absorption_country_new$month_name <- helper_mapping_months(
+      d_absorption_country_new$adm_date_month,
+      current_month
     )
+
     return(d_absorption_country_new)
 }
 
-second_supplies <- function(d_absorption_country_new, combined, d_absorb_red, entity_characteristics) {
+second_supplies <- function(d_absorption_country_new, combined,
+  d_absorb_red, entity_characteristics, b_supply_red) {
   print(" >> Loading supplies data for second supplies...")
   b_supply_second <- data.frame(
     read_excel("data/_input/static/supply.xlsx", sheet = "supply")
@@ -681,7 +602,7 @@ second_supplies <- function(d_absorption_country_new, combined, d_absorb_red, en
     combined_new,
     c("iso", "month_name", "est_stock")
   )
-  #TODO Look into this join and use a helper function
+  
   combined_three <- full_join(
     b_supply_red,
     d_absorb_red,
@@ -692,78 +613,52 @@ second_supplies <- function(d_absorption_country_new, combined, d_absorb_red, en
   return(combined_three)
 }
 
-#TODO Do a proper refactor for this function
-absorption_sum_by_month <- function(c_vxrate_eom) {
+absorption_sum_by_month <- function(c_vxrate_eom, current_month) {
   print(" >> Summarize absorption by grouping by month...")
   ## Summarize absorption by grouping by month
+
+  groupby_and_summarize <- function(c_vxrate) {
+    suffix <- substr(deparse(substitute(c_vxrate)), 14, 30)
+    return(c_vxrate %>%
+      group_by(adm_date_month) %>%
+      summarize(!!as.name(paste0("absorption_", suffix)) := sum(adm_td_absorbed))
+    )
+  }
+
   ### COVAX participation = AMC
-  c_vxrate_eom_amc <- filter(c_vxrate_eom, a_covax_status == "AMC")
-  d_absorption_amc <- c_vxrate_eom_amc %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_amc = sum(adm_td_absorbed))
+  c_vxrate_eom_amc <- 
+    filter(c_vxrate_eom, a_covax_status == "AMC")
+  d_absorption_amc <- groupby_and_summarize(c_vxrate_eom_amc)
 
   #### COVAX participation = AMC91
   c_vxrate_eom_amc91 <-
     filter(c_vxrate_eom, a_covax_status == "AMC" & a_iso != "IND")
-  d_absorption_amc91 <- c_vxrate_eom_amc91 %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_amc91 = sum(adm_td_absorbed))
+  d_absorption_amc91 <- groupby_and_summarize(c_vxrate_eom_amc91)
 
   #### Concerted support status = csc
   c_vxrate_eom_csc <-
-  filter(c_vxrate_eom, a_csc_status == "Concerted support country")
-  d_absorption_csc <- c_vxrate_eom_csc %>%
-  group_by(adm_date_month) %>%
-  summarize(absorption_csc = sum(adm_td_absorbed))
+    filter(c_vxrate_eom, a_csc_status == "Concerted support country")
+  d_absorption_csc <- groupby_and_summarize(c_vxrate_eom_csc)
 
   #### Immediate focus country status = IFC
   c_vxrate_eom_ifc <-
-  filter(c_vxrate_eom, a_ifc_status == "Immediate focus")
-  d_absorption_ifc <- c_vxrate_eom_ifc %>%
-  group_by(adm_date_month) %>%
-  summarize(absorption_ifc = sum(adm_td_absorbed))
-  
+    filter(c_vxrate_eom, a_ifc_status == "Immediate focus")
+  d_absorption_ifc <- groupby_and_summarize(c_vxrate_eom_ifc)
+
   #### Continent = Africa
-  c_vxrate_eom_africa <- filter(c_vxrate_eom, a_continent == "Africa")
-  d_absorption_africa <- c_vxrate_eom_africa %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_africa = sum(adm_td_absorbed))
+  c_vxrate_eom_africa <-
+    filter(c_vxrate_eom, a_continent == "Africa")
+  d_absorption_africa <- groupby_and_summarize(c_vxrate_eom_africa)
 
-  #### WHO region = EMR
-  c_vxrate_eom_emr <- filter(c_vxrate_eom, a_who_region == "EMR")
-  d_absorption_emr <- c_vxrate_eom_emr %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_emr = sum(adm_td_absorbed))
-
-  #### WHO region = AFR
-  c_vxrate_eom_afr <- filter(c_vxrate_eom, a_who_region == "AFR")
-  d_absorption_afr <- c_vxrate_eom_afr %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_afr = sum(adm_td_absorbed))
-
-  #### WHO region = SEAR
-  c_vxrate_eom_sear <- filter(c_vxrate_eom, a_who_region == "SEAR")
-  d_absorption_sear <- c_vxrate_eom_sear %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_sear = sum(adm_td_absorbed))
-
-  #### WHO region = WPR
-  c_vxrate_eom_wpr <- filter(c_vxrate_eom, a_who_region == "WPR")
-  d_absorption_wpr <- c_vxrate_eom_wpr %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_wpr = sum(adm_td_absorbed))
-
-  #### WHO region = EUR
-  c_vxrate_eom_eur <- filter(c_vxrate_eom, a_who_region == "EUR")
-  d_absorption_eur <- c_vxrate_eom_eur %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_eur = sum(adm_td_absorbed))
-
-  #### WHO region = AMR
-  c_vxrate_eom_amr <- filter(c_vxrate_eom, a_who_region == "AMR")
-  d_absorption_amr <- c_vxrate_eom_amr %>%
-    group_by(adm_date_month) %>%
-    summarize(absorption_amr = sum(adm_td_absorbed))
+  for (region_appendix in c("EMR", "AFR", "SEAR", "WPR", "EUR", "AMR")) {
+    assign(paste0("d_absorption_", tolower(region_appendix)),
+      filter(c_vxrate_eom, a_who_region == region_appendix) %>%
+        group_by(adm_date_month) %>%
+        summarize("absorption_{tolower(region_appendix)}" :=
+          sum(adm_td_absorbed)
+        )
+    )
+  }
 
   #### Additional groupings as needed
 
@@ -780,33 +675,10 @@ absorption_sum_by_month <- function(c_vxrate_eom) {
     left_join(., d_absorption_csc, by = "adm_date_month") %>%
     left_join(., d_absorption_ifc, by = "adm_date_month")
 
-    ### Add full date names for visualization
-    d_absorption$adm_date_month_name <- helper_replace_values_with_map(
-      data = d_absorption$adm_date_month,
-      values = c(
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
-      ),
-      map = c(
-        "2021-01",
-        "2021-02",
-        "2021-03",
-        "2021-04",
-        "2021-05",
-        "2021-06",
-        "2021-07",
-        "2021-08",
-        "2021-09",
-        "2021-10",
-        "2021-11",
-        "2021-12",
-        "2022-01",
-        "2022-02",
-        "2022-03",
-        "2022-04",
-        "2022-05",
-        "2022-06",
-        "2022-07"
-      )
+    ## Note: list of months is automatically generated from "2021-01" to month of refresh_date
+    d_absorption$adm_date_month_name <- helper_mapping_months(
+      d_absorption$adm_date_month,
+      current_month
     )
   return(d_absorption)
 }
@@ -824,6 +696,7 @@ latest_sum_table <- function(b_vxrate, c_vxrate_latest) {
 
 }
 
+# TODO make the three next functions DRY
 last_week_sum_table <- function(b_vxrate, c_vxrate_latest, c_vxrate_lastweek) {
   print(" >> Create last week value summary table...")
   c_vxrate_lastweek <- filter(b_vxrate, adm_last_week == "Yes")
@@ -893,37 +766,33 @@ two_month_sum_table <- function(b_vxrate, c_vxrate_latest, c_vxrate_twomonth) {
 transform_jun22_pop_tgt <- function(b_vxrate, c_vxrate_latest) {
   print(" >> Create end of June 2022 table population target deadline table...")
   c_vxrate_jun <- c_vxrate_latest
-  #filter(b_vxrate,
-  #       adm_date_eom == "Yes" & 
-  #         adm_date_month == 6 & 
-  #         adm_date_year == 2022
-  #)
   
   #### Calculate cov_total_fv at end of June 2022
   c_vxrate_jun <- c_vxrate_jun %>%
-    mutate(
-      cov_total_fv = if_else(
-        adm_a1d == 0 & adm_fv == 0 & adm_booster == 0, ((adm_td / 2) / a_pop),
-        if_else(adm_a1d == 0 & adm_fv == 0 & adm_booster != 0, (((adm_td - adm_booster)/ 2) / a_pop),
-                if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster == 0, ((adm_td - adm_a1d) / a_pop),
-                        if_else(adm_a1d != 0 & adm_fv == 0 & adm_booster != 0, ((adm_td - adm_a1d - adm_booster) / a_pop),
-                                (adm_fv / a_pop)
-                        )
-                )
-        )
-      )
-    )
-  
+    mutate(cov_total_fv = if_else(
+      adm_a1d == 0 & adm_fv == 0 & adm_booster == 0,
+      (adm_td / 2) / a_pop,
+      if_else(
+        adm_a1d == 0 & adm_fv == 0 & adm_booster != 0,
+        ((adm_td - adm_booster)/ 2) / a_pop,
+        if_else(
+          adm_a1d != 0 & adm_fv == 0 & adm_booster == 0,
+          (adm_td - adm_a1d) / a_pop,
+          if_else(
+            adm_a1d != 0 & adm_fv == 0 & adm_booster != 0,
+            (adm_td - adm_a1d - adm_booster) / a_pop,
+            adm_fv / a_pop)))))
+
   #### Indicate if cov_total_fv is greater than or equal to 70%
   c_vxrate_jun <- c_vxrate_jun %>%
     mutate(t70_goalmet_jun = if_else(cov_total_fv >= .7, "Yes", "No"))
-  
+
   #### Reduce to a_iso and t70_goalmet_jun
   c_vxrate_jun_t70 <-
     select(c_vxrate_jun, c("a_iso", "cov_total_fv", "t70_goalmet_jun"))
-  
+
   colnames(c_vxrate_jun_t70) <- c("a_iso", "cov_total_fv_30jun", "t70_goalmet_jun")
-  
+
   return(c_vxrate_jun_t70)
   
 }

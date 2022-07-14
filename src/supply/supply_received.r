@@ -17,18 +17,16 @@ load_sup_rec <- function() {
         data.frame(read_excel("data/_input/base_supply_received_twomonth.xlsx",
             sheet = "Delivery_Table"
         ))
-    
+
     b_mdb_13jan <-
-      data.frame(read_excel("data/_input/static/base_supply_weekof13jan.xlsx",
-                            sheet = "Delivery_Table"
-      ))
-    
+        data.frame(read_excel("data/_input/static/base_supply_weekof13jan.xlsx",
+            sheet = "Delivery_Table"
+        ))
+
     print(" >> Treating datasets...")
 
     b_mdb <- treat_country_name_datasource(b_mdb)
 
-    # TODO should this be DRY as well?
-    # TODO is there a way to optimise/automate this last and 2m creation?
     common_columns <- c("iso", "product", "total")
 
     b_mdb_lm <- treat_country_name_datasource(b_mdb_lm)
@@ -48,8 +46,8 @@ load_sup_rec <- function() {
       common_columns
     )
     colnames(b_mdb_13jan)[3] <- "total_13jan"
-    
-    
+
+
     supply_received <- helper_join_dataframe_list(
         list(b_mdb, b_mdb_lm, b_mdb_2m, b_mdb_13jan),
         join_by = c("iso", "product")
@@ -68,12 +66,10 @@ load_sup_rec <- function() {
     ) {
         supply_received[, col] <- as.numeric(supply_received[, col])
     }
-    
-
     return(supply_received)
 }
 
-transform_sup_rec_doses <- function(supply_received) {
+transform_sup_rec_doses <- function(supply_received, del_date) {
     print(" >> Grouping all doses...")
     supply_received_doses <- supply_received %>%
         group_by(iso) %>%
@@ -121,7 +117,7 @@ transform_sup_rec_doses <- function(supply_received) {
 
     # Introducing del_date to supply_received_doses
     supply_received_doses$del_date <- del_date
-    
+
     return(supply_received_doses)
 }
 
@@ -205,10 +201,10 @@ transform_sup_rec_product <- function(supply_received) {
     c_delivery_product <- filter(c_delivery_product, product_short == "J&J")
     c_delivery_product <- select(c_delivery_product, -c("product_short"))
     colnames(c_delivery_product) <- c("a_iso", "del_dose_jj")
-    
-    # FIXME make Do I make c_delivery_product global variable in run_supply?
-    c_delivery_product <<- c_delivery_product
-    return(supply_received_by_product)
+
+    datalist <- list("supply_received_by_product" = supply_received_by_product,
+    "c_delivery_product" = c_delivery_product)
+    return(datalist)
 }
 
 treat_country_name_datasource <- function(dataframe) {
@@ -222,8 +218,6 @@ treat_country_name_datasource <- function(dataframe) {
 
 
     print(" >>> Handling special cases...")
-    # handling special cases
-    # TODO Hong Kong and Macao?
     dataframe <- dataframe %>%
         mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
     dataframe <- dataframe[!(is.na(dataframe$iso)), ]
@@ -369,7 +363,7 @@ eda_sup_rec_courses <- function(supply_received, supply_received_doses) {
     print(" >> Combine doses and courses delivered tables")
     c_delivery <- left_join(supply_received_doses, c_delivery_courses, by = "iso")
 
-    print(" >> Renaming delivery_courses_doeses iso to a_iso")
+    print(" >> Renaming delivery_courses_doses iso to a_iso")
 
     colnames(c_delivery)[1] <- c("a_iso")
     return(c_delivery)
