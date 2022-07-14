@@ -6,19 +6,22 @@
 rm(list = ls())
 
 # Load packages
-library("tidyverse")
-library("openxlsx")
-library("readxl")
-library("writexl")
-library("countrycode")
-library("lubridate")
-library("data.table")
-library("bit64")
-library("httr")
-library("jsonlite")
-library("AzureAuth")
-library("dotenv")
-library("reticulate")
+lib <- c("tidyverse",
+    "openxlsx",
+    "readxl",
+    "writexl",
+    "countrycode",
+    "lubridate",
+    "data.table",
+    "bit64",
+    "httr",
+    "jsonlite",
+    "AzureAuth",
+    "dotenv",
+    "reticulate")
+lib_na <- lib[!(lib %in% installed.packages()[, "Package"])]
+if (length(lib_na)) install.packages(lib_na)
+lapply(lib, library, character.only = TRUE)
 
 # STATIC DATES
 .GlobalEnv$refresh_date <- as.Date("2022-07-08")
