@@ -87,7 +87,8 @@ coverage_env <- run_coverage(
     vxrate_env$timeto_t70,
     vaccines_env$c_vxrate_sept_t10,
     vaccines_env$c_vxrate_dec_t2040,
-    vaccines_env$c_vxrate_jun_t70)
+    vaccines_env$c_vxrate_jun_t70,
+    .GlobalEnv$t70_deadline)
 product_env <- run_product(
     coverage_env$a_data,
     base_env$b_smartsheet,
