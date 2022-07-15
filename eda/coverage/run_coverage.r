@@ -21,7 +21,7 @@ run_coverage <- function(a_data, timeto_t70, c_vxrate_sept_t10, c_vxrate_dec_t20
     print(" > Done.")
 
     print(" > 70% target...")
-    a_data <- target_group_seventy(a_data, timeto_t70, c_vxrate_jun_t7, deadline_suffix)
+    a_data <- target_group_seventy(a_data, timeto_t70, c_vxrate_jun_t70, deadline_suffix)
     print(" > Done.")
 
     print(" > booster doses...")
