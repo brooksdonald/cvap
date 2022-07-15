@@ -1,7 +1,7 @@
 run_vaccination_rate <- function() {
     print(" > Checking if all Python libraries are available...")
-    python_packages <- c("datetime", "io", "json", "matplotlib",
-        "numpy", "openpyxl", "os", "pandas", "pickle", "seaborn", "urllib", "warnings")
+    python_packages <- c("datetime", "io", "json", "matplotlib", "numpy",
+        "openpyxl", "os", "pandas", "pickle", "seaborn", "urllib", "warnings")
     for (module in python_packages) {
         if (!py_module_available(module)) {
             print(" > ", module, " is not available. Installing now...")
