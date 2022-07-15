@@ -753,7 +753,7 @@ if __name__ == '__main__':
     df1 = cleaning(who)
     df1 = date_to_date_week(df1)
     df1, df2 = map_iso_codes(df1, iso_mapping)
-    df2, manual_fix_list = fix_issues_total_doses(df2)
+    df2, manual_fix_list = fix_issues_total_doses(df2) # Jeremy's fixes
     df2 = automized_cleaning(df2)
     df2 = fix_issues_at_least_one_dose(df2)
     df2 = fix_issues_fully_vaccinated(df2)
