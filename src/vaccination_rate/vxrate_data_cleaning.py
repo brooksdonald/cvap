@@ -671,6 +671,8 @@ def export_plots_of_changes(df2, uncleaned, country, log):
                 date_from_grouped = date_from
             else:
                 group_together = False
+        else:
+            group_together = False
         if not group_together:
             count += 1
             plot_data_range = plot_data.loc[plot_data['Time'] >= date_from, :].copy()
