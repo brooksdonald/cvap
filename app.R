@@ -147,7 +147,7 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red
 )
 
-write_xlsx(all_df, "data/output/220707_output_powerbi.xlsx")
+write_xlsx(all_df, "data/output/15_July_with_70_helper_new.xlsx")
 write_xlsx(financing_env$api, "data/output/220707_output_api.xlsx")
 write_xlsx(all_df, "data/output/output_master.xlsx")
 

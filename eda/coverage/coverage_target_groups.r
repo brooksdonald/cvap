@@ -7,9 +7,9 @@ target_group_ten <- function(a_data, timeto_t70, c_vxrate_sept_t10) {
   a_data <- a_data %>%
     mutate(t10_goalmet_sep = if_else(a_iso == "BDI", "No", t10_goalmet_sep)) %>%
     mutate(t10_goalmet_after = if_else(cov_total_fv >= 0.1, "Yes", "No")) %>%
-    mutate(t10_notmet = if_else(cov_total_fv < 0.1, "Yes", "No"))
-  a_data <- helper_goal_target_groups(a_data, 10, timeto_t70)
-    return(a_data)
+    mutate(t10_notmet = if_else(cov_total_fv < 0.1, "Yes", "No")) %>%
+    helper_goal_target_groups(10, timeto_t70, deadline_suffix = "_31dec")
+  return(a_data)
 
 }
 
@@ -20,7 +20,7 @@ target_group_twenty_forty <- function(a_data, timeto_t70, c_vxrate_dec_t2040) {
   a_data <- a_data %>%
     mutate(t20_goalmet_after = if_else(cov_total_fv >= 0.2, "Yes", "No")) %>%
     mutate(t20_notmet = if_else(cov_total_fv < 0.2, "Yes", "No")) %>%
-    helper_goal_target_groups(20, timeto_t70)
+    helper_goal_target_groups(20, timeto_t70, deadline_suffix = "_31dec")
 
   a_data <- a_data %>%
     mutate(t40_goalmet_dec = if_else(
@@ -31,30 +31,31 @@ target_group_twenty_forty <- function(a_data, timeto_t70, c_vxrate_dec_t2040) {
     mutate(t40_notmet = if_else(cov_total_fv < 0.4, "Yes", "No")) %>%
     ## TODO try one more time to use the helper function for this.
     ## If not, at least automate the date
-    mutate(t40_timeto = round(if_else(
-      ((adm_pv + ((a_pop_40 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td) < 0,
-      0,
-      if_else(
-        is.infinite(((adm_pv + ((a_pop_40 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td)),
-        NA_real_,
-        ((adm_pv + ((a_pop_40 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td))))) %>%
-    mutate(t40_rate_needed_31dec = pmax(
-      ((a_pop_40 - adm_fv_homo) / timeto_t70) * 2, 0)) %>%
-    mutate(t40_scaleup_31dec = if_else(
-      is.infinite(round((t40_rate_needed_31dec / dvr_4wk_td), 2)),
-      0,
-      round((t40_rate_needed_31dec / dvr_4wk_td), 2))) %>%
-    mutate(t40_status = if_else(
-      t40_goalmet_dec == "Yes" |
-        (is.na(t40_goalmet_dec) & adm_td > 0),
-      "1) Goal met by deadline",
-      if_else(
-        t40_goalmet_after == "Yes",
-        "2) Goal met after deadline",
-        if_else(t40_notmet == "Yes", "3) Goal not yet met",
-                NA_character_)
-      )
-    )) %>%
+    helper_goal_target_groups(40, timeto_t70, deadline_suffix = "_31dec") %>%
+    # mutate(t40_timeto = round(if_else(
+    #   ((adm_pv + ((a_pop_40 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td) < 0,
+    #   0,
+    #   if_else(
+    #     is.infinite(((adm_pv + ((a_pop_40 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td)),
+    #     NA_real_,
+    #     ((adm_pv + ((a_pop_40 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td))))) %>%
+    # mutate(t40_rate_needed_31dec = pmax(
+    #   ((a_pop_40 - adm_fv_homo) / timeto_t70) * 2, 0)) %>%
+    # mutate(t40_scaleup_31dec = if_else(
+    #   is.infinite(round((t40_rate_needed_31dec / dvr_4wk_td), 2)),
+    #   0,
+    #   round((t40_rate_needed_31dec / dvr_4wk_td), 2))) %>%
+    # mutate(t40_status = if_else(
+    #   t40_goalmet_dec == "Yes" |
+    #     (is.na(t40_goalmet_dec) & adm_td > 0),
+    #   "1) Goal met by deadline",
+    #   if_else(
+    #     t40_goalmet_after == "Yes",
+    #     "2) Goal met after deadline",
+    #     if_else(t40_notmet == "Yes", "3) Goal not yet met",
+    #             NA_character_)
+    #   )
+    # )) %>%
     mutate(t40_jun_willmeet = if_else(
       cov_total_fv_atpace_31dec >= 0.4,
       "Yes",
@@ -76,44 +77,45 @@ target_group_seventy <- function(a_data, timeto_t70, c_vxrate_jun_t70) {
       cov_total_fv < 0.7,
       "Yes",
       "No")) %>%
-    mutate(t70_timeto = round(if_else(
-      ((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td) < 0,
-      0,
-      if_else(
-        is.infinite(((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td)),
-        NA_real_,
-        ((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td))))) %>%
-    mutate(t70_rate_needed_31dec = pmax(
-      ((a_pop_70 - adm_fv_homo) / timeto_t70) * 2,
-      0)) %>%
-    mutate(t70_scaleup_31dec = if_else(
-      is.infinite(round((t70_rate_needed_31dec / dvr_4wk_td), 2)),
-      0, 
-      round((t70_rate_needed_31dec / dvr_4wk_td), 2))) %>%
-    mutate(t70_status = if_else(
-      t70_goalmet_jun == "Yes",
-      "Goal met by deadline",
-      if_else(
-        t70_goalmet_after == "Yes",
-        "Goal met after deadline",
-        if_else(
-          t70_notmet == "Yes",
-          "Goal not yet met",
-          NA_character_)
-      )
-    )) %>%
-    mutate(t70_status_vis = if_else(
-      t70_goalmet_jun == "Yes",
-      "1) Goal met by deadline",
-      if_else(
-        t70_goalmet_after == "Yes",
-        "2) Goal met after deadline",
-        if_else(
-          t70_notmet == "Yes",
-          "3) Goal not yet met",
-          NA_character_)
-      )
-    ))
+    helper_goal_target_groups(70, timeto_t70, deadline_suffix = "_31dec")
+    # mutate(t70_timeto = round(if_else(
+    #   ((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td) < 0,
+    #   0,
+    #   if_else(
+    #     is.infinite(((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td)),
+    #     NA_real_,
+    #     ((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td))))) %>%
+    # mutate(t70_rate_needed_31dec = pmax(
+    #   ((a_pop_70 - adm_fv_homo) / timeto_t70) * 2,
+    #   0)) %>%
+    # mutate(t70_scaleup_31dec = if_else(
+    #   is.infinite(round((t70_rate_needed_31dec / dvr_4wk_td), 2)),
+    #   0, 
+    #   round((t70_rate_needed_31dec / dvr_4wk_td), 2))) %>%
+    # mutate(t70_status = if_else(
+    #   t70_goalmet_jun == "Yes",
+    #   "Goal met by deadline",
+    #   if_else(
+    #     t70_goalmet_after == "Yes",
+    #     "Goal met after deadline",
+    #     if_else(
+    #       t70_notmet == "Yes",
+    #       "Goal not yet met",
+    #       NA_character_)
+    #   )
+    # )) %>%
+    # mutate(t70_status_vis = if_else(
+    #   t70_goalmet_jun == "Yes",
+    #   "1) Goal met by deadline",
+    #   if_else(
+    #     t70_goalmet_after == "Yes",
+    #     "2) Goal met after deadline",
+    #     if_else(
+    #       t70_notmet == "Yes",
+    #       "3) Goal not yet met",
+    #       NA_character_)
+    #   )
+    # ))
   
   return(a_data)
 }
