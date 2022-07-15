@@ -6,7 +6,9 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import seaborn as sns
-sns.set(rc={"figure.dpi":600, 'savefig.dpi':600})
+import warnings
+warnings.filterwarnings("ignore")
+sns.set(rc={"figure.dpi":400, 'savefig.dpi':400})
 
 def create_new_path():
     print(" > Creating new folder to store plots: data/cleaning_log/...")
