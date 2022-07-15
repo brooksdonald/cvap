@@ -1,4 +1,4 @@
-target_group_ten <- function(a_data, timeto_t70, c_vxrate_sept_t10) {
+target_group_ten <- function(a_data, timeto_t70, c_vxrate_sept_t10, deadline_suffix) {
   print(" >>> Getting 10% target progress against coverage targets...")
   # Progress against coverage targets
   ## 10% target
@@ -8,19 +8,19 @@ target_group_ten <- function(a_data, timeto_t70, c_vxrate_sept_t10) {
     mutate(t10_goalmet_sep = if_else(a_iso == "BDI", "No", t10_goalmet_sep)) %>%
     mutate(t10_goalmet_after = if_else(cov_total_fv >= 0.1, "Yes", "No")) %>%
     mutate(t10_notmet = if_else(cov_total_fv < 0.1, "Yes", "No")) %>%
-    helper_goal_target_groups(10, timeto_t70, deadline_suffix = "_31dec")
+    helper_goal_target_groups(10, timeto_t70, deadline_suffix)
   return(a_data)
 
 }
 
-target_group_twenty_forty <- function(a_data, timeto_t70, c_vxrate_dec_t2040) {
+target_group_twenty_forty <- function(a_data, timeto_t70, c_vxrate_dec_t2040, deadline_suffix) {
   ## 20% - 40% target
   a_data <- left_join(a_data, c_vxrate_dec_t2040, by = "a_iso")
 
   a_data <- a_data %>%
     mutate(t20_goalmet_after = if_else(cov_total_fv >= 0.2, "Yes", "No")) %>%
     mutate(t20_notmet = if_else(cov_total_fv < 0.2, "Yes", "No")) %>%
-    helper_goal_target_groups(20, timeto_t70, deadline_suffix = "_31dec")
+    helper_goal_target_groups(20, timeto_t70, deadline_suffix)
 
   a_data <- a_data %>%
     mutate(t40_goalmet_dec = if_else(
@@ -29,9 +29,8 @@ target_group_twenty_forty <- function(a_data, timeto_t70, c_vxrate_dec_t2040) {
       t40_goalmet_dec)) %>%
     mutate(t40_goalmet_after = if_else(cov_total_fv >= 0.4, "Yes", "No")) %>%
     mutate(t40_notmet = if_else(cov_total_fv < 0.4, "Yes", "No")) %>%
-    ## TODO try one more time to use the helper function for this.
     ## If not, at least automate the date
-    helper_goal_target_groups(40, timeto_t70, deadline_suffix = "_31dec") %>%
+    helper_goal_target_groups(40, timeto_t70, deadline_suffix) %>%
     # mutate(t40_timeto = round(if_else(
     #   ((adm_pv + ((a_pop_40 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td) < 0,
     #   0,
@@ -57,13 +56,13 @@ target_group_twenty_forty <- function(a_data, timeto_t70, c_vxrate_dec_t2040) {
     #   )
     # )) %>%
     mutate(t40_jun_willmeet = if_else(
-      cov_total_fv_atpace_31dec >= 0.4,
+      cov_total_fv_atpace_31dec >= 0.4, # TODO automate
       "Yes",
       "No"))
   return(a_data)
 }
 
-target_group_seventy <- function(a_data, timeto_t70, c_vxrate_jun_t70) {
+target_group_seventy <- function(a_data, timeto_t70, c_vxrate_jun_t70, deadline_suffix) {
   print(" >>> Calculating progress against 70% coverage target...")
 
   a_data <- left_join(a_data, c_vxrate_jun_t70, by = "a_iso")
@@ -77,7 +76,7 @@ target_group_seventy <- function(a_data, timeto_t70, c_vxrate_jun_t70) {
       cov_total_fv < 0.7,
       "Yes",
       "No")) %>%
-    helper_goal_target_groups(70, timeto_t70, deadline_suffix = "_31dec")
+    helper_goal_target_groups(70, timeto_t70, deadline_suffix)
     # mutate(t70_timeto = round(if_else(
     #   ((adm_pv + ((a_pop_70 - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td) < 0,
     #   0,
