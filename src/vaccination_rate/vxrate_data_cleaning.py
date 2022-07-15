@@ -6,6 +6,8 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import seaborn as sns
+import warnings
+warnings.filterwarnings("ignore")
 sns.set(rc={"figure.dpi":400, 'savefig.dpi':400})
 
 def create_new_path():
