@@ -131,34 +131,26 @@ load_13jan_data <- function() {
 
 transform_lw_data <- function(b_vxrate_lw_sum, c_vxrate_latest) {
     print(" >> Transform last week data...")
-    ## Calculate percent change and category
-    #TODO Refactor this mutate by adding the cut function
-    b_vxrate_change_lw <<- b_vxrate_lw_sum %>%
-        mutate(dvr_4wk_td_change_lw_lm = dvr_4wk_td_lw - dvr_4wk_td_lw_lm) %>%
-            mutate(dvr_4wk_td_change_lw_lm_per = dvr_4wk_td_change_lw_lm / dvr_4wk_td_lw_lm) %>%
-                mutate(
-                    dvr_4wk_td_change_lw_lm_per_cat = if_else(is.na(dvr_4wk_td_change_lw_lm_per), "2) (-25)-0%",
-                      if_else(
-                        dvr_4wk_td_change_lw_lm_per <= -0.25,
-                        "1) < (-25)%",
-                        if_else(
-                            dvr_4wk_td_change_lw_lm_per >= 0.25,
-                            "4) > 25%",
-                            if_else(
-                                dvr_4wk_td_change_lw_lm_per <= 0,
-                                "2) (-25)-0%",
-                                if_else(dvr_4wk_td_change_lw_lm_per > 0, "3) 0-25%",
 
-                                NA_character_
-                            )
-                        )
-                    )
-                )
-            ))
+    tags <- c("1) < (-25)%", "2) (-25)-0%", "3) 0-25%", "4) > 25%")
+    b_vxrate_change_lw <- b_vxrate_lw_sum %>%
+        mutate(dvr_4wk_td_change_lw_lm = dvr_4wk_td_lw - dvr_4wk_td_lw_lm) %>%
+        mutate(dvr_4wk_td_change_lw_lm_per =
+            dvr_4wk_td_change_lw_lm / dvr_4wk_td_lw_lm) %>%
+        mutate(dvr_4wk_td_change_lw_lm_per_cat =
+            cut(
+                dvr_4wk_td_change_lw_lm_per,
+                breaks = c(-Inf, -0.25, 0, 0.25, Inf),
+                include.lowest = TRUE,
+                right = FALSE,
+                labels = tags)) %>%
+        mutate(dvr_4wk_td_change_lw_lm_per_cat = replace_na(
+            dvr_4wk_td_change_lw_lm_per_cat,
+            tags[2]))
 
 
     ## Select relevant columns for dvr category count change table
-    b_vxrate_change_lw <<-
+    b_vxrate_change_lw <-
         select(
             b_vxrate_change_lw,
             "a_iso",
@@ -168,31 +160,16 @@ transform_lw_data <- function(b_vxrate_lw_sum, c_vxrate_latest) {
     ## Select relevant columns for coverage category count change table
     b_vxrate_cov <- select(b_vxrate_lw_sum, "a_iso", "adm_fv_lw")
 
-    c_vxrate_latest <-
-    left_join(c_vxrate_latest, b_vxrate_cov, by = "a_iso")
-
-    return(c_vxrate_latest)
+    c_vxrate_latest <- merge_with_summary(c_vxrate_latest, b_vxrate_cov)
+    datalist <- list("c_vxrate_latest" = c_vxrate_latest,
+        "b_vxrate_change_lw" = b_vxrate_change_lw)
+    return(datalist)
 }
 
-transform_lm_data <- function(c_vxrate_latest, b_vxrate_lm_sum) {
-    print(" >> Transform last month data...")
+merge_with_summary <- function(c_vxrate_latest, b_vxrate) {
+    print(" >> Transform historical data...")
     ## Merge with current summary dataset
     c_vxrate_latest <-
-    left_join(c_vxrate_latest, b_vxrate_lm_sum, by = "a_iso")
-    return(c_vxrate_latest)
-}
-
-transform_l2m_data <- function(c_vxrate_latest, b_vxrate_2m_sum) {
-    print(" >> Transform last two months data...")
-    ## Merge with current summary dataset
-    c_vxrate_latest <-
-    left_join(c_vxrate_latest, b_vxrate_2m_sum, by = "a_iso")
-    return(c_vxrate_latest)
-}
-
-transform_13jan_data <- function(c_vxrate_latest, b_vxrate_13jan) {
-    print(" >> Transform week of the 13 jan...")
-    ## Merge with current summary dataset
-    c_vxrate_latest <- left_join(c_vxrate_latest, b_vxrate_13jan, by = "a_iso")
+    left_join(c_vxrate_latest, b_vxrate, by = "a_iso")
     return(c_vxrate_latest)
 }

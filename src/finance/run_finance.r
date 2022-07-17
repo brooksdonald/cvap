@@ -1,4 +1,4 @@
-run_financing <- function(env = .GlobalEnv) {
+run_financing <- function(entity_characteristics) {
     source("src/finance/finance.r")
     
     print(" > Starting local environment for fiancing module")
@@ -9,23 +9,22 @@ run_financing <- function(env = .GlobalEnv) {
     print(" > Done.")
 
     print(" > Transforming financing data...")
-    b_fin_fund_del_source <- transform_finance_data(
+    datalist <- transform_finance_data(
         b_fin_funding, entity_characteristics
     )
-    base_fin_urg_fun_sum <- transform_fund_urgent_data(
-      base_fin_urg_fun, entity_characteristics
-    )
+    b_fin_fund_del_source <- datalist$b_fin_fund_del_source
+    b_fin_fund_del_sum <- datalist$b_fin_fund_del_sum
+    b_fin_fund_del_long <- datalist$b_fin_fund_del_long
+    print(" > Done.")
+
+    print(" > Transforming urgent funding data...")
+    datalist2 <- transform_fund_urgent_data(
+        base_fin_urg_fun, entity_characteristics)
+    base_fin_urg_fun_long <- datalist2$base_fin_urg_fun_long
+    base_fin_urg_fun_sum <- datalist2$base_fin_urg_fun_sum
     print(" > Done.")
 
     print(" > Returning to global environment. ")
-
-    print(" > Loading financing data back to global environment...")
-    env$b_fin_funding <- b_fin_funding
-    env$b_fin_fund_del_source <- b_fin_fund_del_source
-    env$base_fin_urg_fun <- base_fin_urg_fun
-    env$base_fin_urg_fun_sum <- base_fin_urg_fun_sum
-    env$base_fin_urg_fun_long <- base_fin_urg_fun_long
-    env$base_fin_cds_red <- base_fin_cds_red
 
     return(environment())
 }

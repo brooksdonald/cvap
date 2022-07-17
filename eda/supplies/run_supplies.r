@@ -1,8 +1,6 @@
 # rows 2169 - 2254
 
-run_eda_supplies <- function(
-    a_data, supply_secured, delivery_courses_doses, env = .GlobalEnv
-) {
+run_eda_supplies <- function(a_data, supply_secured, delivery_courses_doses) {
     source("eda/supplies/supplies_consolidate.r")
 
     print(" > Starting local environment for supplies eda")
@@ -11,10 +9,6 @@ run_eda_supplies <- function(
         a_data, supply_secured, delivery_courses_doses
     )
     print(" > Done.")
-
-    print(" > Loading eda supplies data back to global environment...")
-    env$a_data <- a_data
-    print(" > Ok.")
 
     return(environment())
 }

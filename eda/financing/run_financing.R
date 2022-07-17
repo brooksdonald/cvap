@@ -1,5 +1,6 @@
-run_financing <- function(a_data, env = .GlobalEnv) {
+run_financing <- function(a_data) {
   source("eda/financing/financing_overview.r")
+  
   print(" > Starting local environment for financing summary")
   print(" > Calculating financing overview...")
   a_data <- financing_overview(a_data)
@@ -28,20 +29,6 @@ run_financing <- function(a_data, env = .GlobalEnv) {
   print(" > Filtering for API view...")
   api <- api_export_table(a_data)
   print(" > Done.")
-  
-  print(" > Filtering for Reporting view...")
-  reporting <- reporting_export_table(a_data)
-  print(" > Done.")
-  
-  print(" > Loading financing summary data back to global environment...") 
-  env$a_data <- a_data
-  env$a_data_amc <- a_data_amc
-  env$a_data_hic <- a_data_hic
-  env$a_data_csc <- a_data_csc
-  env$a_data_ifc <- a_data_ifc
-  env$a_data_africa <- a_data_africa
-  env$api <- api
-  env$reporting <- reporting
-  print(" > Ok.")
+
   return(environment())
 }

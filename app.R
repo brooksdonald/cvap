@@ -1,41 +1,44 @@
 
 # Set working directory
-setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
+# setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
 
 # Clear environment
 rm(list = ls())
 
 # Load packages
-library("tidyverse")
-library("openxlsx")
-library("readxl")
-library("writexl")
-library("countrycode")
-library("lubridate")
-library("data.table")
-library("bit64")
-library("httr")
-library("jsonlite")
-library("AzureAuth")
-library("dotenv")
+lib <- c("tidyverse",
+    "openxlsx",
+    "readxl",
+    "writexl",
+    "countrycode",
+    "lubridate",
+    "data.table",
+    "bit64",
+    "httr",
+    "jsonlite",
+    "AzureAuth",
+    "dotenv",
+    "reticulate")
+lib_na <- lib[!(lib %in% installed.packages()[, "Package"])]
+if (length(lib_na)) install.packages(lib_na)
+lapply(lib, library, character.only = TRUE)
 
-# Configuation Variables
-# load_dot_env(file = ".env")
+# STATIC DATES
+.GlobalEnv$refresh_date <- as.Date("2022-07-08")
+.GlobalEnv$t70_deadline <- as.Date("2022-12-31")
+.GlobalEnv$dataset_date <- as.Date("2022-06-30") # dataset_date is passed to sec_date
+.GlobalEnv$del_date <- as.Date("2022-07-04")
 
 # HELPERS
 
 source("helpers/joins.r")
 source("helpers/transformations.r")
-
-# STATIC DATES
-
-.GlobalEnv$sec_date <- as.Date("2022-06-30")
-.GlobalEnv$del_date <- as.Date("2022-07-04")
-.GlobalEnv$refresh_date <- as.Date("2022-07-08")
-.GlobalEnv$t70_deadline <- as.Date("2022-12-31")
+source("helpers/api.r")
+api_env <- run_api()
 
 # ETL
 
+source("src/vaccination_rate/run_vaccination_rate.r")
 source("src/base/run_base.r")
 source("src/entity/run_entity.r")
 source("src/population/run_population.r")
@@ -44,12 +47,13 @@ source("src/vaccines/run_vaccines.r")
 source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
 
+python_env <- run_vaccination_rate()
 base_env <- run_base()
 entity_env <- run_entity()
-pop_env <- run_population()
-supply_env <- run_supply()
-vaccines_env <- run_vaccines(entity_characteristics)
-finance_env <- run_financing()
+pop_env <- run_population(api_env$headers)
+supply_env <- run_supply(.GlobalEnv$dataset_date, .GlobalEnv$del_date)
+vaccines_env <- run_vaccines(entity_env$entity_characteristics, .GlobalEnv$refresh_date, python_env$adm_data)
+finance_env <- run_financing(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
 
 # EDA
@@ -63,70 +67,89 @@ source("eda/rank_bin/run_rank_bin.r")
 source("eda/combination/run_combination.r")
 
 vxrate_env <- run_vxrate(
-    c_vxrate_latest,
-    entity_characteristics,
-    c_vxrate_latest_red,
-    population_data,
-    uptake_gender_data,
-    b_who_dashboard,
-    b_smartsheet,
-    supply_secured,
-    delivery_courses_doses,
-    b_dp,
-    c_delivery_product,
-    b_fin_fund_del_sum
+    vaccines_env$c_vxrate_latest,
+    entity_env$entity_characteristics,
+    pop_env$population_data,
+    pop_env$uptake_gender_data,
+    base_env$b_who_dashboard,
+    base_env$b_smartsheet,
+    supply_env$supply_secured,
+    supply_env$delivery_courses_doses,
+    demand_plan_env$b_dp,
+    supply_env$c_delivery_product,
+    finance_env$b_fin_fund_del_sum,
+    .GlobalEnv$refresh_date,
+    .GlobalEnv$t70_deadline
 )
-supplies_env <- run_eda_supplies(a_data)
-coverage_env <- run_coverage(a_data)
-product_env <- run_product(a_data)
-financing_env <- run_financing(a_data)
-ranking_env <- run_binning(a_data)
-combination_env <- run_combination(a_data)
+supplies_env <- run_eda_supplies(vxrate_env$a_data)
+coverage_env <- run_coverage(
+    supplies_env$a_data,
+    vxrate_env$timeto_t70,
+    vaccines_env$c_vxrate_sept_t10,
+    vaccines_env$c_vxrate_dec_t2040,
+    vaccines_env$c_vxrate_jun_t70,
+    .GlobalEnv$t70_deadline)
+product_env <- run_product(
+    coverage_env$a_data,
+    base_env$b_smartsheet,
+    .GlobalEnv$refresh_date,
+    vxrate_env$timeto_t70)
+financing_env <- run_financing(product_env$a_data)
+ranking_env <- run_binning(financing_env$a_data)
+combination_env <- run_combination(ranking_env$a_data)
 
 # CONSOLIDATE
 
-source("consolidate/run_consolidate.r")
+source("data/interim/consolidate/run_consolidate.r")
 
-consolidate_env <- run_consolidate(a_data)
+consolidate_env <- run_consolidate(
+    combination_env$a_data,
+    financing_env$a_data_amc,
+    financing_env$a_data_africa,
+    financing_env$a_data_csc,
+    financing_env$a_data_ifc,
+    vaccines_env$b_vxrate_change_lw,
+    .GlobalEnv$refresh_date
+)
 
 # EXPORT
 
 print(" > Exporting data outputs from pipeline to Excel workbooks...")
 all_df <- list(
-    "0_base_data" = a_data,
-    "1_absorption_month" = d_absorption,
-    "1_absorption_month_country" = combined,
-    "1_cum_absorb_month_country" = d_absorption_country_new,
-    "1_stock" = combined_three,
-    "1_adm_long_smooth" = b_vxrate_amc_smooth,
-    "1_adm_all_long" = b_vxrate_pub,
-    "1_delivery_doses" = supply_received_by_product,
-    "1_secview" = z_temp,
-    "1_secview_lm" = z_temp_lm,
-    "1_secview_all" = z_secview_long,
-    "1_funding_source" = b_fin_fund_del_source,
-    "2_dvr_perchange_count" = f_dvr_change_count,
-    "2_cov_change_count" = f_cov_change_count,
-    "2_dvr_perchange_count_af" = f_dvr_change_count_af,
-    "2_cov_change_count_af" = f_cov_change_count_af,
-    "8_dvr_cat" = e_vrcat_all,
-    "8_dvr_lm_trend" = e_trend_all,
-    "8_tarpast_cat" = e_tar_past_all,
-    "8_booster_status" = e_booster_all,
-    "8_booster_hcw" = e_booster_hcw,
-    "8_curtar_all" = e_tar_cur_all,
-    "8_secdelpu_cat" = e_secdelpu_all,
-    "8_cov_cat" = e_cov_all,
-    "8_ndvp_tar_cat" = e_ndvp_all,
-    "9_values" = z_values,
-    "1_funding_long" = b_fin_fund_del_long,
-    "1_funding_urgent" = base_fin_urg_fun_sum,
-    "1_fund_urg_long" = base_fin_urg_fun_long,
-    "1_fund_cds_long" = base_fin_cds_red
+    "0_base_data" = combination_env$a_data,
+    "1_absorption_month" = vaccines_env$d_absorption,
+    "1_absorption_month_country" = vaccines_env$combined,
+    "1_cum_absorb_month_country" = vaccines_env$d_absorption_country_new,
+    "1_stock" = vaccines_env$combined_three,
+    "1_adm_long_smooth" = vaccines_env$b_vxrate_amc_smooth,
+    "1_adm_all_long" = vaccines_env$b_vxrate_pub,
+    "1_delivery_doses" = supply_env$supply_received_by_product,
+    "1_secview" = combination_env$z_temp,
+    "1_secview_lm" = combination_env$z_temp_lm,
+    "1_secview_all" = combination_env$z_secview_long,
+    "1_funding_source" = finance_env$b_fin_fund_del_source,
+    "2_dvr_perchange_count" = consolidate_env$f_dvr_change_count,
+    "2_cov_change_count" = consolidate_env$f_cov_change_count,
+    "2_dvr_perchange_count_af" = consolidate_env$f_dvr_change_count_af,
+    "2_cov_change_count_af" = consolidate_env$f_cov_change_count_af,
+    "8_dvr_cat" = consolidate_env$e_vrcat_all,
+    "8_dvr_lm_trend" = consolidate_env$e_trend_all,
+    "8_tarpast_cat" = consolidate_env$e_tar_past_all,
+    "8_booster_status" = consolidate_env$e_booster_all,
+    "8_booster_hcw" = consolidate_env$e_booster_hcw,
+    "8_curtar_all" = consolidate_env$e_tar_cur_all,
+    "8_secdelpu_cat" = consolidate_env$e_secdelpu_all,
+    "8_cov_cat" = consolidate_env$e_cov_all,
+    "8_ndvp_tar_cat" = consolidate_env$e_ndvp_all,
+    "9_values" = consolidate_env$z_values,
+    "1_funding_long" = finance_env$b_fin_fund_del_long,
+    "1_funding_urgent" = finance_env$base_fin_urg_fun_sum,
+    "1_fund_urg_long" = finance_env$base_fin_urg_fun_long,
+    "1_fund_cds_long" = finance_env$base_fin_cds_red
 )
 
 write_xlsx(all_df, "data/output/220707_output_powerbi.xlsx")
-write_xlsx(api, "data/output/220707_output_api.xlsx")
+write_xlsx(financing_env$api, "data/output/220707_output_api.xlsx")
 write_xlsx(all_df, "data/output/output_master.xlsx")
 
-print(" > Outputs exported to Excel successfully.")
+print(" > Output exported to Excel successfully!")

@@ -1,6 +1,6 @@
 # rows 600 - 978
 
-run_population <- function(env = .GlobalEnv) {
+run_population <- function(headers) {
     source("src/population/population_base.r")
     source("src/population/population_hcw.r")
     source("src/population/population_uptake.r")
@@ -22,18 +22,13 @@ run_population <- function(env = .GlobalEnv) {
     print(" > Done.")
 
     print(" > Population uptake...")
-
-    datalist <- load_population_uptake()
+    datalist <- load_population_uptake(headers)
     uptake_gender_data <- transform_population_uptake(
-        as.data.frame(datalist[1]),
-        as.data.frame(datalist[2])
+        as.data.frame(datalist$uptake_gender),
+        as.data.frame(datalist$uptake_groups)
     )
+    print(" > Done.")
 
     print(" > Returning to global environment. ")
-
-    print(" > Loading data back to global environment...")
-    env$population_data <- population_data
-    env$uptake_gender_data <- uptake_gender_data
-
     return(environment())
 }
