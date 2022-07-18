@@ -1,6 +1,6 @@
 # Rows 1648 - 1719
 
-run_base <- function() {
+run_add_data <- function() {
     source("src/add_data/add_data.r")
 
     print(" > Starting local environment for base data...")

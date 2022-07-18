@@ -1,6 +1,6 @@
 # rows 119 - 596
 
-run_vaccines <- function(entity_characteristics,
+run_adm_cov <- function(entity_characteristics,
     refresh_date, adm_data, adm_api) {
     source("src/adm_cov/dvr_current.r")
     source("src/adm_cov/dvr_prev.r")
