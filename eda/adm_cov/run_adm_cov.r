@@ -15,7 +15,7 @@ run_vxrate <- function(
     refresh_date,
     t70_deadline
 ) {
-    source("eda/vxrate/vxrate_consolidate.r")
+    source("eda/adm_cov/adm_consolidate.r")
 
     print(" > Starting local environment for vxrate...")
 

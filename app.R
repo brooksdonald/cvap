@@ -60,7 +60,7 @@ add_data_env <- run_add_data()
 
 # EDA
 
-source("eda/vxrate/run_vxrate.r")
+source("eda/adm_cov/run_adm_cov.r")
 source("eda/supplies/run_supplies.r")
 source("eda/coverage/run_coverage.r")
 source("eda/product/run_product.r")
