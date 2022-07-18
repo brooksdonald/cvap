@@ -62,7 +62,7 @@ add_data_env <- run_add_data()
 
 source("eda/adm_cov/run_adm_cov.r")
 source("eda/supply/run_supply.r")
-source("eda/product_util/run_product_util.r")
+source("eda/prod_util/run_prod_util.r")
 source("eda/cov_targets/run_cov_targets.r")
 source("eda/finance/run_finance.r")
 source("eda/qual_data/run_qual_data.r")
@@ -98,10 +98,10 @@ coverage_env <- run_coverage(
     adm_cov_env$c_vxrate_sept_t10,
     adm_cov_env$c_vxrate_dec_t2040,
     adm_cov_env$c_vxrate_jun_t70,
-    .GlobalEnv$t70_deadline)
+    .GlobalEnv$t70_deadline,
+    add_data_env$b_smartsheet)
 product_env <- run_product(
     coverage_env$a_data,
-    add_data_env$b_smartsheet,
     .GlobalEnv$refresh_date,
     vxrate_env$timeto_t70)
 financing_env <- run_financing(product_env$a_data)

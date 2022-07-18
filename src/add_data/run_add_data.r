@@ -10,7 +10,7 @@ run_add_data <- function() {
     b_who_dashboard <- as.data.frame(datalist[2])
     print(" > Done.")
 
-    print(" > Returning to local environment. ")
+    print(" > Returning to local environment.")
 
     return(environment())
 }
