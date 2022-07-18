@@ -65,7 +65,7 @@ source("eda/supply/run_supply.r")
 source("eda/prod_util/run_prod_util.r")
 source("eda/cov_targets/run_cov_targets.r")
 source("eda/finance/run_finance.r")
-source("eda/qual_data/run_qual_data.r")
+#source("eda/qual_data/run_qual_data.r")
 source("eda/rank_bin/run_rank_bin.r")
 
 # source("eda/adm_cov/run_adm_cov.r")
@@ -110,7 +110,7 @@ combination_env <- run_combination(ranking_env$a_data) # gotta go
 
 # CONSOLIDATE
 
-source("data/interim/consolidate/run_consolidate.r")
+source("consolidate/run_consolidate.r")
 
 consolidate_env <- run_consolidate(
     combination_env$a_data,
