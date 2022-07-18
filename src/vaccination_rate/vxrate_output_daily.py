@@ -3,35 +3,38 @@ import datetime
 import pandas as pd
 import io
 
-def import_data():
+def import_data(supply_data, cleaned_data):
     # Get Data
     print(" > Getting ISO mapping...")
-    iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv")
+    iso_mapping = pd.read_csv("data/_input/static/iso_mapping.csv")
     print(" > Done.")
 
     ## get uti_supply
     print(" > Getting uti_supply data...")
-    uti_supply = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_supply.csv")
+    #uti_supply = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_supply.csv")
+    uti_supply = supply_data
     print(" > Done.")
 
     # get dose administration data for comparison
     print(" > Getting dose administration data for comparison...")
-    owid = pd.read_csv('data/_input/supply_data/owid-covid-data.csv')
-    #owid = pd.read_csv('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
+    #owid = pd.read_csv('data/_input/supply_data/owid-covid-data.csv')
+    print(" > Downloading data from owid API...")
+    owid = pd.read_csv('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
     print(" > Done.")
 
     # get primary data
     print(" > Getting throughput cleaned data...")
-    who = pd.read_csv('data/_input/supply_data/analysis_vx_throughput_data_cleaned.csv')
+    #who = pd.read_csv('data/_input/supply_data/analysis_vx_throughput_data_cleaned.csv')
+    who = cleaned_data
     print(" > Done.")
 
     # get country characteristics
     print(" > Getting country characteristics...")
-    cc = pd.read_csv("data/_input/supply_data/country_characteristics.csv")
+    cc = pd.read_csv("data/_input/static/country_characteristics.csv")
     print(" > Done.")
 
     print(" > Getting country dimensions...")
-    country_dimension = pd.read_csv("data/_input/supply_data/country_dimension.csv")
+    country_dimension = pd.read_csv("data/_input/static/country_dimension.csv")
     country = country_dimension[['iso_code', 'country_name_friendly', 'sub_region_name', 'region_name',
         'wb_income_group', 'is_amc92', 'affiliation', 'min_vx_rollout_date', 'first_covax_arrival_date',
         'first_vx_shipment_received_date']]
@@ -69,6 +72,7 @@ def import_data():
     print(" > creating uti-supply1 df...")
     uti_supply1.columns = ['iso_code', 'date', 'doses_received', 'cumulative_doses_received']
     print(" > Done.")
+    print(uti_supply1)
     return who, iso_mapping, cc, country, owid1, uti_supply1
 
 
@@ -177,10 +181,11 @@ def minimum_rollout_date(df_inter, country):
     return df3
 
 
-def merge_with_supply(df3, uti_supply1):
+def merge_with_supply(df3, uti_supply1, supply_threshold):
     print(' > Merging data with supply...')
     df4 = df3.merge(uti_supply1, on = ['iso_code', 'date'], how = 'outer')
-    df4.loc[:, ['iso_code', 'date', 'cumulative_doses_received']].ffill(axis = 0, inplace = True)
+    ## TODO implement forward fill for cumulative doses
+    ## df4.loc[:, 'cumulative_doses_received'].fillna(method="ffill", inplace = True)
     df4 = df4.loc[~(df4['country_name_friendly'].isna()), :]
 
     df4['cumulative_doses_received'] = df4[['cumulative_doses_received', 'total_doses']].max(axis = 1)
@@ -383,7 +388,7 @@ def join_with_cc_and_owid(df8, cc, owid1):
     return df9
 
 
-def identifying_missing_countries(df9):
+def identifying_missing_countries(df9, df_flags):
     print(' > Identifying countries that have not reported last week...')
     df_date_week = df9.loc[(df9['is_original_reported'] == 1), ['iso_code', 'date', 'total_doses']]
     df_date_week['date'] = pd.to_datetime(df_date_week['date']) #, format = '%Y-%m-%d')
@@ -427,7 +432,7 @@ def adding_flags_for_changes(df10):
     return df11
 
 
-def final_variable_selection(df11):
+def final_variable_selection(df11, who):
     print(' > Creating final dataframe...')
     df12 = df11[['iso_code', 'entity_name', 'population', 'date', 'is_original_reported', 
                 'cumulative_doses_received', 'effective_supply',
@@ -443,30 +448,32 @@ def final_variable_selection(df11):
     return df12
 
 
-def export_data(df12):
+def export_data(df12, folder, name):
     print(' > Saving /analysis_vx_throughput_output_daily to csv file......')
-    df12.to_csv('data/_input/supply_data/analysis_vx_throughput_output_daily.csv', index = False)
+    path = "data/" + folder + "/" + name
+    df12.to_csv(path, index = False)
     print(' > Done.')
 
 
-if __name__ == '__main__':
+def main(supply_data, cleaned_data, folder, name):
     supply_threshold = 0.0
     days_in_weeks4 = 27
     days_in_weeks8 = 55
 
-    who, iso_mapping, cc, country, owid1, uti_supply1 = import_data()
+    who, iso_mapping, cc, country, owid1, uti_supply1 = import_data(supply_data, cleaned_data)
     df_flags = flags(who)
     df1 = merge_who_country(who, country)
     df1 = filter_data(df1)
     df_inter = exploding_dates(df1)
     df_inter = interpolate_data(df_inter)
     df3 = minimum_rollout_date(df_inter, country)
-    df4 = merge_with_supply(df3, uti_supply1)
+    df4 = merge_with_supply(df3, uti_supply1, supply_threshold)
     df5 = moving_averages_td(df4, days_in_weeks4, days_in_weeks8)
     df6 = moving_averages_1d(df5, days_in_weeks4, days_in_weeks8)
     df8 = moving_averages_fv(df6, days_in_weeks4, days_in_weeks8)
     df9 = join_with_cc_and_owid(df8, cc, owid1)
-    df10 = identifying_missing_countries(df9)
+    df10 = identifying_missing_countries(df9, df_flags)
     df11 = adding_flags_for_changes(df10)
-    df12 = final_variable_selection(df11)
-    export_data(df12)
+    output = final_variable_selection(df11, who)
+    export_data(output, folder, name)
+    return output

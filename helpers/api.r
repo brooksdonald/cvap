@@ -28,3 +28,13 @@ run_api <- function() {
 
     return(environment())
 }
+
+helper_wiise_api <- function(link, headers) {
+    print(" > Downloading data from who.int API...")
+    response <- GET(link, headers)
+    json <- content(response, "text", encoding = "UTF-8")
+    data <- fromJSON(json)
+    data <- data$value
+    print(" > Done.")
+    return(data)
+}

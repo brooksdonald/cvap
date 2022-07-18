@@ -29,15 +29,9 @@ transform_population_uptake <- function(uptake_gender, uptake_groups) {
 
 load_pop_target_gender <- function(headers) {
     print(" >> Loading COV Uptake gender data...")
-    print(" >> Calling who.int API...")
-    response <- GET(
-        "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_GENDER_LAST_MONTH_LONG", #nolint
-        headers
-    )
-    # retrieve the contents of a request as a character vector
-    json <- content(response, "text", encoding = "UTF-8")
-    uptake_gender <- fromJSON(json)
-    uptake_gender <- uptake_gender$value
+    uptake_gender <- helper_wiise_api(
+        "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_GENDER_LAST_MONTH_LONG",
+        headers)
     # Reduce columns & rename
     print(" >> Selecting uptake gender data...")
     uptake_gender <-
@@ -69,14 +63,9 @@ load_pop_target_gender <- function(headers) {
 
 load_pop_target_groups <- function(headers) {
     print(" >> Loading COV Uptake target group data...")
-    print(" >> Calling who.int API...")
-    response <- GET(
-        "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_TARGETGROUP_LAST_MONTH_LONG", #nolint
-        headers
-    )
-    json <- content(response, "text", encoding = "UTF-8")
-    uptake_target_group <- fromJSON(json)
-    uptake_target_group <- uptake_target_group$value
+    uptake_target_group <- helper_wiise_api(
+        "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_TARGETGROUP_LAST_MONTH_LONG",
+        headers)
     # Reduce columns & rename
     print(" >> Reducing columns and renaming them...")
     uptake_target_group <-

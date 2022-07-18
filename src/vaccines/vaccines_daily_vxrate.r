@@ -1,8 +1,7 @@
 
 # load current daily vxrate
-load_b_vxrate <- function(adm_data) {
-  use_api <- readline(prompt = " >> Would you like to use administration data from the API? \n 'y' uses data from API, 'n' uses data from Excel: ")
-  if (use_api %in% c('y', 'Y', 'yes', 'Yes')) {
+load_b_vxrate <- function(adm_data, adm_api) {
+  if (adm_api) {
     print(" >> Using data from API...")
     b_vxrate <- as.data.frame(adm_data)
     b_vxrate$date <- as.Date(b_vxrate$date, format = "%Y-%m-%d")
