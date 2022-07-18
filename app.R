@@ -50,13 +50,13 @@ source("src/demand_planning/run_demand_planning.r")
 source("src/add_data/run_add_data.r")
 
 python_env <- run_vaccination_rate(.GlobalEnv$adm_api, .GlobalEnv$auto_cleaning, api_env$headers)
-base_env <- run_base()
 entity_env <- run_entity()
-pop_env <- run_population(api_env$headers)
 supply_env <- run_supply(.GlobalEnv$dataset_date, .GlobalEnv$del_date)
 vaccines_env <- run_vaccines(entity_env$entity_characteristics, .GlobalEnv$refresh_date, python_env$adm_data, .GlobalEnv$adm_api)
-finance_env <- run_financing(entity_env$entity_characteristics)
+pop_env <- run_population(api_env$headers)
+finance_env <- run_finance(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
+base_env <- run_base()
 
 # EDA
 
