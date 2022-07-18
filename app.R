@@ -41,13 +41,13 @@ api_env <- run_api()
 # ETL
 
 source("src/vaccination_rate/run_vaccination_rate.r")
-source("src/add_data/run_add_data.r")
 source("src/entity_characteristics/run_entity_characteristics.r")
-source("src/cov_disag/run_cov_disag.r")
 source("src/supply/run_supply.R")
 source("src/adm_cov/run_adm_cov.r")
+source("src/cov_disag/run_cov_disag.r")
 source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
+source("src/add_data/run_add_data.r")
 
 python_env <- run_vaccination_rate(.GlobalEnv$adm_api, .GlobalEnv$auto_cleaning, api_env$headers)
 base_env <- run_base()
