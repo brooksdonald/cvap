@@ -15,30 +15,30 @@ run_vaccination_rate <- function(adm_api, auto_cleaning, headers) {
 
         print(" > Defining storage locations...")
         folder <- "_input/supply_data"
-        name_01 <- "analysis_vx_throughput_data.csv"
-        name_02 <- "analysis_vx_throughput_supply.csv"
-        name_03 <- "analysis_vx_throughput_data_cleaned.csv"
-        name_04 <- "analysis_vx_throughput_output_daily.csv"
-        name_05 <- "analysis_vx_data_fixes.csv"
+        name_00 <- "analysis_vx_throughput_data.csv"
+        name_01 <- "analysis_vx_throughput_supply.csv"
+        name_02 <- "analysis_vx_throughput_data_cleaned.csv"
+        name_03 <- "analysis_vx_throughput_output_daily.csv"
+        name_04 <- "analysis_vx_data_fixes.csv"
 
         print(" > Opening Python Environment...")
         source_python("src/vaccination_rate/vxrate_data_ingestion.py")
-        throughput_data <- main(folder, name_01)
+        throughput_data <- main(folder, name_00)
 
         wiise_supply_data <- helper_wiise_api(
             "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UTI_LONG",
             headers)
         source_python("src/vaccination_rate/vxrate_supply_data.py")
-        supply_data <- main(folder, name_02, wiise_supply_data)
+        supply_data <- main(folder, name_01, wiise_supply_data)
 
         source_python("src/vaccination_rate/vxrate_data_cleaning.py")
-        cleaned_data <- main(auto_cleaning, throughput_data, folder, name_03)
+        cleaned_data <- main(auto_cleaning, throughput_data, folder, name_02)
 
         source_python("src/vaccination_rate/vxrate_output_daily.py")
-        adm_data <- main(supply_data, cleaned_data, folder, name_04)
+        adm_data <- main(supply_data, cleaned_data, folder, name_03)
 
         source_python("src/vaccination_rate/vxrate_data_fixes.py")
-        main(throughput_data, adm_data, folder, name_05)
+        main(throughput_data, adm_data, folder, name_04)
 
     } else {
         print(" > adm_api == FALSE")
