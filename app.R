@@ -29,7 +29,7 @@ lapply(lib, library, character.only = TRUE)
 .GlobalEnv$dataset_date <- as.Date("2022-06-30") # dataset_date is passed to sec_date
 .GlobalEnv$del_date <- as.Date("2022-07-04")
 .GlobalEnv$auto_cleaning <- TRUE
-.GlobalEnv$adm_api <- TRUE
+.GlobalEnv$adm_api <- FALSE
 
 # HELPERS
 
@@ -42,8 +42,8 @@ api_env <- run_api()
 
 source("src/vaccination_rate/run_vaccination_rate.r")
 source("src/add_data/run_add_data.r")
-source("src/entity/run_entity.r")
-source("src/population/run_population.r")
+source("src/entity_characteristics/run_entity_characteristics.r")
+source("src/cov_disag/run_cov_disag.r")
 source("src/supply/run_supply.R")
 source("src/vaccines/run_vaccines.r")
 source("src/finance/run_finance.r")
