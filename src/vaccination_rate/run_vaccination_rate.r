@@ -1,4 +1,4 @@
-run_vaccination_rate <- function(adm_api, auto_cleaning) {
+run_vaccination_rate <- function(adm_api, auto_cleaning, headers) {
     if (adm_api) {
 
         print(" > Checking if all Python libraries are available...")
@@ -14,20 +14,22 @@ run_vaccination_rate <- function(adm_api, auto_cleaning) {
         print(" > All Python libraries loaded.")
 
         print(" > Defining storage locations...")
-        folder <- "_input/supply_data" # should store necessary excel files
+        folder <- "_input/supply_data"
         name_01 <- "analysis_vx_throughput_data.csv"
         name_02 <- "analysis_vx_throughput_supply.csv"
         name_03 <- "analysis_vx_throughput_data_cleaned.csv"
         name_04 <- "analysis_vx_throughput_output_daily.csv"
         name_05 <- "analysis_vx_data_fixes.csv"
 
-
         print(" > Opening Python Environment...")
         source_python("src/vaccination_rate/vxrate_data_ingestion.py")
         throughput_data <- main(folder, name_01)
 
+        wiise_supply_data <- helper_wiise_api(
+            "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UTI_LONG",
+            headers)
         source_python("src/vaccination_rate/vxrate_supply_data.py")
-        supply_data <- main(folder, name_02)
+        supply_data <- main(folder, name_02, wiise_supply_data)
 
         source_python("src/vaccination_rate/vxrate_data_cleaning.py")
         cleaned_data <- main(auto_cleaning, throughput_data, folder, name_03)

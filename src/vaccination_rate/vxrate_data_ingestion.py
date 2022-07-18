@@ -27,7 +27,7 @@ def get_data():
   # 2 data sources for Throughput, one for Europe and one for ROW
   # read in separately, clean, and then bind together
   print(" > Read in data sources separately, clean, and then bind together...")
-  print(" > Loading data from azurefd.net API...")
+  print(" > Downloading data from azurefd.net API...")
   response = urlopen(url1)
   data_json = json.loads(response.read())
   df1 = pd.DataFrame(data_json["value"])

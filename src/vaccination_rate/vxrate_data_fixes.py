@@ -2,7 +2,7 @@ import pandas as pd
 
 def import_data(throughput_data, output_daily):
     print(' > Importing data for data_fixes.py ...')
-    iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv")
+    iso_mapping = pd.read_csv("data/_input/static/iso_mapping.csv")
     #raw = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_data.csv")
     raw = throughput_data
     #who = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_output_daily.csv")
@@ -52,9 +52,10 @@ def merge_dataframes(df1, who1):
     return df2
 
 
-def export_dataframe(df2):
+def export_dataframe(df2, folder, name):
     print(" > Saving analysis_vx_data_fixes to csv file...")
-    df2.to_csv("data/_input/supply_data/analysis_vx_data_fixes.csv", index=False)
+    path = "data/" + folder + "/" + name
+    df2.to_csv(path, index=False)
     print(" > Done")
 
 
@@ -63,5 +64,5 @@ def main(throughput_data, output_daily, folder, name):
     df1 = clean_country_names(raw, iso_mapping)
     who1 = clean_who_data(who)
     df2 = merge_dataframes(df1, who1)
-    export_dataframe(df2)
+    export_dataframe(df2, folder, name)
     print(" > Closing Python Environment")

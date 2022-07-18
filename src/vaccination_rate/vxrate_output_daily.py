@@ -6,7 +6,7 @@ import io
 def import_data(supply_data, cleaned_data):
     # Get Data
     print(" > Getting ISO mapping...")
-    iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv")
+    iso_mapping = pd.read_csv("data/_input/static/iso_mapping.csv")
     print(" > Done.")
 
     ## get uti_supply
@@ -17,8 +17,9 @@ def import_data(supply_data, cleaned_data):
 
     # get dose administration data for comparison
     print(" > Getting dose administration data for comparison...")
-    owid = pd.read_csv('data/_input/supply_data/owid-covid-data.csv')
-    #owid = pd.read_csv('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
+    #owid = pd.read_csv('data/_input/supply_data/owid-covid-data.csv')
+    print(" > Downloading data from owid API...")
+    owid = pd.read_csv('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
     print(" > Done.")
 
     # get primary data
@@ -29,11 +30,11 @@ def import_data(supply_data, cleaned_data):
 
     # get country characteristics
     print(" > Getting country characteristics...")
-    cc = pd.read_csv("data/_input/supply_data/country_characteristics.csv")
+    cc = pd.read_csv("data/_input/static/country_characteristics.csv")
     print(" > Done.")
 
     print(" > Getting country dimensions...")
-    country_dimension = pd.read_csv("data/_input/supply_data/country_dimension.csv")
+    country_dimension = pd.read_csv("data/_input/static/country_dimension.csv")
     country = country_dimension[['iso_code', 'country_name_friendly', 'sub_region_name', 'region_name',
         'wb_income_group', 'is_amc92', 'affiliation', 'min_vx_rollout_date', 'first_covax_arrival_date',
         'first_vx_shipment_received_date']]
@@ -71,6 +72,7 @@ def import_data(supply_data, cleaned_data):
     print(" > creating uti-supply1 df...")
     uti_supply1.columns = ['iso_code', 'date', 'doses_received', 'cumulative_doses_received']
     print(" > Done.")
+    print(uti_supply1)
     return who, iso_mapping, cc, country, owid1, uti_supply1
 
 
@@ -182,7 +184,9 @@ def minimum_rollout_date(df_inter, country):
 def merge_with_supply(df3, uti_supply1, supply_threshold):
     print(' > Merging data with supply...')
     df4 = df3.merge(uti_supply1, on = ['iso_code', 'date'], how = 'outer')
+    print(df4.loc[df4['iso_code'] == "TZA", :])
     df4.loc[:, ['iso_code', 'date', 'cumulative_doses_received']].ffill(axis = 0, inplace = True)
+    print(df4.loc[df4['iso_code'] == "TZA", :])
     df4 = df4.loc[~(df4['country_name_friendly'].isna()), :]
 
     df4['cumulative_doses_received'] = df4[['cumulative_doses_received', 'total_doses']].max(axis = 1)
@@ -445,9 +449,10 @@ def final_variable_selection(df11, who):
     return df12
 
 
-def export_data(df12):
+def export_data(df12, folder, name):
     print(' > Saving /analysis_vx_throughput_output_daily to csv file......')
-    df12.to_csv('data/_input/supply_data/analysis_vx_throughput_output_daily.csv', index = False)
+    path = "data/" + folder + "/" + name
+    df12.to_csv(path, index = False)
     print(' > Done.')
 
 
@@ -471,5 +476,5 @@ def main(supply_data, cleaned_data, folder, name):
     df10 = identifying_missing_countries(df9, df_flags)
     df11 = adding_flags_for_changes(df10)
     output = final_variable_selection(df11, who)
-    export_data(output)
+    export_data(output, folder, name)
     return output

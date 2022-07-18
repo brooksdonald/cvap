@@ -49,7 +49,7 @@ source("src/vaccines/run_vaccines.r")
 source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
 
-python_env <- run_vaccination_rate(.GlobalEnv$adm_api, .GlobalEnv$auto_cleaning)
+python_env <- run_vaccination_rate(.GlobalEnv$adm_api, .GlobalEnv$auto_cleaning, api_env$headers)
 base_env <- run_base()
 entity_env <- run_entity()
 pop_env <- run_population(api_env$headers)

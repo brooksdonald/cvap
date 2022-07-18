@@ -22,10 +22,11 @@ def create_new_path():
         os.remove(os.path.join(dir, f))
 
 
-def import_data():
+def import_data(throughput_data):
     print(" > Loading dataset...")
-    who = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_data.csv")
-    iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv")
+    #who = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_data.csv")
+    who = throughput_data
+    iso_mapping = pd.read_csv("data/_input/static/iso_mapping.csv")
     return who, iso_mapping
 
 
@@ -740,8 +741,7 @@ def automized_cleaning(df2):
 
 
 def main(auto_cleaning, throughput_data, folder, name):
-    who, iso_mapping = import_data()
-    who = throughput_data
+    who, iso_mapping = import_data(throughput_data)
     who = convert_data_types(who)
     df1 = cleaning(who)
     df1 = date_to_date_week(df1)
