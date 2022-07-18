@@ -449,7 +449,7 @@ def export_data(df12):
     print(' > Done.')
 
 
-if __name__ == '__main__':
+def main():
     supply_threshold = 0.0
     days_in_weeks4 = 27
     days_in_weeks8 = 55
@@ -468,5 +468,6 @@ if __name__ == '__main__':
     df9 = join_with_cc_and_owid(df8, cc, owid1)
     df10 = identifying_missing_countries(df9)
     df11 = adding_flags_for_changes(df10)
-    df12 = final_variable_selection(df11)
-    export_data(df12)
+    output = final_variable_selection(df11)
+    export_data(output)
+    return output

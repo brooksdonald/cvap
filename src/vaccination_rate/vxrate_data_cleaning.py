@@ -708,53 +708,45 @@ def automized_cleaning(df2):
     2. call the recursive "row check" function if there is a decrease in doses,
     3. produce figures of the changes made.
     """
-    # asking for user input whether cleaning should be performed
-    print(" > Would you like to run the automized cleaning process? (y/n):")
-    response = input()
-    if response in ["y", "Y", "yes", "Yes", "true", "True"]:
-        print(" > Starting the automized cleaning process...")
-        create_new_path()
+    print(" > Starting the automized cleaning process...")
+    create_new_path()
+    
+    print(" > Initializing variables...")
+    uncleaned = df2.copy()
+    log = pd.DataFrame({'country': [], 'date': []})
+    pd.set_option('mode.chained_assignment', None)
+    df2['to_delete_automized_clean'] = 0
+    
+    print(" > Looping through all countries to check for decreases in 'total_doses'...")
+    countries = df2['iso_code'].unique()
+    countries = np.sort(countries)
+    for country in countries:
+        country_data = df2.loc[df2['iso_code'] == country, :].copy()
+        country_data.sort_values(by = ['date'], ascending = False, inplace = True)
         
-        print(" > Initializing variables...")
-        uncleaned = df2.copy()
-        log = pd.DataFrame({'country': [], 'date': []})
-        pd.set_option('mode.chained_assignment', None)
-        df2['to_delete_automized_clean'] = 0
-        
-        print(" > Looping through all countries to check for decreases in 'total_doses'...")
-        countries = df2['iso_code'].unique()
-        countries = np.sort(countries)
-        for country in countries:
-            country_data = df2.loc[df2['iso_code'] == country, :].copy()
-            country_data.sort_values(by = ['date'], ascending = False, inplace = True)
-            
-            if not monotonic(list(country_data['total_doses'])):
-                while not monotonic(list(country_data['total_doses'])):
-                    row = 0
-                    country_data, df2, log = row_check(country_data, row, df2, log)
-                export_plots_of_changes(df2, uncleaned, country, log)
-        print(" > Saving plots of cleaned changes to data/cleaning_log...")
-        df2 = df2.loc[df2['to_delete_automized_clean'] == 0, :]
-        print(" > Saving logged_changes to csv...")
-        log.rename({'date': 'deleted dates'}, axis = 1, inplace = True)
-        log.sort_values(by=['country', 'deleted dates'], ascending=True)
-        log.to_csv('data/cleaning_log/logged_changes.csv', index = False)
-        return df2
-
-    else:
-        print(" > No automized cleaning will be performed.")
-        print(" > Warning: Data may include issues.")
-        return df2
+        if not monotonic(list(country_data['total_doses'])):
+            while not monotonic(list(country_data['total_doses'])):
+                row = 0
+                country_data, df2, log = row_check(country_data, row, df2, log)
+            export_plots_of_changes(df2, uncleaned, country, log)
+    print(" > Saving plots of cleaned changes to data/cleaning_log...")
+    df2 = df2.loc[df2['to_delete_automized_clean'] == 0, :]
+    print(" > Saving logged_changes to csv...")
+    log.rename({'date': 'deleted dates'}, axis = 1, inplace = True)
+    log.sort_values(by=['country', 'deleted dates'], ascending=True)
+    log.to_csv('data/cleaning_log/logged_changes.csv', index = False)
+    return df2
 
 
-if __name__ == '__main__':
+def main(auto_cleaning):
     who, iso_mapping = import_data()
     who = convert_data_types(who)
     df1 = cleaning(who)
     df1 = date_to_date_week(df1)
     df1, df2 = map_iso_codes(df1, iso_mapping)
     df2, manual_fix_list = fix_issues_total_doses(df2)
-    df2 = automized_cleaning(df2)
+    if auto_cleaning:
+        df2 = automized_cleaning(df2)
     df2 = fix_issues_at_least_one_dose(df2)
     df2 = fix_issues_fully_vaccinated(df2)
     df_errors1 = check_for_total_dose_decreases_1(df1)

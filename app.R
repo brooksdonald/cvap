@@ -2,10 +2,9 @@
 # Set working directory
 # setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
 
-# Clear environment
-rm(list = ls())
+# PACKAGES
 
-# Load packages
+rm(list = ls())
 lib <- c("tidyverse",
     "openxlsx",
     "readxl",
@@ -23,11 +22,14 @@ lib_na <- lib[!(lib %in% installed.packages()[, "Package"])]
 if (length(lib_na)) install.packages(lib_na)
 lapply(lib, library, character.only = TRUE)
 
-# STATIC DATES
+# STATIC VARIABLES
+
 .GlobalEnv$refresh_date <- as.Date("2022-07-08")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
 .GlobalEnv$dataset_date <- as.Date("2022-06-30") # dataset_date is passed to sec_date
 .GlobalEnv$del_date <- as.Date("2022-07-04")
+.GlobalEnv$auto_cleaning <- TRUE
+.GlobalEnv$adm_api <- TRUE
 
 # HELPERS
 
@@ -47,12 +49,12 @@ source("src/vaccines/run_vaccines.r")
 source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
 
-python_env <- run_vaccination_rate()
+python_env <- run_vaccination_rate(.GlobalEnv$adm_api, .GlobalEnv$auto_cleaning)
 base_env <- run_base()
 entity_env <- run_entity()
 pop_env <- run_population(api_env$headers)
 supply_env <- run_supply(.GlobalEnv$dataset_date, .GlobalEnv$del_date)
-vaccines_env <- run_vaccines(entity_env$entity_characteristics, .GlobalEnv$refresh_date, python_env$adm_data)
+vaccines_env <- run_vaccines(entity_env$entity_characteristics, .GlobalEnv$refresh_date, python_env$adm_data, .GlobalEnv$adm_api)
 finance_env <- run_financing(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
 

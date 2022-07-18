@@ -1,7 +1,7 @@
 # rows 119 - 596
 
 run_vaccines <- function(entity_characteristics,
-    refresh_date, adm_data) {
+    refresh_date, adm_data, adm_api) {
     source("src/vaccines/vaccines_daily_vxrate.r")
     source("src/vaccines/vaccines_monthly_vxrate.r")
     source("src/entity/entity_characteristics.r")
@@ -12,7 +12,7 @@ run_vaccines <- function(entity_characteristics,
     current_month <- substr(refresh_date, 1, 7)
 
     print(" > Daily current vaccinations")
-    b_vxrate <- load_b_vxrate(adm_data)
+    b_vxrate <- load_b_vxrate(adm_data, adm_api)
     b_vxrate <- transform_current_vxrate(
         b_vxrate, entity_characteristics, refresh_date)
     b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate)

@@ -13,8 +13,8 @@ def create_new_path():
   print(" > Creating new folder to store data: data/_input/supply_data/...")
   newpath = r'data/_input/supply_data' 
   if not os.path.exists(newpath):
-      os.makedirs(newpath)
-  print(" > New folder created.")
+    os.makedirs(newpath)
+    print(" > New folder created.")
 
 # Get Data
 def get_data():
