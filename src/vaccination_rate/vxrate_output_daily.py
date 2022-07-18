@@ -184,7 +184,8 @@ def minimum_rollout_date(df_inter, country):
 def merge_with_supply(df3, uti_supply1, supply_threshold):
     print(' > Merging data with supply...')
     df4 = df3.merge(uti_supply1, on = ['iso_code', 'date'], how = 'outer')
-    df4.loc[:, ['iso_code', 'date', 'cumulative_doses_received']].ffill(axis = 0, inplace = True)
+    ## TODO implement forward fill for cumulative doses
+    ## df4.loc[:, 'cumulative_doses_received'].fillna(method="ffill", inplace = True)
     df4 = df4.loc[~(df4['country_name_friendly'].isna()), :]
 
     df4['cumulative_doses_received'] = df4[['cumulative_doses_received', 'total_doses']].max(axis = 1)
