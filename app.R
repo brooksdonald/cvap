@@ -52,11 +52,11 @@ source("src/add_data/run_add_data.r")
 python_env <- run_vaccination_rate(.GlobalEnv$adm_api, .GlobalEnv$auto_cleaning, api_env$headers)
 entity_env <- run_entity()
 supply_env <- run_supply(.GlobalEnv$dataset_date, .GlobalEnv$del_date)
-vaccines_env <- run_vaccines(entity_env$entity_characteristics, .GlobalEnv$refresh_date, python_env$adm_data, .GlobalEnv$adm_api)
-pop_env <- run_population(api_env$headers)
+adm_cov_env <- run_adm_cov(entity_env$entity_characteristics, .GlobalEnv$refresh_date, python_env$adm_data, .GlobalEnv$adm_api)
+cov_disag_env <- run_cov_disag(api_env$headers)
 finance_env <- run_finance(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
-base_env <- run_base()
+add_data_env <- run_add_data()
 
 # EDA
 
@@ -69,12 +69,12 @@ source("eda/rank_bin/run_rank_bin.r")
 source("eda/combination/run_combination.r")
 
 vxrate_env <- run_vxrate(
-    vaccines_env$c_vxrate_latest,
+    adm_cov_env$c_vxrate_latest,
     entity_env$entity_characteristics,
     entity_env$population_data,
-    pop_env$uptake_gender_data,
-    base_env$b_who_dashboard,
-    base_env$b_smartsheet,
+    cov_disag_env$uptake_gender_data,
+    add_data_env$b_who_dashboard,
+    add_data_env$b_smartsheet,
     supply_env$supply_secured,
     supply_env$delivery_courses_doses,
     demand_plan_env$b_dp,
@@ -87,13 +87,13 @@ supplies_env <- run_eda_supplies(vxrate_env$a_data)
 coverage_env <- run_coverage(
     supplies_env$a_data,
     vxrate_env$timeto_t70,
-    vaccines_env$c_vxrate_sept_t10,
-    vaccines_env$c_vxrate_dec_t2040,
-    vaccines_env$c_vxrate_jun_t70,
+    adm_cov_env$c_vxrate_sept_t10,
+    adm_cov_env$c_vxrate_dec_t2040,
+    adm_cov_env$c_vxrate_jun_t70,
     .GlobalEnv$t70_deadline)
 product_env <- run_product(
     coverage_env$a_data,
-    base_env$b_smartsheet,
+    add_data_env$b_smartsheet,
     .GlobalEnv$refresh_date,
     vxrate_env$timeto_t70)
 financing_env <- run_financing(product_env$a_data)
@@ -110,7 +110,7 @@ consolidate_env <- run_consolidate(
     financing_env$a_data_africa,
     financing_env$a_data_csc,
     financing_env$a_data_ifc,
-    vaccines_env$b_vxrate_change_lw,
+    adm_cov_env$b_vxrate_change_lw,
     .GlobalEnv$refresh_date
 )
 
@@ -119,12 +119,12 @@ consolidate_env <- run_consolidate(
 print(" > Exporting data outputs from pipeline to Excel workbooks...")
 all_df <- list(
     "0_base_data" = combination_env$a_data,
-    "1_absorption_month" = vaccines_env$d_absorption,
-    "1_absorption_month_country" = vaccines_env$combined,
-    "1_cum_absorb_month_country" = vaccines_env$d_absorption_country_new,
-    "1_stock" = vaccines_env$combined_three,
-    "1_adm_long_smooth" = vaccines_env$b_vxrate_amc_smooth,
-    "1_adm_all_long" = vaccines_env$b_vxrate_pub,
+    "1_absorption_month" = adm_cov_env$d_absorption,
+    "1_absorption_month_country" = adm_cov_env$combined,
+    "1_cum_absorb_month_country" = adm_cov_env$d_absorption_country_new,
+    "1_stock" = adm_cov_env$combined_three,
+    "1_adm_long_smooth" = adm_cov_env$b_vxrate_amc_smooth,
+    "1_adm_all_long" = adm_cov_env$b_vxrate_pub,
     "1_delivery_doses" = supply_env$supply_received_by_product,
     "1_secview" = combination_env$z_temp,
     "1_secview_lm" = combination_env$z_temp_lm,

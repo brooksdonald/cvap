@@ -1,6 +1,6 @@
 # rows 600 - 978
 
-run_population <- function(headers) {
+run_cov_disag <- function(headers) {
     source("src/cov_disag/cov_disag.r")
 
     print(" > Starting local environment for cov_disag")
