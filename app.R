@@ -84,29 +84,28 @@ vxrate_env <- run_vxrate(
     .GlobalEnv$t70_deadline
 )
 supplies_env <- run_eda_supplies(vxrate_env$a_data) # careful with conflicting name
-coverage_env <- run_coverage(
+product_env <- run_product(
     supplies_env$a_data,
+    .GlobalEnv$refresh_date,
+    vxrate_env$timeto_t70)
+coverage_env <- run_coverage(
+    product_env$a_data,
     vxrate_env$timeto_t70,
     adm_cov_env$c_vxrate_sept_t10,
     adm_cov_env$c_vxrate_dec_t2040,
     adm_cov_env$c_vxrate_jun_t70,
     .GlobalEnv$t70_deadline,
     add_data_env$b_smartsheet)
-product_env <- run_product(
-    coverage_env$a_data,
-    .GlobalEnv$refresh_date,
-    vxrate_env$timeto_t70)
-financing_env <- run_financing(product_env$a_data)
-ranking_env <- run_binning(financing_env$a_data)
-combination_env <- run_combination(ranking_env$a_data) # gotta go
-qual_data_env <- run_qual_data(a_data)
+financing_env <- run_financing(coverage_env$a_data)
+qual_data_env <- run_qual_data(financing_env$a_data)
+ranking_env <- run_binning(qual_data_env$a_data)
 
 # CONSOLIDATE
 
 source("consolidate/run_consolidate.r")
 
 consolidate_env <- run_consolidate(
-    combination_env$a_data,
+    ranking_env$a_data,
     financing_env$a_data_amc,
     financing_env$a_data_africa,
     financing_env$a_data_csc,
@@ -119,7 +118,7 @@ consolidate_env <- run_consolidate(
 
 print(" > Exporting data outputs from pipeline to Excel workbooks...")
 all_df <- list(
-    "0_base_data" = combination_env$a_data,
+    "0_base_data" = ranking_env$a_data,
     "1_absorption_month" = adm_cov_env$d_absorption,
     "1_absorption_month_country" = adm_cov_env$combined,
     "1_cum_absorb_month_country" = adm_cov_env$d_absorption_country_new,
@@ -127,9 +126,9 @@ all_df <- list(
     "1_adm_long_smooth" = adm_cov_env$b_vxrate_amc_smooth,
     "1_adm_all_long" = adm_cov_env$b_vxrate_pub,
     "1_delivery_doses" = supply_env$supply_received_by_product,
-    "1_secview" = combination_env$z_temp,
-    "1_secview_lm" = combination_env$z_temp_lm,
-    "1_secview_all" = combination_env$z_secview_long,
+    "1_secview" = product_env$z_temp,
+    "1_secview_lm" = product_env$z_temp_lm,
+    "1_secview_all" = product_env$z_secview_long,
     "1_funding_source" = finance_env$b_fin_fund_del_source,
     "2_dvr_perchange_count" = consolidate_env$f_dvr_change_count,
     "2_cov_change_count" = consolidate_env$f_cov_change_count,
