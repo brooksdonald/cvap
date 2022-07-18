@@ -1,5 +1,5 @@
 run_financing <- function(a_data) {
-  source("eda/financing/financing_overview.r")
+  source("eda/finance/finance_consolidate.r")
   
   print(" > Starting local environment for financing summary")
   print(" > Calculating financing overview...")

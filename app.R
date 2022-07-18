@@ -106,7 +106,7 @@ product_env <- run_product(
     vxrate_env$timeto_t70)
 financing_env <- run_financing(product_env$a_data)
 ranking_env <- run_binning(financing_env$a_data)
-combination_env <- run_combination(ranking_env$a_data)
+combination_env <- run_combination(ranking_env$a_data) # gotta go
 
 # CONSOLIDATE
 
