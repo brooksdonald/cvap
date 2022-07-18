@@ -41,7 +41,7 @@ api_env <- run_api()
 # ETL
 
 source("src/vaccination_rate/run_vaccination_rate.r")
-source("src/base/run_base.r")
+source("src/add_data/run_add_data.r")
 source("src/entity/run_entity.r")
 source("src/population/run_population.r")
 source("src/supply/run_supply.R")
