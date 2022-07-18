@@ -68,7 +68,7 @@ source("eda/finance/run_finance.r")
 source("eda/qual_data/run_qual_data.r")
 source("eda/rank_bin/run_rank_bin.r")
 
-vxrate_env <- run_vxrate(
+vxrate_env <- run_adm_cov(
     adm_cov_env$c_vxrate_latest,
     entity_env$entity_characteristics,
     entity_env$population_data,
@@ -84,11 +84,11 @@ vxrate_env <- run_vxrate(
     .GlobalEnv$t70_deadline
 )
 supplies_env <- run_eda_supplies(vxrate_env$a_data) # careful with conflicting name
-product_env <- run_product(
+product_env <- run_prod_util(
     supplies_env$a_data,
     .GlobalEnv$refresh_date,
     vxrate_env$timeto_t70)
-coverage_env <- run_coverage(
+coverage_env <- run_cov_targets(
     product_env$a_data,
     vxrate_env$timeto_t70,
     adm_cov_env$c_vxrate_sept_t10,
@@ -98,7 +98,7 @@ coverage_env <- run_coverage(
     add_data_env$b_smartsheet)
 financing_env <- run_financing(coverage_env$a_data)
 qual_data_env <- run_qual_data(financing_env$a_data)
-ranking_env <- run_binning(qual_data_env$a_data)
+ranking_env <- run_rank_bin(qual_data_env$a_data)
 
 # CONSOLIDATE
 

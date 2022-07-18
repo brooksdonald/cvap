@@ -1,6 +1,6 @@
 # rows 2258 - 2569
 
-run_product <- function(a_data, refresh_date, timeto_t70) {
+run_prod_util <- function(a_data, refresh_date, timeto_t70) {
     source("eda/prod_util/product_utilization.r")
     source("eda/prod_util/combination.r")
 
