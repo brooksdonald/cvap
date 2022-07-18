@@ -1,16 +1,19 @@
 import pandas as pd
 
-def import_data():
+def import_data(throughput_data, output_daily):
     print(' > Importing data for data_fixes.py ...')
     iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv")
-    raw = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_data.csv")
-    who = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_output_daily.csv")
+    #raw = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_data.csv")
+    raw = throughput_data
+    #who = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_output_daily.csv")
+    who = output_daily
     return iso_mapping, raw, who
 
 
 def clean_country_names(raw, iso_mapping):
     print(" > Matching ambiguous country names...")
     df1 = raw.copy()
+    df1['total_doses'] = df1['total_doses'].astype(float)
     df1 = df1.loc[((~(df1['total_doses'].isna())) & (df1['total_doses'] > 0)), :]
     df1 = df1[['country_name', 'date', 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'date_accessed']]
     df1['date'] = pd.to_datetime(df1['date'], format = '%Y-%m-%d')
@@ -55,8 +58,8 @@ def export_dataframe(df2):
     print(" > Done")
 
 
-if __name__ == '__main__':
-    iso_mapping, raw, who = import_data()
+def main(throughput_data, output_daily, folder, name):
+    iso_mapping, raw, who = import_data(throughput_data, output_daily)
     df1 = clean_country_names(raw, iso_mapping)
     who1 = clean_who_data(who)
     df2 = merge_dataframes(df1, who1)

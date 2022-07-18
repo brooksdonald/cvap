@@ -4,9 +4,10 @@ from datetime import date
 import openpyxl
 
 
-def import_data():
+def import_data(folder):
     print(" > Getting supply data from WIISEMART for supply_data.py ...")
-    wiise_supply_data = pd.read_excel('data/_input/supply_data/data_export_WIISE_V_COV_UTI_LONG.xlsx')
+    path = "data/" + folder + "/data_export_WIISE_V_COV_UTI_LONG.xlsx"
+    wiise_supply_data = pd.read_excel(path)
     df = pd.DataFrame(wiise_supply_data)
     print(" > Done.")
     return df
@@ -63,17 +64,19 @@ def add_timestamp(df_uti):
     return df_uti
 
 
-def export_data(df_uti):
-    print(" > Saving analysis_vx_throughput_supply to csv file...")
-    df_uti.to_csv("data/_input/supply_data/analysis_vx_throughput_supply.csv", index = False)
+def export_data(df_uti, folder, name):
+    print(" > Saving " + name + " to csv file...")
+    path = "data/" + folder + "/" + name
+    df_uti.to_csv(path, index = False)
     print(" > Done.")
     return df_uti
 
 
-if __name__ == '__main__':
-    df = import_data()
+def main(folder, name):
+    df = import_data(folder)
     df = validate_and_filter(df)
     df_uti = create_date_column(df)
     df_uti = aggregate_util_data(df_uti)
     df_uti = add_timestamp(df_uti)
-    export_data(df_uti)
+    export_data(df_uti, folder, name)
+    return df_uti

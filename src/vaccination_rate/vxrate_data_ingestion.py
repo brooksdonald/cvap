@@ -9,9 +9,9 @@ import numpy as np
 import os
 
 
-def create_new_path():
-  print(" > Creating new folder to store data: data/_input/supply_data/...")
-  newpath = r'data/_input/supply_data' 
+def create_new_path(folder):
+  print(" > Creating new folder to store data: data/" + folder)
+  newpath = r'data/' + folder
   if not os.path.exists(newpath):
     os.makedirs(newpath)
     print(" > New folder created.")
@@ -22,7 +22,7 @@ def get_data():
   print(" > Defining URLs for API calls...")
   url1 = 'https://frontdoor-l4uikgap6gz3m.azurefd.net/NCOV/VAC_REP_COUNTS'
   url2 = 'https://frontdoor-l4uikgap6gz3m.azurefd.net/NCOV/VAC_REP_COUNTS_EUR'
-  print(" > Done...")
+  print(" > Done.")
 
   # 2 data sources for Throughput, one for Europe and one for ROW
   # read in separately, clean, and then bind together
@@ -36,7 +36,7 @@ def get_data():
   df1.columns = ['entity', 'date', 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose', 'source']
   df1['country_name'] = df1['entity'].str.title()
   df1 = pd.DataFrame(df1).drop_duplicates()
-  print(" > Done...")
+  print(" > Done.")
 
   try:
     response = urlopen(url2)
@@ -54,7 +54,7 @@ def get_data():
 
   print(" > Joining 2 df to one...")
   df3 = pd.concat([df1,df2], ignore_index = True)
-  print(" > Done...")
+  print(" > Done.")
   return df3
 
 def fix_dates(df3):
@@ -74,21 +74,23 @@ def fix_dates(df3):
   df_data.loc[np.logical_and(df_data.loc[:,'entity'] == 'LIBYA', df_data.loc[:,"date"] == "2021-01-08"), "date"] = "2022-01-08"
   df_data.loc[np.logical_and(df_data.loc[:,'entity'] == 'MOROCCO', df_data.loc[:,"date"] == "2021-01-04"), "date"] = "2021-01-04"
   df_data.loc[np.logical_and(df_data.loc[:,'entity'] == 'MOROCCO', df_data.loc[:,"date"] == "2021-01-08"), "date"] = "2021-01-08"
-  print(" > Done...")
+  print(" > Done.")
 
   # date stamp dataset
   print(" > Getting the stamp dataset...")
   df_data["date_accessed"] = datetime.date.today()
   print(" > Done.")
-
-  # Save to CSV file
-  print(" > Saving analysis_vx_throughput_data to csv file...")
-  df_data.to_csv("data/_input/supply_data/analysis_vx_throughput_data.csv", index = False)
-  print(" > Done.")
   return df_data
 
-if __name__ == '__main__':
-  print(" > Opening Python Environment")
-  create_new_path()
+def export(df_data, folder, name):
+  print(" > Saving analysis_vx_throughput_data to csv file...")
+  path = "data/" + folder + "/" + name
+  df_data.to_csv(path, index = False)
+  print(" > Done.")
+
+def main(folder, name):
+  create_new_path(folder)
   df3 = get_data()
   df_data = fix_dates(df3)
+  export(df_data, folder, name)
+  return df_data

@@ -3,7 +3,7 @@ import datetime
 import pandas as pd
 import io
 
-def import_data():
+def import_data(supply_data, cleaned_data):
     # Get Data
     print(" > Getting ISO mapping...")
     iso_mapping = pd.read_csv("data/_input/supply_data/iso_mapping.csv")
@@ -11,7 +11,8 @@ def import_data():
 
     ## get uti_supply
     print(" > Getting uti_supply data...")
-    uti_supply = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_supply.csv")
+    #uti_supply = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_supply.csv")
+    uti_supply = supply_data
     print(" > Done.")
 
     # get dose administration data for comparison
@@ -22,7 +23,8 @@ def import_data():
 
     # get primary data
     print(" > Getting throughput cleaned data...")
-    who = pd.read_csv('data/_input/supply_data/analysis_vx_throughput_data_cleaned.csv')
+    #who = pd.read_csv('data/_input/supply_data/analysis_vx_throughput_data_cleaned.csv')
+    who = cleaned_data
     print(" > Done.")
 
     # get country characteristics
@@ -177,7 +179,7 @@ def minimum_rollout_date(df_inter, country):
     return df3
 
 
-def merge_with_supply(df3, uti_supply1):
+def merge_with_supply(df3, uti_supply1, supply_threshold):
     print(' > Merging data with supply...')
     df4 = df3.merge(uti_supply1, on = ['iso_code', 'date'], how = 'outer')
     df4.loc[:, ['iso_code', 'date', 'cumulative_doses_received']].ffill(axis = 0, inplace = True)
@@ -383,7 +385,7 @@ def join_with_cc_and_owid(df8, cc, owid1):
     return df9
 
 
-def identifying_missing_countries(df9):
+def identifying_missing_countries(df9, df_flags):
     print(' > Identifying countries that have not reported last week...')
     df_date_week = df9.loc[(df9['is_original_reported'] == 1), ['iso_code', 'date', 'total_doses']]
     df_date_week['date'] = pd.to_datetime(df_date_week['date']) #, format = '%Y-%m-%d')
@@ -427,7 +429,7 @@ def adding_flags_for_changes(df10):
     return df11
 
 
-def final_variable_selection(df11):
+def final_variable_selection(df11, who):
     print(' > Creating final dataframe...')
     df12 = df11[['iso_code', 'entity_name', 'population', 'date', 'is_original_reported', 
                 'cumulative_doses_received', 'effective_supply',
@@ -449,25 +451,25 @@ def export_data(df12):
     print(' > Done.')
 
 
-def main():
+def main(supply_data, cleaned_data, folder, name):
     supply_threshold = 0.0
     days_in_weeks4 = 27
     days_in_weeks8 = 55
 
-    who, iso_mapping, cc, country, owid1, uti_supply1 = import_data()
+    who, iso_mapping, cc, country, owid1, uti_supply1 = import_data(supply_data, cleaned_data)
     df_flags = flags(who)
     df1 = merge_who_country(who, country)
     df1 = filter_data(df1)
     df_inter = exploding_dates(df1)
     df_inter = interpolate_data(df_inter)
     df3 = minimum_rollout_date(df_inter, country)
-    df4 = merge_with_supply(df3, uti_supply1)
+    df4 = merge_with_supply(df3, uti_supply1, supply_threshold)
     df5 = moving_averages_td(df4, days_in_weeks4, days_in_weeks8)
     df6 = moving_averages_1d(df5, days_in_weeks4, days_in_weeks8)
     df8 = moving_averages_fv(df6, days_in_weeks4, days_in_weeks8)
     df9 = join_with_cc_and_owid(df8, cc, owid1)
-    df10 = identifying_missing_countries(df9)
+    df10 = identifying_missing_countries(df9, df_flags)
     df11 = adding_flags_for_changes(df10)
-    output = final_variable_selection(df11)
+    output = final_variable_selection(df11, who)
     export_data(output)
     return output
