@@ -26,7 +26,7 @@ lapply(lib, library, character.only = TRUE)
 
 .GlobalEnv$refresh_date <- as.Date("2022-07-08")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
-.GlobalEnv$dataset_date <- as.Date("2022-06-30") # dataset_date is passed to sec_date
+.GlobalEnv$dataset_date <- as.Date("2022-06-30") # is passed to sec_date
 .GlobalEnv$del_date <- as.Date("2022-07-04")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- FALSE # set to FALSE to use base_dvr_current.xlsx
@@ -83,7 +83,7 @@ eda_adm_cov <- run_adm_cov(
     .GlobalEnv$refresh_date,
     .GlobalEnv$t70_deadline
 )
-supplies_env <- run_eda_supplies(eda_adm_cov$a_data) # careful with conflicting name
+supplies_env <- run_eda_supplies(eda_adm_cov$a_data)
 product_env <- run_prod_util(
     supplies_env$a_data,
     .GlobalEnv$refresh_date,
