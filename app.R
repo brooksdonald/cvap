@@ -61,12 +61,20 @@ add_data_env <- run_add_data()
 # EDA
 
 source("eda/adm_cov/run_adm_cov.r")
-source("eda/supplies/run_supplies.r")
-source("eda/coverage/run_coverage.r")
-source("eda/product/run_product.r")
-source("eda/financing/run_financing.r")
+source("eda/supply/run_supply.r")
+source("eda/product_util/run_product_util.r")
+source("eda/cov_targets/run_cov_targets.r")
+source("eda/finance/run_finance.r")
+source("eda/qual_data/run_qual_data.r")
 source("eda/rank_bin/run_rank_bin.r")
-source("eda/combination/run_combination.r")
+
+# source("eda/adm_cov/run_adm_cov.r")
+# source("eda/supplies/run_supplies.r")
+# source("eda/coverage/run_coverage.r")
+# source("eda/product/run_product.r")
+# source("eda/financing/run_financing.r")
+# source("eda/rank_bin/run_rank_bin.r")
+# source("eda/combination/run_combination.r")
 
 vxrate_env <- run_vxrate(
     adm_cov_env$c_vxrate_latest,
