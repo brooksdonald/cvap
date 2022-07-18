@@ -91,7 +91,7 @@ vxrate_env <- run_vxrate(
     .GlobalEnv$refresh_date,
     .GlobalEnv$t70_deadline
 )
-supplies_env <- run_eda_supplies(vxrate_env$a_data)
+supplies_env <- run_eda_supplies(vxrate_env$a_data) # careful with conflicting name
 coverage_env <- run_coverage(
     supplies_env$a_data,
     vxrate_env$timeto_t70,

@@ -1,7 +1,7 @@
 # rows 1973 - 2167
 
 run_coverage <- function(a_data, timeto_t70, c_vxrate_sept_t10, c_vxrate_dec_t2040, c_vxrate_jun_t70, t70_deadline) {
-    source("eda/coverage/coverage_target_groups.r")
+    source("eda/cov_targets/cov_targets_gen.r")
 
     print(" > Starting local environment for eda coverage module...")
 
