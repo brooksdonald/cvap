@@ -45,7 +45,7 @@ source("src/add_data/run_add_data.r")
 source("src/entity_characteristics/run_entity_characteristics.r")
 source("src/cov_disag/run_cov_disag.r")
 source("src/supply/run_supply.R")
-source("src/vaccines/run_vaccines.r")
+source("src/adm_cov/run_adm_cov.r")
 source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
 

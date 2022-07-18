@@ -2,9 +2,8 @@
 
 run_vaccines <- function(entity_characteristics,
     refresh_date, adm_data, adm_api) {
-    source("src/vaccines/vaccines_daily_vxrate.r")
-    source("src/vaccines/vaccines_monthly_vxrate.r")
-    source("src/entity/entity_characteristics.r")
+    source("src/adm_cov/dvr_current.r")
+    source("src/adm_cov/dvr_prev.r")
 
     print(" > Starting local environment for vaccinations")
 
