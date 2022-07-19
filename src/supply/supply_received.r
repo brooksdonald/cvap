@@ -213,7 +213,7 @@ treat_country_name_datasource <- function(dataframe) {
         dataframe$Country.territory,
         origin = "country.name",
         destination = "iso3c",
-        warn = TRUE
+        warn = FALSE
     )
 
 
