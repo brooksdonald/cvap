@@ -6,7 +6,6 @@ run_vaccination_rate <- function(adm_api, auto_cleaning, headers) {
             "numpy", "openpyxl", "os", "pandas", "pickle",
             "seaborn", "urllib", "warnings")
         for (module in python_packages) {
-            print(module)
             if (!py_module_available(module)) {
                 print(paste0(" > ", module, " is not available. Installing now..."))
                 py_install(module)
