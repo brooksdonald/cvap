@@ -1,6 +1,6 @@
 # rows 2575 - 2691
 
-run_binning <- function(a_data) {
+run_rank_bin <- function(a_data) {
     source("eda/rank_bin/rank_bin.r")
 
     print(" > Starting local environment for ranking and binning")

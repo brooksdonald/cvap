@@ -26,10 +26,10 @@ lapply(lib, library, character.only = TRUE)
 
 .GlobalEnv$refresh_date <- as.Date("2022-07-08")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
-.GlobalEnv$dataset_date <- as.Date("2022-06-30") # dataset_date is passed to sec_date
+.GlobalEnv$dataset_date <- as.Date("2022-06-30") # is passed to sec_date
 .GlobalEnv$del_date <- as.Date("2022-07-04")
-.GlobalEnv$auto_cleaning <- TRUE
-.GlobalEnv$adm_api <- TRUE
+.GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
+.GlobalEnv$adm_api <- FALSE # set to FALSE to use base_dvr_current.xlsx
 
 # HELPERS
 
@@ -41,40 +41,40 @@ api_env <- run_api()
 # ETL
 
 source("src/vaccination_rate/run_vaccination_rate.r")
-source("src/base/run_base.r")
-source("src/entity/run_entity.r")
-source("src/population/run_population.r")
+source("src/entity_characteristics/run_entity_characteristics.r")
 source("src/supply/run_supply.R")
-source("src/vaccines/run_vaccines.r")
+source("src/adm_cov/run_adm_cov.r")
+source("src/cov_disag/run_cov_disag.r")
 source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
+source("src/add_data/run_add_data.r")
 
 python_env <- run_vaccination_rate(.GlobalEnv$adm_api, .GlobalEnv$auto_cleaning, api_env$headers)
-base_env <- run_base()
 entity_env <- run_entity()
-pop_env <- run_population(api_env$headers)
 supply_env <- run_supply(.GlobalEnv$dataset_date, .GlobalEnv$del_date)
-vaccines_env <- run_vaccines(entity_env$entity_characteristics, .GlobalEnv$refresh_date, python_env$adm_data, .GlobalEnv$adm_api)
-finance_env <- run_financing(entity_env$entity_characteristics)
+adm_cov_env <- run_adm_cov(entity_env$entity_characteristics, .GlobalEnv$refresh_date, python_env$adm_data, .GlobalEnv$adm_api)
+cov_disag_env <- run_cov_disag(api_env$headers)
+finance_env <- run_finance(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
+add_data_env <- run_add_data()
 
 # EDA
 
-source("eda/vxrate/run_vxrate.r")
-source("eda/supplies/run_supplies.r")
-source("eda/coverage/run_coverage.r")
-source("eda/product/run_product.r")
-source("eda/financing/run_financing.r")
+source("eda/adm_cov/run_adm_cov.r")
+source("eda/supply/run_supply.r")
+source("eda/prod_util/run_prod_util.r")
+source("eda/cov_targets/run_cov_targets.r")
+source("eda/finance/run_finance.r")
+source("eda/qual_data/run_qual_data.r")
 source("eda/rank_bin/run_rank_bin.r")
-source("eda/combination/run_combination.r")
 
-vxrate_env <- run_vxrate(
-    vaccines_env$c_vxrate_latest,
+eda_adm_cov_env <- run_eda_adm_cov(
+    adm_cov_env$c_vxrate_latest,
     entity_env$entity_characteristics,
-    pop_env$population_data,
-    pop_env$uptake_gender_data,
-    base_env$b_who_dashboard,
-    base_env$b_smartsheet,
+    entity_env$population_data,
+    cov_disag_env$uptake_gender_data,
+    add_data_env$b_who_dashboard,
+    add_data_env$b_smartsheet,
     supply_env$supply_secured,
     supply_env$delivery_courses_doses,
     demand_plan_env$b_dp,
@@ -83,34 +83,34 @@ vxrate_env <- run_vxrate(
     .GlobalEnv$refresh_date,
     .GlobalEnv$t70_deadline
 )
-supplies_env <- run_eda_supplies(vxrate_env$a_data)
-coverage_env <- run_coverage(
+supplies_env <- run_eda_supplies(eda_adm_cov_env$a_data)
+prod_util_env <- run_prod_util(
     supplies_env$a_data,
-    vxrate_env$timeto_t70,
-    vaccines_env$c_vxrate_sept_t10,
-    vaccines_env$c_vxrate_dec_t2040,
-    vaccines_env$c_vxrate_jun_t70,
-    .GlobalEnv$t70_deadline)
-product_env <- run_product(
-    coverage_env$a_data,
-    base_env$b_smartsheet,
     .GlobalEnv$refresh_date,
-    vxrate_env$timeto_t70)
-financing_env <- run_financing(product_env$a_data)
-ranking_env <- run_binning(financing_env$a_data)
-combination_env <- run_combination(ranking_env$a_data)
+    eda_adm_cov_env$timeto_t70)
+cov_targets_env <- run_cov_targets(
+    prod_util_env$a_data,
+    eda_adm_cov_env$timeto_t70,
+    adm_cov_env$c_vxrate_sept_t10,
+    adm_cov_env$c_vxrate_dec_t2040,
+    adm_cov_env$c_vxrate_jun_t70,
+    .GlobalEnv$t70_deadline,
+    add_data_env$b_smartsheet)
+financing_env <- run_financing(cov_targets_env$a_data)
+qual_data_env <- run_qual_data(financing_env$a_data)
+rank_bin_env <- run_rank_bin(qual_data_env$a_data)
 
 # CONSOLIDATE
 
-source("data/interim/consolidate/run_consolidate.r")
+source("consolidate/run_consolidate.r")
 
 consolidate_env <- run_consolidate(
-    combination_env$a_data,
+    rank_bin_env$a_data,
     financing_env$a_data_amc,
     financing_env$a_data_africa,
     financing_env$a_data_csc,
     financing_env$a_data_ifc,
-    vaccines_env$b_vxrate_change_lw,
+    adm_cov_env$b_vxrate_change_lw,
     .GlobalEnv$refresh_date
 )
 
@@ -118,17 +118,17 @@ consolidate_env <- run_consolidate(
 
 print(" > Exporting data outputs from pipeline to Excel workbooks...")
 all_df <- list(
-    "0_base_data" = combination_env$a_data,
-    "1_absorption_month" = vaccines_env$d_absorption,
-    "1_absorption_month_country" = vaccines_env$combined,
-    "1_cum_absorb_month_country" = vaccines_env$d_absorption_country_new,
-    "1_stock" = vaccines_env$combined_three,
-    "1_adm_long_smooth" = vaccines_env$b_vxrate_amc_smooth,
-    "1_adm_all_long" = vaccines_env$b_vxrate_pub,
+    "0_base_data" = rank_bin_env$a_data,
+    "1_absorption_month" = adm_cov_env$d_absorption,
+    "1_absorption_month_country" = adm_cov_env$combined,
+    "1_cum_absorb_month_country" = adm_cov_env$d_absorption_country_new,
+    "1_stock" = adm_cov_env$combined_three,
+    "1_adm_long_smooth" = adm_cov_env$b_vxrate_amc_smooth,
+    "1_adm_all_long" = adm_cov_env$b_vxrate_pub,
     "1_delivery_doses" = supply_env$supply_received_by_product,
-    "1_secview" = combination_env$z_temp,
-    "1_secview_lm" = combination_env$z_temp_lm,
-    "1_secview_all" = combination_env$z_secview_long,
+    "1_secview" = prod_util_env$z_temp,
+    "1_secview_lm" = prod_util_env$z_temp_lm,
+    "1_secview_all" = prod_util_env$z_secview_long,
     "1_funding_source" = finance_env$b_fin_fund_del_source,
     "2_dvr_perchange_count" = consolidate_env$f_dvr_change_count,
     "2_cov_change_count" = consolidate_env$f_cov_change_count,

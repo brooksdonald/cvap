@@ -1,6 +1,6 @@
 # rows 1723 - 1972
 
-run_vxrate <- function(
+run_eda_adm_cov <- function(
     c_vxrate_latest,
     entity_characteristics,
     population_data,
@@ -15,7 +15,7 @@ run_vxrate <- function(
     refresh_date,
     t70_deadline
 ) {
-    source("eda/vxrate/vxrate_consolidate.r")
+    source("eda/adm_cov/adm_consolidate.r")
 
     print(" > Starting local environment for vxrate...")
 

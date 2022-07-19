@@ -1,7 +1,8 @@
 # rows 1973 - 2167
 
-run_coverage <- function(a_data, timeto_t70, c_vxrate_sept_t10, c_vxrate_dec_t2040, c_vxrate_jun_t70, t70_deadline) {
-    source("eda/coverage/coverage_target_groups.r")
+run_cov_targets <- function(a_data, timeto_t70, c_vxrate_sept_t10, c_vxrate_dec_t2040, c_vxrate_jun_t70, t70_deadline, b_smartsheet) {
+    source("eda/cov_targets/cov_targets_gen.r")
+    source("eda/cov_targets/cov_targets_cs.r")
 
     print(" > Starting local environment for eda coverage module...")
 
@@ -26,6 +27,14 @@ run_coverage <- function(a_data, timeto_t70, c_vxrate_sept_t10, c_vxrate_dec_t20
 
     print(" > booster doses...")
     a_data <- booster_doses(a_data)
+    print(" > Done.")
+
+    print(" > Calculating progress against country coverage targets...")
+    a_data <- course_progress(a_data, b_smartsheet, refresh_date, timeto_t70)
+    print(" > Done.")
+
+    print(" > Adding additional notes...")
+    a_data <- course_add_notes(a_data, refresh_date)
     print(" > Done.")
   
     return(environment())

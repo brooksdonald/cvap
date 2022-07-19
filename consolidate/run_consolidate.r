@@ -2,11 +2,12 @@
 
 run_consolidate <- function(a_data, a_data_amc, a_data_africa,
     a_data_csc, a_data_ifc, b_vxrate_change_lw, refresh_date) {
-    source("data/interim/consolidate/consolidate_base_file.r")
-    source("data/interim/consolidate/consolidate_vxrate.r")
-    source("data/interim/consolidate/consolidate_targets.r")
-    source("data/interim/consolidate/consolidate_supplies_utilization.r")
-    source("data/interim/consolidate/consolidate_tables.r")
+    source("consolidate/consolidate_adm.r")
+    source("consolidate/consolidate_change.r")
+    source("consolidate/consolidate_covtar.r")
+    source("consolidate/consolidate_supply_util.r")
+    source("consolidate/consolidate_values.r")
+    source("consolidate/consolidate_filter.r")
 
     print(" > Starting local environment for consolidation summary")
     print(" > Consolidating base file...")

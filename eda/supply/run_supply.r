@@ -1,7 +1,7 @@
 # rows 2169 - 2254
 
 run_eda_supplies <- function(a_data, supply_secured, delivery_courses_doses) {
-    source("eda/supplies/supplies_consolidate.r")
+    source("eda/supply/supply_consolidate.r")
 
     print(" > Starting local environment for supplies eda")
     print(" > Supplies eda...")

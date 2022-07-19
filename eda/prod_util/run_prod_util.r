@@ -1,7 +1,8 @@
 # rows 2258 - 2569
 
-run_product <- function(a_data, b_smartsheet, refresh_date, timeto_t70) {
-    source("eda/product/product_utilization.r")
+run_prod_util <- function(a_data, refresh_date, timeto_t70) {
+    source("eda/prod_util/product_utilization.r")
+    source("eda/prod_util/combination.r")
 
     print(" > Starting local environment for product utilization eda")
     
@@ -16,14 +17,13 @@ run_product <- function(a_data, b_smartsheet, refresh_date, timeto_t70) {
     print(" > Calculating proportions of courses of total and course sufficiency...")
     a_data <- course_sufficiency(a_data, refresh_date)
     print(" > Done.")
-
-    print(" > Calculating progress against country coverage targets...")
-    a_data <- course_progress(a_data, b_smartsheet, refresh_date, timeto_t70)
-    print(" > Done.")
-
-    print(" > Adding additional notes...")
-    a_data <- course_add_notes(a_data, refresh_date)
-
+      
+    print(" > Overlaying supply and administration data...")
+    datalist <- supply_admin_summary(a_data)
+    a_data <- datalist$a_data
+    z_temp <- datalist$z_temp
+    z_temp_lm <- datalist$z_temp_lm
+    z_secview_long <- datalist$z_secview_long
     print(" > Done.")
 
     return(environment())
