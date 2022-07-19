@@ -1,6 +1,6 @@
 # rows 1723 - 1972
 
-run_adm_cov <- function(
+run_eda_adm_cov <- function(
     c_vxrate_latest,
     entity_characteristics,
     population_data,
