@@ -29,12 +29,24 @@ run_api <- function() {
     return(environment())
 }
 
-helper_wiise_api <- function(link, headers) {
-    print(" > Downloading data from who.int API...")
-    response <- GET(link, headers)
-    json <- content(response, "text", encoding = "UTF-8")
-    data <- fromJSON(json)
-    data <- data$value
-    print(" > Done.")
+helper_wiise_api <- function(link, headers, refresh_api) {
+    storage_name <- paste0("data/_input/interim/", sub(".*/", "", link), ".csv")
+    if (refresh_api | !file.exists(storage_name)) {
+        print(" > Downloading data from who.int API...")
+        response <- GET(link, headers)
+        json <- content(response, "text", encoding = "UTF-8")
+        data <- fromJSON(json)
+        data <- data$value
+        print(" > Done.")
+        print(" > Data is stored for future API calls...")
+        if (!file.exists("data/_input/interim")) {
+            dir.create("data/_input/interim")
+        }
+        write.csv(data, file = storage_name, row.names = FALSE)
+        print(" > Done.")
+    } else {
+        print(" > Old API data is used from data/_input/interim...")
+        data <- read.csv(storage_name)
+    }
     return(data)
 }

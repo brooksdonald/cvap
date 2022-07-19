@@ -1,6 +1,6 @@
 
 # Set working directory
-setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
+# setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
 
 # PACKAGES
 
@@ -30,6 +30,7 @@ lapply(lib, library, character.only = TRUE)
 .GlobalEnv$del_date <- as.Date("2022-07-04")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # set to FALSE to use base_dvr_current.xlsx
+.GlobalEnv$refresh_api <- FALSE # set to FALSE to use last API call
 
 # HELPERS
 
@@ -49,7 +50,7 @@ source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
 source("src/add_data/run_add_data.r")
 
-python_env <- run_vaccination_rate(.GlobalEnv$adm_api, .GlobalEnv$auto_cleaning, api_env$headers)
+python_env <- run_vaccination_rate(.GlobalEnv$adm_api, .GlobalEnv$auto_cleaning, api_env$headers, .GlobalEnv$refresh_api)
 entity_env <- run_entity()
 supply_env <- run_supply(.GlobalEnv$dataset_date, .GlobalEnv$del_date)
 adm_cov_env <- run_adm_cov(entity_env$entity_characteristics, .GlobalEnv$refresh_date, python_env$adm_data, .GlobalEnv$adm_api)

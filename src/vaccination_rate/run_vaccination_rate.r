@@ -1,4 +1,4 @@
-run_vaccination_rate <- function(adm_api, auto_cleaning, headers) {
+run_vaccination_rate <- function(adm_api, auto_cleaning, headers, refresh_api) {
     if (adm_api) {
 
         print(" > Checking if all Python libraries are available...")
@@ -27,7 +27,7 @@ run_vaccination_rate <- function(adm_api, auto_cleaning, headers) {
 
         wiise_supply_data <- helper_wiise_api(
             "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UTI_LONG",
-            headers)
+            headers, refresh_api)
         source_python("src/vaccination_rate/vxrate_supply_data.py")
         supply_data <- main(folder, name_01, wiise_supply_data)
 
