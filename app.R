@@ -83,20 +83,20 @@ eda_adm_cov_env <- run_eda_adm_cov(
     .GlobalEnv$refresh_date,
     .GlobalEnv$t70_deadline
 )
+supplies_env <- run_eda_supplies(eda_adm_cov_env$a_data)
+prod_util_env <- run_prod_util(
+    supplies_env$a_data,
+    .GlobalEnv$refresh_date,
+    eda_adm_cov_env$timeto_t70)
 cov_targets_env <- run_cov_targets(
-    eda_adm_cov_env$a_data,
+    prod_util_env$a_data,
     eda_adm_cov_env$timeto_t70,
     adm_cov_env$c_vxrate_sept_t10,
     adm_cov_env$c_vxrate_dec_t2040,
     adm_cov_env$c_vxrate_jun_t70,
     .GlobalEnv$t70_deadline,
     add_data_env$b_smartsheet)
-supplies_env <- run_eda_supplies(cov_targets_env$a_data)
-prod_util_env <- run_prod_util(
-    supplies_env$a_data,
-    .GlobalEnv$refresh_date,
-    eda_adm_cov_env$timeto_t70)
-financing_env <- run_financing(prod_util_env$a_data)
+financing_env <- run_financing(cov_targets_env$a_data)
 qual_data_env <- run_qual_data(financing_env$a_data)
 rank_bin_env <- run_rank_bin(qual_data_env$a_data)
 
