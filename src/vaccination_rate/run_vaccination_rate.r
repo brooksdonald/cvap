@@ -14,7 +14,7 @@ run_vaccination_rate <- function(adm_api, auto_cleaning, headers) {
         print(" > All Python libraries loaded.")
 
         print(" > Defining storage locations...")
-        folder <- "_input/supply_data"
+        folder <- "_input/dvr_data"
         name_00 <- "analysis_vx_throughput_data.csv"
         name_01 <- "analysis_vx_throughput_supply.csv"
         name_02 <- "analysis_vx_throughput_data_cleaned.csv"

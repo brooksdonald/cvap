@@ -72,7 +72,6 @@ def import_data(supply_data, cleaned_data):
     print(" > creating uti-supply1 df...")
     uti_supply1.columns = ['iso_code', 'date', 'doses_received', 'cumulative_doses_received']
     print(" > Done.")
-    print(uti_supply1)
     return who, iso_mapping, cc, country, owid1, uti_supply1
 
 

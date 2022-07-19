@@ -29,7 +29,7 @@ lapply(lib, library, character.only = TRUE)
 .GlobalEnv$dataset_date <- as.Date("2022-06-30") # is passed to sec_date
 .GlobalEnv$del_date <- as.Date("2022-07-04")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
-.GlobalEnv$adm_api <- FALSE # set to FALSE to use base_dvr_current.xlsx
+.GlobalEnv$adm_api <- TRUE # set to FALSE to use base_dvr_current.xlsx
 
 # HELPERS
 
