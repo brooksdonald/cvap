@@ -23,10 +23,6 @@ run_eda_adm_cov <- function(
     c_vxrate_latest_red <- extract_vxrate_details(c_vxrate_latest)
     print(" > Done.")
 
-    print(" > Obtaining WHO Dashboard...")
-    b_who_dashboard <- load_who_dashboard()
-    print(" > Done.")
-
     print(" > Merging dataframes...")
     a_data <- merge_dataframes(
         entity_characteristics,
