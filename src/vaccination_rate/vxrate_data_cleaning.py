@@ -583,7 +583,7 @@ def deep_clean(country_data, row, df, log):
     The logic used is:
     1. How many rows would have to be deleted before and including the current
         observation to remove the decrease in "total_doses"? Return count.
-    2. How many rows woul dhave to be deleted after the current observation
+    2. How many rows would have to be deleted after the current observation
         to have an increase from the current to the next observation? Return count.
     3. If count of 1. is greater than 2., then remove the next observation.
     4. If count of 1. is smaller than 2., then remove the current observation.
