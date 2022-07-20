@@ -30,7 +30,8 @@ run_api <- function() {
 }
 
 helper_wiise_api <- function(link, headers, refresh_api) {
-    storage_name <- paste0("data/_input/interim/", sub(".*/", "", link), ".csv")
+    folder <- "data/_input/interim"
+    storage_name <- paste0(folder, "/", sub(".*/", "", link), ".csv")
     if (refresh_api | !file.exists(storage_name)) {
         print(" > Downloading data from who.int API...")
         response <- GET(link, headers)
@@ -39,14 +40,14 @@ helper_wiise_api <- function(link, headers, refresh_api) {
         data <- data$value
         print(" > Done.")
         print(" > Data is stored for future API calls...")
-        if (!file.exists("data/_input/interim")) {
-            dir.create("data/_input/interim")
+        if (!file.exists(folder)) {
+            dir.create(folder)
         }
         write.csv(data, file = storage_name, row.names = FALSE)
-        print(" > Done.")
     } else {
-        print(" > Old API data is used from data/_input/interim...")
+        print(paste0(" > Old API data is used from ", folder, "..."))
         data <- read.csv(storage_name)
     }
+    print(" > Done.")
     return(data)
 }

@@ -35,7 +35,7 @@ run_vaccination_rate <- function(adm_api, auto_cleaning, headers, refresh_api) {
         cleaned_data <- main(auto_cleaning, throughput_data, folder, name_02)
 
         source_python("src/vaccination_rate/vxrate_output_daily.py")
-        adm_data <- main(supply_data, cleaned_data, folder, name_03)
+        adm_data <- main(supply_data, cleaned_data, folder, name_03, refresh_api)
 
         source_python("src/vaccination_rate/vxrate_data_fixes.py")
         main(throughput_data, adm_data, folder, name_04)
