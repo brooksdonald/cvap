@@ -23,7 +23,7 @@ run_vaccination_rate <- function(adm_api, auto_cleaning, headers, refresh_api) {
 
         print(" > Opening Python Environment...")
         source_python("src/vaccination_rate/vxrate_data_ingestion.py")
-        throughput_data <- main(folder, name_00)
+        throughput_data <- main(folder, name_00, refresh_api)
 
         wiise_supply_data <- helper_wiise_api(
             "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UTI_LONG",
