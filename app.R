@@ -57,7 +57,7 @@ adm_cov_env <- run_adm_cov(entity_env$entity_characteristics, .GlobalEnv$refresh
 cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
 finance_env <- run_finance(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
-add_data_env <- run_add_data()
+add_data_env <- run_add_data(.GlobalEnv$refresh_api)
 
 # EDA
 
