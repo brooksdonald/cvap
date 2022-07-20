@@ -54,7 +54,7 @@ python_env <- run_vaccination_rate(.GlobalEnv$adm_api, .GlobalEnv$auto_cleaning,
 entity_env <- run_entity()
 supply_env <- run_supply(.GlobalEnv$dataset_date, .GlobalEnv$del_date)
 adm_cov_env <- run_adm_cov(entity_env$entity_characteristics, .GlobalEnv$refresh_date, python_env$adm_data, .GlobalEnv$adm_api)
-cov_disag_env <- run_cov_disag(api_env$headers)
+cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
 finance_env <- run_finance(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
 add_data_env <- run_add_data()
