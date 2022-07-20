@@ -590,6 +590,8 @@ def deep_clean(country_data, row, df, log):
     """
     count_previous_larger = 0
     count_after_smaller = 0
+
+    ## TODO make external functions for counting
     row_backwards_check = row
     row_forward_check = row - 1
     not_exhausted = True
@@ -604,11 +606,10 @@ def deep_clean(country_data, row, df, log):
         row_forward_check -= 1
         if row_forward_check < 0:
             not_exhausted = False
-    if count_previous_larger <= count_after_smaller:
-        country_data, df, log = delete_row(country_data, df, row, log)
-    else:
-        country_data, df, log = delete_row(country_data, df, row - 1, log)
-    return country_data, df, log
+    row_to_delete = row
+    if count_previous_larger > count_after_smaller:
+        row_to_delete -= 1
+    return delete_row(country_data, df, row_to_delete, log)
 
 
 def row_check(country_data, row, df, log):
