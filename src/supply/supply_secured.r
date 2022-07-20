@@ -127,8 +127,8 @@ transform_supply_secured <- function(supply_secured, sec_date, c_sec_cour_lm) { 
     supply_secured <- supply_secured %>%
         mutate(sec_other_sum_dose = sec_eu_dose + sec_other_dose + sec_domestic_dose)
 
-    print(" >> Adding dataset date...")
-    supply_secured$sec_date <- dataset_date
+    print(" >> Adding secured supply dataset date...")
+    supply_secured$sec_date <- sec_date
     
     # Merge current and last month supply
     supply_secured <- left_join(supply_secured, c_sec_cour_lm, by = "a_iso")

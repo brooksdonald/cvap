@@ -1,10 +1,12 @@
 
-# Set working directory
+# SET WD
 setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
+
+# CLEAR ENVIRONMENT
+rm(list = ls())
 
 # PACKAGES
 
-rm(list = ls())
 lib <- c("tidyverse",
     "openxlsx",
     "readxl",
@@ -24,10 +26,10 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2022-07-08")
+.GlobalEnv$refresh_date <- as.Date("2022-07-14")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
-.GlobalEnv$dataset_date <- as.Date("2022-06-30") # is passed to sec_date
-.GlobalEnv$del_date <- as.Date("2022-07-04")
+.GlobalEnv$sec_date <- as.Date("2022-07-07") # is passed to sec_date
+.GlobalEnv$del_date <- as.Date("2022-07-12")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # set to FALSE to use base_dvr_current.xlsx
 
@@ -51,7 +53,7 @@ source("src/add_data/run_add_data.r")
 
 python_env <- run_vaccination_rate(.GlobalEnv$adm_api, .GlobalEnv$auto_cleaning, api_env$headers)
 entity_env <- run_entity()
-supply_env <- run_supply(.GlobalEnv$dataset_date, .GlobalEnv$del_date)
+supply_env <- run_supply(.GlobalEnv$sec_date, .GlobalEnv$del_date)
 adm_cov_env <- run_adm_cov(entity_env$entity_characteristics, .GlobalEnv$refresh_date, python_env$adm_data, .GlobalEnv$adm_api)
 cov_disag_env <- run_cov_disag(api_env$headers)
 finance_env <- run_finance(entity_env$entity_characteristics)
