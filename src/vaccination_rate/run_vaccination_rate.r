@@ -1,4 +1,4 @@
-run_vaccination_rate <- function(adm_api, auto_cleaning, headers) {
+run_vaccination_rate <- function(adm_api, auto_cleaning, headers, refresh_api) {
     if (adm_api) {
 
         print(" > Checking if all Python libraries are available...")
@@ -23,11 +23,11 @@ run_vaccination_rate <- function(adm_api, auto_cleaning, headers) {
 
         print(" > Opening Python Environment...")
         source_python("src/vaccination_rate/vxrate_data_ingestion.py")
-        throughput_data <- main(folder, name_00)
+        throughput_data <- main(folder, name_00, refresh_api)
 
         wiise_supply_data <- helper_wiise_api(
             "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UTI_LONG",
-            headers)
+            headers, refresh_api)
         source_python("src/vaccination_rate/vxrate_supply_data.py")
         supply_data <- main(folder, name_01, wiise_supply_data)
 
@@ -35,7 +35,7 @@ run_vaccination_rate <- function(adm_api, auto_cleaning, headers) {
         cleaned_data <- main(auto_cleaning, throughput_data, folder, name_02)
 
         source_python("src/vaccination_rate/vxrate_output_daily.py")
-        adm_data <- main(supply_data, cleaned_data, folder, name_03)
+        adm_data <- main(supply_data, cleaned_data, folder, name_03, refresh_api)
 
         source_python("src/vaccination_rate/vxrate_data_fixes.py")
         main(throughput_data, adm_data, folder, name_04)

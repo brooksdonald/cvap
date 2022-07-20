@@ -1,8 +1,8 @@
 
-load_population_uptake <- function(headers) {
+load_population_uptake <- function(headers, refresh_api) {
     print(" >> Load target groups and gender...")
-    uptake_gender <- load_pop_target_gender(headers)
-    uptake_groups <- load_pop_target_groups(headers)
+    uptake_gender <- load_pop_target_gender(headers, refresh_api)
+    uptake_groups <- load_pop_target_groups(headers, refresh_api)
     datalist <- list("uptake_gender" = uptake_gender,
         "uptake_groups" = uptake_groups)
     return(datalist)
@@ -27,11 +27,11 @@ transform_population_uptake <- function(uptake_gender, uptake_groups) {
     return(output)
 }
 
-load_pop_target_gender <- function(headers) {
+load_pop_target_gender <- function(headers, refresh_api) {
     print(" >> Loading COV Uptake gender data...")
     uptake_gender <- helper_wiise_api(
         "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_GENDER_LAST_MONTH_LONG",
-        headers)
+        headers, refresh_api)
     # Reduce columns & rename
     print(" >> Selecting uptake gender data...")
     uptake_gender <-
@@ -61,11 +61,11 @@ load_pop_target_gender <- function(headers) {
     return(uptake_gender)
 }
 
-load_pop_target_groups <- function(headers) {
+load_pop_target_groups <- function(headers, refresh_api) {
     print(" >> Loading COV Uptake target group data...")
     uptake_target_group <- helper_wiise_api(
         "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_TARGETGROUP_LAST_MONTH_LONG",
-        headers)
+        headers, refresh_api)
     # Reduce columns & rename
     print(" >> Reducing columns and renaming them...")
     uptake_target_group <-

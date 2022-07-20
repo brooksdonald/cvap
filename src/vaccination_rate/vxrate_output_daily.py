@@ -1,9 +1,9 @@
 from datetime import date
 import datetime
 import pandas as pd
-import io
+import os
 
-def import_data(supply_data, cleaned_data):
+def import_data(supply_data, cleaned_data, refresh_api):
     # Get Data
     print(" > Getting ISO mapping...")
     iso_mapping = pd.read_csv("data/_input/static/iso_mapping.csv")
@@ -18,8 +18,20 @@ def import_data(supply_data, cleaned_data):
     # get dose administration data for comparison
     print(" > Getting dose administration data for comparison...")
     #owid = pd.read_csv('data/_input/supply_data/owid-covid-data.csv')
-    print(" > Downloading data from owid API...")
-    owid = pd.read_csv('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
+    link = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv'
+    folder = "data/_input/interim"
+    storage_name = folder + "/" + link.split('/')[-1]
+    if refresh_api | (not os.path.exists(storage_name)):
+        print(" > Downloading data from owid API...")
+        owid = pd.read_csv(link)
+        if not os.path.exists(folder):
+            print(" > Creating a new folder " + folder + "/...")
+            os.makedirs(folder)
+        print(" > Saving API data to " + folder + "...")
+        owid.to_csv(storage_name, index = False)
+    else:
+        print(" > Old API data is used from " + folder + "/...")
+        owid = pd.read_csv(storage_name)
     print(" > Done.")
 
     # get primary data
@@ -454,12 +466,12 @@ def export_data(df12, folder, name):
     print(' > Done.')
 
 
-def main(supply_data, cleaned_data, folder, name):
+def main(supply_data, cleaned_data, folder, name, refresh_api):
     supply_threshold = 0.0
     days_in_weeks4 = 27
     days_in_weeks8 = 55
 
-    who, iso_mapping, cc, country, owid1, uti_supply1 = import_data(supply_data, cleaned_data)
+    who, iso_mapping, cc, country, owid1, uti_supply1 = import_data(supply_data, cleaned_data, refresh_api)
     df_flags = flags(who)
     df1 = merge_who_country(who, country)
     df1 = filter_data(df1)
