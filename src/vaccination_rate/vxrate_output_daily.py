@@ -1,7 +1,6 @@
 from datetime import date
 import datetime
 import pandas as pd
-import io
 import os
 
 def import_data(supply_data, cleaned_data, refresh_api):
