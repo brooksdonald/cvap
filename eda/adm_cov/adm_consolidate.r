@@ -373,6 +373,10 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
           (adm_a1d_hcw + (hcw_diff * cov_total_a1d)) / a_pop_hcw,
           1)
     )) %>%
+    mutate(cov_hcw_a1d_adjust = if_else(
+      adm_a1d_hcw <= adm_fv_hcw,
+      NA_real_,
+      cov_hcw_a1d)) %>%
     mutate(cov_hcw_fv =
       pmin(
         (adm_fv_hcw + if_else(
@@ -426,6 +430,10 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
       a_pop_older, adm_fv_60p)) %>%
     mutate(cov_60p_a1d = pmin(
       adm_a1d_60p / a_pop_older, 1)) %>%
+    mutate(cov_60p_a1d_adjust = if_else(
+      adm_a1d_60p <= adm_fv_60p,
+      NA_real_,
+      cov_60p_a1d)) %>%
     mutate(cov_60p_fv = pmin(
       adm_fv_60p / a_pop_older, 1)) %>%
     mutate(cov_60p_booster = pmin(
