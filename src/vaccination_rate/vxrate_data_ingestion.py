@@ -11,7 +11,7 @@ import os
 
 def create_new_path(folder):
   print(" > Creating new folder to store data: data/" + folder)
-  newpath = r'data/' + folder
+  newpath = r'data/' + folder # TODO fix this
   if not os.path.exists(newpath):
     os.makedirs(newpath)
     print(" > New folder created.")
