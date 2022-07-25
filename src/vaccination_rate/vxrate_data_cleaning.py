@@ -14,7 +14,7 @@ def create_path(newpath_child):
     parent_dir = 'data'
     newpath = os.path.join(parent_dir, newpath_child)
     if not os.path.exists(newpath):
-        print(" > Creating new folder: data/", folder)
+        print(" > Creating new folder: data/", newpath_child)
         os.makedirs(newpath)
         print(" > New folder created.")
 
@@ -22,9 +22,14 @@ def clean_path(folder):
     create_path(folder)
     print(" > Deleting any pre-existing plots from data/cleaning_log/...")
     parent_dir = 'data'
-    path = os.path.join(parent_dir, folder)
+    path = parent_dir + '/' + folder
     for f in os.listdir(path):
-        os.remove(os.path.join(path, f))
+        try:
+            os.remove(os.path.join(path, f))
+        except:
+            for j in os.listdir(os.path.join(path, f)):
+                os.remove(os.path.join(os.path.join(path, f), j))
+
 
 def import_data(throughput_data):
     print(" > Loading dataset...")
@@ -651,7 +656,7 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean):
     3. Produce a plot for all groups of changes.
     4. Export the plots to `data/logged_changes`.
     """
-    create_new_path(folder = "cleaning_log/" + var_to_clean)
+    create_path("cleaning_log/" + var_to_clean)
 
     country_data = df2.loc[df2['iso_code'] == country, :].copy()
     uncleaned_c = uncleaned.loc[uncleaned['iso_code'] == country, :].copy()
@@ -707,7 +712,11 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean):
             plt.xticks(rotation = 25)
             plt.xlim((date_from + zoom_lower_bound, date_to - zoom_upper_bound))
             plt.subplots_adjust(bottom = 0.2, left = 0.15)
-            plt.savefig('data/cleaning_log/cleaning_' + country + '_' + str(count))
+            if count > 1:
+                plt.savefig('data/cleaning_log/' + var_to_clean + '/cleaning_' + country + '_' + str(count))
+            else:
+                plt.savefig('data/cleaning_log/' + var_to_clean + '/cleaning_' + country)
+            
 
 
 def automized_cleaning(df2, var_to_clean, delete_errors):
@@ -718,7 +727,6 @@ def automized_cleaning(df2, var_to_clean, delete_errors):
     3. produce figures of the changes made.
     """
     print(" > Starting the automized cleaning process...")
-    create_new_path(folder = "cleaning_log")
     
     print(" > Initializing variables...")
     uncleaned = df2.copy()
@@ -756,6 +764,7 @@ def main(auto_cleaning, throughput_data, folder, name):
     df1, df2 = map_iso_codes(df1, iso_mapping)
     df2, manual_fix_list = fix_issues_total_doses(df2)
     if auto_cleaning:
+        clean_path(folder = "cleaning_log")
         df2 = automized_cleaning(df2, var_to_clean = 'total_doses', delete_errors = True)
         df2 = automized_cleaning(df2, var_to_clean = 'at_least_one_dose', delete_errors = False)
         df2 = automized_cleaning(df2, var_to_clean = 'fully_vaccinated', delete_errors = False)
