@@ -748,7 +748,11 @@ def automized_cleaning(df2, var_to_clean, delete_errors):
                 country_data, df2, log = row_check(country_data, row, df2, log, var_to_clean_iloc)
             export_plots_of_changes(df2, uncleaned, country, log, var_to_clean)
     print(" > Saving plots of cleaned changes to data/cleaning_log...")
-    df2 = df2.loc[df2['to_delete_automized_clean'] == 0, :]
+    if delete_errors:
+        df2 = df2.loc[df2['to_delete_automized_clean'] == 0, :]
+    else:
+        df2.loc[df2['to_delete_automized_clean'] == 1, var_to_clean] = None
+    df2.drop('to_delete_automized_clean', axis = 1, inplace = True)
     print(" > Saving logged_changes to csv...")
     log.rename({'date': 'deleted dates'}, axis = 1, inplace = True)
     log.sort_values(by=['country', 'deleted dates'], ascending=True)
