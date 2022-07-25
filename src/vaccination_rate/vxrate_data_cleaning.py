@@ -756,7 +756,7 @@ def automized_cleaning(df2, var_to_clean, delete_errors):
     print(" > Saving logged_changes to csv...")
     log.rename({'date': 'deleted dates'}, axis = 1, inplace = True)
     log.sort_values(by=['country', 'deleted dates'], ascending=True)
-    log.to_csv('data/cleaning_log/logged_changes.csv', index = False)
+    log.to_csv('data/cleaning_log/' + var_to_clean + '/logged_changes.csv', index = False)
     return df2
 
 
