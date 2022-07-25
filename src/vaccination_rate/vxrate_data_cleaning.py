@@ -662,13 +662,34 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean):
     uncleaned_c = uncleaned.loc[uncleaned['iso_code'] == country, :].copy()
     country_data.sort_values(by = ['date'], ascending = False, inplace = True)
     country_data = country_data.loc[country_data['to_delete_automized_clean'] == 0, :]
-    country_data['type'] = 'cleaned'
-    uncleaned_c['type'] = 'original'
-    plot_data = pd.concat([uncleaned_c[['date', var_to_clean, 'type']],
-        country_data[['date', var_to_clean, 'type']]], ignore_index = True)
-    plot_data[var_to_clean] = plot_data[var_to_clean].copy()/1000000
-    plot_data.rename({var_to_clean: 'Total Doses (in million)', 'date': 'Date'}, inplace = True, axis = 1)
-
+    country_data['type_line'] = '_cleaned'
+    uncleaned_c['type_line'] = '_original'
+    background_data = uncleaned_c[['date', 'total_doses', 'at_least_one_dose',
+       'fully_vaccinated', 'type_line']]
+    background_data1 = background_data[['date', 'total_doses', 'type_line']]
+    background_data2 = background_data[['date', 'at_least_one_dose', 'type_line']]
+    background_data3 = background_data[['date', 'fully_vaccinated', 'type_line']]
+    background_data1['type_col'] = '_Total Doses'
+    background_data2['type_col'] = '_At Least One Dose'
+    background_data3['type_col'] = '_Fully Vaccinated'
+    background_data1.columns = ['date', var_to_clean, 'type_line', 'type_col']
+    background_data2.columns = ['date', var_to_clean, 'type_line', 'type_col']
+    background_data3.columns = ['date', var_to_clean, 'type_line', 'type_col']
+    background_data = pd.concat([background_data1, background_data2, background_data3])
+    background_data = background_data.loc[~(background_data['type_col'] == '_' + var_to_clean.replace('_', ' ').title()), :]
+    country_data['type_col'] = 'cleaned'
+    uncleaned_c['type_col'] = 'original'
+    plot_data = pd.concat(
+        [background_data,
+        uncleaned_c[['date', var_to_clean, 'type_line', 'type_col']],
+        country_data[['date', var_to_clean, 'type_line', 'type_col']]
+        ],
+        ignore_index = True)
+    plot_data.rename({var_to_clean: 'y'}, axis = 1, inplace = True)
+    plot_data[var_to_clean] = plot_data['y'].copy()/1000000
+    yaxis = var_to_clean.replace('_', ' ').title() + ' (in million)'
+    customPalette = sns.color_palette(["#D3D3D3", "#D3D3D3", "#6495ED", "#FFA500"])
+        
     changes = list(log.loc[log['country'] == country, 'date'])
     changes.sort()
     uncleaned_c.sort_values(by = ['date'], ascending = False, inplace = True)
@@ -694,8 +715,8 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean):
             group_together = False
         if not group_together:
             count += 1
-            plot_data_range = plot_data.loc[plot_data['Date'] >= date_from, :].copy()
-            plot_data_range = plot_data_range.loc[plot_data['Date'] <= date_to, :].copy()
+            plot_data_range = plot_data.loc[plot_data['date'] >= date_from, :].copy()
+            plot_data_range = plot_data_range.loc[plot_data['date'] <= date_to, :].copy()
 
             ## zooming in where possible to give impression of continuous data
             zoom_lower_bound = datetime.timedelta(days = -2)
@@ -706,9 +727,18 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean):
                 zoom_upper_bound = datetime.timedelta(days = 2)
             
             plt.clf()
-            sns.lineplot(data = plot_data_range, y = 'Total Doses (in million)', x = 'Date', 
-                hue = 'type', style = 'type') \
-                    .set(title = country + ": Change " + str(count))
+            sns.lineplot(
+                data = plot_data_range,
+                y = 'y',
+                x = 'date',
+                palette = customPalette,
+                hue = 'type_col',
+                style = 'type_line',
+            ).set(
+                title = country + ": Change " + str(count),
+                xlabel = None,
+                ylabel = yaxis)
+            
             plt.xticks(rotation = 25)
             plt.xlim((date_from + zoom_lower_bound, date_to - zoom_upper_bound))
             plt.subplots_adjust(bottom = 0.2, left = 0.15)
