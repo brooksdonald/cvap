@@ -739,7 +739,8 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean):
                 zoom_upper_bound = datetime.timedelta(days = 2)
             
             plt.clf()
-            sns.lineplot(
+            fig, ax = plt.subplots()
+            g = sns.lineplot(
                 data = plot_data_range,
                 y = 'y',
                 x = 'date',
@@ -749,7 +750,10 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean):
             ).set(
                 title = country + ": Change " + str(count),
                 xlabel = None,
-                ylabel = yaxis)
+                ylabel = yaxis
+            )
+            handles, labels = ax.get_legend_handles_labels()
+            ax.legend(handles=handles[1:3], labels=labels[1:3])
             ymin, ymax = plt.ylim()
             y_low = min(y_to_show) / 1000000
             y_high = max(y_to_show) / 1000000
