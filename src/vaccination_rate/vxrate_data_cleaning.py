@@ -780,7 +780,6 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder):
             plt.xticks(rotation = 25)
             plt.xlim((date_from + zoom_lower_bound, date_to - zoom_upper_bound))
             plt.subplots_adjust(bottom = 0.2, left = 0.15)
-            plt.legend(fontsize = 10)
             if count > 1:
                 plt.savefig('data/cleaning_log/' + folder + '/cleaning_' + country + '_' + str(count))
             else:
@@ -861,8 +860,9 @@ def main(auto_cleaning, throughput_data, folder, name):
         df2 = automized_cleaning(df2, var_to_clean = 'total_doses', delete_errors = True)
         df2 = automized_cleaning(df2, var_to_clean = 'at_least_one_dose', delete_errors = False)
         df2 = automized_cleaning(df2, var_to_clean = 'fully_vaccinated', delete_errors = False)
-        df2 = logical_cleaning(df2, 'fully_vaccinated', 'at_least_one_dose')
-        df2 = logical_cleaning(df2, 'at_least_one_dose', 'total_doses')
+        # disabled for now. Implemented instead in dvr_output_daily in function cleaning_data
+        # df2 = logical_cleaning(df2, 'fully_vaccinated', 'at_least_one_dose') 
+        # df2 = logical_cleaning(df2, 'at_least_one_dose', 'total_doses')
     df2 = fix_issues_at_least_one_dose(df2)
     df2 = fix_issues_fully_vaccinated(df2)
     df_errors1 = check_for_total_dose_decreases_1(df1)
