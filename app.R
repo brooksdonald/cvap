@@ -1,6 +1,6 @@
 
 # SET WD
-# setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
+setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
 #setwd() #Rafael
 
 # CLEAR ENVIRONMENT
