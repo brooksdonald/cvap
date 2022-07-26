@@ -780,6 +780,7 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder):
             plt.xticks(rotation = 25)
             plt.xlim((date_from + zoom_lower_bound, date_to - zoom_upper_bound))
             plt.subplots_adjust(bottom = 0.2, left = 0.15)
+            plt.legend(fontsize = 10)
             if count > 1:
                 plt.savefig('data/cleaning_log/' + folder + '/cleaning_' + country + '_' + str(count))
             else:
@@ -805,8 +806,7 @@ def logical_cleaning(df2, var_to_clean, larger_var):
     df2.loc[df2['to_delete_automized_clean'] == 1, var_to_clean] = None
     log['deleted_variable'] = var_to_clean
     log.to_csv('data/cleaning_log/' + folder + '/logged_changes.csv', index = False)
-    
-
+    return df2
 
 
 def automized_cleaning(df2, var_to_clean, delete_errors):
