@@ -28,7 +28,11 @@ def clean_path(folder):
             os.remove(os.path.join(path, f))
         except:
             for j in os.listdir(os.path.join(path, f)):
-                os.remove(os.path.join(os.path.join(path, f), j))
+                try:
+                    os.remove(os.path.join(os.path.join(path, f), j))
+                except:
+                    for k in os.listdir(os.path.join(os.path.join(path, f), j)):
+                        os.remove(os.path.join(os.path.join(os.path.join(path, f), j), k))
 
 
 def import_data(throughput_data):
@@ -798,8 +802,10 @@ def logical_cleaning(df2):
             if country_data.loc[i,'fully_vaccinated'] > country_data.loc[i,'at_least_one_dose']:
                 country_data, df2, log = delete_row(country_data, df2, i, log, reset_index = False)
         export_plots_of_changes(df2, uncleaned, country, log, "fully_vaccinated", folder)
-    deleted_variable = ['fully_vaccinated'] * len(log)
+    log['deleted_variable'] = 'fully_vaccinated'
+    log.to_csv('data/cleaning_log/' + folder + '/logged_changes.csv', index = False)
 
+    log = pd.DataFrame({'country': [], 'date': []})
     folder = 'at_least_one_dose/logical_cleaning'
     create_path("cleaning_log/" + folder)
     countries = df2['iso_code'].unique()
@@ -811,8 +817,7 @@ def logical_cleaning(df2):
             if country_data.loc[i,'at_least_one_dose'] > country_data.loc[i,'total_doses']:
                 country_data, df2, log = delete_row(country_data, df2, i, log, reset_index = False)
         export_plots_of_changes(df2, uncleaned, country, log, "at_least_one_dose", folder)
-    deleted_variable += ['at_least_one_dose'] * (len(log) - len(deleted_variable))
-    log['deleted_variable'] = deleted_variable
+    log['deleted_variable'] = 'at_least_one_dose'
     log.to_csv('data/cleaning_log/' + folder + '/logged_changes.csv', index = False)
     return df2
         
