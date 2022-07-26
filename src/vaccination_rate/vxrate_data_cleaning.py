@@ -682,11 +682,10 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean):
     plot_data = pd.concat(
         [background_data,
         uncleaned_c[['date', var_to_clean, 'type_line', 'type_col']],
-        country_data[['date', var_to_clean, 'type_line', 'type_col']]
-        ],
+        country_data[['date', var_to_clean, 'type_line', 'type_col']]],
         ignore_index = True)
     plot_data.rename({var_to_clean: 'y'}, axis = 1, inplace = True)
-    plot_data[var_to_clean] = plot_data['y'].copy()/1000000
+    plot_data['y'] = plot_data['y'].copy()/1000000
     yaxis = var_to_clean.replace('_', ' ').title() + ' (in million)'
     customPalette = sns.color_palette(["#D3D3D3", "#D3D3D3", "#6495ED", "#FFA500"])
         
@@ -698,7 +697,18 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean):
     max_date = uncleaned_c['date'].max()
     group_together = False
     count = 0
+    y_jump_list = []
+    y_to_show = []
     for date_change in range(len(changes)):
+        y_original = float(uncleaned_c.loc[uncleaned_c['date'] == changes[date_change], var_to_clean])
+        row_low = max(list(uncleaned_c['date']).index(changes[date_change]) - 1, 0)
+        row_high = min(list(uncleaned_c['date']).index(changes[date_change]) + 1, len(uncleaned_c['date']) - 1)
+        y_cleaned = float((uncleaned_c.loc[row_low, var_to_clean] + uncleaned_c.loc[row_high, var_to_clean])/2)
+        y_jump = np.abs(y_original - y_cleaned)
+        y_jump_list.append(y_jump)
+        y_to_show += [y_original,
+            float((uncleaned_c.loc[row_low, var_to_clean])),
+            float(uncleaned_c.loc[row_high, var_to_clean])]
         date_to = uncleaned_c.loc[max(list(uncleaned_c['date']).index(changes[date_change]) - 15, 0), 'date']
         if group_together:
             date_from = date_from_grouped
@@ -714,6 +724,8 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean):
         else:
             group_together = False
         if not group_together:
+            y_jump_max = max(y_jump_list)/1000000
+            y_jump_list = []
             count += 1
             plot_data_range = plot_data.loc[plot_data['date'] >= date_from, :].copy()
             plot_data_range = plot_data_range.loc[plot_data['date'] <= date_to, :].copy()
@@ -738,7 +750,18 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean):
                 title = country + ": Change " + str(count),
                 xlabel = None,
                 ylabel = yaxis)
-            
+            ymin, ymax = plt.ylim()
+            y_low = min(y_to_show) / 1000000
+            y_high = max(y_to_show) / 1000000
+            y_diff = y_high - y_low
+            y_high += y_diff * 5
+            y_low -= y_diff * 5
+            y_low = max(y_low, -0.5)
+            y_to_show = []
+            zoom = True
+            if (ymax - ymin > float(y_jump_max) * 80) & zoom:
+                plt.ylim(y_low, y_high)
+
             plt.xticks(rotation = 25)
             plt.xlim((date_from + zoom_lower_bound, date_to - zoom_upper_bound))
             plt.subplots_adjust(bottom = 0.2, left = 0.15)
