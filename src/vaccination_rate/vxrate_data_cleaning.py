@@ -783,7 +783,7 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder):
 
 
 def logical_cleaning(df2):
-    folder = 'logical_cleaning'
+    folder = 'fully_vaccinated/logical_cleaning'
     create_path("cleaning_log/" + folder)
     uncleaned = df2.copy()
     df2['to_delete_automized_clean'] = 0
@@ -799,6 +799,9 @@ def logical_cleaning(df2):
                 country_data, df2, log = delete_row(country_data, df2, i, log, reset_index = False)
         export_plots_of_changes(df2, uncleaned, country, log, "fully_vaccinated", folder)
     deleted_variable = ['fully_vaccinated'] * len(log)
+
+    folder = 'at_least_one_dose/logical_cleaning'
+    create_path("cleaning_log/" + folder)
     countries = df2['iso_code'].unique()
     countries = np.sort(countries)
     for country in countries:
@@ -807,6 +810,7 @@ def logical_cleaning(df2):
         for i in range(len(country_data) - 1):
             if country_data.loc[i,'at_least_one_dose'] > country_data.loc[i,'total_doses']:
                 country_data, df2, log = delete_row(country_data, df2, i, log, reset_index = False)
+        export_plots_of_changes(df2, uncleaned, country, log, "at_least_one_dose", folder)
     deleted_variable += ['at_least_one_dose'] * (len(log) - len(deleted_variable))
     log['deleted_variable'] = deleted_variable
     log.to_csv('data/cleaning_log/' + folder + '/logged_changes.csv', index = False)
