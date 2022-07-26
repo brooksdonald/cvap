@@ -176,7 +176,6 @@ def interpolate_data(df_inter):
     df_inter.reset_index().drop(['index'], axis = 1, inplace = True)
     return df_inter
 
-
 def minimum_rollout_date(df_inter, country):
     print(' > Calculating minimum rollout date...')
     df3 = df_inter.merge(country[['iso_code', 'country_name_friendly']], on = 'iso_code', how = 'left')
@@ -190,6 +189,12 @@ def minimum_rollout_date(df_inter, country):
     min_vx_rollout_date.rename(columns = {'min_vx_rollout_date': 'min_vx_rollout_date'}, inplace = True)
     df3 = df3.merge(min_vx_rollout_date, on = 'iso_code', how = 'left')
     return df3
+
+
+def cleaning_data(df):
+    df['at_least_one_dose'] = df[['total_doses','at_least_one_dose']].min(axis = 1) 
+    df['fully_vaccinated'] = df[['at_least_one_dose','fully_vaccinated']].min(axis = 1) 
+    return df
 
 
 def merge_with_supply(df3, uti_supply1, supply_threshold):
@@ -466,7 +471,7 @@ def export_data(df12, folder, name):
     print(' > Done.')
 
 
-def main(supply_data, cleaned_data, folder, name, refresh_api):
+def main(supply_data, cleaned_data, folder, name, refresh_api, auto_cleaning):
     supply_threshold = 0.0
     days_in_weeks4 = 27
     days_in_weeks8 = 55
@@ -478,6 +483,8 @@ def main(supply_data, cleaned_data, folder, name, refresh_api):
     df_inter = exploding_dates(df1)
     df_inter = interpolate_data(df_inter)
     df3 = minimum_rollout_date(df_inter, country)
+    if auto_cleaning:
+        df3 = cleaning_data(df3)
     df4 = merge_with_supply(df3, uti_supply1, supply_threshold)
     df5 = moving_averages_td(df4, days_in_weeks4, days_in_weeks8)
     df6 = moving_averages_1d(df5, days_in_weeks4, days_in_weeks8)
