@@ -192,6 +192,7 @@ def minimum_rollout_date(df_inter, country):
 
 
 def cleaning_data(df):
+    # TODO pass through the following variables to 0_base_data and 1_adm_all_long
     df['fully_vaccinated_adj'] = df[['at_least_one_dose','fully_vaccinated']].min(axis = 1) 
     df['at_least_one_dose_adj'] = df[['total_doses','at_least_one_dose']].min(axis = 1)
     df['at_least_one_dose_adj'] = df[['fully_vaccinated_adj','at_least_one_dose_adj']].max(axis = 1)
