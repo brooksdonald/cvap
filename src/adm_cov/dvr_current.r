@@ -23,7 +23,9 @@ load_b_vxrate <- function(adm_data, adm_api) {
         "date",
         "total_doses",
         "at_least_one_dose",
+        "at_least_one_dose_adj",
         "fully_vaccinated",
+        "fully_vaccinated_adj",
         "persons_booster_add_dose",
         "rolling_4_week_avg_td",
         "rolling_4_week_avg_fv",
@@ -40,7 +42,9 @@ load_b_vxrate <- function(adm_data, adm_api) {
       "adm_date",
       "adm_td",
       "adm_a1d",
+      "adm_a1d_adj",
       "adm_fv",
+      "adm_fv_adj",
       "adm_booster",
       "dvr_4wk_td",
       "dvr_4wk_fv",
@@ -73,8 +77,8 @@ transform_current_vxrate <- function(
         year(adm_date) == 2021,
         month(adm_date),
         ifelse(
-          year(adm_date) == 2022, 
-          month(adm_date) + 12, 
+          year(adm_date) == 2022,
+          month(adm_date) + 12,
           NA
         )
       )
@@ -185,7 +189,9 @@ transform_current_vxrate_pub <- function(b_vxrate) {
         "adm_date",
         "adm_td",
         "adm_a1d",
+        "adm_a1d_adj",
         "adm_fv",
+        "adm_fv_adj",
         "adm_booster",
         "dvr_4wk_td",
         "a_who_region",

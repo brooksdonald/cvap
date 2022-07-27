@@ -192,8 +192,7 @@ def minimum_rollout_date(df_inter, country):
 
 
 def cleaning_data(df):
-    # TODO pass through the following variables to 0_base_data and 1_adm_all_long
-    df['fully_vaccinated_adj'] = df[['at_least_one_dose','fully_vaccinated']].min(axis = 1) 
+    df['fully_vaccinated_adj'] = df[['total_doses','fully_vaccinated']].min(axis = 1) 
     df['at_least_one_dose_adj'] = df[['total_doses','at_least_one_dose']].min(axis = 1)
     df['at_least_one_dose_adj'] = df[['fully_vaccinated_adj','at_least_one_dose_adj']].max(axis = 1)
     return df
@@ -443,7 +442,9 @@ def identifying_missing_countries(df9, df_flags):
 def adding_flags_for_changes(df10):
     print(' > adding change from previous flag...')
     df11 = df10.copy()
-    df11['prev_week_val'] = df11.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['total_doses'].shift(1)
+    df11['prev_week_val'] = df11.sort_values(
+        by=['date'], ascending=True
+        ).groupby(['iso_code'])['total_doses'].shift(1)
     df11['no_change_from_previous'] = 0
     df11.loc[(df11['total_doses'] == df11['prev_week_val']), 'no_change_from_previous'] = 1
     df11.drop('prev_week_val', axis = 1, inplace = True)
@@ -453,9 +454,10 @@ def adding_flags_for_changes(df10):
 def final_variable_selection(df11, who):
     print(' > Creating final dataframe...')
     df12 = df11[['iso_code', 'entity_name', 'population', 'date', 'is_original_reported', 
-                'cumulative_doses_received', 'effective_supply',
-                'total_doses_owid', 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose',
-                'daily_rate_td', 'rolling_4_week_avg_td', 'max_rolling_4_week_avg_td', 'med_rolling_4_week_avg_td', 
+                'cumulative_doses_received', 'effective_supply', 'total_doses_owid',
+                'total_doses', 'at_least_one_dose', 'at_least_one_dose_adj', 'fully_vaccinated', 
+                'fully_vaccinated_adj', 'persons_booster_add_dose', 'daily_rate_td', 
+                'rolling_4_week_avg_td', 'max_rolling_4_week_avg_td', 'med_rolling_4_week_avg_td', 
                 'rolling_4_week_avg_td_lastweek', 'rolling_4_week_avg_td_lastmonth', 'rolling_8_week_avg_td', 
                 'rolling_4_week_avg_td_per100', 'rolling_8_week_avg_td_per100', 'max_rolling_4_week_avg_td_per100',
                 'daily_rate_1d', 'rolling_4_week_avg_1d', 'daily_rate_fv', 'rolling_4_week_avg_fv', 
