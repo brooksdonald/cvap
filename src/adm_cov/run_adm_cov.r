@@ -1,7 +1,7 @@
 # rows 119 - 596
 
 run_adm_cov <- function(entity_characteristics,
-    refresh_date, adm_data, adm_api) {
+    refresh_date, dvr_data, adm_api) {
     source("src/adm_cov/dvr_current.r")
     source("src/adm_cov/dvr_prev.r")
 
@@ -11,9 +11,11 @@ run_adm_cov <- function(entity_characteristics,
     current_month <- substr(refresh_date, 1, 7)
 
     print(" > Daily current vaccinations")
-    b_vxrate <- load_b_vxrate(adm_data, adm_api)
+    b_vxrate <- load_b_vxrate(dvr_data, adm_api)
     b_vxrate <- transform_current_vxrate(
-        b_vxrate, entity_characteristics, refresh_date)
+        b_vxrate,
+        entity_characteristics,
+        refresh_date)
     b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate)
     b_vxrate_amc <- transform_subset_amc(b_vxrate)
     b_vxrate_amc_smooth <- transform_smooth_timeseries(
@@ -23,12 +25,18 @@ run_adm_cov <- function(entity_characteristics,
     c_vxrate_eom <- transform_abspt_by_month(b_vxrate, current_month)
     d_absorption <- absorption_sum_by_month(c_vxrate_eom, current_month)
     c_vxrate_latest <- latest_sum_table(b_vxrate, c_vxrate_latest)
-    c_vxrate_lastweek <- last_week_sum_table(b_vxrate, c_vxrate_latest, 
-                                               c_vxrate_lastweek)
-    c_vxrate_lastmonth <- last_month_sum_table(b_vxrate, c_vxrate_latest, 
-                                               c_vxrate_lastmonth)
-    c_vxrate_twomonth <- two_month_sum_table(b_vxrate, c_vxrate_latest, 
-                                             c_vxrate_twomonth)
+    c_vxrate_lastweek <- last_week_sum_table(
+        b_vxrate,
+        c_vxrate_latest,
+        c_vxrate_lastweek)
+    c_vxrate_lastmonth <- last_month_sum_table(
+        b_vxrate,
+        c_vxrate_latest,
+        c_vxrate_lastmonth)
+    c_vxrate_twomonth <- two_month_sum_table(
+        b_vxrate,
+        c_vxrate_latest,
+        c_vxrate_twomonth)
     c_vxrate_jun_t70 <- transform_jun22_pop_tgt(b_vxrate, c_vxrate_latest)
     datalist1 <- absorption_per_country(c_vxrate_eom, current_month)
     d_absorb_red <- datalist1$d_absorb_red

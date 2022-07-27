@@ -1,9 +1,9 @@
 
 # load current daily vxrate
-load_b_vxrate <- function(adm_data, adm_api) {
+load_b_vxrate <- function(dvr_data, adm_api) {
   if (adm_api) {
     print(" >> Using data from API...")
-    b_vxrate <- as.data.frame(adm_data)
+    b_vxrate <- as.data.frame(dvr_data)
     b_vxrate$date <- as.Date(b_vxrate$date, format = "%Y-%m-%d")
   } else {
     print(" >> Loading current daily vaccination rate from Excel...")
