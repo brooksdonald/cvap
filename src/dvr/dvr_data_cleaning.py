@@ -10,16 +10,29 @@ import warnings
 warnings.filterwarnings("ignore")
 sns.set(rc={"figure.dpi":400, 'savefig.dpi':400})
 
-def create_new_path():
-    print(" > Creating new folder to store plots: data/cleaning_log/...")
-    newpath = r'data/cleaning_log' 
+def create_path(newpath_child):
+    parent_dir = 'data'
+    newpath = os.path.join(parent_dir, newpath_child)
     if not os.path.exists(newpath):
+        print(" > Creating new folder: data/", newpath_child)
         os.makedirs(newpath)
-    print(" > New folder created.")
+        print(" > New folder created.")
+
+def clean_path(folder):
+    create_path(folder)
     print(" > Deleting any pre-existing plots from data/cleaning_log/...")
-    dir = 'data/cleaning_log'
-    for f in os.listdir(dir):
-        os.remove(os.path.join(dir, f))
+    parent_dir = 'data'
+    path = parent_dir + '/' + folder
+    for f in os.listdir(path):
+        try:
+            os.remove(os.path.join(path, f))
+        except:
+            for j in os.listdir(os.path.join(path, f)):
+                try:
+                    os.remove(os.path.join(os.path.join(path, f), j))
+                except:
+                    for k in os.listdir(os.path.join(os.path.join(path, f), j)):
+                        os.remove(os.path.join(os.path.join(os.path.join(path, f), j), k))
 
 
 def import_data(throughput_data):
@@ -558,13 +571,20 @@ def monotonic(series):
             return False
 
 
-def delete_row(country_data, df, row, log):
+def filter_country_data(df2, country):
+    country_data = df2.loc[df2['iso_code'] == country, :].copy()
+    country_data.sort_values(by = ['date'], ascending = False, inplace = True)
+    return country_data
+
+
+def delete_row(country_data, df, row, log, reset_index = True):
     """
     This function deletes a specified row from `country_data`,
     adds a flag to the respective row in `df`,
     and reports the deleted row in `log`.
     """
-    country_data.reset_index(drop = True, inplace = True)
+    if reset_index:
+        country_data.reset_index(drop = True, inplace = True)
     country_name = country_data.loc[row,'iso_code']
     date = country_data.loc[row,'date']
     df.loc[((df['iso_code'] == country_name) & (df['date'] == date)),'to_delete_automized_clean'] = 1
@@ -575,7 +595,7 @@ def delete_row(country_data, df, row, log):
     return country_data, df, log
 
 
-def deep_clean(country_data, row, df, log):
+def deep_clean(country_data, row, df, log, var_to_clean_iloc):
     """
     This function checks for the best way to deal with more complicated cases,
     that is, when the next observation is lower than at least two previous observations.
@@ -595,13 +615,13 @@ def deep_clean(country_data, row, df, log):
     row_backwards_check = row
     row_forward_check = row - 1
     not_exhausted = True
-    while (country_data.iloc[min(row - 1, len(country_data) - 1), 2] < country_data.iloc[min(row_backwards_check, len(country_data) - 1), 2]) and not_exhausted:
+    while (country_data.iloc[min(row - 1, len(country_data) - 1), var_to_clean_iloc] < country_data.iloc[min(row_backwards_check, len(country_data) - 1), var_to_clean_iloc]) and not_exhausted:
         count_previous_larger += 1
         row_backwards_check += 1
         if row_backwards_check > len(country_data) - 1:
             not_exhausted = False
     not_exhausted = True
-    while (country_data.iloc[min(row, len(country_data) - 1), 2] > country_data.iloc[max(row_forward_check, 0), 2]) and not_exhausted:
+    while (country_data.iloc[min(row, len(country_data) - 1), var_to_clean_iloc] > country_data.iloc[max(row_forward_check, 0), var_to_clean_iloc]) and not_exhausted:
         count_after_smaller += 1
         row_forward_check -= 1
         if row_forward_check < 0:
@@ -612,7 +632,7 @@ def deep_clean(country_data, row, df, log):
     return delete_row(country_data, df, row_to_delete, log)
 
 
-def row_check(country_data, row, df, log):
+def row_check(country_data, row, df, log, var_to_clean_iloc):
     """
     This is a recursive function that checks a row of the `country_data` dataframe.
     It determines whether an observation should be deleted if there is a decrease in total_doses.
@@ -625,20 +645,20 @@ def row_check(country_data, row, df, log):
     """
     ## check previous
     if len(country_data) > row:
-        country_data, df, log = row_check(country_data, row + 1, df, log)
+        country_data, df, log = row_check(country_data, row + 1, df, log, var_to_clean_iloc)
     else:
         return country_data, df, log
     
     ## check itself
-    if country_data.iloc[min(row, len(country_data) - 1), 2] > country_data.iloc[max(row - 1, 0), 2]: # is it larger than next one?
-        if country_data.iloc[min(row + 1, len(country_data) - 1), 2] > country_data.iloc[max(row - 1, 0), 2]: # is previous larger than next?
-            country_data, df, log = deep_clean(country_data, row, df, log)
+    if country_data.iloc[min(row, len(country_data) - 1), var_to_clean_iloc] > country_data.iloc[max(row - 1, 0), var_to_clean_iloc]: # is it larger than next one?
+        if country_data.iloc[min(row + 1, len(country_data) - 1), var_to_clean_iloc] > country_data.iloc[max(row - 1, 0), var_to_clean_iloc]: # is previous larger than next?
+            country_data, df, log = deep_clean(country_data, row, df, log, var_to_clean_iloc)
         else:
             country_data, df, log = delete_row(country_data, df, row, log)
     return country_data, df, log
 
 
-def export_plots_of_changes(df2, uncleaned, country, log):
+def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder):
     """
     This function produces a lineplot comparing the cleaned and uncleaned 'total_doses' for a country.
     
@@ -647,17 +667,39 @@ def export_plots_of_changes(df2, uncleaned, country, log):
     3. Produce a plot for all groups of changes.
     4. Export the plots to `data/logged_changes`.
     """
+    create_path("cleaning_log/" + folder)
+
     country_data = df2.loc[df2['iso_code'] == country, :].copy()
     uncleaned_c = uncleaned.loc[uncleaned['iso_code'] == country, :].copy()
     country_data.sort_values(by = ['date'], ascending = False, inplace = True)
     country_data = country_data.loc[country_data['to_delete_automized_clean'] == 0, :]
-    country_data['type'] = 'cleaned'
-    uncleaned_c['type'] = 'original'
-    plot_data = pd.concat([uncleaned_c[['date', 'total_doses', 'type']],
-        country_data[['date', 'total_doses', 'type']]], ignore_index = True)
-    plot_data['total_doses'] = plot_data['total_doses'].copy()/1000000
-    plot_data.rename({'total_doses': 'Total Doses (in million)', 'date': 'Date'}, inplace = True, axis = 1)
-
+    country_data['type_line'] = '_cleaned'
+    uncleaned_c['type_line'] = '_original'
+    background_data = uncleaned_c[['date', 'total_doses', 'at_least_one_dose',
+       'fully_vaccinated', 'type_line']]
+    background_data1 = background_data[['date', 'total_doses', 'type_line']]
+    background_data2 = background_data[['date', 'at_least_one_dose', 'type_line']]
+    background_data3 = background_data[['date', 'fully_vaccinated', 'type_line']]
+    background_data1['type_col'] = '_Total Doses'
+    background_data2['type_col'] = '_At Least One Dose'
+    background_data3['type_col'] = '_Fully Vaccinated'
+    background_data1.columns = ['date', var_to_clean, 'type_line', 'type_col']
+    background_data2.columns = ['date', var_to_clean, 'type_line', 'type_col']
+    background_data3.columns = ['date', var_to_clean, 'type_line', 'type_col']
+    background_data = pd.concat([background_data1, background_data2, background_data3])
+    background_data = background_data.loc[~(background_data['type_col'] == '_' + var_to_clean.replace('_', ' ').title()), :]
+    country_data['type_col'] = 'cleaned'
+    uncleaned_c['type_col'] = 'original'
+    plot_data = pd.concat(
+        [background_data,
+        uncleaned_c[['date', var_to_clean, 'type_line', 'type_col']],
+        country_data[['date', var_to_clean, 'type_line', 'type_col']]],
+        ignore_index = True)
+    plot_data.rename({var_to_clean: 'y'}, axis = 1, inplace = True)
+    plot_data['y'] = plot_data['y'].copy()/1000000
+    yaxis = var_to_clean.replace('_', ' ').title() + ' (in million)'
+    customPalette = sns.color_palette(["#D3D3D3", "#D3D3D3", "#6495ED", "#FFA500"])
+        
     changes = list(log.loc[log['country'] == country, 'date'])
     changes.sort()
     uncleaned_c.sort_values(by = ['date'], ascending = False, inplace = True)
@@ -666,7 +708,18 @@ def export_plots_of_changes(df2, uncleaned, country, log):
     max_date = uncleaned_c['date'].max()
     group_together = False
     count = 0
+    y_jump_list = []
+    y_to_show = []
     for date_change in range(len(changes)):
+        y_original = float(uncleaned_c.loc[uncleaned_c['date'] == changes[date_change], var_to_clean])
+        row_low = max(list(uncleaned_c['date']).index(changes[date_change]) - 1, 0)
+        row_high = min(list(uncleaned_c['date']).index(changes[date_change]) + 1, len(uncleaned_c['date']) - 1)
+        y_cleaned = float((uncleaned_c.loc[row_low, var_to_clean] + uncleaned_c.loc[row_high, var_to_clean])/2)
+        y_jump = np.abs(y_original - y_cleaned)
+        y_jump_list.append(y_jump)
+        y_to_show += [y_original,
+            float((uncleaned_c.loc[row_low, var_to_clean])),
+            float(uncleaned_c.loc[row_high, var_to_clean])]
         date_to = uncleaned_c.loc[max(list(uncleaned_c['date']).index(changes[date_change]) - 15, 0), 'date']
         if group_together:
             date_from = date_from_grouped
@@ -682,9 +735,11 @@ def export_plots_of_changes(df2, uncleaned, country, log):
         else:
             group_together = False
         if not group_together:
+            y_jump_max = max(y_jump_list)/1000000
+            y_jump_list = []
             count += 1
-            plot_data_range = plot_data.loc[plot_data['Date'] >= date_from, :].copy()
-            plot_data_range = plot_data_range.loc[plot_data['Date'] <= date_to, :].copy()
+            plot_data_range = plot_data.loc[plot_data['date'] >= date_from, :].copy()
+            plot_data_range = plot_data_range.loc[plot_data['date'] <= date_to, :].copy()
 
             ## zooming in where possible to give impression of continuous data
             zoom_lower_bound = datetime.timedelta(days = -2)
@@ -695,16 +750,65 @@ def export_plots_of_changes(df2, uncleaned, country, log):
                 zoom_upper_bound = datetime.timedelta(days = 2)
             
             plt.clf()
-            sns.lineplot(data = plot_data_range, y = 'Total Doses (in million)', x = 'Date', 
-                hue = 'type', style = 'type') \
-                    .set(title = country + ": Change " + str(count))
+            fig, ax = plt.subplots()
+            g = sns.lineplot(
+                data = plot_data_range,
+                y = 'y',
+                x = 'date',
+                palette = customPalette,
+                hue = 'type_col',
+                style = 'type_line',
+            ).set(
+                title = country + ": Change " + str(count),
+                xlabel = None,
+                ylabel = yaxis
+            )
+            handles, labels = ax.get_legend_handles_labels()
+            ax.legend(handles=handles[1:3], labels=labels[1:3])
+            ymin, ymax = plt.ylim()
+            y_low = min(y_to_show) / 1000000
+            y_high = max(y_to_show) / 1000000
+            y_diff = y_high - y_low
+            y_high += y_diff * 5
+            y_low -= y_diff * 5
+            y_low = max(y_low, -0.5)
+            y_to_show = []
+            zoom = True
+            if (ymax - ymin > float(y_jump_max) * 80) & zoom:
+                plt.ylim(y_low, y_high)
+
             plt.xticks(rotation = 25)
             plt.xlim((date_from + zoom_lower_bound, date_to - zoom_upper_bound))
             plt.subplots_adjust(bottom = 0.2, left = 0.15)
-            plt.savefig('data/cleaning_log/cleaning_' + country + '_' + str(count))
+            if count > 1:
+                plt.savefig('data/cleaning_log/' + folder + '/cleaning_' + country + '_' + str(count))
+            else:
+                plt.savefig('data/cleaning_log/' + folder + '/cleaning_' + country)
 
 
-def automized_cleaning(df2):
+def logical_cleaning(df2, var_to_clean, larger_var):
+    folder = var_to_clean + '/logical_cleaning'
+    create_path("cleaning_log/" + folder)
+    uncleaned = df2.copy()
+    df2['to_delete_automized_clean'] = 0
+    countries = df2['iso_code'].unique()
+    countries = np.sort(countries)
+    log = pd.DataFrame({'country': [], 'date': []})
+    print(" > Looping through all countreis to check whether at least one dose >= fully vaccinated...")
+    for country in countries:
+        country_data = filter_country_data(df2, country)
+        country_data.reset_index(drop = True, inplace = True)
+        for i in range(len(country_data) - 1):
+            if country_data.loc[i,var_to_clean] > country_data.loc[i,larger_var]:
+                country_data, df2, log = delete_row(country_data, df2, i, log, reset_index = False)
+        export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder)
+    df2.loc[df2['to_delete_automized_clean'] == 1, var_to_clean] = None
+    log['deleted_variable'] = var_to_clean
+    log.to_csv('data/cleaning_log/' + folder + '/logged_changes.csv', index = False)
+    return df2
+
+
+def automized_cleaning(df2, var_to_clean, delete_errors):
     """
     This automatized cleaning function loops through all countries to
     1. check whether the total_doses are monotonically increasing over time,
@@ -712,32 +816,35 @@ def automized_cleaning(df2):
     3. produce figures of the changes made.
     """
     print(" > Starting the automized cleaning process...")
-    create_new_path()
     
     print(" > Initializing variables...")
     uncleaned = df2.copy()
     log = pd.DataFrame({'country': [], 'date': []})
     pd.set_option('mode.chained_assignment', None)
     df2['to_delete_automized_clean'] = 0
+    var_to_clean_iloc = df2.columns.get_loc(var_to_clean)
     
-    print(" > Looping through all countries to check for decreases in 'total_doses'...")
+    print(" > Looping through all countries to check for decreases in", var_to_clean,"...")
     countries = df2['iso_code'].unique()
     countries = np.sort(countries)
     for country in countries:
-        country_data = df2.loc[df2['iso_code'] == country, :].copy()
-        country_data.sort_values(by = ['date'], ascending = False, inplace = True)
+        country_data = filter_country_data(df2, country)
         
-        if not monotonic(list(country_data['total_doses'])):
-            while not monotonic(list(country_data['total_doses'])):
+        if not monotonic(list(country_data[var_to_clean])):
+            while not monotonic(list(country_data[var_to_clean])):
                 row = 0
-                country_data, df2, log = row_check(country_data, row, df2, log)
-            export_plots_of_changes(df2, uncleaned, country, log)
+                country_data, df2, log = row_check(country_data, row, df2, log, var_to_clean_iloc)
+            export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, var_to_clean)
     print(" > Saving plots of cleaned changes to data/cleaning_log...")
-    df2 = df2.loc[df2['to_delete_automized_clean'] == 0, :]
+    if delete_errors:
+        df2 = df2.loc[df2['to_delete_automized_clean'] == 0, :]
+    else:
+        df2.loc[df2['to_delete_automized_clean'] == 1, var_to_clean] = None
+    df2.drop('to_delete_automized_clean', axis = 1, inplace = True)
     print(" > Saving logged_changes to csv...")
     log.rename({'date': 'deleted dates'}, axis = 1, inplace = True)
     log.sort_values(by=['country', 'deleted dates'], ascending=True)
-    log.to_csv('data/cleaning_log/logged_changes.csv', index = False)
+    log.to_csv('data/cleaning_log/' + var_to_clean + '/logged_changes.csv', index = False)
     return df2
 
 
@@ -749,7 +856,13 @@ def main(auto_cleaning, throughput_data, folder, name):
     df1, df2 = map_iso_codes(df1, iso_mapping)
     df2, manual_fix_list = fix_issues_total_doses(df2)
     if auto_cleaning:
-        df2 = automized_cleaning(df2)
+        clean_path(folder = "cleaning_log")
+        df2 = automized_cleaning(df2, var_to_clean = 'total_doses', delete_errors = True)
+        df2 = automized_cleaning(df2, var_to_clean = 'at_least_one_dose', delete_errors = False)
+        df2 = automized_cleaning(df2, var_to_clean = 'fully_vaccinated', delete_errors = False)
+        # disabled for now. Implemented instead in dvr_output_daily in function cleaning_data
+        # df2 = logical_cleaning(df2, 'fully_vaccinated', 'at_least_one_dose') 
+        # df2 = logical_cleaning(df2, 'at_least_one_dose', 'total_doses')
     df2 = fix_issues_at_least_one_dose(df2)
     df2 = fix_issues_fully_vaccinated(df2)
     df_errors1 = check_for_total_dose_decreases_1(df1)

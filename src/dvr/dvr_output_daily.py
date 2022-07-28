@@ -176,7 +176,6 @@ def interpolate_data(df_inter):
     df_inter.reset_index().drop(['index'], axis = 1, inplace = True)
     return df_inter
 
-
 def minimum_rollout_date(df_inter, country):
     print(' > Calculating minimum rollout date...')
     df3 = df_inter.merge(country[['iso_code', 'country_name_friendly']], on = 'iso_code', how = 'left')
@@ -190,6 +189,13 @@ def minimum_rollout_date(df_inter, country):
     min_vx_rollout_date.rename(columns = {'min_vx_rollout_date': 'min_vx_rollout_date'}, inplace = True)
     df3 = df3.merge(min_vx_rollout_date, on = 'iso_code', how = 'left')
     return df3
+
+
+def cleaning_data(df):
+    df['fully_vaccinated_adj'] = df[['total_doses','fully_vaccinated']].min(axis = 1) 
+    df['at_least_one_dose_adj'] = df[['total_doses','at_least_one_dose']].min(axis = 1)
+    df['at_least_one_dose_adj'] = df[['fully_vaccinated_adj','at_least_one_dose_adj']].max(axis = 1)
+    return df
 
 
 def merge_with_supply(df3, uti_supply1, supply_threshold):
@@ -436,7 +442,9 @@ def identifying_missing_countries(df9, df_flags):
 def adding_flags_for_changes(df10):
     print(' > adding change from previous flag...')
     df11 = df10.copy()
-    df11['prev_week_val'] = df11.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['total_doses'].shift(1)
+    df11['prev_week_val'] = df11.sort_values(
+        by=['date'], ascending=True
+        ).groupby(['iso_code'])['total_doses'].shift(1)
     df11['no_change_from_previous'] = 0
     df11.loc[(df11['total_doses'] == df11['prev_week_val']), 'no_change_from_previous'] = 1
     df11.drop('prev_week_val', axis = 1, inplace = True)
@@ -446,9 +454,10 @@ def adding_flags_for_changes(df10):
 def final_variable_selection(df11, who):
     print(' > Creating final dataframe...')
     df12 = df11[['iso_code', 'entity_name', 'population', 'date', 'is_original_reported', 
-                'cumulative_doses_received', 'effective_supply',
-                'total_doses_owid', 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose',
-                'daily_rate_td', 'rolling_4_week_avg_td', 'max_rolling_4_week_avg_td', 'med_rolling_4_week_avg_td', 
+                'cumulative_doses_received', 'effective_supply', 'total_doses_owid',
+                'total_doses', 'at_least_one_dose', 'at_least_one_dose_adj', 'fully_vaccinated', 
+                'fully_vaccinated_adj', 'persons_booster_add_dose', 'daily_rate_td', 
+                'rolling_4_week_avg_td', 'max_rolling_4_week_avg_td', 'med_rolling_4_week_avg_td', 
                 'rolling_4_week_avg_td_lastweek', 'rolling_4_week_avg_td_lastmonth', 'rolling_8_week_avg_td', 
                 'rolling_4_week_avg_td_per100', 'rolling_8_week_avg_td_per100', 'max_rolling_4_week_avg_td_per100',
                 'daily_rate_1d', 'rolling_4_week_avg_1d', 'daily_rate_fv', 'rolling_4_week_avg_fv', 
@@ -466,7 +475,7 @@ def export_data(df12, folder, name):
     print(' > Done.')
 
 
-def main(supply_data, cleaned_data, folder, name, refresh_api):
+def main(supply_data, cleaned_data, folder, name, refresh_api, auto_cleaning):
     supply_threshold = 0.0
     days_in_weeks4 = 27
     days_in_weeks8 = 55
@@ -478,6 +487,8 @@ def main(supply_data, cleaned_data, folder, name, refresh_api):
     df_inter = exploding_dates(df1)
     df_inter = interpolate_data(df_inter)
     df3 = minimum_rollout_date(df_inter, country)
+    if auto_cleaning:
+        df3 = cleaning_data(df3)
     df4 = merge_with_supply(df3, uti_supply1, supply_threshold)
     df5 = moving_averages_td(df4, days_in_weeks4, days_in_weeks8)
     df6 = moving_averages_1d(df5, days_in_weeks4, days_in_weeks8)

@@ -34,7 +34,7 @@ lapply(lib, library, character.only = TRUE)
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # set to FALSE to use base_dvr_current.xlsx
-.GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
+.GlobalEnv$refresh_api <- FALSE # set to FALSE to use last API call
 
 # HELPERS
 
@@ -45,7 +45,7 @@ api_env <- run_api()
 
 # ETL
 
-source("src/vaccination_rate/run_vaccination_rate.r")
+source("src/dvr/run_dvr.r")
 source("src/entity_characteristics/run_entity_characteristics.r")
 source("src/supply/run_supply.R")
 source("src/adm_cov/run_adm_cov.r")
@@ -54,10 +54,10 @@ source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
 source("src/add_data/run_add_data.r")
 
-python_env <- run_vaccination_rate(.GlobalEnv$adm_api, .GlobalEnv$auto_cleaning, api_env$headers, .GlobalEnv$refresh_api)
+dvr_env <- run_dvr(.GlobalEnv$adm_api, .GlobalEnv$auto_cleaning, api_env$headers, .GlobalEnv$refresh_api)
 entity_env <- run_entity()
 supply_env <- run_supply(.GlobalEnv$sec_date, .GlobalEnv$del_date)
-adm_cov_env <- run_adm_cov(entity_env$entity_characteristics, .GlobalEnv$refresh_date, python_env$adm_data, .GlobalEnv$adm_api)
+adm_cov_env <- run_adm_cov(entity_env$entity_characteristics, .GlobalEnv$refresh_date, dvr_env$dvr_data, .GlobalEnv$adm_api)
 cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
 finance_env <- run_finance(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
