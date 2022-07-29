@@ -676,17 +676,20 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder):
     country_data['type_line'] = '_cleaned'
     uncleaned_c['type_line'] = '_original'
     background_data = uncleaned_c[['date', 'total_doses', 'at_least_one_dose',
-       'fully_vaccinated', 'type_line']]
+       'fully_vaccinated', 'persons_booster_add_dose', 'type_line']]
     background_data1 = background_data[['date', 'total_doses', 'type_line']]
     background_data2 = background_data[['date', 'at_least_one_dose', 'type_line']]
     background_data3 = background_data[['date', 'fully_vaccinated', 'type_line']]
+    background_data4 = background_data[['date', 'persons_booster_add_dose', 'type_line']]
     background_data1['type_col'] = '_Total Doses'
     background_data2['type_col'] = '_At Least One Dose'
     background_data3['type_col'] = '_Fully Vaccinated'
+    background_data4['type_col'] = '_Persons Booster Add Dose'
     background_data1.columns = ['date', var_to_clean, 'type_line', 'type_col']
     background_data2.columns = ['date', var_to_clean, 'type_line', 'type_col']
     background_data3.columns = ['date', var_to_clean, 'type_line', 'type_col']
-    background_data = pd.concat([background_data1, background_data2, background_data3])
+    background_data4.columns = ['date', var_to_clean, 'type_line', 'type_col']
+    background_data = pd.concat([background_data1, background_data2, background_data3, background_data4])
     background_data = background_data.loc[~(background_data['type_col'] == '_' + var_to_clean.replace('_', ' ').title()), :]
     country_data['type_col'] = 'cleaned'
     uncleaned_c['type_col'] = 'original'
@@ -698,7 +701,7 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder):
     plot_data.rename({var_to_clean: 'y'}, axis = 1, inplace = True)
     plot_data['y'] = plot_data['y'].copy()/1000000
     yaxis = var_to_clean.replace('_', ' ').title() + ' (in million)'
-    customPalette = sns.color_palette(["#D3D3D3", "#D3D3D3", "#6495ED", "#FFA500"])
+    customPalette = sns.color_palette(["#D3D3D3", "#D3D3D3",  "#D3D3D3", "#6495ED", "#FFA500"])
         
     changes = list(log.loc[log['country'] == country, 'date'])
     changes.sort()
@@ -766,24 +769,26 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder):
             handles, labels = ax.get_legend_handles_labels()
             ax.legend(handles=handles[1:3], labels=labels[1:3])
             ymin, ymax = plt.ylim()
-            y_low = min(y_to_show) / 1000000
-            y_high = max(y_to_show) / 1000000
-            y_diff = y_high - y_low
-            y_high += y_diff * 5
-            y_low -= y_diff * 5
-            y_low = max(y_low, -0.5)
-            y_to_show = []
             zoom = True
             if (ymax - ymin > float(y_jump_max) * 80) & zoom:
+                y_low = min(y_to_show) / 1000000
+                y_high = max(y_to_show) / 1000000
+                y_diff = y_high - y_low
+                y_high += y_diff * 5
+                y_low -= y_diff * 5
+                y_low = max(y_low, -0.5)
+                y_to_show = []
+                if y_low < 0:
+                    y_low = y_high / (-10)
                 plt.ylim(y_low, y_high)
 
             plt.xticks(rotation = 25)
             plt.xlim((date_from + zoom_lower_bound, date_to - zoom_upper_bound))
             plt.subplots_adjust(bottom = 0.2, left = 0.15)
+            path = 'data/cleaning_log/' + folder + '/cleaning_' + country
             if count > 1:
-                plt.savefig('data/cleaning_log/' + folder + '/cleaning_' + country + '_' + str(count))
-            else:
-                plt.savefig('data/cleaning_log/' + folder + '/cleaning_' + country)
+                path += '_' + str(count)
+            plt.savefig(path)
 
 
 def logical_cleaning(df2, var_to_clean, larger_var):
@@ -808,7 +813,7 @@ def logical_cleaning(df2, var_to_clean, larger_var):
     return df2
 
 
-def automized_cleaning(df2, var_to_clean, delete_errors):
+def automized_cleaning(df2, uncleaned_df, var_to_clean, delete_errors):
     """
     This automatized cleaning function loops through all countries to
     1. check whether the total_doses are monotonically increasing over time,
@@ -818,7 +823,6 @@ def automized_cleaning(df2, var_to_clean, delete_errors):
     print(" > Starting the automized cleaning process...")
     
     print(" > Initializing variables...")
-    uncleaned = df2.copy()
     log = pd.DataFrame({'country': [], 'date': []})
     pd.set_option('mode.chained_assignment', None)
     df2['to_delete_automized_clean'] = 0
@@ -834,7 +838,7 @@ def automized_cleaning(df2, var_to_clean, delete_errors):
             while not monotonic(list(country_data[var_to_clean])):
                 row = 0
                 country_data, df2, log = row_check(country_data, row, df2, log, var_to_clean_iloc)
-            export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, var_to_clean)
+            export_plots_of_changes(df2, uncleaned_df, country, log, var_to_clean, var_to_clean)
     print(" > Saving plots of cleaned changes to data/cleaning_log...")
     if delete_errors:
         df2 = df2.loc[df2['to_delete_automized_clean'] == 0, :]
@@ -857,9 +861,11 @@ def main(auto_cleaning, throughput_data, folder, name):
     df2, manual_fix_list = fix_issues_total_doses(df2)
     if auto_cleaning:
         clean_path(folder = "cleaning_log")
-        df2 = automized_cleaning(df2, var_to_clean = 'total_doses', delete_errors = True)
-        df2 = automized_cleaning(df2, var_to_clean = 'at_least_one_dose', delete_errors = False)
-        df2 = automized_cleaning(df2, var_to_clean = 'fully_vaccinated', delete_errors = False)
+        uncleaned_df = df2.copy()
+        df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'total_doses', delete_errors = True)
+        df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'at_least_one_dose', delete_errors = False)
+        df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'fully_vaccinated', delete_errors = False)
+        df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'persons_booster_add_dose', delete_errors = False)
         # disabled for now. Implemented instead in dvr_output_daily in function cleaning_data
         # df2 = logical_cleaning(df2, 'fully_vaccinated', 'at_least_one_dose') 
         # df2 = logical_cleaning(df2, 'at_least_one_dose', 'total_doses')
