@@ -862,8 +862,7 @@ def main(auto_cleaning, throughput_data, folder, name):
     if auto_cleaning:
         clean_path(folder = "cleaning_log")
         uncleaned_df = df2.copy()
-        df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'total_doses', delete_errors = True)
-        uncleaned_df = df2.copy()
+        df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'total_doses', delete_errors = False)
         df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'at_least_one_dose', delete_errors = False)
         df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'fully_vaccinated', delete_errors = False)
         df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'persons_booster_add_dose', delete_errors = False)
