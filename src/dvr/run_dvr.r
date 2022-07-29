@@ -25,17 +25,11 @@ run_dvr <- function(adm_api, auto_cleaning, headers, refresh_api) {
         source_python("src/dvr/dvr_data_ingestion.py")
         throughput_data <- main(folder, name_00, refresh_api)
 
-        wiise_supply_data <- helper_wiise_api(
-            "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UTI_LONG",
-            headers, FALSE)
-        source_python("src/dvr/dvr_supply_data.py")
-        supply_data <- main(folder, name_01, wiise_supply_data)
-
         source_python("src/dvr/dvr_data_cleaning.py")
         cleaned_data <- main(auto_cleaning, throughput_data, folder, name_02)
 
         source_python("src/dvr/dvr_output_daily.py")
-        dvr_data <- main(supply_data, cleaned_data, folder, name_03,
+        dvr_data <- main(cleaned_data, folder, name_03,
             refresh_api, auto_cleaning)
 
         source_python("src/dvr/dvr_data_fixes.py")

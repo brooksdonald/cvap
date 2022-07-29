@@ -3,16 +3,10 @@ import datetime
 import pandas as pd
 import os
 
-def import_data(supply_data, cleaned_data, refresh_api):
+def import_data(cleaned_data, refresh_api):
     # Get Data
     print(" > Getting ISO mapping...")
     iso_mapping = pd.read_csv("data/_input/static/iso_mapping.csv")
-    print(" > Done.")
-
-    ## get uti_supply
-    print(" > Getting uti_supply data...")
-    #uti_supply = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_supply.csv")
-    uti_supply = supply_data
     print(" > Done.")
 
     # get dose administration data for comparison
@@ -58,33 +52,7 @@ def import_data(supply_data, cleaned_data, refresh_api):
     owid1 = pd.DataFrame(owid1)
     print(" > Done.")
 
-    # # supply side
-
-    # alternate supply, sourced by Marta
-    print(" > uti alternate supply (supply1)...")
-    uti_supply1 = uti_supply[['iso_code', 'date', 'cumulative_doses_received_uti']]
-    # print(" > Fill forward...")
-    # uti_supply1[['iso_code', 'date', 'cumulative_doses_received_uti']].fillna( method ='ffill', inplace = True)
-    print(" > changing cumulative_doses_received_uti data type...")
-    pd.set_option('mode.chained_assignment', None)
-    uti_supply1.loc[:, 'cumulative_doses_received_uti'] = uti_supply1['cumulative_doses_received_uti'].astype(float)
-    print(" > changing date t date time...")
-    uti_supply1.loc[:, 'date'] = pd.to_datetime(uti_supply1['date'])
-    print(" > filling all na's with 0...")
-    uti_supply1 = uti_supply1.fillna(0).copy()
-    print(" > lag intro...")
-    uti_supply1.loc[:, 'doses_received'] = uti_supply1.sort_values(by=['date'], ascending=True) \
-        .groupby(['iso_code'])['cumulative_doses_received_uti'].shift(1)
-    print(" > Calculating doses received column...")
-    uti_supply1.loc[:, 'doses_received'] = \
-        uti_supply1.loc[:, 'cumulative_doses_received_uti'] - uti_supply1.loc[:, 'doses_received']
-    print(" > filling na's with cumulative_doses_received_uti...")
-    uti_supply1.loc[:, 'doses_received'] = \
-        uti_supply1.loc[:, 'doses_received'].fillna(uti_supply1.loc[:, 'cumulative_doses_received_uti'])
-    print(" > creating uti-supply1 df...")
-    uti_supply1.columns = ['iso_code', 'date', 'doses_received', 'cumulative_doses_received']
-    print(" > Done.")
-    return who, iso_mapping, cc, country, owid1, uti_supply1
+    return who, iso_mapping, cc, country, owid1
 
 
 def flags(who):
@@ -196,24 +164,6 @@ def cleaning_data(df):
     df['at_least_one_dose_adj'] = df[['total_doses','at_least_one_dose']].min(axis = 1)
     df['at_least_one_dose_adj'] = df[['fully_vaccinated_adj','at_least_one_dose_adj']].max(axis = 1)
     return df
-
-
-def merge_with_supply(df3, uti_supply1, supply_threshold):
-    print(' > Merging data with supply...')
-    df4 = df3.merge(uti_supply1, on = ['iso_code', 'date'], how = 'outer')
-    ## TODO implement forward fill for cumulative doses
-    ## df4.loc[:, 'cumulative_doses_received'].fillna(method="ffill", inplace = True)
-    df4 = df4.loc[~(df4['country_name_friendly'].isna()), :]
-
-    df4['cumulative_doses_received'] = df4[['cumulative_doses_received', 'total_doses']].max(axis = 1)
-    df4['total_doses_prev_week'] = df4.sort_values(by=['date'], ascending=True).groupby(['iso_code'])['total_doses'].shift(1)
-    df4['effective_supply'] = df4['cumulative_doses_received'] - df4['total_doses_prev_week']
-    df4['cumulative_supply_20'] = df4['cumulative_doses_received'] * supply_threshold
-    df4['supply_constrained'] = None
-    df4.loc[(df4['effective_supply'] < df4['cumulative_supply_20']), 'supply_constrained'] = 1
-    df4.loc[(df4['effective_supply'] >= df4['cumulative_supply_20']), 'supply_constrained'] = 0
-    df4.drop('total_doses_prev_week', axis = 1, inplace = True)
-    return df4
 
 
 def moving_averages_td(df4, days_in_weeks4, days_in_weeks8):
@@ -453,8 +403,7 @@ def adding_flags_for_changes(df10):
 
 def final_variable_selection(df11, who):
     print(' > Creating final dataframe...')
-    df12 = df11[['iso_code', 'entity_name', 'population', 'date', 'is_original_reported', 
-                'cumulative_doses_received', 'effective_supply', 'total_doses_owid',
+    df12 = df11[['iso_code', 'entity_name', 'population', 'date', 'is_original_reported', 'total_doses_owid',
                 'total_doses', 'at_least_one_dose', 'at_least_one_dose_adj', 'fully_vaccinated', 
                 'fully_vaccinated_adj', 'persons_booster_add_dose', 'daily_rate_td', 
                 'rolling_4_week_avg_td', 'max_rolling_4_week_avg_td', 'med_rolling_4_week_avg_td', 
@@ -475,12 +424,11 @@ def export_data(df12, folder, name):
     print(' > Done.')
 
 
-def main(supply_data, cleaned_data, folder, name, refresh_api, auto_cleaning):
-    supply_threshold = 0.0
+def main(cleaned_data, folder, name, refresh_api, auto_cleaning):
     days_in_weeks4 = 27
     days_in_weeks8 = 55
 
-    who, iso_mapping, cc, country, owid1, uti_supply1 = import_data(supply_data, cleaned_data, refresh_api)
+    who, iso_mapping, cc, country, owid1 = import_data(cleaned_data, refresh_api)
     df_flags = flags(who)
     df1 = merge_who_country(who, country)
     df1 = filter_data(df1)
@@ -489,8 +437,7 @@ def main(supply_data, cleaned_data, folder, name, refresh_api, auto_cleaning):
     df3 = minimum_rollout_date(df_inter, country)
     if auto_cleaning:
         df3 = cleaning_data(df3)
-    df4 = merge_with_supply(df3, uti_supply1, supply_threshold)
-    df5 = moving_averages_td(df4, days_in_weeks4, days_in_weeks8)
+    df5 = moving_averages_td(df3, days_in_weeks4, days_in_weeks8)
     df6 = moving_averages_1d(df5, days_in_weeks4, days_in_weeks8)
     df8 = moving_averages_fv(df6, days_in_weeks4, days_in_weeks8)
     df9 = join_with_cc_and_owid(df8, cc, owid1)
