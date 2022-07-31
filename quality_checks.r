@@ -114,7 +114,7 @@ print(" > Done.")
 
 ## Past week
 print(" > Ingesting past week data...")
-past_week <- data.frame(read_excel("data/output/220714_output_powerbi.xlsx"))
+past_week <- data.frame(read_excel("data/output/220721_output_powerbi.xlsx"))
 
 print(" > Selecting columns needed for quality check...")
 past_week <- select(

@@ -250,109 +250,6 @@ transform_subset_amc <- function(b_vxrate) {
     return(b_vxrate_amc)
 }
 
-transform_smooth_timeseries <- function(
-  b_vxrate_amc, b_vxrate_pub, refresh_date) {
-  print(" >> Transforming smooth time series...")
-  d_cov_smooth <- b_vxrate_pub
-  d_cov_smooth <- select(
-    d_cov_smooth,
-    c(
-      "a_iso",
-      "adm_date",
-      "adm_fv"
-      )
-    )
-  z_cov_smooth <- d_cov_smooth
-  z_cov_smooth <- z_cov_smooth %>%
-  mutate(
-    adm_date = adm_date + days(1)
-  )
-  colnames(z_cov_smooth) <- c(
-    "a_iso",
-    "adm_date",
-    "adm_fv_ld"
-  )
-  d_cov_smooth <- left_join(
-    d_cov_smooth, z_cov_smooth, by = c(
-      "a_iso" = "a_iso",
-      "adm_date" = "adm_date"
-    )
-  )
-  d_cov_smooth <- d_cov_smooth %>%
-  mutate(change = adm_fv - adm_fv_ld)
-
-  d_cov_smooth$adm_fv_smooth <- d_cov_smooth$adm_fv
-  d_cov_smooth <- d_cov_smooth %>%
-  mutate(adm_fv_smooth = if_else(change < 0, NA_real_, adm_fv_smooth))
-
-  #Generate new receiving table
-  #Isolate iso codes
-  df_iso <- data.frame(d_cov_smooth$a_iso)
-  colnames(df_iso) <- c("iso")
-
-  #Remove duplicates
-  df_iso <- df_iso %>% distinct(iso)
-  df_iso_2 <- df_iso
-  df_iso_2$date <- as.Date("2021-01-01")
-  df_iso_2$index <- 0
-
-  #Create date_week matrix
-  df_iso_full <- data.frame(df_iso[rep(seq_len(nrow(df_iso)),
-    each = as.numeric(refresh_date-as.Date("2021-01-01")-1)), ])
-  df_iso_full$date <- NA
-  colnames(df_iso_full) <- c("iso", "date")
-  df_iso_week <- as.matrix(
-    1:(as.numeric(refresh_date - as.Date("2021-01-01")) - 1)
-  )
-  iso_week_temp <- rep(1:nrow(df_iso_week), df_iso_week[,1], nrow(df_iso_full))
-  df_iso_week <- data.frame(df_iso_week[iso_week_temp,])
-  df_iso_full <- cbind(df_iso_full, df_iso_week)
-  colnames(df_iso_full) <- c("iso", "date", "index")
-
-  df_iso_new <- rbind(df_iso_2, df_iso_full)
-
-  df_iso_new <- df_iso_new %>%
-  mutate(date = if_else(is.na(date), as.Date("2021-01-01") + days(index), date))
-
-  df_iso_new <- select(df_iso_new, c("iso", "date"))
-
-  d_cov_smooth_new <- left_join(df_iso_new, d_cov_smooth,
-    by = c("iso" = "a_iso", "date" = "adm_date"))
-  d_cov_smooth_new <- arrange(d_cov_smooth_new,iso, date)
-
-  d_cov_smooth_new <- d_cov_smooth_new %>%
-    group_by(iso) %>% 
-    fill(adm_fv_smooth) %>%
-    
-    mutate(adm_fv_smooth = replace(adm_fv_smooth, is.na(adm_fv_smooth), 0))
-
-  d_cov_smooth_new <- select(
-    d_cov_smooth_new, c("iso", "date", "adm_fv_smooth")
-  )
-
-  b_vxrate_amc_smooth <- right_join(
-    b_vxrate_amc, d_cov_smooth_new, by = c("a_iso" = "iso", "adm_date" = "date")
-  )
-
-  b_vxrate_amc_smooth <- arrange(b_vxrate_amc_smooth, a_iso, adm_date)
-
-  b_vxrate_amc_smooth <- b_vxrate_amc_smooth %>%
-    group_by(a_iso) %>%
-    fill(a_name_short) %>%
-    fill(a_pop) %>%
-    fill(a_who_region) %>%
-    fill(a_covax_status) %>%
-    fill(a_income_group) %>%
-    fill(a_csc_status) %>%
-    fill(a_ifc_status) %>%
-    fill(dvr_4wk_td) %>%
-    fill(dvr_4wk_td_per)
-
-  b_vxrate_amc_smooth <- b_vxrate_amc_smooth %>%
-    mutate(cov_total_fv_smooth = adm_fv_smooth / a_pop)
-  return(b_vxrate_amc_smooth)
-}
-
 ## Create population target deadline tables
 ### Create end of September 2021 table
 
@@ -411,7 +308,30 @@ transform_dec21_pop_tgt <- function(b_vxrate) {
   return(c_vxrate_dec_t2040)
 }
 
-
+transform_jun22_pop_tgt <- function(b_vxrate) {
+  print(" >> Create end of June 2022 table population target deadline table...")
+  c_vxrate_jun <-
+    filter(b_vxrate,
+           adm_date_eom == "Yes" & 
+             adm_date_month == 18 & 
+             adm_date_year == 2022
+    )
+  
+  #### Calculate cov_total_fv at end of June 2022
+  c_vxrate_jun <- helper_calculate_cov_total_fv(c_vxrate_jun)
+  
+  #### Indicate if cov_total_fv is greater than or equal to 70%
+  c_vxrate_jun <- c_vxrate_jun %>%
+    mutate(t70_goalmet_jun = if_else(cov_total_fv >= .7, "Yes", "No"))
+  
+  #### Reduce to a_iso and t70_goalmet_jun
+  c_vxrate_jun_t70 <-
+    select(c_vxrate_jun, c("a_iso", "cov_total_fv", "t70_goalmet_jun")) %>%
+    rename(cov_total_fv_30jun = cov_total_fv)
+  
+  return(c_vxrate_jun_t70)
+  
+}
 
 transform_abspt_by_month <- function(b_vxrate, current_month) {
   print(" >> Create absorption by month table")
@@ -765,39 +685,5 @@ two_month_sum_table <- function(b_vxrate, c_vxrate_latest, c_vxrate_twomonth) {
   c_vxrate_twomonth <- select(c_vxrate_twomonth, -c("adm_two_month"))
   
   return(c_vxrate_twomonth)
-  
-}
-
-transform_jun22_pop_tgt <- function(b_vxrate, c_vxrate_latest) {
-  print(" >> Create end of June 2022 table population target deadline table...")
-  c_vxrate_jun <- c_vxrate_latest
-  
-  #### Calculate cov_total_fv at end of June 2022
-  c_vxrate_jun <- c_vxrate_jun %>%
-    mutate(cov_total_fv = if_else(
-      adm_a1d == 0 & adm_fv == 0 & adm_booster == 0,
-      (adm_td / 2) / a_pop,
-      if_else(
-        adm_a1d == 0 & adm_fv == 0 & adm_booster != 0,
-        ((adm_td - adm_booster)/ 2) / a_pop,
-        if_else(
-          adm_a1d != 0 & adm_fv == 0 & adm_booster == 0,
-          (adm_td - adm_a1d) / a_pop,
-          if_else(
-            adm_a1d != 0 & adm_fv == 0 & adm_booster != 0,
-            (adm_td - adm_a1d - adm_booster) / a_pop,
-            adm_fv / a_pop)))))
-
-  #### Indicate if cov_total_fv is greater than or equal to 70%
-  c_vxrate_jun <- c_vxrate_jun %>%
-    mutate(t70_goalmet_jun = if_else(cov_total_fv >= .7, "Yes", "No"))
-
-  #### Reduce to a_iso and t70_goalmet_jun
-  c_vxrate_jun_t70 <-
-    select(c_vxrate_jun, c("a_iso", "cov_total_fv", "t70_goalmet_jun"))
-
-  colnames(c_vxrate_jun_t70) <- c("a_iso", "cov_total_fv_30jun", "t70_goalmet_jun")
-
-  return(c_vxrate_jun_t70)
   
 }
