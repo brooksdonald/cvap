@@ -1,7 +1,7 @@
 
 # SET WD
-setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
-setwd("C:/Users/rafae/Desktop/covid19_vaccination_analysis")
+# setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
+# setwd("C:/Users/rafae/Desktop/covid19_vaccination_analysis")
 #setwd() #Rafael
 
 # CLEAR ENVIRONMENT
@@ -21,7 +21,9 @@ lib <- c("tidyverse",
     "jsonlite",
     "AzureAuth",
     "dotenv",
-    "reticulate")
+    "reticulate",
+    "dplyr",
+    "tidyr")
 lib_na <- lib[!(lib %in% installed.packages()[, "Package"])]
 if (length(lib_na)) install.packages(lib_na)
 lapply(lib, library, character.only = TRUE)
@@ -154,7 +156,7 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red
 )
 
-write_xlsx(all_df, "data/output/220728_output_powerbi.xlsx")
+write_xlsx(all_df, "data/output/220728_output_powerbi_after_edit.xlsx")
 write_xlsx(financing_env$api, "data/output/220728_output_api.xlsx")
 write_xlsx(all_df, "data/output/output_master.xlsx")
 

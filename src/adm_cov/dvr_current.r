@@ -454,7 +454,7 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
 first_supplies <- function(d_absorb_red, d_absorption_country) {
   print(" >> Loading supplies data from supply dataset...")
   b_supply <- data.frame(
-    read_excel("data/_input/static/supply.xlsx",
+    read_excel("data/output/supply.xlsx",
     sheet = "data"
     )
   )
@@ -508,7 +508,7 @@ second_supplies <- function(d_absorption_country_new, combined,
   d_absorb_red, entity_characteristics, b_supply_red) {
   print(" >> Loading supplies data for second supplies...")
   b_supply_second <- data.frame(
-    read_excel("data/_input/static/supply.xlsx", sheet = "supply")
+    read_excel("data/output/supply.xlsx", sheet = "supply")
   )
   d_absorption_country_new <- select(
     d_absorption_country_new,
@@ -533,7 +533,7 @@ second_supplies <- function(d_absorption_country_new, combined,
     d_absorb_red,
     by = c("iso", "month_name")) %>%
     full_join(., d_est_stock, by = c("iso", "month_name")) %>%
-    left_join(.,entity_characteristics, by = c("iso" = "a_iso")
+    left_join(., entity_characteristics, by = c("iso" = "a_iso")
   )
   return(combined_three)
 }
