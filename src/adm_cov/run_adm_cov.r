@@ -40,7 +40,10 @@ run_adm_cov <- function(entity_characteristics,
     datalist1 <- absorption_per_country(c_vxrate_eom, current_month)
     d_absorb_red <- datalist1$d_absorb_red
     d_absorption_country_new <- new_absorption_countries(c_vxrate_eom, current_month)
-    run_new_supply()
+    sec_overall_long <- load_secured_expected()
+    overall_long <- load_supply_received()
+    admin_red <- load_administration()
+    datalist4 <- merge_supply_admin(sec_overall_long, overall_cumul_long, admin_red)
     datalist2 <- first_supplies(d_absorb_red, datalist1$d_absorption_country)
     combined <- datalist2$combined
     combined_three <- second_supplies(d_absorption_country_new, combined,

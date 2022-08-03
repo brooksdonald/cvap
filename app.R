@@ -34,7 +34,7 @@ lapply(lib, library, character.only = TRUE)
 .GlobalEnv$sec_date <- as.Date("2022-07-27")
 .GlobalEnv$del_date <- as.Date("2022-07-26")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
-.GlobalEnv$auto_cleaning <- FALSE # set to FALSE for no automised cleaning
+.GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # set to FALSE to use base_dvr_current.xlsx
 .GlobalEnv$refresh_api <- FALSE # set to FALSE to use last API call
 

@@ -1,5 +1,5 @@
 
-run_new_supply <- function() {
+# run_new_supply <- function() {
   #  Clear environment
   # rm(list = ls())
 
@@ -16,6 +16,8 @@ run_new_supply <- function() {
 
   # Secured and / or expected supply ----------------------------------------
 
+
+load_secured_expected <- function() {
   # Load datasets
   base_sec_eosep <-
     data.frame(read_excel("data/_input/test/211005_imf-who-covid-19-vaccine-supply-tracker.xlsx",
@@ -56,7 +58,7 @@ run_new_supply <- function() {
   base_sec_eojun <-
     data.frame(read_excel("data/_input/test/220701_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
                           sheet = "supply_tracker"))
-
+ 
   # ...
 
   # Reduce dataframe to required columns 
@@ -223,7 +225,11 @@ run_new_supply <- function() {
   #Rename columns
   colnames(sec_overall_long) <- c("iso","sec","month_name","type")
 
+  return(sec_overall_long)
+}
 
+
+load_supply_received <- function() {
   # Supply received ---------------------------------------------------------
 
   # Load datasets
@@ -671,7 +677,11 @@ run_new_supply <- function() {
                         overall_jan, overall_dec, overall_nov, overall_oct, 
                         overall_sep, overall_aug)
 
+  return(overall_long)
+} 
 
+
+load_administration <- function() {
   # Administration ----------------------------------------------------------
 
   # Load datasets
@@ -708,6 +718,10 @@ run_new_supply <- function() {
   admin_red <- select(base_admin, c("iso","a_csc_status","a_covax_status", "absorbed","month_name"))
   colnames(admin_red) <- c("iso","a_csc_status","a_covax_status","value","month_name")
 
+  return(admin_red)
+}
+
+merge_supply_admin <- function(sec_overall_long, overall_cumul_long, admin_red) {
   # Merge supply secured / supply received / administration
   combined_long <- full_join(sec_overall_long, overall_cumul_long, by = c("iso","month_name")) %>%
     full_join(., admin_red, by = c("iso" = "iso", "month_name" = "month_name"))
@@ -720,13 +734,18 @@ run_new_supply <- function() {
     mutate(sec_tobedel = if_else((sec - supply) < 0, 0, (sec - supply)))  %>%
     mutate(del_tobeadmin = if_else((supply - value) < 0, 0, (supply - value)))
 
-  # Export to excel
-  write_xlsx(
-    list(
+  # Making a datalist
+  datalist <- list(
       "data" = overall_long,
       "supply" = overall_cumul_long,
       "all" = combined_long
-    ),
+    )
+
+  # Export to excel
+  write_xlsx(
+    datalist,
     "data/output/supply.xlsx"
   )
+
+  return(datalist)
 }
