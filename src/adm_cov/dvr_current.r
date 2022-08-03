@@ -460,13 +460,14 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
   return(datalist)
 }
 
-first_supplies <- function(d_absorb_red, d_absorption_country) {
+first_supplies <- function(d_absorb_red, d_absorption_country, overall_long) {
   print(" >> Loading supplies data from supply dataset...")
-  b_supply <- data.frame(
-    read_excel("data/output/supply.xlsx",
-    sheet = "data"
-    )
-  )
+  # b_supply <- data.frame(
+  #   read_excel("data/output/supply.xlsx",
+  #   sheet = "data"
+  #   )
+  # )
+  b_supply <- overall_long
   print(" >> Selecting columns needed for b_supply_red...")
   b_supply_red <- select(
     b_supply,
@@ -514,11 +515,12 @@ new_absorption_countries <- function(c_vxrate_eom, current_month) {
 }
 
 second_supplies <- function(d_absorption_country_new, combined,
-  d_absorb_red, entity_characteristics, b_supply_red) {
+  d_absorb_red, entity_characteristics, b_supply_red, overall_cumul_long) {
   print(" >> Loading supplies data for second supplies...")
-  b_supply_second <- data.frame(
-    read_excel("data/output/supply.xlsx", sheet = "supply")
-  )
+  # b_supply_second <- data.frame(
+  #   read_excel("data/output/supply.xlsx", sheet = "supply")
+  # )
+  b_supply_second <- overall_cumul_long
   d_absorption_country_new <- select(
     d_absorption_country_new,
     c("iso", "absorbed", "month_name")

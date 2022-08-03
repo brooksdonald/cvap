@@ -517,6 +517,11 @@ load_supply_received <- function() {
     left_join(., eomay_slim, by = "iso") %>%
     left_join(., eojun_slim, by = "iso")
 
+  return(del_overall)
+}
+
+transform_cum_supply_received <- function(del_overall) {
+
   # Create cumulative monthly long form dataframes
   del_overall_cumul <- del_overall
 
@@ -583,6 +588,12 @@ load_supply_received <- function() {
                               overall_cumul_jun
                               )
 
+  return(overall_cumul_long)
+}
+
+
+transform_monthly_supply_received <- function(del_overall) {
+  
   # Calculate monthly changes
   del_overall <- del_overall %>%
     mutate("2022-06" = total_jun - total_may) %>%
@@ -681,35 +692,48 @@ load_supply_received <- function() {
 } 
 
 
-load_administration <- function() {
+load_administration <- function(d_absorption_country_new, entity_characteristics) {
   # Administration ----------------------------------------------------------
 
   # Load datasets
-  base_admin <-
-    data.frame(read_excel("data/output/output_master.xlsx",
-                          sheet = "1_cum_absorb_month_country"))
+  # base_admin <-
+  #   data.frame(read_excel("data/output/output_master.xlsx",
+  #                         sheet = "1_cum_absorb_month_country"))
+  base_admin <- d_absorption_country_new
 
-  b_details <-
-    data.frame(read_excel("data/_input/static/base_entitydetails.xlsx",
-                          sheet = "data"))
+  # b_details <-
+  #   data.frame(read_excel("data/_input/static/base_entitydetails.xlsx",
+  #                         sheet = "data"))
+  b_details_red <- entity_characteristics
 
   # Reduce number of rows/rename columns
-  b_details_red <-
+  # b_details_red <-
+  #   select(
+  #     b_details,
+  #     c(
+  #       "CODE",
+  #       "COVAX",
+  #       "CSC"
+  #     )
+  #   )
+  b_details_red <- b_details_red %>%
     select(
-      b_details,
       c(
-        "CODE",
-        "COVAX",
-        "CSC"
+        "a_iso",
+        "a_covax_status",
+        "a_csc_status"
       )
+    ) %>%
+    rename(
+      iso = a_iso # TODO make this obsolete
     )
 
-  colnames(b_details_red) <-
-    c(
-      "iso",
-      "a_covax_status",
-      "a_csc_status"
-    )
+  # colnames(b_details_red) <-
+  #   c(
+  #     "iso",
+  #     "a_covax_status",
+  #     "a_csc_status"
+  #   )
 
   # Merge base details with adminstration data
   base_admin <- left_join(base_admin, b_details_red, by = "iso")
@@ -721,7 +745,7 @@ load_administration <- function() {
   return(admin_red)
 }
 
-merge_supply_admin <- function(sec_overall_long, overall_cumul_long, admin_red) {
+merge_supply_admin <- function(sec_overall_long, overall_long, overall_cumul_long, admin_red) {
   # Merge supply secured / supply received / administration
   combined_long <- full_join(sec_overall_long, overall_cumul_long, by = c("iso","month_name")) %>%
     full_join(., admin_red, by = c("iso" = "iso", "month_name" = "month_name"))
@@ -736,7 +760,7 @@ merge_supply_admin <- function(sec_overall_long, overall_cumul_long, admin_red) 
 
   # Making a datalist
   datalist <- list(
-      "data" = overall_long,
+      "data" = overall_long, # TODO don't wrap it in this datalist. Rather return from earlier function
       "supply" = overall_cumul_long,
       "all" = combined_long
     )
