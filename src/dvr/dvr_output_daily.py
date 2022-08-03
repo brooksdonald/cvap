@@ -404,8 +404,7 @@ def adding_flags_for_changes(df10):
 def final_variable_selection(df11, who, auto_cleaning):
     print(' > Creating final dataframe...')
     final_columns = ['iso_code', 'entity_name', 'population', 'date', 'is_original_reported', 'total_doses_owid',
-                'total_doses', 'at_least_one_dose', 'at_least_one_dose_adj', 'fully_vaccinated', 
-                'fully_vaccinated_adj', 'persons_booster_add_dose', 'daily_rate_td', 
+                'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose', 'daily_rate_td', 
                 'rolling_4_week_avg_td', 'max_rolling_4_week_avg_td', 'med_rolling_4_week_avg_td', 
                 'rolling_4_week_avg_td_lastweek', 'rolling_4_week_avg_td_lastmonth', 'rolling_8_week_avg_td', 
                 'rolling_4_week_avg_td_per100', 'rolling_8_week_avg_td_per100', 'max_rolling_4_week_avg_td_per100',

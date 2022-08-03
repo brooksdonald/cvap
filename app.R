@@ -34,7 +34,7 @@ lapply(lib, library, character.only = TRUE)
 .GlobalEnv$sec_date <- as.Date("2022-07-27")
 .GlobalEnv$del_date <- as.Date("2022-07-26")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
-.GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
+.GlobalEnv$auto_cleaning <- FALSE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # set to FALSE to use base_dvr_current.xlsx
 .GlobalEnv$refresh_api <- FALSE # set to FALSE to use last API call
 
@@ -56,10 +56,17 @@ source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
 source("src/add_data/run_add_data.r")
 
-dvr_env <- run_dvr(.GlobalEnv$adm_api, .GlobalEnv$auto_cleaning, api_env$headers, .GlobalEnv$refresh_api)
+dvr_env <- run_dvr(.GlobalEnv$adm_api,
+    .GlobalEnv$auto_cleaning,
+    api_env$headers,
+    .GlobalEnv$refresh_api)
 entity_env <- run_entity()
 supply_env <- run_supply(.GlobalEnv$sec_date, .GlobalEnv$del_date)
-adm_cov_env <- run_adm_cov(entity_env$entity_characteristics, .GlobalEnv$refresh_date, dvr_env$dvr_data, .GlobalEnv$adm_api)
+adm_cov_env <- run_adm_cov(
+    entity_env$entity_characteristics,
+    .GlobalEnv$refresh_date, dvr_env$dvr_data,
+    .GlobalEnv$adm_api,
+    .GlobalEnv$auto_cleaning)
 cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
 finance_env <- run_finance(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
@@ -156,7 +163,7 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red
 )
 
-write_xlsx(all_df, "data/output/220728_output_powerbi_after_edit.xlsx")
+write_xlsx(all_df, "data/output/220728_output_powerbi_without_auto_cleaning.xlsx")
 write_xlsx(financing_env$api, "data/output/220728_output_api.xlsx")
 write_xlsx(all_df, "data/output/output_master.xlsx")
 

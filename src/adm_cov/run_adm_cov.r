@@ -1,9 +1,10 @@
 # rows 119 - 596
 
 run_adm_cov <- function(entity_characteristics,
-    refresh_date, dvr_data, adm_api) {
+    refresh_date, dvr_data, adm_api, auto_cleaning) {
     source("src/adm_cov/dvr_current.r")
     source("src/adm_cov/dvr_prev.r")
+    source("src/adm_cov/supply.r")
 
     print(" > Starting local environment for vaccinations")
 
@@ -11,12 +12,12 @@ run_adm_cov <- function(entity_characteristics,
     current_month <- substr(refresh_date, 1, 7)
 
     print(" > Daily current vaccinations")
-    b_vxrate <- load_b_vxrate(dvr_data, adm_api)
+    b_vxrate <- load_b_vxrate(dvr_data, adm_api, auto_cleaning)
     b_vxrate <- transform_current_vxrate(
         b_vxrate,
         entity_characteristics,
         refresh_date)
-    b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate)
+    b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate, auto_cleaning)
     b_vxrate_amc <- transform_subset_amc(b_vxrate)
     c_vxrate_sept_t10 <- transform_sept21_pop_tgt(b_vxrate)
     c_vxrate_dec_t2040 <- transform_dec21_pop_tgt(b_vxrate)
@@ -38,9 +39,10 @@ run_adm_cov <- function(entity_characteristics,
         c_vxrate_twomonth)
     datalist1 <- absorption_per_country(c_vxrate_eom, current_month)
     d_absorb_red <- datalist1$d_absorb_red
+    d_absorption_country_new <- new_absorption_countries(c_vxrate_eom, current_month)
+    run_new_supply()
     datalist2 <- first_supplies(d_absorb_red, datalist1$d_absorption_country)
     combined <- datalist2$combined
-    d_absorption_country_new <- new_absorption_countries(c_vxrate_eom, current_month)
     combined_three <- second_supplies(d_absorption_country_new, combined,
         d_absorb_red, entity_characteristics, datalist2$b_supply_red)
     print(" > Done.")
