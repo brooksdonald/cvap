@@ -546,6 +546,8 @@ second_supplies <- function(d_absorption_country_new, combined,
     full_join(., d_est_stock, by = c("iso", "month_name")) %>%
     left_join(., entity_characteristics, by = c("iso" = "a_iso")
   )
+  combined_three <- combined_three %>%
+    arrange(desc(month_name), iso)
   return(combined_three)
 }
 
