@@ -37,6 +37,7 @@ lapply(lib, library, character.only = TRUE)
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # set to FALSE to use base_dvr_current.xlsx
 .GlobalEnv$refresh_api <- FALSE # set to FALSE to use last API call
+.GlobalEnv$refresh_supply_timeseries <- TRUE # set to FALSE to read in ../static/supply.xlsx
 
 # HELPERS
 
@@ -66,7 +67,8 @@ adm_cov_env <- run_adm_cov(
     entity_env$entity_characteristics,
     .GlobalEnv$refresh_date, dvr_env$dvr_data,
     .GlobalEnv$adm_api,
-    .GlobalEnv$auto_cleaning)
+    .GlobalEnv$auto_cleaning,
+    .GlobalEnv$refresh_supply_timeseries)
 cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
 finance_env <- run_finance(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
