@@ -37,7 +37,7 @@ lapply(lib, library, character.only = TRUE)
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # set to FALSE to use base_dvr_current.xlsx
 .GlobalEnv$refresh_api <- FALSE # set to FALSE to use last API call
-.GlobalEnv$refresh_supply_timeseries <- TRUE # set to FALSE to read in ../static/supply.xlsx
+.GlobalEnv$refresh_supply_timeseries <- TRUE # FALSE reads ../static/supply.xlsx
 
 # HELPERS
 
