@@ -1,67 +1,89 @@
-
-# run_new_supply <- function() {
-  #  Clear environment
-  # rm(list = ls())
-
-  # Load packages
-
-  # library("readxl")
-  # library("writexl")
-  # library("countrycode")
-  # library("dplyr")
-  # library("lubridate")
-  # library("tidyr")
-  # library("data.table")
-
-
-  # Secured and / or expected supply ----------------------------------------
-
-
 load_secured_expected <- function() {
   # Load datasets
-  base_sec_eosep <-
-    data.frame(read_excel("data/_input/test/211005_imf-who-covid-19-vaccine-supply-tracker.xlsx",
-                          sheet = "data"))
 
-  base_sec_eooct <-
-    data.frame(read_excel("data/_input/test/211102_imf-who-covid-19-vaccine-supply-tracker.xlsx",
-                          sheet = "data"))
+  load_data <- function(file_name, df_list, sheet_name) {
+    file_name <- list(file_name)
+    for (file in file_name) {
+      df_list <- append(df_list, data.frame(read_excel(file_name,
+        sheet = sheet_name)))
+    }
+    return(df_list)
+  }
 
-  base_sec_eonov <-
-    data.frame(read_excel("data/_input/test/211201_imf-who-covid-19-vaccine-supply-tracker.xlsx",
-                          sheet = "data"))
+  df_list <- list()
+  df_list <- load_data(
+    list(
+      "data/_input/test/211005_imf-who-covid-19-vaccine-supply-tracker.xlsx",
+      "data/_input/test/211102_imf-who-covid-19-vaccine-supply-tracker.xlsx",
+      "data/_input/test/211201_imf-who-covid-19-vaccine-supply-tracker.xlsx",
+      "data/_input/test/220105_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx"
+    ),
+    df_list,
+    "data")
 
-  base_sec_eodec <-
-    data.frame(read_excel("data/_input/test/220105_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
-                          sheet = "data"))
+  df_list <- load_data(
+    list(
+      "data/_input/test/220202_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+      "data/_input/test/220302_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+      "data/_input/test/220406_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+      "data/_input/test/220505_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+      "data/_input/test/220602_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+      "data/_input/test/220701_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx"
+    ),
+    df_list,
+    "supply_tracker"
+  )
 
-  base_sec_eojan <-
-    data.frame(read_excel("data/_input/test/220202_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
-                          sheet = "supply_tracker"))
 
-  base_sec_eofeb <-
-    data.frame(read_excel("data/_input/test/220302_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
-                          sheet = "supply_tracker"))
+  # base_sec_eosep <-
+  #   data.frame(read_excel("data/_input/test/211005_imf-who-covid-19-vaccine-supply-tracker.xlsx",
+  #                         sheet = "data"))
 
-  base_sec_eomar <-
-    data.frame(read_excel("data/_input/test/220406_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
-                          sheet = "supply_tracker"))
+  # base_sec_eooct <-
+  #   data.frame(read_excel("data/_input/test/211102_imf-who-covid-19-vaccine-supply-tracker.xlsx",
+  #                         sheet = "data"))
 
-  base_sec_eoapr <-
-    data.frame(read_excel("data/_input/test/220505_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
-                          sheet = "supply_tracker"))
+  # base_sec_eonov <-
+  #   data.frame(read_excel("data/_input/test/211201_imf-who-covid-19-vaccine-supply-tracker.xlsx",
+  #                         sheet = "data"))
 
-  base_sec_eomay <-
-    data.frame(read_excel("data/_input/test/220602_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
-                          sheet = "supply_tracker"))
+  # base_sec_eodec <-
+  #   data.frame(read_excel("data/_input/test/220105_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+  #                         sheet = "data"))
 
-  base_sec_eojun <-
-    data.frame(read_excel("data/_input/test/220701_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
-                          sheet = "supply_tracker"))
+  # base_sec_eojan <-
+  #   data.frame(read_excel("data/_input/test/220202_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+  #                         sheet = "supply_tracker"))
+
+  # base_sec_eofeb <-
+  #   data.frame(read_excel("data/_input/test/220302_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+  #                         sheet = "supply_tracker"))
+
+  # base_sec_eomar <-
+  #   data.frame(read_excel("data/_input/test/220406_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+  #                         sheet = "supply_tracker"))
+
+  # base_sec_eoapr <-
+  #   data.frame(read_excel("data/_input/test/220505_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+  #                         sheet = "supply_tracker"))
+
+  # base_sec_eomay <-
+  #   data.frame(read_excel("data/_input/test/220602_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+  #                         sheet = "supply_tracker"))
+
+  # base_sec_eojun <-
+  #   data.frame(read_excel("data/_input/test/220701_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+  #                         sheet = "supply_tracker"))
  
   # ...
 
   # Reduce dataframe to required columns 
+  df_list_trans <- list()
+  for (df in df_list) {
+    df_list_trans <- df %>%
+      select(c("ISO3", "Secured.Vaccine..millions.of.courses.")) %>%
+      mutate(sec_eosep = (Secured.Vaccine..millions.of.courses.) * 1000000 * 2)
+  }
 
   sec_eosep_slim <- select(base_sec_eosep, c("ISO3","Secured.Vaccine..millions.of.courses."))
   sec_eosep_slim <- sec_eosep_slim %>%
