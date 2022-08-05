@@ -1,6 +1,6 @@
 
 # load current daily vxrate
-load_b_vxrate <- function(dvr_data, adm_api) {
+load_b_vxrate <- function(dvr_data, adm_api, auto_cleaning) {
   if (adm_api) {
     print(" >> Using data from API...")
     b_vxrate <- as.data.frame(dvr_data)
@@ -15,36 +15,36 @@ load_b_vxrate <- function(dvr_data, adm_api) {
     )
   }
   print(" >> Selecting relevant current daily vaccination rate columns...")
+  columns <- c(
+    "iso_code",
+    "date",
+    "total_doses",
+    "at_least_one_dose",
+    "fully_vaccinated",
+    "persons_booster_add_dose",
+    "rolling_4_week_avg_td",
+    "rolling_4_week_avg_fv",
+    "max_rolling_4_week_avg_td",
+    "rolling_4_week_avg_td_lastmonth",
+    "no_change_from_previous"
+  )
+  if (auto_cleaning) {
+    columns <- append(columns,
+      c("at_least_one_dose_adj", "fully_vaccinated_adj"))
+  }
   b_vxrate <-
     select(
       b_vxrate,
-      c(
-        "iso_code",
-        "date",
-        "total_doses",
-        "at_least_one_dose",
-        "at_least_one_dose_adj",
-        "fully_vaccinated",
-        "fully_vaccinated_adj",
-        "persons_booster_add_dose",
-        "rolling_4_week_avg_td",
-        "rolling_4_week_avg_fv",
-        "max_rolling_4_week_avg_td",
-        "rolling_4_week_avg_td_lastmonth",
-        "no_change_from_previous"
-      )
+      columns
     )
 
   print(" >> Renaming current daily vaccination rate columns...")
-  colnames(b_vxrate) <-
-    c(
+  column_names <- c(
       "a_iso",
       "adm_date",
       "adm_td",
       "adm_a1d",
-      "adm_a1d_adj",
       "adm_fv",
-      "adm_fv_adj",
       "adm_booster",
       "dvr_4wk_td",
       "dvr_4wk_fv",
@@ -52,6 +52,12 @@ load_b_vxrate <- function(dvr_data, adm_api) {
       "dvr_4wk_td_lm",
       "note_nochange"
     )
+  if (auto_cleaning) {
+    column_names <- append(column_names,
+      c("adm_a1d_adj", "adm_fv_adj"))
+  }
+  colnames(b_vxrate) <- column_names
+
 
   return(b_vxrate)
 
@@ -177,30 +183,33 @@ transform_current_vxrate <- function(
 }
 
 ## Create clean long form subsets and select relevant columns
-transform_current_vxrate_pub <- function(b_vxrate) {
+transform_current_vxrate_pub <- function(b_vxrate, auto_cleaning) {
   print(" >> Create clean long form subsets for b_vxrate_pub")
+  columns <- c(
+    "a_iso",
+    "a_name_short",
+    "a_pop",
+    "adm_date",
+    "adm_td",
+    "adm_a1d",
+    "adm_fv",
+    "adm_booster",
+    "dvr_4wk_td",
+    "a_who_region",
+    "a_covax_status",
+    "a_income_group",
+    "a_csc_status",
+    "a_ifc_status",
+    "a_continent_sub"
+  )
+  if (auto_cleaning) {
+    columns <- append(columns,
+      c("adm_a1d_adj", "adm_fv_adj"))
+  }
   b_vxrate_pub <-
   select(
     b_vxrate,
-      c(
-        "a_iso",
-        "a_name_short",
-        "a_pop",
-        "adm_date",
-        "adm_td",
-        "adm_a1d",
-        "adm_a1d_adj",
-        "adm_fv",
-        "adm_fv_adj",
-        "adm_booster",
-        "dvr_4wk_td",
-        "a_who_region",
-        "a_covax_status",
-        "a_income_group",
-        "a_csc_status",
-        "a_ifc_status",
-        "a_continent_sub"
-      )
+    columns
     )
     ### Calculate dvr_4wk_td_per in long form subsets
     b_vxrate_pub <- b_vxrate_pub %>%
@@ -451,13 +460,9 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
   return(datalist)
 }
 
-first_supplies <- function(d_absorb_red, d_absorption_country) {
+first_supplies <- function(d_absorb_red, d_absorption_country, overall_long) {
   print(" >> Loading supplies data from supply dataset...")
-  b_supply <- data.frame(
-    read_excel("data/_input/static/supply.xlsx",
-    sheet = "data"
-    )
-  )
+  b_supply <- overall_long
   print(" >> Selecting columns needed for b_supply_red...")
   b_supply_red <- select(
     b_supply,
@@ -505,11 +510,9 @@ new_absorption_countries <- function(c_vxrate_eom, current_month) {
 }
 
 second_supplies <- function(d_absorption_country_new, combined,
-  d_absorb_red, entity_characteristics, b_supply_red) {
+  d_absorb_red, entity_characteristics, b_supply_red, overall_cumul_long) {
   print(" >> Loading supplies data for second supplies...")
-  b_supply_second <- data.frame(
-    read_excel("data/_input/static/supply.xlsx", sheet = "supply")
-  )
+  b_supply_second <- overall_cumul_long
   d_absorption_country_new <- select(
     d_absorption_country_new,
     c("iso", "absorbed", "month_name")
@@ -533,8 +536,10 @@ second_supplies <- function(d_absorption_country_new, combined,
     d_absorb_red,
     by = c("iso", "month_name")) %>%
     full_join(., d_est_stock, by = c("iso", "month_name")) %>%
-    left_join(.,entity_characteristics, by = c("iso" = "a_iso")
+    left_join(., entity_characteristics, by = c("iso" = "a_iso")
   )
+  combined_three <- combined_three %>%
+    arrange(desc(month_name), iso)
   return(combined_three)
 }
 
