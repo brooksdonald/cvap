@@ -1,7 +1,7 @@
 
 # SET WD
-setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
-setwd("C:/Users/rafae/Desktop/covid19_vaccination_analysis")
+# setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
+# setwd("C:/Users/rafae/Desktop/covid19_vaccination_analysis")
 #setwd() #Rafael
 
 # CLEAR ENVIRONMENT
@@ -28,13 +28,13 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2022-07-28")
+.GlobalEnv$refresh_date <- as.Date("2022-08-04")
 .GlobalEnv$sec_date <- as.Date("2022-07-27")
-.GlobalEnv$del_date <- as.Date("2022-07-26")
+.GlobalEnv$del_date <- as.Date("2022-08-02")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # set to FALSE to use base_dvr_current.xlsx
-.GlobalEnv$refresh_api <- FALSE # set to FALSE to use last API call
+.GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
 
 # HELPERS
 
@@ -154,8 +154,8 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red
 )
 
-write_xlsx(all_df, "data/output/220728_output_powerbi.xlsx")
-write_xlsx(financing_env$api, "data/output/220728_output_api.xlsx")
+write_xlsx(all_df, "data/output/220804_output_powerbi.xlsx")
+write_xlsx(financing_env$api, "data/output/220804_output_api.xlsx")
 write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
