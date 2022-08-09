@@ -1,4 +1,4 @@
-load_secured_expected <- function() {
+load_secured_expected <- function(path) {
   # Load datasets
 
   df_list1 <- helper_load_list_of_files(
@@ -8,7 +8,7 @@ load_secured_expected <- function() {
       "data/_input/test/211201_imf-who-covid-19-vaccine-supply-tracker.xlsx",
       "data/_input/test/220105_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx"
     ),
-    sheet_name = "data",
+    sheets = "data",
     date_format = "%y%m%d"
   )
 
@@ -21,10 +21,70 @@ load_secured_expected <- function() {
       "data/_input/test/220602_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
       "data/_input/test/220701_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx"
     ),
-    sheet_name = "supply_tracker",
+    sheets = "supply_tracker",
     date_format = "%y%m%d"
   )
   df_list <- append(df_list1, df_list2)
+
+
+  ## alternative automatic read in of files
+
+  # reading in list of files in directory
+  print(" >> Selecting files to read in...")
+  files <- unlist(list.files(
+    path = "data/_input/test/",
+    # add to this pattern if the file name changes in the future
+    pattern = "IMF|imf"
+  ))
+
+  # checking for duplicate months
+  months <- substr(files, 1, 4)
+  if (sum(duplicated(months))) {
+    stop(paste0("Error:
+      Two files in ",
+      path,
+      " with 'imf' in the name have the same year month combination."))
+  }
+
+  # checking for reasonable years and months
+  years <- substr(files, 1, 2)
+  months <- substr(files, 3, 4)
+  if (
+    sum(as.numeric(years) > 40) |
+    sum(as.numeric(years) < 21) |
+    sum(as.numeric(months) > 12) |
+    sum(as.numeric(months) < 1)) {
+      stop("One of IMF datasets does not conform to year-month format
+        (must be, e.g., 2108 for Aug 2021)")
+    }
+
+  # finding the right sheet to read in
+  sheet_vector <- c()
+  for (file in files) {
+    sheets <- excel_sheets(path = paste0(path, file))
+    # if sheet names change in the future, simply add to this list
+    possible_sheet_names <- c("supply_tracker", "data")
+    for (name in possible_sheet_names) {
+      if (name %in% sheets) {
+        relevant_sheet <- name
+      }
+    }
+    # throw error if there is no sheet with one of the names above
+    if (is.na(relevant_sheet)) {
+      stop(paste0("Error: ", file, " does not have a sheet with a right name.
+        Add new sheet name to the list of
+        possible sheet names in supply_timeseries.r"))
+    }
+    sheet_vector <- append(sheet_vector, relevant_sheet)
+    remove(relevant_sheet)
+  }
+
+  print(" >> Read in supply_tracker data...")
+  df_list <- helper_load_list_of_files(
+    files = paste0(path, files),
+    sheets = sheet_vector,
+    date_format = "%y%m%d"
+  )
 
 
   # base_sec_eosep <-
@@ -70,6 +130,7 @@ load_secured_expected <- function() {
   # ...
 
   # Reduce dataframe to required columns
+  print(" >> Transforming secured data...")
   df_list_trans <- list()
   for (i in seq_along(df_list)) {
     df <- df_list[[i]]
@@ -278,7 +339,7 @@ load_secured_expected <- function() {
 }
 
 
-load_supply_received <- function() {
+load_supply_received <- function(path) {
   # Supply received ---------------------------------------------------------
 
   # Load datasets
@@ -297,10 +358,68 @@ load_supply_received <- function() {
       "data/_input/test/20220530_UNICEF_DeliveryTable.xlsx",
       "data/_input/test/20220627_UNICEF_DeliveryTable.xlsx"
     ),
-    sheet_name = "Delivery_Table",
+    sheets = "Delivery_Table",
     date_format = "%Y%m%d"
   )
 
+
+  # reading in list of files in directory
+  print(" >> Selecting files to read in...")
+  files <- unlist(list.files(
+    path = "data/_input/test/",
+    # add to this pattern if the file name changes in the future
+    pattern = "UNICEF|unicef"
+  ))
+
+  # checking for duplicate months
+  months <- substr(files, 1, 6)
+  if (sum(duplicated(months))) {
+    stop(paste0("Error:
+      Two files in ",
+      path,
+      " with 'imf' in the name have the same year month combination."))
+  }
+
+  # checking for reasonable years and months
+  years <- substr(files, 1, 4)
+  months <- substr(files, 5, 6)
+  if (
+    sum(as.numeric(years) > 2040) |
+    sum(as.numeric(years) < 2021) |
+    sum(as.numeric(months) > 12) |
+    sum(as.numeric(months) < 1)) {
+      stop("One of IMF datasets does not conform to year-month format
+        (must be, e.g., 2108 for Aug 2021)")
+    }
+
+  # finding the right sheet to read in
+  sheet_vector <- c()
+  for (file in files) {
+    sheets <- excel_sheets(path = paste0(path, file))
+    # if sheet names change in the future, simply add to this list
+    possible_sheet_names <- c("Delivery_Table")
+    for (name in possible_sheet_names) {
+      if (name %in% sheets) {
+        relevant_sheet <- name
+      }
+    }
+    # throw error if there is no sheet with one of the names above
+    if (is.na(relevant_sheet)) {
+      stop(paste0("Error: ", file, " does not have a sheet with a right name.
+        Add new sheet name to the list of
+        possible sheet names in supply_timeseries.r"))
+    }
+    sheet_vector <- append(sheet_vector, relevant_sheet)
+    remove(relevant_sheet)
+  }
+
+  # import files from excel
+  print(" >> Reading in UNICEF delivery table data...")
+  df_list <- helper_load_list_of_files(
+    files = paste0(path, files),
+    sheets = sheet_vector,
+    date_format = "%Y%m%d"
+  )
 
   # base_eojul <-
   #   data.frame(read_excel("data/_input/test/20210726_UNICEF_DeliveryTable.xlsx",
@@ -350,11 +469,7 @@ load_supply_received <- function() {
   #   data.frame(read_excel("data/_input/test/20220627_UNICEF_DeliveryTable.xlsx",
   #                         sheet = "Delivery_Table"))
 
-
-  # Add ISO codes, remove entries without ISO codes, and rename columns
-
-  # July
-
+  print(" >> Transforming delivery data...")
   for (i in seq_along(df_list)) {
     # adding country codes to each observation
     colnames(df_list[[i]]) <- tolower(colnames(df_list[[i]]))
@@ -379,11 +494,10 @@ load_supply_received <- function() {
   }
 
   # appending all dataframes together
+  print(" >> Combining monthly delivery data...")
   overall_cumul_long <- df_list %>%
     bind_rows() %>%
     arrange(month_name, iso)
-
-  # print(overall_cumul_long$iso)
 
   # base_eojul$iso <-
   #   countrycode(base_eojul$Country.territory,
@@ -828,7 +942,7 @@ transform_monthly_supply_received <- function(overall_cumul_long) {
   #   overall_jan, overall_dec, overall_nov, overall_oct,
   #   overall_sep, overall_aug
   # )
-
+  print(" >> Calculating monthly difference in received supply...")
   overall_long <- overall_cumul_long %>%
     mutate(supply = replace_na(supply, 0)) %>%
     # calculating difference between months
@@ -882,6 +996,7 @@ load_administration <- function(d_absorption_country_new, entity_characteristics
   # colnames(admin_red) <- c("iso", "a_csc_status", "a_covax_status", "value", "month_name")
 
   # Merge base details with adminstration data
+  print(" >> Loading administration data...")
   admin_red <- entity_characteristics %>%
     select(
       c(
@@ -893,7 +1008,7 @@ load_administration <- function(d_absorption_country_new, entity_characteristics
     right_join(d_absorption_country_new, by = "iso") %>%
     select(iso, a_csc_status, a_covax_status, absorbed, month_name) %>%
     rename(value = absorbed)
-    
+
   return(admin_red)
 }
 
@@ -901,6 +1016,7 @@ export_supply_xlsx <- function(
   sec_overall_long, overall_long, overall_cumul_long, admin_red) {
 
   # Merge supply secured / supply received / administration
+  print(" >> Exporting supply data...")
   combined_long <- full_join(
       sec_overall_long,
       overall_cumul_long,
