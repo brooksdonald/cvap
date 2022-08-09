@@ -858,12 +858,11 @@ load_administration <- function(d_absorption_country_new, entity_characteristics
   # base_admin <-
   #   data.frame(read_excel("data/output/output_master.xlsx",
   #                         sheet = "1_cum_absorb_month_country"))
-  base_admin <- d_absorption_country_new
+  # base_admin <- d_absorption_country_new
 
   # b_details <-
   #   data.frame(read_excel("data/_input/static/base_entitydetails.xlsx",
   #                         sheet = "data"))
-  b_details_red <- entity_characteristics
 
   # Reduce number of rows/rename columns
   # b_details_red <-
@@ -875,17 +874,6 @@ load_administration <- function(d_absorption_country_new, entity_characteristics
   #       "CSC"
   #     )
   #   )
-  b_details_red <- b_details_red %>%
-    select(
-      c(
-        "a_iso",
-        "a_covax_status",
-        "a_csc_status"
-      )
-    ) %>%
-    rename(
-      iso = a_iso # TODO make this obsolete
-    )
 
   # colnames(b_details_red) <-
   #   c(
@@ -894,12 +882,25 @@ load_administration <- function(d_absorption_country_new, entity_characteristics
   #     "a_csc_status"
   #   )
 
-  # Merge base details with adminstration data
-  base_admin <- left_join(base_admin, b_details_red, by = "iso")
-
   # Reduce & rename dataframe to required columns
-  admin_red <- select(base_admin, c("iso", "a_csc_status", "a_covax_status", "absorbed", "month_name"))
-  colnames(admin_red) <- c("iso", "a_csc_status", "a_covax_status", "value", "month_name")
+  # admin_red <- select(base_admin, c("iso", "a_csc_status", "a_covax_status", "absorbed", "month_name"))
+  # colnames(admin_red) <- c("iso", "a_csc_status", "a_covax_status", "value", "month_name")
+
+  # Merge base details with adminstration data
+  admin_red <- entity_characteristics %>%
+    select(
+      c(
+        "a_iso",
+        "a_covax_status",
+        "a_csc_status"
+      )) %>%
+    rename(
+      iso = a_iso) %>%
+    right_join(base_admin, by = "iso") %>%
+    select(iso, a_csc_status, a_covax_status, absorbed, month_name)) %>%
+    rename(
+      value = absorbed
+    )
 
   return(admin_red)
 }
