@@ -531,14 +531,16 @@ second_supplies <- function(d_absorption_country_new, combined,
     b = c("iso", "month_name")
   )
   combined_new <- combined_new %>%
-  mutate(est_stock = if_else(is.na(supply) | is.na(absorbed), NA_real_,
-  if_else((supply - absorbed) < 0, 0, (supply - absorbed))))
-  
+    mutate(est_stock = if_else(
+      is.na(supply) | is.na(absorbed),
+      NA_real_,
+      pmax(supply - absorbed, 0)))
+
   d_est_stock <- select(
     combined_new,
     c("iso", "month_name", "est_stock")
   )
-  
+
   combined_three <- full_join(
     b_supply_red,
     d_absorb_red,

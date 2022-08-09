@@ -829,19 +829,7 @@ transform_monthly_supply_received <- function(overall_cumul_long) {
   #   overall_sep, overall_aug
   # )
 
-  # Creating a table with all iso-month combinations
-  full_table <- tibble(expand.grid(
-    unique(overall_cumul_long$month_name),
-    unique(overall_cumul_long$iso))) %>%
-    rename(
-      month_name = Var1,
-      iso = Var2)
-
   overall_long <- overall_cumul_long %>%
-    # joining our data with full table and filling NAs with 0
-    right_join(
-      full_table,
-      by = c("month_name", "iso")) %>%
     mutate(supply = replace_na(supply, 0)) %>%
     # calculating difference between months
     arrange(month_name) %>%
@@ -901,13 +889,11 @@ load_administration <- function(d_absorption_country_new, entity_characteristics
         "a_covax_status",
         "a_csc_status"
       )) %>%
-    rename(
-      iso = a_iso) %>%
+    rename(iso = a_iso) %>%
     right_join(d_absorption_country_new, by = "iso") %>%
     select(iso, a_csc_status, a_covax_status, absorbed, month_name) %>%
-    rename(
-      value = absorbed
-    )
+    rename(value = absorbed)
+    
   return(admin_red)
 }
 
