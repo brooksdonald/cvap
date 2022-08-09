@@ -268,7 +268,7 @@ load_secured_expected <- function() {
   #                           )
 
   sec_overall_long <- df_list_trans %>%
-    bind_rows(.id = "iso") %>%
+    bind_rows() %>%
     mutate_if(is.numeric, round)
 
 
@@ -302,360 +302,363 @@ load_supply_received <- function() {
   )
 
 
-  base_eojul <-
-    data.frame(read_excel("data/_input/test/20210726_UNICEF_DeliveryTable.xlsx",
-                          sheet = "Delivery_Table"))
+  # base_eojul <-
+  #   data.frame(read_excel("data/_input/test/20210726_UNICEF_DeliveryTable.xlsx",
+  #                         sheet = "Delivery_Table"))
 
-  base_eoaug <-
-    data.frame(read_excel("data/_input/test/20210824_UNICEF_DeliveryTable.xlsx",
-                          sheet = "Delivery_Table"))
+  # base_eoaug <-
+  #   data.frame(read_excel("data/_input/test/20210824_UNICEF_DeliveryTable.xlsx",
+  #                         sheet = "Delivery_Table"))
 
-  base_eosep <-
-    data.frame(read_excel("data/_input/test/20210927_UNICEF_DeliveryTable.xlsx",
-                          sheet = "Delivery_Table"))
+  # base_eosep <-
+  #   data.frame(read_excel("data/_input/test/20210927_UNICEF_DeliveryTable.xlsx",
+  #                         sheet = "Delivery_Table"))
 
-  base_eooct <-
-    data.frame(read_excel("data/_input/test/20211027_UNICEF_DeliveryTable.xlsx",
-                          sheet = "Delivery_Table"))
+  # base_eooct <-
+  #   data.frame(read_excel("data/_input/test/20211027_UNICEF_DeliveryTable.xlsx",
+  #                         sheet = "Delivery_Table"))
 
-  base_eonov <-
-    data.frame(read_excel("data/_input/test/20211130_UNICEF_DeliveryTable.xlsx",
-                          sheet = "Delivery_Table"))
+  # base_eonov <-
+  #   data.frame(read_excel("data/_input/test/20211130_UNICEF_DeliveryTable.xlsx",
+  #                         sheet = "Delivery_Table"))
 
-  base_eodec <-
-    data.frame(read_excel("data/_input/test/20211228_UNICEF_DeliveryTable.xlsx",
-                          sheet = "Delivery_Table"))
+  # base_eodec <-
+  #   data.frame(read_excel("data/_input/test/20211228_UNICEF_DeliveryTable.xlsx",
+  #                         sheet = "Delivery_Table"))
 
-  base_eojan <-
-    data.frame(read_excel("data/_input/test/20220126_UNICEF_DeliveryTable.xlsx",
-                          sheet = "Delivery_Table"))
+  # base_eojan <-
+  #   data.frame(read_excel("data/_input/test/20220126_UNICEF_DeliveryTable.xlsx",
+  #                         sheet = "Delivery_Table"))
 
-  base_eofeb <-
-    data.frame(read_excel("data/_input/test/20220228_UNICEF_DeliveryTable.xlsx",
-                          sheet = "Delivery_Table"))
+  # base_eofeb <-
+  #   data.frame(read_excel("data/_input/test/20220228_UNICEF_DeliveryTable.xlsx",
+  #                         sheet = "Delivery_Table"))
 
-  base_eomar <-
-    data.frame(read_excel("data/_input/test/20220328_UNICEF_DeliveryTable.xlsx",
-                          sheet = "Delivery_Table"))
+  # base_eomar <-
+  #   data.frame(read_excel("data/_input/test/20220328_UNICEF_DeliveryTable.xlsx",
+  #                         sheet = "Delivery_Table"))
 
-  base_eoapr <-
-    data.frame(read_excel("data/_input/test/20220426_UNICEF_DeliveryTable.xlsx",
-                          sheet = "Delivery_Table"))
+  # base_eoapr <-
+  #   data.frame(read_excel("data/_input/test/20220426_UNICEF_DeliveryTable.xlsx",
+  #                         sheet = "Delivery_Table"))
 
-  base_eomay <-
-    data.frame(read_excel("data/_input/test/20220530_UNICEF_DeliveryTable.xlsx",
-                          sheet = "Delivery_Table"))
+  # base_eomay <-
+  #   data.frame(read_excel("data/_input/test/20220530_UNICEF_DeliveryTable.xlsx",
+  #                         sheet = "Delivery_Table"))
 
-  base_eojun <-
-    data.frame(read_excel("data/_input/test/20220627_UNICEF_DeliveryTable.xlsx",
-                          sheet = "Delivery_Table"))
+  # base_eojun <-
+  #   data.frame(read_excel("data/_input/test/20220627_UNICEF_DeliveryTable.xlsx",
+  #                         sheet = "Delivery_Table"))
 
 
   # Add ISO codes, remove entries without ISO codes, and rename columns
 
   # July
 
-  # for (i in seq_along(df_list)) {
-  #   # adding country codes to each observation
-  #   df_list[[i]]$iso <- countrycode(
-  #     df_list[[i]]$Country.territory,
+  for (i in seq_along(df_list)) {
+    # adding country codes to each observation
+    colnames(df_list[[i]]) <- tolower(colnames(df_list[[i]]))
+    df_list[[i]]$iso <- countrycode(
+      df_list[[i]]$country.territory,
+      origin = "country.name",
+      destination = "iso3c",
+      warn = TRUE
+    )
+    # fixing Kosovo, NAs, and summarising supply per month and country
+    df_list[[i]] <- df_list[[i]] %>%
+      mutate(iso = replace(iso, country.territory == "Kosovo", "XKX")) %>%
+      drop_na(iso) %>%
+      select(
+        iso,
+        total.doses.delivered,
+        month_name
+      ) %>%
+      group_by(iso, month_name) %>%
+      summarize(supply = sum(total.doses.delivered))
+  }
+
+  overall_cumul_long <- df_list %>%
+    bind_rows()
+  
+  
+  # print(overall_cumul_long$iso)
+
+  # base_eojul$iso <-
+  #   countrycode(base_eojul$Country.territory,
   #     origin = "country.name",
-  #     destination = "iso3c",
-  #     warn = TRUE
+  #     destination = "iso3c", warn = TRUE
   #   )
 
-  #   # fixing Kosovo, dropping NAs, renaming and selecting columns
-  #   df_list[[i]] <- df_list[[i]] %>%
-  #     mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX")) %>%
-  #     drop_na(iso) %>%
-  #     rename(
-  #       product = Vaccine.Name,
-  #       supply = Total.doses.delivered
-  #     ) %>%
-  #     select(
-  #       iso,
-  #       product,
-  #       supply
-  #     ) %>%
-  #     group_by(iso) %>%
-  # }
+  # base_eojul <-
+  #   base_eojul %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
+  # base_eojul <- base_eojul[!(is.na(base_eojul$iso)), ]
+  # base_eojul <- select(base_eojul, -c("Country.territory"))
 
+  # colnames(base_eojul) <- c(
+  #   "product", "bimultilat", "donations", "covax", "unknown", "total_jul", "iso"
+  # )
 
-  base_eojul$iso <-
-    countrycode(base_eojul$Country.territory,
-      origin = "country.name",
-      destination = "iso3c", warn = TRUE
-    )
+  # # August
+  # base_eoaug$iso <-
+  #   countrycode(base_eoaug$Country.territory,
+  #     origin = "country.name",
+  #     destination = "iso3c", warn = TRUE
+  #   )
 
-  base_eojul <-
-    base_eojul %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
-  base_eojul <- base_eojul[!(is.na(base_eojul$iso)), ]
-  base_eojul <- select(base_eojul, -c("Country.territory"))
+  # base_eoaug <-
+  #   base_eoaug %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
+  # base_eoaug <- base_eoaug[!(is.na(base_eoaug$iso)), ]
+  # base_eoaug <- select(base_eoaug, -c("Country.territory"))
 
-  colnames(base_eojul) <- c(
-    "product", "bimultilat", "donations", "covax", "unknown", "total_jul", "iso"
-  )
+  # colnames(base_eoaug) <- c(
+  #   "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_aug", "iso"
+  # )
 
-  # August
-  base_eoaug$iso <-
-    countrycode(base_eoaug$Country.territory,
-      origin = "country.name",
-      destination = "iso3c", warn = TRUE
-    )
+  # # September
+  # base_eosep$iso <-
+  #   countrycode(base_eosep$Country.territory,
+  #     origin = "country.name",
+  #     destination = "iso3c", warn = TRUE
+  #   )
 
-  base_eoaug <-
-    base_eoaug %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
-  base_eoaug <- base_eoaug[!(is.na(base_eoaug$iso)), ]
-  base_eoaug <- select(base_eoaug, -c("Country.territory"))
+  # base_eosep <-
+  #   base_eosep %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
+  # base_eosep <- base_eosep[!(is.na(base_eosep$iso)), ]
+  # base_eosep <- select(base_eosep, -c("Country.territory"))
 
-  colnames(base_eoaug) <- c(
-    "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_aug", "iso"
-  )
+  # colnames(base_eosep) <- c(
+  #   "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_sep", "iso"
+  # )
 
-  # September
-  base_eosep$iso <-
-    countrycode(base_eosep$Country.territory,
-      origin = "country.name",
-      destination = "iso3c", warn = TRUE
-    )
+  # # October
+  # base_eooct$iso <-
+  #   countrycode(base_eooct$Country.territory,
+  #     origin = "country.name",
+  #     destination = "iso3c", warn = TRUE
+  #   )
 
-  base_eosep <-
-    base_eosep %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
-  base_eosep <- base_eosep[!(is.na(base_eosep$iso)), ]
-  base_eosep <- select(base_eosep, -c("Country.territory"))
+  # base_eooct <-
+  #   base_eooct %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
+  # base_eooct <- base_eooct[!(is.na(base_eooct$iso)), ]
+  # base_eooct <- select(base_eooct, -c("Country.territory"))
 
-  colnames(base_eosep) <- c(
-    "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_sep", "iso"
-  )
+  # colnames(base_eooct) <- c(
+  #   "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_oct", "iso"
+  # )
 
-  # October
-  base_eooct$iso <-
-    countrycode(base_eooct$Country.territory,
-      origin = "country.name",
-      destination = "iso3c", warn = TRUE
-    )
+  # # November
+  # base_eonov$iso <-
+  #   countrycode(base_eonov$Country.territory,
+  #     origin = "country.name",
+  #     destination = "iso3c", warn = TRUE
+  #   )
 
-  base_eooct <-
-    base_eooct %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
-  base_eooct <- base_eooct[!(is.na(base_eooct$iso)), ]
-  base_eooct <- select(base_eooct, -c("Country.territory"))
+  # base_eonov <-
+  #   base_eonov %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
+  # base_eonov <- base_eonov[!(is.na(base_eonov$iso)), ]
+  # base_eonov <- select(base_eonov, -c("Country.territory"))
 
-  colnames(base_eooct) <- c(
-    "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_oct", "iso"
-  )
+  # colnames(base_eonov) <- c(
+  #   "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_nov", "iso"
+  # )
 
-  # November
-  base_eonov$iso <-
-    countrycode(base_eonov$Country.territory,
-      origin = "country.name",
-      destination = "iso3c", warn = TRUE
-    )
+  # # December
+  # base_eodec$iso <-
+  #   countrycode(base_eodec$Country.territory,
+  #     origin = "country.name",
+  #     destination = "iso3c", warn = TRUE
+  #   )
 
-  base_eonov <-
-    base_eonov %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
-  base_eonov <- base_eonov[!(is.na(base_eonov$iso)), ]
-  base_eonov <- select(base_eonov, -c("Country.territory"))
+  # base_eodec <-
+  #   base_eodec %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
+  # base_eodec <- base_eodec[!(is.na(base_eodec$iso)), ]
+  # base_eodec <- select(base_eodec, -c("Country.territory"))
 
-  colnames(base_eonov) <- c(
-    "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_nov", "iso"
-  )
+  # colnames(base_eodec) <- c(
+  #   "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_dec", "iso"
+  # )
 
-  # December
-  base_eodec$iso <-
-    countrycode(base_eodec$Country.territory,
-      origin = "country.name",
-      destination = "iso3c", warn = TRUE
-    )
+  # # January
+  # base_eojan$iso <-
+  #   countrycode(base_eojan$Country.territory,
+  #     origin = "country.name",
+  #     destination = "iso3c", warn = TRUE
+  #   )
 
-  base_eodec <-
-    base_eodec %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
-  base_eodec <- base_eodec[!(is.na(base_eodec$iso)), ]
-  base_eodec <- select(base_eodec, -c("Country.territory"))
+  # base_eojan <-
+  #   base_eojan %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
+  # base_eojan <- base_eojan[!(is.na(base_eojan$iso)), ]
+  # base_eojan <- select(base_eojan, -c("Country.territory"))
 
-  colnames(base_eodec) <- c(
-    "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_dec", "iso"
-  )
+  # colnames(base_eojan) <- c(
+  #   "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_jan", "iso"
+  # )
 
-  # January
-  base_eojan$iso <-
-    countrycode(base_eojan$Country.territory,
-      origin = "country.name",
-      destination = "iso3c", warn = TRUE
-    )
+  # # February
+  # base_eofeb$iso <-
+  #   countrycode(base_eofeb$Country.territory,
+  #     origin = "country.name",
+  #     destination = "iso3c", warn = TRUE
+  #   )
 
-  base_eojan <-
-    base_eojan %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
-  base_eojan <- base_eojan[!(is.na(base_eojan$iso)), ]
-  base_eojan <- select(base_eojan, -c("Country.territory"))
+  # base_eofeb <-
+  #   base_eofeb %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
+  # base_eofeb <- base_eofeb[!(is.na(base_eofeb$iso)), ]
+  # base_eofeb <- select(base_eofeb, -c("Country.territory"))
 
-  colnames(base_eojan) <- c(
-    "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_jan", "iso"
-  )
+  # colnames(base_eofeb) <- c(
+  #   "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_feb", "iso"
+  # )
 
-  # February
-  base_eofeb$iso <-
-    countrycode(base_eofeb$Country.territory,
-      origin = "country.name",
-      destination = "iso3c", warn = TRUE
-    )
+  # # March
+  # base_eomar$iso <-
+  #   countrycode(base_eomar$Country.territory,
+  #     origin = "country.name",
+  #     destination = "iso3c", warn = TRUE
+  #   )
 
-  base_eofeb <-
-    base_eofeb %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
-  base_eofeb <- base_eofeb[!(is.na(base_eofeb$iso)), ]
-  base_eofeb <- select(base_eofeb, -c("Country.territory"))
+  # base_eomar <-
+  #   base_eomar %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
+  # base_eomar <- base_eomar[!(is.na(base_eomar$iso)), ]
+  # base_eomar <- select(base_eomar, -c("Country.territory"))
 
-  colnames(base_eofeb) <- c(
-    "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_feb", "iso"
-  )
+  # colnames(base_eomar) <- c(
+  #   "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_mar", "iso"
+  # )
 
-  # March
-  base_eomar$iso <-
-    countrycode(base_eomar$Country.territory,
-      origin = "country.name",
-      destination = "iso3c", warn = TRUE
-    )
+  # # April
+  # base_eoapr$iso <-
+  #   countrycode(base_eoapr$Country.territory,
+  #     origin = "country.name",
+  #     destination = "iso3c", warn = TRUE
+  #   )
 
-  base_eomar <-
-    base_eomar %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
-  base_eomar <- base_eomar[!(is.na(base_eomar$iso)), ]
-  base_eomar <- select(base_eomar, -c("Country.territory"))
+  # base_eoapr <-
+  #   base_eoapr %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
+  # base_eoapr <- base_eoapr[!(is.na(base_eoapr$iso)), ]
+  # base_eoapr <- select(base_eoapr, -c("Country.territory"))
 
-  colnames(base_eomar) <- c(
-    "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_mar", "iso"
-  )
+  # colnames(base_eoapr) <- c(
+  #   "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_apr", "iso"
+  # )
 
-  # April
-  base_eoapr$iso <-
-    countrycode(base_eoapr$Country.territory,
-      origin = "country.name",
-      destination = "iso3c", warn = TRUE
-    )
+  # # May
+  # base_eomay$iso <-
+  #   countrycode(base_eomay$Country.territory,
+  #     origin = "country.name",
+  #     destination = "iso3c", warn = TRUE
+  #   )
 
-  base_eoapr <-
-    base_eoapr %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
-  base_eoapr <- base_eoapr[!(is.na(base_eoapr$iso)), ]
-  base_eoapr <- select(base_eoapr, -c("Country.territory"))
+  # base_eomay <-
+  #   base_eomay %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
+  # base_eomay <- base_eomay[!(is.na(base_eomay$iso)), ]
+  # base_eomay <- select(base_eomay, -c("Country.territory"))
 
-  colnames(base_eoapr) <- c(
-    "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_apr", "iso"
-  )
+  # colnames(base_eomay) <- c(
+  #   "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_may", "iso"
+  # )
 
-  # May
-  base_eomay$iso <-
-    countrycode(base_eomay$Country.territory,
-      origin = "country.name",
-      destination = "iso3c", warn = TRUE
-    )
+  # # June
+  # base_eojun$iso <-
+  #   countrycode(base_eojun$Country.territory,
+  #     origin = "country.name",
+  #     destination = "iso3c", warn = TRUE
+  #   )
 
-  base_eomay <-
-    base_eomay %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
-  base_eomay <- base_eomay[!(is.na(base_eomay$iso)), ]
-  base_eomay <- select(base_eomay, -c("Country.territory"))
+  # base_eojun <-
+  #   base_eojun %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
+  # base_eojun <- base_eojun[!(is.na(base_eojun$iso)), ]
+  # base_eojun <- select(base_eojun, -c("Country.territory"))
 
-  colnames(base_eomay) <- c(
-    "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_may", "iso"
-  )
+  # colnames(base_eojun) <- c(
+  #   "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_jun", "iso"
+  # )
 
-  # June
-  base_eojun$iso <-
-    countrycode(base_eojun$Country.territory,
-      origin = "country.name",
-      destination = "iso3c", warn = TRUE
-    )
+  # # Reduce dataframes to required columns
+  # eojun_slim <- select(base_eojun, c("iso", "product", "total_jun"))
+  # eojun_slim <- eojun_slim %>%
+  #   group_by(iso) %>%
+  #   summarize(total_jun = sum(total_jun))
 
-  base_eojun <-
-    base_eojun %>% mutate(iso = replace(iso, Country.territory == "Kosovo", "XKX"))
-  base_eojun <- base_eojun[!(is.na(base_eojun$iso)), ]
-  base_eojun <- select(base_eojun, -c("Country.territory"))
+  # eomay_slim <- select(base_eomay, c("iso", "product", "total_may"))
+  # eomay_slim <- eomay_slim %>%
+  #   group_by(iso) %>%
+  #   summarize(total_may = sum(total_may))
 
-  colnames(base_eojun) <- c(
-    "product", "bimultilat", "donations", "covax", "avat", "unknown", "total_jun", "iso"
-  )
+  # eoapr_slim <- select(base_eoapr, c("iso", "product", "total_apr"))
+  # eoapr_slim <- eoapr_slim %>%
+  #   group_by(iso) %>%
+  #   summarize(total_apr = sum(total_apr))
 
-  # Reduce dataframes to required columns
-  eojun_slim <- select(base_eojun, c("iso", "product", "total_jun"))
-  eojun_slim <- eojun_slim %>%
-    group_by(iso) %>%
-    summarize(total_jun = sum(total_jun))
+  # eomar_slim <- select(base_eomar, c("iso", "product", "total_mar"))
+  # eomar_slim <- eomar_slim %>%
+  #   group_by(iso) %>%
+  #   summarize(total_mar = sum(total_mar))
 
-  eomay_slim <- select(base_eomay, c("iso", "product", "total_may"))
-  eomay_slim <- eomay_slim %>%
-    group_by(iso) %>%
-    summarize(total_may = sum(total_may))
+  # eofeb_slim <- select(base_eofeb, c("iso", "product", "total_feb"))
+  # eofeb_slim <- eofeb_slim %>%
+  #   group_by(iso) %>%
+  #   summarize(total_feb = sum(total_feb))
 
-  eoapr_slim <- select(base_eoapr, c("iso", "product", "total_apr"))
-  eoapr_slim <- eoapr_slim %>%
-    group_by(iso) %>%
-    summarize(total_apr = sum(total_apr))
+  # eojan_slim <- select(base_eojan, c("iso", "product", "total_jan"))
+  # eojan_slim <- eojan_slim %>%
+  #   group_by(iso) %>%
+  #   summarize(total_jan = sum(total_jan))
 
-  eomar_slim <- select(base_eomar, c("iso", "product", "total_mar"))
-  eomar_slim <- eomar_slim %>%
-    group_by(iso) %>%
-    summarize(total_mar = sum(total_mar))
+  # eodec_slim <- select(base_eodec, c("iso", "product", "total_dec"))
+  # eodec_slim <- eodec_slim %>%
+  #   group_by(iso) %>%
+  #   summarize(total_dec = sum(total_dec))
 
-  eofeb_slim <- select(base_eofeb, c("iso", "product", "total_feb"))
-  eofeb_slim <- eofeb_slim %>%
-    group_by(iso) %>%
-    summarize(total_feb = sum(total_feb))
+  # eonov_slim <- select(base_eonov, c("iso", "product", "total_nov"))
+  # eonov_slim <- eonov_slim %>%
+  #   group_by(iso) %>%
+  #   summarize(total_nov = sum(total_nov))
 
-  eojan_slim <- select(base_eojan, c("iso", "product", "total_jan"))
-  eojan_slim <- eojan_slim %>%
-    group_by(iso) %>%
-    summarize(total_jan = sum(total_jan))
+  # eooct_slim <- select(base_eooct, c("iso", "product", "total_oct"))
+  # eooct_slim <- eooct_slim %>%
+  #   group_by(iso) %>%
+  #   summarize(total_oct = sum(total_oct))
 
-  eodec_slim <- select(base_eodec, c("iso", "product", "total_dec"))
-  eodec_slim <- eodec_slim %>%
-    group_by(iso) %>%
-    summarize(total_dec = sum(total_dec))
+  # eosep_slim <- select(base_eosep, c("iso", "product", "total_sep"))
+  # eosep_slim <- eosep_slim %>%
+  #   group_by(iso) %>%
+  #   summarize(total_sep = sum(total_sep))
 
-  eonov_slim <- select(base_eonov, c("iso", "product", "total_nov"))
-  eonov_slim <- eonov_slim %>%
-    group_by(iso) %>%
-    summarize(total_nov = sum(total_nov))
+  # eoaug_slim <- select(base_eoaug, c("iso", "product", "total_aug"))
+  # eoaug_slim <- eoaug_slim %>%
+  #   group_by(iso) %>%
+  #   summarize(total_aug = sum(total_aug))
 
-  eooct_slim <- select(base_eooct, c("iso", "product", "total_oct"))
-  eooct_slim <- eooct_slim %>%
-    group_by(iso) %>%
-    summarize(total_oct = sum(total_oct))
+  # eojul_slim <- select(base_eojul, c("iso", "product", "total_jul"))
+  # eojul_slim <- eojul_slim %>%
+  #   group_by(iso) %>%
+  #   summarize(total_jul = sum(total_jul))
 
-  eosep_slim <- select(base_eosep, c("iso", "product", "total_sep"))
-  eosep_slim <- eosep_slim %>%
-    group_by(iso) %>%
-    summarize(total_sep = sum(total_sep))
+  # # ...
 
-  eoaug_slim <- select(base_eoaug, c("iso", "product", "total_aug"))
-  eoaug_slim <- eoaug_slim %>%
-    group_by(iso) %>%
-    summarize(total_aug = sum(total_aug))
+  # # Merge dataframes
+  # del_overall <-
+  #   left_join(eojul_slim, eoaug_slim, by = "iso") %>%
+  #   left_join(., eosep_slim, by = "iso") %>%
+  #   left_join(., eooct_slim, by = "iso") %>%
+  #   left_join(., eonov_slim, by = "iso") %>%
+  #   left_join(., eodec_slim, by = "iso") %>%
+  #   left_join(., eojan_slim, by = "iso") %>%
+  #   left_join(., eofeb_slim, by = "iso") %>%
+  #   left_join(., eomar_slim, by = "iso") %>%
+  #   left_join(., eoapr_slim, by = "iso") %>%
+  #   left_join(., eomay_slim, by = "iso") %>%
+  #   left_join(., eojun_slim, by = "iso")
 
-  eojul_slim <- select(base_eojul, c("iso", "product", "total_jul"))
-  eojul_slim <- eojul_slim %>%
-    group_by(iso) %>%
-    summarize(total_jul = sum(total_jul))
-
-  # ...
-
-  # Merge dataframes
-  del_overall <-
-    left_join(eojul_slim, eoaug_slim, by = "iso") %>%
-    left_join(., eosep_slim, by = "iso") %>%
-    left_join(., eooct_slim, by = "iso") %>%
-    left_join(., eonov_slim, by = "iso") %>%
-    left_join(., eodec_slim, by = "iso") %>%
-    left_join(., eojan_slim, by = "iso") %>%
-    left_join(., eofeb_slim, by = "iso") %>%
-    left_join(., eomar_slim, by = "iso") %>%
-    left_join(., eoapr_slim, by = "iso") %>%
-    left_join(., eomay_slim, by = "iso") %>%
-    left_join(., eojun_slim, by = "iso")
-  print(colnames(del_overall))
-  return(del_overall)
+  # return(del_overall)
+  return(overall_cumul_long)
 }
 
-transform_cum_supply_received <- function(del_overall) {
+transform_cum_supply_received <- function(overall_cumul_long) {
 
   # Create cumulative monthly long form dataframes
-  del_overall_cumul <- del_overall
+  # del_overall_cumul <- del_overall
 
   overall_cumul_jul <- select(del_overall_cumul, "iso", "total_jul")
   overall_cumul_jul$month_name <- "2021-07"
