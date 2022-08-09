@@ -655,77 +655,77 @@ load_supply_received <- function() {
   return(overall_cumul_long)
 }
 
-transform_cum_supply_received <- function(overall_cumul_long) {
+# transform_cum_supply_received <- function(del_overall) {
 
-  # Create cumulative monthly long form dataframes
-  # del_overall_cumul <- del_overall
+#   # Create cumulative monthly long form dataframes
+#   # del_overall_cumul <- del_overall
 
-  overall_cumul_jul <- select(del_overall_cumul, "iso", "total_jul")
-  overall_cumul_jul$month_name <- "2021-07"
-  colnames(overall_cumul_jul) <- c("iso", "supply", "month_name")
+#   # overall_cumul_jul <- select(del_overall_cumul, "iso", "total_jul")
+#   # overall_cumul_jul$month_name <- "2021-07"
+#   # colnames(overall_cumul_jul) <- c("iso", "supply", "month_name")
 
-  overall_cumul_aug <- select(del_overall_cumul, "iso", "total_aug")
-  overall_cumul_aug$month_name <- "2021-08"
-  colnames(overall_cumul_aug) <- c("iso", "supply", "month_name")
+#   # overall_cumul_aug <- select(del_overall_cumul, "iso", "total_aug")
+#   # overall_cumul_aug$month_name <- "2021-08"
+#   # colnames(overall_cumul_aug) <- c("iso", "supply", "month_name")
 
-  overall_cumul_sep <- select(del_overall_cumul, "iso", "total_sep")
-  overall_cumul_sep$month_name <- "2021-09"
-  colnames(overall_cumul_sep) <- c("iso", "supply", "month_name")
+#   # overall_cumul_sep <- select(del_overall_cumul, "iso", "total_sep")
+#   # overall_cumul_sep$month_name <- "2021-09"
+#   # colnames(overall_cumul_sep) <- c("iso", "supply", "month_name")
 
-  overall_cumul_oct <- select(del_overall_cumul, "iso", "total_oct")
-  overall_cumul_oct$month_name <- "2021-10"
-  colnames(overall_cumul_oct) <- c("iso", "supply", "month_name")
+#   # overall_cumul_oct <- select(del_overall_cumul, "iso", "total_oct")
+#   # overall_cumul_oct$month_name <- "2021-10"
+#   # colnames(overall_cumul_oct) <- c("iso", "supply", "month_name")
 
-  overall_cumul_nov <- select(del_overall_cumul, "iso", "total_nov")
-  overall_cumul_nov$month_name <- "2021-11"
-  colnames(overall_cumul_nov) <- c("iso", "supply", "month_name")
+#   # overall_cumul_nov <- select(del_overall_cumul, "iso", "total_nov")
+#   # overall_cumul_nov$month_name <- "2021-11"
+#   # colnames(overall_cumul_nov) <- c("iso", "supply", "month_name")
 
-  overall_cumul_dec <- select(del_overall_cumul, "iso", "total_dec")
-  overall_cumul_dec$month_name <- "2021-12"
-  colnames(overall_cumul_dec) <- c("iso", "supply", "month_name")
+#   # overall_cumul_dec <- select(del_overall_cumul, "iso", "total_dec")
+#   # overall_cumul_dec$month_name <- "2021-12"
+#   # colnames(overall_cumul_dec) <- c("iso", "supply", "month_name")
 
-  overall_cumul_jan <- select(del_overall_cumul, "iso", "total_jan")
-  overall_cumul_jan$month_name <- "2022-01"
-  colnames(overall_cumul_jan) <- c("iso", "supply", "month_name")
+#   # overall_cumul_jan <- select(del_overall_cumul, "iso", "total_jan")
+#   # overall_cumul_jan$month_name <- "2022-01"
+#   # colnames(overall_cumul_jan) <- c("iso", "supply", "month_name")
 
-  overall_cumul_feb <- select(del_overall_cumul, "iso", "total_feb")
-  overall_cumul_feb$month_name <- "2022-02"
-  colnames(overall_cumul_feb) <- c("iso", "supply", "month_name")
+#   # overall_cumul_feb <- select(del_overall_cumul, "iso", "total_feb")
+#   # overall_cumul_feb$month_name <- "2022-02"
+#   # colnames(overall_cumul_feb) <- c("iso", "supply", "month_name")
 
-  overall_cumul_mar <- select(del_overall_cumul, "iso", "total_mar")
-  overall_cumul_mar$month_name <- "2022-03"
-  colnames(overall_cumul_mar) <- c("iso", "supply", "month_name")
+#   # overall_cumul_mar <- select(del_overall_cumul, "iso", "total_mar")
+#   # overall_cumul_mar$month_name <- "2022-03"
+#   # colnames(overall_cumul_mar) <- c("iso", "supply", "month_name")
 
-  overall_cumul_apr <- select(del_overall_cumul, "iso", "total_apr")
-  overall_cumul_apr$month_name <- "2022-04"
-  colnames(overall_cumul_apr) <- c("iso", "supply", "month_name")
+#   # overall_cumul_apr <- select(del_overall_cumul, "iso", "total_apr")
+#   # overall_cumul_apr$month_name <- "2022-04"
+#   # colnames(overall_cumul_apr) <- c("iso", "supply", "month_name")
 
-  overall_cumul_may <- select(del_overall_cumul, "iso", "total_may")
-  overall_cumul_may$month_name <- "2022-05"
-  colnames(overall_cumul_may) <- c("iso", "supply", "month_name")
+#   # overall_cumul_may <- select(del_overall_cumul, "iso", "total_may")
+#   # overall_cumul_may$month_name <- "2022-05"
+#   # colnames(overall_cumul_may) <- c("iso", "supply", "month_name")
 
-  overall_cumul_jun <- select(del_overall_cumul, "iso", "total_jun")
-  overall_cumul_jun$month_name <- "2022-06"
-  colnames(overall_cumul_jun) <- c("iso", "supply", "month_name")
+#   # overall_cumul_jun <- select(del_overall_cumul, "iso", "total_jun")
+#   # overall_cumul_jun$month_name <- "2022-06"
+#   # colnames(overall_cumul_jun) <- c("iso", "supply", "month_name")
 
-  # Merge monthly cumulative long form dataframes
-  overall_cumul_long <- rbind(
-    overall_cumul_jul,
-    overall_cumul_aug,
-    overall_cumul_sep,
-    overall_cumul_oct,
-    overall_cumul_nov,
-    overall_cumul_dec,
-    overall_cumul_jan,
-    overall_cumul_feb,
-    overall_cumul_mar,
-    overall_cumul_apr,
-    overall_cumul_may,
-    overall_cumul_jun
-  )
+#   # Merge monthly cumulative long form dataframes
+#   overall_cumul_long <- rbind(
+#     overall_cumul_jul,
+#     overall_cumul_aug,
+#     overall_cumul_sep,
+#     overall_cumul_oct,
+#     overall_cumul_nov,
+#     overall_cumul_dec,
+#     overall_cumul_jan,
+#     overall_cumul_feb,
+#     overall_cumul_mar,
+#     overall_cumul_apr,
+#     overall_cumul_may,
+#     overall_cumul_jun
+#   )
 
-  return(overall_cumul_long)
-}
+#   return(overall_cumul_long)
+# }
 
 
 transform_monthly_supply_received <- function(del_overall) {
