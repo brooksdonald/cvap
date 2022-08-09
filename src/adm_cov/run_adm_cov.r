@@ -47,7 +47,7 @@ run_adm_cov <- function(entity_characteristics,
         sec_overall_long <- load_secured_expected()
         overall_cumul_long <- load_supply_received()
         # overall_cumul_long <- transform_cum_supply_received(overall_cumul_long)
-        overall_long <- transform_monthly_supply_received(del_overall)
+        overall_long <- transform_monthly_supply_received(overall_cumul_long)
         admin_red <- load_administration(d_absorption_country_new, entity_characteristics)
         export_supply_xlsx(sec_overall_long, overall_long, overall_cumul_long, admin_red)
         print(" > Done. Exported to data/_input/static/supply.xlsx")

@@ -378,8 +378,8 @@ load_supply_received <- function() {
   }
 
   overall_cumul_long <- df_list %>%
-    bind_rows()
-  
+    bind_rows() %>%
+    arrange(month_name, iso)
   
   # print(overall_cumul_long$iso)
 
@@ -728,104 +728,124 @@ load_supply_received <- function() {
 # }
 
 
-transform_monthly_supply_received <- function(del_overall) {
+transform_monthly_supply_received <- function(overall_cumul_long) {
 
   # Calculate monthly changes
-  del_overall <- del_overall %>%
-    mutate("2022-06" = total_jun - total_may) %>%
-    mutate("2022-05" = total_may - total_apr) %>%
-    mutate("2022-04" = total_apr - total_mar) %>%
-    mutate("2022-03" = total_mar - total_feb) %>%
-    mutate("2022-02" = total_feb - total_jan) %>%
-    mutate("2022-01" = total_jan - total_dec) %>%
-    mutate("2021-12" = total_dec - total_nov) %>%
-    mutate("2021-11" = total_nov - total_oct) %>%
-    mutate("2021-10" = total_oct - total_sep) %>%
-    mutate("2021-09" = total_sep - total_aug) %>%
-    mutate("2021-08" = total_aug - total_jul)
+  # del_overall <- del_overall %>%
+  #   mutate("2022-06" = total_jun - total_may) %>%
+  #   mutate("2022-05" = total_may - total_apr) %>%
+  #   mutate("2022-04" = total_apr - total_mar) %>%
+  #   mutate("2022-03" = total_mar - total_feb) %>%
+  #   mutate("2022-02" = total_feb - total_jan) %>%
+  #   mutate("2022-01" = total_jan - total_dec) %>%
+  #   mutate("2021-12" = total_dec - total_nov) %>%
+  #   mutate("2021-11" = total_nov - total_oct) %>%
+  #   mutate("2021-10" = total_oct - total_sep) %>%
+  #   mutate("2021-09" = total_sep - total_aug) %>%
+  #   mutate("2021-08" = total_aug - total_jul)
 
-  # Replace blanks with 0
-  del_overall <- del_overall %>%
-    mutate(across(where(is.numeric), ~ replace_na(., 0)))
+  # # Replace blanks with 0
+  # del_overall <- del_overall %>%
+  #   mutate(across(where(is.numeric), ~ replace_na(., 0)))
 
-  # Reduce to monthly changes
-  overall_red <- select(del_overall, c(
-    "iso",
-    "2021-08",
-    "2021-09",
-    "2021-10",
-    "2021-11",
-    "2021-12",
-    "2022-01",
-    "2022-02",
-    "2022-03",
-    "2022-04",
-    "2022-05",
-    "2022-06",
-  ))
+  # # Reduce to monthly changes
+  # overall_red <- select(del_overall, c(
+  #   "iso",
+  #   "2021-08",
+  #   "2021-09",
+  #   "2021-10",
+  #   "2021-11",
+  #   "2021-12",
+  #   "2022-01",
+  #   "2022-02",
+  #   "2022-03",
+  #   "2022-04",
+  #   "2022-05",
+  #   "2022-06",
+  # ))
 
-  # Create monthly change long form dataframes
-  overall_aug <- select(del_overall, "iso", "2021-08")
-  overall_aug$month_name <- "2021-08"
-  overall_aug$type <- "Received"
-  colnames(overall_aug) <- c("iso", "value", "month_name", "type")
+  # # Create monthly change long form dataframes
+  # overall_aug <- select(del_overall, "iso", "2021-08")
+  # overall_aug$month_name <- "2021-08"
+  # overall_aug$type <- "Received"
+  # colnames(overall_aug) <- c("iso", "value", "month_name", "type")
 
-  overall_sep <- select(del_overall, "iso", "2021-09")
-  overall_sep$month_name <- "2021-09"
-  overall_sep$type <- "Received"
-  colnames(overall_sep) <- c("iso", "value", "month_name", "type")
+  # overall_sep <- select(del_overall, "iso", "2021-09")
+  # overall_sep$month_name <- "2021-09"
+  # overall_sep$type <- "Received"
+  # colnames(overall_sep) <- c("iso", "value", "month_name", "type")
 
-  overall_oct <- select(del_overall, "iso", "2021-10")
-  overall_oct$month_name <- "2021-10"
-  overall_oct$type <- "Received"
-  colnames(overall_oct) <- c("iso", "value", "month_name", "type")
+  # overall_oct <- select(del_overall, "iso", "2021-10")
+  # overall_oct$month_name <- "2021-10"
+  # overall_oct$type <- "Received"
+  # colnames(overall_oct) <- c("iso", "value", "month_name", "type")
 
-  overall_nov <- select(del_overall, "iso", "2021-11")
-  overall_nov$month_name <- "2021-11"
-  overall_nov$type <- "Received"
-  colnames(overall_nov) <- c("iso", "value", "month_name", "type")
+  # overall_nov <- select(del_overall, "iso", "2021-11")
+  # overall_nov$month_name <- "2021-11"
+  # overall_nov$type <- "Received"
+  # colnames(overall_nov) <- c("iso", "value", "month_name", "type")
 
-  overall_dec <- select(del_overall, "iso", "2021-12")
-  overall_dec$month_name <- "2021-12"
-  overall_dec$type <- "Received"
-  colnames(overall_dec) <- c("iso", "value", "month_name", "type")
+  # overall_dec <- select(del_overall, "iso", "2021-12")
+  # overall_dec$month_name <- "2021-12"
+  # overall_dec$type <- "Received"
+  # colnames(overall_dec) <- c("iso", "value", "month_name", "type")
 
-  overall_jan <- select(del_overall, "iso", "2022-01")
-  overall_jan$month_name <- "2022-01"
-  overall_jan$type <- "Received"
-  colnames(overall_jan) <- c("iso", "value", "month_name", "type")
+  # overall_jan <- select(del_overall, "iso", "2022-01")
+  # overall_jan$month_name <- "2022-01"
+  # overall_jan$type <- "Received"
+  # colnames(overall_jan) <- c("iso", "value", "month_name", "type")
 
-  overall_feb <- select(del_overall, "iso", "2022-02")
-  overall_feb$month_name <- "2022-02"
-  overall_feb$type <- "Received"
-  colnames(overall_feb) <- c("iso", "value", "month_name", "type")
+  # overall_feb <- select(del_overall, "iso", "2022-02")
+  # overall_feb$month_name <- "2022-02"
+  # overall_feb$type <- "Received"
+  # colnames(overall_feb) <- c("iso", "value", "month_name", "type")
 
-  overall_mar <- select(del_overall, "iso", "2022-03")
-  overall_mar$month_name <- "2022-03"
-  overall_mar$type <- "Received"
-  colnames(overall_mar) <- c("iso", "value", "month_name", "type")
+  # overall_mar <- select(del_overall, "iso", "2022-03")
+  # overall_mar$month_name <- "2022-03"
+  # overall_mar$type <- "Received"
+  # colnames(overall_mar) <- c("iso", "value", "month_name", "type")
 
-  overall_apr <- select(del_overall, "iso", "2022-04")
-  overall_apr$month_name <- "2022-04"
-  overall_apr$type <- "Received"
-  colnames(overall_apr) <- c("iso", "value", "month_name", "type")
+  # overall_apr <- select(del_overall, "iso", "2022-04")
+  # overall_apr$month_name <- "2022-04"
+  # overall_apr$type <- "Received"
+  # colnames(overall_apr) <- c("iso", "value", "month_name", "type")
 
-  overall_may <- select(del_overall, "iso", "2022-05")
-  overall_may$month_name <- "2022-05"
-  overall_may$type <- "Received"
-  colnames(overall_may) <- c("iso", "value", "month_name", "type")
+  # overall_may <- select(del_overall, "iso", "2022-05")
+  # overall_may$month_name <- "2022-05"
+  # overall_may$type <- "Received"
+  # colnames(overall_may) <- c("iso", "value", "month_name", "type")
 
-  overall_jun <- select(del_overall, "iso", "2022-06")
-  overall_jun$month_name <- "2022-06"
-  overall_jun$type <- "Received"
-  colnames(overall_jun) <- c("iso", "value", "month_name", "type")
+  # overall_jun <- select(del_overall, "iso", "2022-06")
+  # overall_jun$month_name <- "2022-06"
+  # overall_jun$type <- "Received"
+  # colnames(overall_jun) <- c("iso", "value", "month_name", "type")
 
-  # Merge monthly change long form dataframes
-  overall_long <- rbind(
-    overall_jun, overall_may, overall_apr, overall_mar, overall_feb,
-    overall_jan, overall_dec, overall_nov, overall_oct,
-    overall_sep, overall_aug
-  )
+  # # Merge monthly change long form dataframes
+  # overall_long <- rbind(
+  #   overall_jun, overall_may, overall_apr, overall_mar, overall_feb,
+  #   overall_jan, overall_dec, overall_nov, overall_oct,
+  #   overall_sep, overall_aug
+  # )
+
+  full_table <- tibble(expand.grid(
+    unique(overall_cumul_long$month_name),
+    unique(overall_cumul_long$iso))) %>%
+    rename(
+      month_name = Var1,
+      iso = Var2)
+
+  overall_long <- overall_cumul_long %>%
+    right_join(
+      full_table,
+      by = c("month_name", "iso")) %>%
+    mutate(supply = replace_na(supply, 0)) %>%
+    arrange(month_name) %>%
+    group_by(iso) %>%
+    mutate(value = supply - lag(supply)) %>%
+    mutate(type = "Received") %>%
+    select(-supply) %>%
+    filter(
+      month_name != first(overall_cumul_long$month_name))
 
   return(overall_long)
 }
