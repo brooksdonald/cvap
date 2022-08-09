@@ -364,7 +364,8 @@ load_supply_received <- function() {
       destination = "iso3c",
       warn = TRUE
     )
-    # fixing Kosovo, NAs, and summarising supply per month and country
+    # fixing Kosovo, NAs, and summing supply per month and country
+    options(dplyr.summarise.inform = FALSE)
     df_list[[i]] <- df_list[[i]] %>%
       mutate(iso = replace(iso, country.territory == "Kosovo", "XKX")) %>%
       drop_na(iso) %>%
@@ -377,10 +378,11 @@ load_supply_received <- function() {
       summarize(supply = sum(total.doses.delivered))
   }
 
+  # appending all dataframes together
   overall_cumul_long <- df_list %>%
     bind_rows() %>%
     arrange(month_name, iso)
-  
+
   # print(overall_cumul_long$iso)
 
   # base_eojul$iso <-
@@ -827,6 +829,7 @@ transform_monthly_supply_received <- function(overall_cumul_long) {
   #   overall_sep, overall_aug
   # )
 
+  # Creating a table with all iso-month combinations
   full_table <- tibble(expand.grid(
     unique(overall_cumul_long$month_name),
     unique(overall_cumul_long$iso))) %>%
@@ -835,14 +838,18 @@ transform_monthly_supply_received <- function(overall_cumul_long) {
       iso = Var2)
 
   overall_long <- overall_cumul_long %>%
+    # joining our data with full table and filling NAs with 0
     right_join(
       full_table,
       by = c("month_name", "iso")) %>%
     mutate(supply = replace_na(supply, 0)) %>%
+    # calculating difference between months
     arrange(month_name) %>%
     group_by(iso) %>%
     mutate(value = supply - lag(supply)) %>%
+    # adding type
     mutate(type = "Received") %>%
+    # removing supply column and observation from July 2021
     select(-supply) %>%
     filter(
       month_name != first(overall_cumul_long$month_name))
@@ -896,31 +903,37 @@ load_administration <- function(d_absorption_country_new, entity_characteristics
       )) %>%
     rename(
       iso = a_iso) %>%
-    right_join(base_admin, by = "iso") %>%
-    select(iso, a_csc_status, a_covax_status, absorbed, month_name)) %>%
+    right_join(d_absorption_country_new, by = "iso") %>%
+    select(iso, a_csc_status, a_covax_status, absorbed, month_name) %>%
     rename(
       value = absorbed
     )
-
   return(admin_red)
 }
 
-export_supply_xlsx <- function(sec_overall_long, overall_long, overall_cumul_long, admin_red) {
+export_supply_xlsx <- function(
+  sec_overall_long, overall_long, overall_cumul_long, admin_red) {
+
   # Merge supply secured / supply received / administration
-  combined_long <- full_join(sec_overall_long, overall_cumul_long, by = c("iso", "month_name")) %>%
-    full_join(., admin_red, by = c("iso" = "iso", "month_name" = "month_name"))
+  combined_long <- full_join(
+      sec_overall_long,
+      overall_cumul_long,
+      by = c("iso", "month_name")) %>%
+    full_join(.,
+      admin_red,
+      by = c("iso", "month_name"))
 
   # Remove type
-  combined_long <- select(combined_long, -c("type"))
+  combined_long <- select(combined_long, -type)
 
   # Cap values to positives
   combined_long <- combined_long %>%
-    mutate(sec_tobedel = if_else((sec - supply) < 0, 0, (sec - supply))) %>%
-    mutate(del_tobeadmin = if_else((supply - value) < 0, 0, (supply - value)))
+    mutate(sec_tobedel = pmax(sec - supply, 0)) %>%
+    mutate(del_tobeadmin = pmax(supply - value, 0))
 
   # Making a datalist
   datalist <- list(
-    "data" = overall_long, # TODO don't wrap it in this datalist. Rather return from earlier function
+    "data" = overall_long,
     "supply" = overall_cumul_long,
     "all" = combined_long
   )
@@ -930,8 +943,6 @@ export_supply_xlsx <- function(sec_overall_long, overall_long, overall_cumul_lon
     datalist,
     "data/_input/static/supply.xlsx"
   )
-
-  # return(datalist)
 }
 
 load_cum_from_xlsx <- function() {
