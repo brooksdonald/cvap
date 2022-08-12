@@ -40,6 +40,7 @@ load_secured_expected <- function(path) {
   ))
 
   # checking for duplicate months
+  print(" >> Checking if data is valid...")
   months <- substr(files, 1, 4)
   if (sum(duplicated(months))) {
     stop(paste0("Error:
@@ -61,6 +62,7 @@ load_secured_expected <- function(path) {
     }
 
   # finding the right sheet to read in
+  print(" >> Finding the right sheet to read in...")
   sheet_vector <- c()
   for (file in files) {
     sheets <- excel_sheets(path = paste0(path, file))
