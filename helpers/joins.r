@@ -13,7 +13,7 @@ helper_join_dataframe_list <- function(l, join_by, allx = TRUE, ally = FALSE) {
     return(join)
 }
 
-helper_load_list_of_files <- function(files, sheets, date_format) {
+helper_load_list_of_files <- function(files, sheets, date_format, month_lag = 0) {
     df_list <- list()
     for (i in seq_along(files)) {
         sheet <- sheets
@@ -23,6 +23,7 @@ helper_load_list_of_files <- function(files, sheets, date_format) {
         date <- as.Date(
             substr(sub(".*/", "", files[i]), 1, length_of_date_string),
             date_format)
+        date <- date %m+% months(month_lag * (-1))
         month <- substr(date, 1, 7)
         df <- data.frame(
             read_excel(

@@ -6,7 +6,7 @@ run_adm_cov <- function(entity_characteristics,
     source("src/adm_cov/dvr_prev.r")
     source("src/adm_cov/supply_timeseries.r")
 
-    path_for_timeseries_data <- "data/_input/test/"
+    path_to_timeseries_data <- "data/_input/test/"
 
     print(" > Starting local environment for vaccinations")
 
@@ -46,8 +46,8 @@ run_adm_cov <- function(entity_characteristics,
 
     if (refresh_supply_timeseries) {
         print(" > Supply timeseries")
-        sec_overall_long <- load_secured_expected(path_for_timeseries_data)
-        overall_cumul_long <- load_supply_received(path_for_timeseries_data)
+        sec_overall_long <- load_secured_expected(path_to_timeseries_data)
+        overall_cumul_long <- load_supply_received(path_to_timeseries_data)
         # overall_cumul_long <- transform_cum_supply_received(overall_cumul_long)
         overall_long <- transform_monthly_supply_received(overall_cumul_long)
         admin_red <- load_administration(d_absorption_country_new, entity_characteristics)

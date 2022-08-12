@@ -9,7 +9,8 @@ load_secured_expected <- function(path) {
       "data/_input/test/220105_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx"
     ),
     sheets = "data",
-    date_format = "%y%m%d"
+    date_format = "%y%m%d",
+    month_lag = 1
   )
 
   df_list2 <- helper_load_list_of_files(
@@ -22,7 +23,8 @@ load_secured_expected <- function(path) {
       "data/_input/test/220701_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx"
     ),
     sheets = "supply_tracker",
-    date_format = "%y%m%d"
+    date_format = "%y%m%d",
+    month_lag = 1
   )
   df_list <- append(df_list1, df_list2)
 
@@ -32,7 +34,7 @@ load_secured_expected <- function(path) {
   # reading in list of files in directory
   print(" >> Selecting files to read in...")
   files <- unlist(list.files(
-    path = "data/_input/test/",
+    path = path,
     # add to this pattern if the file name changes in the future
     pattern = "IMF|imf"
   ))
@@ -83,7 +85,8 @@ load_secured_expected <- function(path) {
   df_list <- helper_load_list_of_files(
     files = paste0(path, files),
     sheets = sheet_vector,
-    date_format = "%y%m%d"
+    date_format = "%y%m%d",
+    month_lag = 1
   )
 
 
@@ -366,7 +369,7 @@ load_supply_received <- function(path) {
   # reading in list of files in directory
   print(" >> Selecting files to read in...")
   files <- unlist(list.files(
-    path = "data/_input/test/",
+    path = path,
     # add to this pattern if the file name changes in the future
     pattern = "UNICEF|unicef"
   ))
