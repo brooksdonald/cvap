@@ -1,7 +1,7 @@
 
 # SET WD
-# setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
-# setwd("C:/Users/rafae/Desktop/covid19_vaccination_analysis")
+setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
+setwd("C:/Users/rafae/Desktop/covid19_vaccination_analysis")
 #setwd() #Rafael
 
 # CLEAR ENVIRONMENT
@@ -21,7 +21,9 @@ lib <- c("tidyverse",
     "jsonlite",
     "AzureAuth",
     "dotenv",
-    "reticulate")
+    "reticulate",
+    "dplyr",
+    "tidyr")
 lib_na <- lib[!(lib %in% installed.packages()[, "Package"])]
 if (length(lib_na)) install.packages(lib_na)
 lapply(lib, library, character.only = TRUE)
@@ -35,6 +37,7 @@ lapply(lib, library, character.only = TRUE)
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # set to FALSE to use base_dvr_current.xlsx
 .GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
+.GlobalEnv$refresh_supply_timeseries <- TRUE # FALSE reads ../static/supply.xlsx
 
 # HELPERS
 
@@ -54,10 +57,18 @@ source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
 source("src/add_data/run_add_data.r")
 
-dvr_env <- run_dvr(.GlobalEnv$adm_api, .GlobalEnv$auto_cleaning, api_env$headers, .GlobalEnv$refresh_api)
+dvr_env <- run_dvr(.GlobalEnv$adm_api,
+    .GlobalEnv$auto_cleaning,
+    api_env$headers,
+    .GlobalEnv$refresh_api)
 entity_env <- run_entity()
 supply_env <- run_supply(.GlobalEnv$sec_date, .GlobalEnv$del_date)
-adm_cov_env <- run_adm_cov(entity_env$entity_characteristics, .GlobalEnv$refresh_date, dvr_env$dvr_data, .GlobalEnv$adm_api)
+adm_cov_env <- run_adm_cov(
+    entity_env$entity_characteristics,
+    .GlobalEnv$refresh_date, dvr_env$dvr_data,
+    .GlobalEnv$adm_api,
+    .GlobalEnv$auto_cleaning,
+    .GlobalEnv$refresh_supply_timeseries)
 cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
 finance_env <- run_finance(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()

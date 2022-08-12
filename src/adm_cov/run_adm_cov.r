@@ -1,9 +1,10 @@
 # rows 119 - 596
 
 run_adm_cov <- function(entity_characteristics,
-    refresh_date, dvr_data, adm_api) {
+    refresh_date, dvr_data, adm_api, auto_cleaning, refresh_supply_timeseries) {
     source("src/adm_cov/dvr_current.r")
     source("src/adm_cov/dvr_prev.r")
+    source("src/adm_cov/supply_timeseries.r")
 
     print(" > Starting local environment for vaccinations")
 
@@ -11,12 +12,12 @@ run_adm_cov <- function(entity_characteristics,
     current_month <- substr(refresh_date, 1, 7)
 
     print(" > Daily current vaccinations")
-    b_vxrate <- load_b_vxrate(dvr_data, adm_api)
+    b_vxrate <- load_b_vxrate(dvr_data, adm_api, auto_cleaning)
     b_vxrate <- transform_current_vxrate(
         b_vxrate,
         entity_characteristics,
         refresh_date)
-    b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate)
+    b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate, auto_cleaning)
     b_vxrate_amc <- transform_subset_amc(b_vxrate)
     c_vxrate_sept_t10 <- transform_sept21_pop_tgt(b_vxrate)
     c_vxrate_dec_t2040 <- transform_dec21_pop_tgt(b_vxrate)
@@ -38,11 +39,29 @@ run_adm_cov <- function(entity_characteristics,
         c_vxrate_twomonth)
     datalist1 <- absorption_per_country(c_vxrate_eom, current_month)
     d_absorb_red <- datalist1$d_absorb_red
-    datalist2 <- first_supplies(d_absorb_red, datalist1$d_absorption_country)
-    combined <- datalist2$combined
     d_absorption_country_new <- new_absorption_countries(c_vxrate_eom, current_month)
+    print(" > Done.")
+
+    if (refresh_supply_timeseries) {
+        print(" > Supply timeseries")
+        sec_overall_long <- load_secured_expected()
+        del_overall <- load_supply_received()
+        overall_cumul_long <- transform_cum_supply_received(del_overall)
+        overall_long <- transform_monthly_supply_received(del_overall)
+        admin_red <- load_administration(d_absorption_country_new, entity_characteristics)
+        export_supply_xlsx(sec_overall_long, overall_long, overall_cumul_long, admin_red)
+        print(" > Done. Exported to data/_input/static/supply.xlsx")
+    } else {
+        print(" > Importing supply timeseries from data/_input/static/supply.xlsx")
+        overall_cumul_long <- load_cum_from_xlsx()
+        overall_long <- load_monthly_from_xlsx()
+        print(" > Done.")
+    }
+
+    datalist2 <- first_supplies(d_absorb_red, datalist1$d_absorption_country, overall_long)
+    combined <- datalist2$combined
     combined_three <- second_supplies(d_absorption_country_new, combined,
-        d_absorb_red, entity_characteristics, datalist2$b_supply_red)
+        d_absorb_red, entity_characteristics, datalist2$b_supply_red, overall_cumul_long)
     print(" > Done.")
 
     print(" > Last week, last month, vaccinations and 13jan data")
