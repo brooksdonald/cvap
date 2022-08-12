@@ -89,6 +89,8 @@ load_secured_expected <- function(path) {
     month_lag = 1
   )
 
+  ## end of automated read-in
+
   # Reduce dataframe to required columns
   print(" >> Transforming secured data...")
   df_list_trans <- list()
