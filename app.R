@@ -21,9 +21,8 @@ lib <- c("tidyverse",
     "jsonlite",
     "AzureAuth",
     "dotenv",
-    "reticulate",
-    "dplyr",
-    "tidyr")
+    "reticulate")
+    
 lib_na <- lib[!(lib %in% installed.packages()[, "Package"])]
 if (length(lib_na)) install.packages(lib_na)
 lapply(lib, library, character.only = TRUE)
@@ -35,9 +34,9 @@ lapply(lib, library, character.only = TRUE)
 .GlobalEnv$del_date <- as.Date("2022-08-09")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
-.GlobalEnv$adm_api <- TRUE # set to FALSE to use base_dvr_current.xlsx
-.GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
-.GlobalEnv$refresh_supply_timeseries <- TRUE # FALSE reads ../static/supply.xlsx
+.GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
+.GlobalEnv$refresh_api <- FALSE # set to FALSE to use last API call
+.GlobalEnv$refresh_supply_timeseries <- FALSE # FALSE reads ../static/supply.xlsx Unless stated by Donald 
 
 # HELPERS
 
