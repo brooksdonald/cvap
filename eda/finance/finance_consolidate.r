@@ -165,6 +165,7 @@ api_export_table <- function(a_data) {
     "who_region",
     "unicef_region",
     "income_group",
+    "income_group_vis",
     "covax_status",
     "concerted_support_status",
     "pop",
