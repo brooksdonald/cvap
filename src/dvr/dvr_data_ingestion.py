@@ -9,13 +9,6 @@ import numpy as np
 import os
 
 
-def create_new_path(folder):
-  print(" > Creating new folder to store data: data/" + folder)
-  newpath = r'data/' + folder
-  if not os.path.exists(newpath):
-    os.makedirs(newpath)
-    print(" > New folder created.")
-
 # Get Data
 def get_data(refresh_api):
 
@@ -87,15 +80,7 @@ def fix_dates(df3):
   print(" > Done.")
   return df_data
 
-def export(df_data, folder, name):
-  print(" > Saving analysis_vx_throughput_data to csv file...")
-  path = "data/" + folder + "/" + name
-  df_data.to_csv(path, index = False)
-  print(" > Done.")
-
-def main(folder, name, refresh_api):
-  create_new_path(folder)
+def main(refresh_api):
   df3 = get_data(refresh_api)
   df_data = fix_dates(df3)
-  export(df_data, folder, name)
   return df_data

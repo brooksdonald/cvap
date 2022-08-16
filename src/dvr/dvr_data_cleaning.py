@@ -549,14 +549,6 @@ def join_errors_with_df(df2, df_errors1, df_errors2, df_errors1st, df_errors2nd,
     return df3
 
 
-def export_data(df3, folder, name):
-    print(" > Saving analysis_vx_throughput_data_cleaned to csv file...")
-    df3.sort_values(by = ['iso_code', 'date'], ascending = True, inplace = True)
-    path = "data/" + folder + "/" + name
-    df3.to_csv(path, index = False)
-    print(" > Done")
-
-
 def monotonic(series):
     """
     This function checks whether a list of numbers is monotonically decreasing.
@@ -852,7 +844,7 @@ def automized_cleaning(df2, uncleaned_df, var_to_clean, delete_errors):
     return df2
 
 
-def main(auto_cleaning, throughput_data, folder, name):
+def main(auto_cleaning, throughput_data):
     who, iso_mapping = import_data(throughput_data)
     who = convert_data_types(who)
     df1 = cleaning(who)
@@ -876,5 +868,4 @@ def main(auto_cleaning, throughput_data, folder, name):
     df_errors1st = check_for_first_dose_decreases(df2)
     df_errors2nd = check_for_second_dose_decreases(df2)
     df3 = join_errors_with_df(df2, df_errors1, df_errors2, df_errors1st, df_errors2nd, manual_fix_list)
-    export_data(df3, folder, name)
     return df3

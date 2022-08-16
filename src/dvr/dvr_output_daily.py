@@ -420,14 +420,7 @@ def final_variable_selection(df11, who, auto_cleaning):
     return df12
 
 
-def export_data(df12, folder, name):
-    print(' > Saving /analysis_vx_throughput_output_daily to csv file......')
-    path = "data/" + folder + "/" + name
-    df12.to_csv(path, index = False)
-    print(' > Done.')
-
-
-def main(cleaned_data, folder, name, refresh_api, auto_cleaning):
+def main(cleaned_data, refresh_api, auto_cleaning):
     days_in_weeks4 = 27
     days_in_weeks8 = 55
 
@@ -447,5 +440,4 @@ def main(cleaned_data, folder, name, refresh_api, auto_cleaning):
     df10 = identifying_missing_countries(df9, df_flags)
     df11 = adding_flags_for_changes(df10)
     output = final_variable_selection(df11, who, auto_cleaning)
-    export_data(output, folder, name)
     return output

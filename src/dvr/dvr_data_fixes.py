@@ -52,17 +52,9 @@ def merge_dataframes(df1, who1):
     return df2
 
 
-def export_dataframe(df2, folder, name):
-    print(" > Saving analysis_vx_data_fixes to csv file...")
-    path = "data/" + folder + "/" + name
-    df2.to_csv(path, index=False)
-    print(" > Done")
-
-
-def main(throughput_data, output_daily, folder, name):
+def main(throughput_data, output_daily):
     iso_mapping, raw, who = import_data(throughput_data, output_daily)
     df1 = clean_country_names(raw, iso_mapping)
     who1 = clean_who_data(who)
     df2 = merge_dataframes(df1, who1)
-    export_dataframe(df2, folder, name)
     print(" > Closing Python Environment")
