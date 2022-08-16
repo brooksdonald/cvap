@@ -103,7 +103,7 @@ load_secured_expected <- function(path) {
     col_vaccine_secured <- grep("secured", tolower(colnames(df)), value = TRUE)
     col_not_to_select <- c(
       grep("adjustment", col_vaccine_secured, value = TRUE),
-      grep("population", col_vaccine_secured, value = TRUE),
+      grep("population", col_vaccine_secured, value = TRUE)
     )
     column_name <- setdiff(col_vaccine_secured, col_not_to_select)
 
@@ -122,7 +122,8 @@ load_secured_expected <- function(path) {
       rename_all(., .funs = tolower) %>%
       select(all_of(c("iso3", column_name, "month_name"))) %>%
       rename(sec = !!as.name(column_name)) %>%
-      rename(iso = iso3)
+      rename(iso = iso3) %>%
+      helper_rename_KOS_to_XKX("iso")
 
     # multiplying column with the respective factor
     if (grepl("courses", column_name, fixed = TRUE)) {
