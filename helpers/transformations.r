@@ -162,12 +162,13 @@ helper_check_if_two_rows_were_deleted <- function(data) {
     }
 }
 
-helper_rename_KOS_to_XKX <- function(data, colname) {
+helper_rename_KOS_to_XKX <- function(data, iso_column_name) {
     data <- data %>%
-        mutate(!!as.name(colname) := if_else(
-            !!as.name(colname) == "KOS",
-            "XKX",
-            !!as.name(colname)
+        mutate(
+            !!as.name(iso_column_name) := if_else(
+                !!as.name(iso_column_name) == "KOS",
+                "XKX",
+                !!as.name(iso_column_name)
         ))
     
     return(data)
