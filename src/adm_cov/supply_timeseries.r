@@ -1,35 +1,4 @@
 load_secured_expected <- function(path) {
-  # Load datasets
-
-  # df_list1 <- helper_load_list_of_files(
-  #   c(
-  #     "data/_input/test/211005_imf-who-covid-19-vaccine-supply-tracker.xlsx",
-  #     "data/_input/test/211102_imf-who-covid-19-vaccine-supply-tracker.xlsx",
-  #     "data/_input/test/211201_imf-who-covid-19-vaccine-supply-tracker.xlsx",
-  #     "data/_input/test/220105_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx"
-  #   ),
-  #   sheets = "data",
-  #   date_format = "%y%m%d",
-  #   month_lag = 1
-  # )
-
-  # df_list2 <- helper_load_list_of_files(
-  #   c(
-  #     "data/_input/test/220202_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
-  #     "data/_input/test/220302_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
-  #     "data/_input/test/220406_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
-  #     "data/_input/test/220505_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
-  #     "data/_input/test/220602_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
-  #     "data/_input/test/220701_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx"
-  #   ),
-  #   sheets = "supply_tracker",
-  #   date_format = "%y%m%d",
-  #   month_lag = 1
-  # )
-  # df_list <- append(df_list1, df_list2)
-
-
-  ## alternative automatic read in of files
 
   # reading in list of files in directory
   print(" >> Selecting files to read in...")
@@ -143,29 +112,6 @@ load_secured_expected <- function(path) {
 
 
 load_supply_received <- function(path) {
-  # Supply received ---------------------------------------------------------
-
-  # Load datasets
-  # df_list <- helper_load_list_of_files(
-  #   c(
-  #     "data/_input/test/20210726_UNICEF_DeliveryTable.xlsx",
-  #     "data/_input/test/20210824_UNICEF_DeliveryTable.xlsx",
-  #     "data/_input/test/20210927_UNICEF_DeliveryTable.xlsx",
-  #     "data/_input/test/20211027_UNICEF_DeliveryTable.xlsx",
-  #     "data/_input/test/20211130_UNICEF_DeliveryTable.xlsx",
-  #     "data/_input/test/20211228_UNICEF_DeliveryTable.xlsx",
-  #     "data/_input/test/20220126_UNICEF_DeliveryTable.xlsx",
-  #     "data/_input/test/20220228_UNICEF_DeliveryTable.xlsx",
-  #     "data/_input/test/20220328_UNICEF_DeliveryTable.xlsx",
-  #     "data/_input/test/20220426_UNICEF_DeliveryTable.xlsx",
-  #     "data/_input/test/20220530_UNICEF_DeliveryTable.xlsx",
-  #     "data/_input/test/20220627_UNICEF_DeliveryTable.xlsx"
-  #   ),
-  #   sheets = "Delivery_Table",
-  #   date_format = "%Y%m%d"
-  # )
-
-  # alternative automated way to read in files
 
   # reading in list of files in directory
   print(" >> Selecting files to read in...")
