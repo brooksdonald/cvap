@@ -160,10 +160,48 @@ def minimum_rollout_date(df_inter, country):
     return df3
 
 
-def cleaning_data(df):
+def plot_changes(fixes):
+    pass
+
+
+def anti_join(before, after):
+    if 'fully_vaccinated_adj' in after.columns:
+        after.drop('fully_vaccinated', axis = 1, inplace = True)
+        after.rename({'fully_vaccinated_adj': 'fully_vaccinated'}, axis = 1, inplace = True)
+    if 'at_least_one_dose_adj' in after.columns:
+        after.drop('at_least_one_dose', axis = 1, inplace = True)
+        after.rename({'at_least_one_dose_adj': 'at_least_one_dose'}, axis = 1, inplace = True)
+    before = before[['iso_code', 'date', 'total_doses',
+        'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose']]
+    after = after[['iso_code', 'date', 'total_doses',
+        'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose']]
+    outer_join = before.merge(after, how = 'outer', indicator = True)
+    anti_join = outer_join[~(outer_join._merge == 'both')].drop('_merge', axis = 1)
+    return anti_join
+
+
+def cleaning_data(df, plot_function):
+    print(" > Performing logical cleaning...")
+    print(" > Looping through all countries to check whether total doses >= fully vaccinated...")
+    before_clean_fv = df.copy()
     df['fully_vaccinated_adj'] = df[['total_doses','fully_vaccinated']].min(axis = 1) 
+    after_clean_fv = df.copy()
+    fixes = anti_join(before_clean_fv, after_clean_fv)
+    for country in list(set(fixes['iso_code'])):
+        plot_function(after_clean_fv, before_clean_fv, country, fixes,
+            'fully_vaccinated', 'fully_vaccinated/logical_cleaning', 'logical')
+    
+    print(" > Looping through all countries to check whether total doses >= at least one dose >= fully vaccinated...")
+    before_clean_a1d = df.copy()
     df['at_least_one_dose_adj'] = df[['total_doses','at_least_one_dose']].min(axis = 1)
     df['at_least_one_dose_adj'] = df[['fully_vaccinated_adj','at_least_one_dose_adj']].max(axis = 1)
+    after_clean_a1d = df.copy()
+    fixes = anti_join(before_clean_a1d, after_clean_a1d)
+    for country in list(set(fixes['iso_code'])):
+        plot_function(after_clean_a1d, before_clean_a1d, country, fixes,
+            'at_least_one_dose', 'at_least_one_dose/logical_cleaning', 'logical')
+    
+    print(df.loc[((df['iso_code'] == "GMB") & (df['date'] > '2021-10-16') & (df['date'] < '2021-10-26')), ['date', 'at_least_one_dose_adj', 'total_doses', 'fully_vaccinated','fully_vaccinated_adj']])
     return df
 
 
@@ -420,7 +458,7 @@ def final_variable_selection(df11, who, auto_cleaning):
     return df12
 
 
-def main(cleaned_data, refresh_api, auto_cleaning):
+def main(cleaned_data, refresh_api, auto_cleaning, plot_function):
     days_in_weeks4 = 27
     days_in_weeks8 = 55
 
@@ -432,7 +470,7 @@ def main(cleaned_data, refresh_api, auto_cleaning):
     df_inter = interpolate_data(df_inter)
     df3 = minimum_rollout_date(df_inter, country)
     if auto_cleaning:
-        df3 = cleaning_data(df3)
+        df3 = cleaning_data(df3, plot_function)
     df5 = moving_averages_td(df3, days_in_weeks4, days_in_weeks8)
     df6 = moving_averages_1d(df5, days_in_weeks4, days_in_weeks8)
     df8 = moving_averages_fv(df6, days_in_weeks4, days_in_weeks8)

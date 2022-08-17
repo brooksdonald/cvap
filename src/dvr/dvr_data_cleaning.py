@@ -582,7 +582,7 @@ def delete_row(country_data, df, row, log, reset_index = True):
     df.loc[((df['iso_code'] == country_name) & (df['date'] == date)),'to_delete_automized_clean'] = 1
     country_data.drop(row, axis = 0, inplace = True)
     print(" > Cleaning: Deleting observation.  Country: ", country_name, "  Date:", date.strftime("%d %b %Y"))
-    addition = pd.DataFrame({'country': [country_name], 'date': [date]})
+    addition = pd.DataFrame({'iso_code': [country_name], 'date': [date]})
     log = pd.concat([log, addition], ignore_index = True)
     return country_data, df, log
 
@@ -650,7 +650,7 @@ def row_check(country_data, row, df, log, var_to_clean_iloc):
     return country_data, df, log
 
 
-def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder):
+def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder, cleaning_type):
     """
     This function produces a lineplot comparing the cleaned and uncleaned 'total_doses' for a country.
     
@@ -660,11 +660,11 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder):
     4. Export the plots to `data/logged_changes`.
     """
     create_path("cleaning_log/" + folder)
-
     country_data = df2.loc[df2['iso_code'] == country, :].copy()
     uncleaned_c = uncleaned.loc[uncleaned['iso_code'] == country, :].copy()
     country_data.sort_values(by = ['date'], ascending = False, inplace = True)
-    country_data = country_data.loc[country_data['to_delete_automized_clean'] == 0, :]
+    if cleaning_type == 'decrease':
+        country_data = country_data.loc[country_data['to_delete_automized_clean'] == 0, :]
     country_data['type_line'] = '_cleaned'
     uncleaned_c['type_line'] = '_original'
     background_data = uncleaned_c[['date', 'total_doses', 'at_least_one_dose',
@@ -694,8 +694,8 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder):
     plot_data['y'] = plot_data['y'].copy()/1000000
     yaxis = var_to_clean.replace('_', ' ').title() + ' (in million)'
     customPalette = sns.color_palette(["#D3D3D3", "#D3D3D3",  "#D3D3D3", "#6495ED", "#FFA500"])
-        
-    changes = list(log.loc[log['country'] == country, 'date'])
+
+    changes = list(log.loc[log['iso_code'] == country, 'date'])
     changes.sort()
     uncleaned_c.sort_values(by = ['date'], ascending = False, inplace = True)
     uncleaned_c.reset_index(drop = True, inplace = True)
@@ -784,13 +784,19 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder):
 
 
 def logical_cleaning(df2, var_to_clean, larger_var):
+    '''
+    This function is not currently in use. By deleting selected observations where 
+    total_doses > at_least_one_dose > fully_vaccinated 
+    is not true, this does not guarantee consistent data after interpolation.
+    Instead, this logical cleaning is performed downstream in dvr_output_daily.py
+    '''
     folder = var_to_clean + '/logical_cleaning'
     create_path("cleaning_log/" + folder)
     uncleaned = df2.copy()
     df2['to_delete_automized_clean'] = 0
     countries = df2['iso_code'].unique()
     countries = np.sort(countries)
-    log = pd.DataFrame({'country': [], 'date': []})
+    log = pd.DataFrame({'iso_code': [], 'date': []})
     print(" > Looping through all countreis to check whether at least one dose >= fully vaccinated...")
     for country in countries:
         country_data = filter_country_data(df2, country)
@@ -798,7 +804,7 @@ def logical_cleaning(df2, var_to_clean, larger_var):
         for i in range(len(country_data) - 1):
             if country_data.loc[i,var_to_clean] > country_data.loc[i,larger_var]:
                 country_data, df2, log = delete_row(country_data, df2, i, log, reset_index = False)
-        export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder)
+        export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder, "decrease")
     df2.loc[df2['to_delete_automized_clean'] == 1, var_to_clean] = None
     log['deleted_variable'] = var_to_clean
     log.to_csv('data/cleaning_log/' + folder + '/logged_changes.csv', index = False)
@@ -830,7 +836,7 @@ def automized_cleaning(df2, uncleaned_df, var_to_clean, delete_errors):
             while not monotonic(list(country_data[var_to_clean])):
                 row = 0
                 country_data, df2, log = row_check(country_data, row, df2, log, var_to_clean_iloc)
-            export_plots_of_changes(df2, uncleaned_df, country, log, var_to_clean, var_to_clean)
+            export_plots_of_changes(df2, uncleaned_df, country, log, var_to_clean, var_to_clean + '/decrease_cleaning', "decrease")
     print(" > Saving plots of cleaned changes to data/cleaning_log...")
     if delete_errors:
         df2 = df2.loc[df2['to_delete_automized_clean'] == 0, :]
@@ -850,7 +856,9 @@ def main(auto_cleaning, throughput_data):
     df1 = cleaning(who)
     df1 = date_to_date_week(df1)
     df1, df2 = map_iso_codes(df1, iso_mapping)
-    df2, manual_fix_list = fix_issues_total_doses(df2)
+    df2a, manual_fix_list = fix_issues_total_doses(df2)
+    df2a = fix_issues_at_least_one_dose(df2a)
+    df2a = fix_issues_fully_vaccinated(df2a)
     if auto_cleaning:
         clean_path(folder = "cleaning_log")
         uncleaned_df = df2.copy()
@@ -858,11 +866,6 @@ def main(auto_cleaning, throughput_data):
         df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'at_least_one_dose', delete_errors = False)
         df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'fully_vaccinated', delete_errors = False)
         df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'persons_booster_add_dose', delete_errors = False)
-        # disabled for now. Implemented instead in dvr_output_daily in function cleaning_data
-        # df2 = logical_cleaning(df2, 'fully_vaccinated', 'at_least_one_dose') 
-        # df2 = logical_cleaning(df2, 'at_least_one_dose', 'total_doses')
-    df2 = fix_issues_at_least_one_dose(df2)
-    df2 = fix_issues_fully_vaccinated(df2)
     df_errors1 = check_for_total_dose_decreases_1(df1)
     df_errors2, df_errors1b = check_for_total_dose_decreases_2(df2)
     df_errors1st = check_for_first_dose_decreases(df2)

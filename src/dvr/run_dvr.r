@@ -19,9 +19,10 @@ run_dvr <- function(adm_api, auto_cleaning, headers, refresh_api) {
 
         source_python("src/dvr/dvr_data_cleaning.py")
         cleaned_data <- main(auto_cleaning, throughput_data)
+        plot_function <- export_plots_of_changes
 
         source_python("src/dvr/dvr_output_daily.py")
-        dvr_data <- main(cleaned_data, refresh_api, auto_cleaning)
+        dvr_data <- main(cleaned_data, refresh_api, auto_cleaning, plot_function)
 
         source_python("src/dvr/dvr_data_fixes.py")
         main(throughput_data, dvr_data)
