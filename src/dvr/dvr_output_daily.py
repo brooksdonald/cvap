@@ -165,8 +165,8 @@ def minimum_rollout_date(df_inter, country):
     return df3
 
 
-def plot_changes(fixes):
-    pass
+def printing_log(country_code, country_name, n_changes):
+    print(" >  ", n_changes, " dates edited from ", country_code, " (", country_name , ")",  sep = "")
 
 
 def anti_join(before, after):
@@ -177,9 +177,9 @@ def anti_join(before, after):
         if 'at_least_one_dose_adj' in df.columns:
             df.drop('at_least_one_dose', axis = 1, inplace = True)
             df.rename({'at_least_one_dose_adj': 'at_least_one_dose'}, axis = 1, inplace = True)
-    before = before[['iso_code', 'date', 'total_doses',
+    before = before[['iso_code', 'country_name_friendly', 'date', 'total_doses',
         'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose']]
-    after = after[['iso_code', 'date', 'total_doses',
+    after = after[['iso_code', 'country_name_friendly', 'date', 'total_doses',
         'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose']]
     outer_join = before.merge(after, how = 'outer', indicator = True)
     anti_join = outer_join[~(outer_join._merge == 'both')].drop('_merge', axis = 1)
@@ -193,7 +193,11 @@ def cleaning_data(df, plot_function):
     df['fully_vaccinated_adj'] = df[['total_doses','fully_vaccinated']].min(axis = 1) 
     after_clean_fv = df.copy()
     fixes = anti_join(before_clean_fv, after_clean_fv)
-    for country in list(set(fixes['iso_code'])):
+    countries = list(set(fixes['iso_code']))
+    countries.sort()
+    for country in countries:
+        country_name = list(fixes.loc[fixes['iso_code'] == country, 'country_name_friendly'])[0]
+        printing_log(country, country_name, len(fixes.loc[fixes['iso_code'] == country, :]))
         plot_function(after_clean_fv, before_clean_fv, country, fixes,
             'fully_vaccinated', 'fully_vaccinated/logical_cleaning', 'logical')
     
@@ -203,7 +207,11 @@ def cleaning_data(df, plot_function):
     df['at_least_one_dose_adj'] = df[['fully_vaccinated_adj','at_least_one_dose_adj']].max(axis = 1)
     after_clean_a1d = df.copy()
     fixes = anti_join(before_clean_a1d, after_clean_a1d)
-    for country in list(set(fixes['iso_code'])):
+    countries = list(set(fixes['iso_code']))
+    countries.sort()
+    for country in countries:
+        country_name = list(fixes.loc[fixes['iso_code'] == country, 'country_name_friendly'])[0]
+        printing_log(country, country_name, len(fixes.loc[fixes['iso_code'] == country, :]))
         plot_function(after_clean_a1d, before_clean_a1d, country, fixes,
             'at_least_one_dose', 'at_least_one_dose/logical_cleaning', 'logical')
     return df

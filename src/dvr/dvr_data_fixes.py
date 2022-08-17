@@ -2,7 +2,12 @@ import pandas as pd
 
 def import_data(throughput_data, output_daily):
     print(' > Importing data for data_fixes.py ...')
-    iso_mapping = pd.read_csv("data/_input/static/iso_mapping.csv")
+    iso_mapping = pd.read_excel("data/_input/static/base_entitydetails.xlsx")
+    iso_mapping.rename(
+        {'NAMEWORKEN': 'country_name', 'CODE': 'iso_code'},
+        axis = 1, 
+        inplace = True)
+    iso_mapping = iso_mapping[['country_name', 'iso_code']]
     #raw = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_data.csv")
     raw = throughput_data
     #who = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_output_daily.csv")

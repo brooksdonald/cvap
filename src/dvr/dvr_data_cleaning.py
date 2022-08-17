@@ -573,12 +573,15 @@ def filter_country_data(df2, country):
     return country_data
 
 
-def printing_log(country_data, log): #country_name, country_code, n_changes):
+def printing_log(country_data, log):
     country_data.reset_index(drop = True, inplace = True)
     country_code = country_data.loc[0,'iso_code']
     country_name = country_data.loc[0,'country_name']
     n_changes = len(log.loc[log['iso_code'] == country_code, :])
-    print(" > ", n_changes, " observations removed from ", country_code, " (", country_name , ")",  sep = "")
+    if n_changes > 9: # TODO make dry with formatting
+        print(" > ", n_changes, " obs. removed from ", country_code, " (", country_name , ")",  sep = "")
+    else:
+        print(" >  ", n_changes, " obs. removed from ", country_code, " (", country_name , ")",  sep = "")
 
 
 def delete_row(country_data, df, row, log, reset_index = True):
@@ -590,16 +593,11 @@ def delete_row(country_data, df, row, log, reset_index = True):
     if reset_index:
         country_data.reset_index(drop = True, inplace = True)
         country_name = country_data.loc[row,'iso_code']
+    country_code = country_data.loc[row,'iso_code']
     date = country_data.loc[row,'date']
-    df.loc[((df['iso_code'] == country_name) & (df['date'] == date)),'to_delete_automized_clean'] = 1
+    df.loc[((df['iso_code'] == country_code) & (df['date'] == date)),'to_delete_automized_clean'] = 1
     country_data.drop(row, axis = 0, inplace = True)
-    print(" > Cleaning: Deleting observation.  Country: ", country_name, "  Date:", date.strftime("%d %b %Y"))
-    addition = pd.DataFrame({'iso_code': [country_name], 'date': [date]})
-    # country_code = country_data.loc[row,'iso_code']
-    # date = country_data.loc[row,'date']
-    # df.loc[((df['iso_code'] == country_code) & (df['date'] == date)),'to_delete_automized_clean'] = 1
-    # country_data.drop(row, axis = 0, inplace = True)
-    # addition = pd.DataFrame({'iso_code': [country_code], 'date': [date]})
+    addition = pd.DataFrame({'iso_code': [country_code], 'date': [date]})
     log = pd.concat([log, addition], ignore_index = True)
     return country_data, df, log
 
@@ -851,7 +849,7 @@ def automized_cleaning(df2, uncleaned_df, var_to_clean, delete_errors):
             while not monotonic(list(country_data[var_to_clean])):
                 row = 0
                 country_data, df2, log = row_check(country_data, row, df2, log, var_to_clean_iloc)
-            # printing_log(country_data.copy(), log.copy())
+            printing_log(country_data.copy(), log.copy())
             export_plots_of_changes(df2, uncleaned_df, country, log, var_to_clean, var_to_clean + '/decrease_cleaning', "decrease")
     print(" > Saving plots of cleaned changes to data/cleaning_log...")
     if delete_errors:
