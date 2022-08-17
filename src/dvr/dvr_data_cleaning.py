@@ -39,7 +39,12 @@ def import_data(throughput_data):
     print(" > Loading dataset...")
     #who = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_data.csv")
     who = throughput_data
-    iso_mapping = pd.read_csv("data/_input/static/iso_mapping.csv")
+    iso_mapping = pd.read_excel("data/_input/static/base_entitydetails.xlsx")
+    iso_mapping.rename(
+        {'NAMEWORKEN': 'country_name', 'CODE': 'iso_code'},
+        axis = 1, 
+        inplace = True)
+    iso_mapping = iso_mapping[['country_name', 'iso_code']]
     return who, iso_mapping
 
 
@@ -76,17 +81,16 @@ def map_iso_codes(df1, iso_mapping):
     print(" > Mapping ISO codes...")
     iso_mapping['country_name'] = iso_mapping['country_name'].str.title()
     df1 = df1.merge(iso_mapping, on = 'country_name', how = 'left')
-    df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba/Saba', 'iso_code'] = 'BES1'
-    df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba/Sint Eustatius', 'iso_code'] = 'BES1'
-    df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba', 'iso_code'] = 'BES2'
-    df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba/Bonaire', 'iso_code'] = 'XAA'
-    df1.loc[df1['country_name'] == 'Occupied Palestinian Territory, Including East Jerusalem', 'iso_code'] = 'PSE'
+    df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba/Saba', 'iso_code'] = 'SAB' # changed from BES1
+    df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba/Sint Eustatius', 'iso_code'] = 'STA' # changed from BES1
+    df1.loc[df1['country_name'] == 'Bonaire, Sint Eustatius And Saba/Bonaire', 'iso_code'] = 'BON' # changed from XAA
     df1.loc[df1['country_name'] == 'Sint Maarten', 'iso_code'] = 'SXM'
-    df1.loc[df1['country_name'] == 'Wallis And Futuna', 'iso_code'] = 'WLF'
     df1.loc[df1['country_name'] == 'Pitcairn Islands', 'iso_code'] = 'PCN'
     df1.loc[df1['country_name'] == 'Northern Mariana Islands (Commonwealth Of The)', 'iso_code'] = 'MNP'
     df1.loc[df1['country_name'] == 'The United Kingdom', 'iso_code'] = 'GBR'
-    df1.loc[df1['country_name'] == 'Turkey', 'iso_code'] = 'TUR'
+    df1.loc[df1['country_name'] == 'Côte D’Ivoire', 'iso_code'] = 'CIV'
+    df1.loc[df1['country_name'] == 'Falkland Islands (Malvinas)', 'iso_code'] = 'FLK'
+    df1.loc[df1['country_name'] == 'Liechtenstein', 'iso_code'] = 'LIE'
     df1.loc[df1['country_name'] == 'Kosovo', 'iso_code'] = 'XKX'
 
     print(" > Identifying countries that have not reported for the latest week...")
@@ -569,8 +573,12 @@ def filter_country_data(df2, country):
     return country_data
 
 
-def printing_log(country_name, n_changes):
-    print(" > ", country_name, " (", n_changes, " observations)", sep = "")
+def printing_log(country_data, log): #country_name, country_code, n_changes):
+    country_data.reset_index(drop = True, inplace = True)
+    country_code = country_data.loc[0,'iso_code']
+    country_name = country_data.loc[0,'country_name']
+    n_changes = len(log.loc[log['iso_code'] == country_code, :])
+    print(" > ", n_changes, " observations removed from ", country_code, " (", country_name , ")",  sep = "")
 
 
 def delete_row(country_data, df, row, log, reset_index = True):
@@ -581,12 +589,17 @@ def delete_row(country_data, df, row, log, reset_index = True):
     """
     if reset_index:
         country_data.reset_index(drop = True, inplace = True)
-    country_name = country_data.loc[row,'iso_code']
+        country_name = country_data.loc[row,'iso_code']
     date = country_data.loc[row,'date']
     df.loc[((df['iso_code'] == country_name) & (df['date'] == date)),'to_delete_automized_clean'] = 1
     country_data.drop(row, axis = 0, inplace = True)
     print(" > Cleaning: Deleting observation.  Country: ", country_name, "  Date:", date.strftime("%d %b %Y"))
     addition = pd.DataFrame({'iso_code': [country_name], 'date': [date]})
+    # country_code = country_data.loc[row,'iso_code']
+    # date = country_data.loc[row,'date']
+    # df.loc[((df['iso_code'] == country_code) & (df['date'] == date)),'to_delete_automized_clean'] = 1
+    # country_data.drop(row, axis = 0, inplace = True)
+    # addition = pd.DataFrame({'iso_code': [country_code], 'date': [date]})
     log = pd.concat([log, addition], ignore_index = True)
     return country_data, df, log
 
@@ -787,7 +800,7 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder, 
             plt.savefig(path)
 
 
-def logical_cleaning(df2, var_to_clean, larger_var):
+def logical_cleaning(df2, var_to_clean, larger_var): # TODO put in graveyard
     '''
     This function is not currently in use. By deleting selected observations where 
     total_doses > at_least_one_dose > fully_vaccinated 
@@ -835,11 +848,12 @@ def automized_cleaning(df2, uncleaned_df, var_to_clean, delete_errors):
     countries = np.sort(countries)
     for country in countries:
         country_data = filter_country_data(df2, country)
-        
+
         if not monotonic(list(country_data[var_to_clean])):
             while not monotonic(list(country_data[var_to_clean])):
                 row = 0
                 country_data, df2, log = row_check(country_data, row, df2, log, var_to_clean_iloc)
+            # printing_log(country_data.copy(), log.copy())
             export_plots_of_changes(df2, uncleaned_df, country, log, var_to_clean, var_to_clean + '/decrease_cleaning', "decrease")
     print(" > Saving plots of cleaned changes to data/cleaning_log...")
     if delete_errors:
@@ -860,9 +874,9 @@ def main(auto_cleaning, throughput_data):
     df1 = cleaning(who)
     df1 = date_to_date_week(df1)
     df1, df2 = map_iso_codes(df1, iso_mapping)
-    df2a, manual_fix_list = fix_issues_total_doses(df2)
-    df2a = fix_issues_at_least_one_dose(df2a)
-    df2a = fix_issues_fully_vaccinated(df2a)
+    df2, manual_fix_list = fix_issues_total_doses(df2) # TODO consider removing manual cleaning
+    df2 = fix_issues_at_least_one_dose(df2)
+    df2 = fix_issues_fully_vaccinated(df2)
     if auto_cleaning:
         clean_path(folder = "cleaning_log")
         uncleaned_df = df2.copy()

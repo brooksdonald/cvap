@@ -7,7 +7,12 @@ import os
 def import_data(cleaned_data, refresh_api):
     # Get Data
     print(" > Getting ISO mapping...")
-    iso_mapping = pd.read_csv("data/_input/static/iso_mapping.csv")
+    iso_mapping = pd.read_excel("data/_input/static/base_entitydetails.xlsx")
+    iso_mapping.rename(
+        {'NAMEWORKEN': 'country_name', 'CODE': 'iso_code'},
+        axis = 1, 
+        inplace = True)
+    iso_mapping = iso_mapping[['country_name', 'iso_code']]
     print(" > Done.")
 
     # get dose administration data for comparison
