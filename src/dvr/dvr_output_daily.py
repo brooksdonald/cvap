@@ -63,15 +63,14 @@ def import_data(cleaned_data, refresh_api):
 
 def flags(who):
     print(" > Selecting columns from who dataframe...")
-    df_flags = who[['iso_code', 'date', 'is_latest_week_reported', 'manual_adjustment', 'is_data_error', 'to_remove']]
+    df_flags = who[['iso_code', 'date', 'is_latest_week_reported']]
     return df_flags
 
 
 def merge_who_country(who, country):
     print(" > Grouping and sorting who df...")
     who['date'] = pd.to_datetime(who['date'], format = '%Y-%m-%d')
-    df1 = who.loc[((who['to_remove'] == 0) & (who['to_remove_1st'] == 0) & (who['to_remove_2nd'] == 0)), :]
-    df1 = df1.merge(country, on = 'iso_code', how = 'left')
+    df1 = who.merge(country, on = 'iso_code', how = 'left')
     return df1
 
 

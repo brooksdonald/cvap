@@ -24,9 +24,6 @@ run_dvr <- function(adm_api, auto_cleaning, headers, refresh_api) {
         source_python("src/dvr/dvr_output_daily.py")
         dvr_data <- main(cleaned_data, refresh_api, auto_cleaning, plot_function)
 
-        source_python("src/dvr/dvr_data_fixes.py")
-        main(throughput_data, dvr_data)
-
     } else {
         print(" > adm_api == FALSE")
         print(" > Administration data will be imported via Excel file: base_dvr_current.xlsx")
