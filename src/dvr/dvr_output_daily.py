@@ -165,12 +165,13 @@ def plot_changes(fixes):
 
 
 def anti_join(before, after):
-    if 'fully_vaccinated_adj' in after.columns:
-        after.drop('fully_vaccinated', axis = 1, inplace = True)
-        after.rename({'fully_vaccinated_adj': 'fully_vaccinated'}, axis = 1, inplace = True)
-    if 'at_least_one_dose_adj' in after.columns:
-        after.drop('at_least_one_dose', axis = 1, inplace = True)
-        after.rename({'at_least_one_dose_adj': 'at_least_one_dose'}, axis = 1, inplace = True)
+    for df in [before, after]:
+        if 'fully_vaccinated_adj' in df.columns:
+            df.drop('fully_vaccinated', axis = 1, inplace = True)
+            df.rename({'fully_vaccinated_adj': 'fully_vaccinated'}, axis = 1, inplace = True)
+        if 'at_least_one_dose_adj' in df.columns:
+            df.drop('at_least_one_dose', axis = 1, inplace = True)
+            df.rename({'at_least_one_dose_adj': 'at_least_one_dose'}, axis = 1, inplace = True)
     before = before[['iso_code', 'date', 'total_doses',
         'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose']]
     after = after[['iso_code', 'date', 'total_doses',
@@ -200,8 +201,6 @@ def cleaning_data(df, plot_function):
     for country in list(set(fixes['iso_code'])):
         plot_function(after_clean_a1d, before_clean_a1d, country, fixes,
             'at_least_one_dose', 'at_least_one_dose/logical_cleaning', 'logical')
-    
-    print(df.loc[((df['iso_code'] == "GMB") & (df['date'] > '2021-10-16') & (df['date'] < '2021-10-26')), ['date', 'at_least_one_dose_adj', 'total_doses', 'fully_vaccinated','fully_vaccinated_adj']])
     return df
 
 

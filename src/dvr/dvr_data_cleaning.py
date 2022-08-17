@@ -569,6 +569,10 @@ def filter_country_data(df2, country):
     return country_data
 
 
+def printing_log(country_name, n_changes):
+    print(" > ", country_name, " (", n_changes, " observations)", sep = "")
+
+
 def delete_row(country_data, df, row, log, reset_index = True):
     """
     This function deletes a specified row from `country_data`,
