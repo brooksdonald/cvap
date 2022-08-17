@@ -102,7 +102,7 @@ def map_iso_codes(df1, iso_mapping):
     
     print(" > Remove missing values...")
     df1 = df1.fillna(0)
-    df2 = df1[df1['iso_code'] != 'BES1']
+    df2 = df1.copy()
     return df1, df2
 
 
@@ -836,7 +836,6 @@ def automized_cleaning(df2, uncleaned_df, var_to_clean, delete_errors):
     3. produce figures of the changes made.
     """
     print(" > Starting the automized cleaning process...")
-    
     print(" > Initializing variables...")
     log = pd.DataFrame({'country': [], 'date': []})
     pd.set_option('mode.chained_assignment', None)
@@ -848,7 +847,6 @@ def automized_cleaning(df2, uncleaned_df, var_to_clean, delete_errors):
     countries = np.sort(countries)
     for country in countries:
         country_data = filter_country_data(df2, country)
-
         if not monotonic(list(country_data[var_to_clean])):
             while not monotonic(list(country_data[var_to_clean])):
                 row = 0
@@ -875,8 +873,8 @@ def main(auto_cleaning, throughput_data):
     df1 = date_to_date_week(df1)
     df1, df2 = map_iso_codes(df1, iso_mapping)
     df2, manual_fix_list = fix_issues_total_doses(df2) # TODO consider removing manual cleaning
-    df2 = fix_issues_at_least_one_dose(df2)
-    df2 = fix_issues_fully_vaccinated(df2)
+    # df2 = fix_issues_at_least_one_dose(df2)
+    # df2 = fix_issues_fully_vaccinated(df2)
     if auto_cleaning:
         clean_path(folder = "cleaning_log")
         uncleaned_df = df2.copy()
