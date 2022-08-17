@@ -8,9 +8,7 @@ def import_data(throughput_data, output_daily):
         axis = 1, 
         inplace = True)
     iso_mapping = iso_mapping[['country_name', 'iso_code']]
-    #raw = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_data.csv")
     raw = throughput_data
-    #who = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_output_daily.csv")
     who = output_daily
     return iso_mapping, raw, who
 

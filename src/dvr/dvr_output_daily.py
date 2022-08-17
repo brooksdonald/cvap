@@ -17,7 +17,6 @@ def import_data(cleaned_data, refresh_api):
 
     # get dose administration data for comparison
     print(" > Getting dose administration data for comparison...")
-    #owid = pd.read_csv('data/_input/supply_data/owid-covid-data.csv')
     link = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv'
     folder = "data/_input/interim"
     storage_name = folder + "/" + link.split('/')[-1]
@@ -42,7 +41,8 @@ def import_data(cleaned_data, refresh_api):
 
     # get country characteristics
     print(" > Getting country characteristics...")
-    cc = pd.read_csv("data/_input/static/country_characteristics.csv")
+    # cc = pd.read_csv("data/_input/static/country_characteristics.csv")
+    cc = pd.read_excel("data/_input/static/base_population_who.xlsx")
     print(" > Done.")
 
     print(" > Getting country dimensions...")
@@ -387,8 +387,8 @@ def moving_averages_fv(df6, days_in_weeks4, days_in_weeks8):
 
 def join_with_cc_and_owid(df8, cc, owid1):
     print(' > merging data with cc and owid1...')
-    cc.rename(columns = {'ISO': 'iso_code', 'Population': 'population', 'Entity': 'entity_name'}, inplace = True)
-    cc['population'] = cc['population'].str.replace(',', '').astype(float)
+    cc.rename(columns = {'iso': 'iso_code', 'value': 'population', 'name': 'entity_name'}, inplace = True)
+    cc['population'] = cc['population'].astype(float)
     df9 = df8.merge(cc, on = 'iso_code', how = 'inner')
     df9['date'] = df9['date'].astype(str)
 
