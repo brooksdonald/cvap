@@ -121,12 +121,18 @@ def monotonic(series):
 
 
 def filter_country_data(df2, country):
+    '''
+    This function filters out the data for one respective country. 
+    '''
     country_data = df2.loc[df2['iso_code'] == country, :].copy()
     country_data.sort_values(by = ['date'], ascending = False, inplace = True)
     return country_data
 
 
 def printing_log(country_data, log):
+    '''
+    This function prints out the number of changes per country.
+    '''
     country_data.reset_index(drop = True, inplace = True)
     country_code = country_data.loc[0,'iso_code']
     country_name = country_data.loc[0,'country_name']
