@@ -276,13 +276,13 @@ export_supply_xlsx <- function(
   # Export to excel
   write_xlsx(
     datalist,
-    "data/_input/interim/supply.xlsx"
+    "data/input/interim/supply.xlsx"
   )
 }
 
 load_cum_from_xlsx <- function() {
   overall_cumul_long <- data.frame(
-    read_excel("data/_input/interim/supply.xlsx",
+    read_excel("data/input/interim/supply.xlsx",
       sheet = "supply"
     )
   )
@@ -291,7 +291,7 @@ load_cum_from_xlsx <- function() {
 
 load_monthly_from_xlsx <- function() {
   overall_long <- data.frame(
-    read_excel("data/_input/interim/supply.xlsx",
+    read_excel("data/input/interim/supply.xlsx",
       sheet = "data"
     )
   )

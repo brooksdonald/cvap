@@ -6,7 +6,7 @@ run_adm_cov <- function(entity_characteristics,
     source("src/adm_cov/dvr_prev.r")
     source("src/adm_cov/supply_timeseries.r")
 
-    path_to_timeseries_data <- "data/_input/test/"
+    path_to_timeseries_data <- "data/input/test/"
 
     print(" > Starting local environment for vaccinations")
 
@@ -75,11 +75,11 @@ run_adm_cov <- function(entity_characteristics,
             overall_cumul_long,
             admin_red
         )
-        print(" > Done. Exported to data/_input/interim/supply.xlsx")
+        print(" > Done. Exported to data/input/interim/supply.xlsx")
 
     } else {
 
-        print(" > Importing supply timeseries from data/_input/interim/supply.xlsx")
+        print(" > Importing supply timeseries from data/input/interim/supply.xlsx")
         overall_cumul_long <- load_cum_from_xlsx()
         overall_long <- load_monthly_from_xlsx()
         print(" > Done.")
