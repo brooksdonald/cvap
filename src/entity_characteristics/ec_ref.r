@@ -2,13 +2,13 @@
 load_entity_chars <- function() {
     print(" >> Loading entity characteristics data...")
     entity_details <- data.frame(
-        read_excel("data/_input/static/base_entitydetails.xlsx",
+        read_excel("data/input/static/base_entitydetails.xlsx",
             sheet = "data"
         )
     )
     
     b_pop_who <- data.frame(
-      read_excel("data/_input/static/base_population_who.xlsx",
+      read_excel("data/input/static/base_population_who.xlsx",
                  sheet = "data"
       )
     )
@@ -65,7 +65,7 @@ load_conc_supp_list <- function() {
     print(" >> Loading concerted support list data...")
     b_adhoc <- data.frame(
         read_excel(
-            "data/_input/static/base_adhoc.xlsx",
+            "data/input/static/base_adhoc.xlsx",
             sheet = "data"
         )
     )

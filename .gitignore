@@ -1,4 +1,4 @@
-data/_input/*
+data/input/*
 data/output/*
 data/cleaning_log
 .RData

@@ -14,7 +14,7 @@ run_dvr <- function(adm_api, auto_cleaning, headers, refresh_api) {
         print(" > All Python libraries loaded.")
 
         print(" > Defining storage locations...")
-        folder <- "_input/dvr_data"
+        folder <- "input/dvr_data"
         name_00 <- "analysis_vx_throughput_data.csv"
         name_01 <- "analysis_vx_throughput_data_cleaned.csv"
         name_02 <- "analysis_vx_throughput_output_daily.csv"

@@ -9,7 +9,7 @@ load_b_vxrate <- function(dvr_data, adm_api, auto_cleaning) {
     print(" >> Loading current daily vaccination rate from Excel...")
     b_vxrate <-
         data.frame(
-            read_excel("data/_input/base_dvr_current.xlsx",
+            read_excel("data/input/base_dvr_current.xlsx",
             sheet = "data"
         )
     )

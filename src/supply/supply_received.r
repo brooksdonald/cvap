@@ -4,22 +4,22 @@ load_sup_rec <- function() {
     # Load current, lm, and 2m datasets
     print(" >> Reading data...")
     b_mdb <-
-        data.frame(read_excel("data/_input/base_supply_received_current.xlsx",
+        data.frame(read_excel("data/input/base_supply_received_current.xlsx",
             sheet = "Delivery_Table"
         ))
 
     b_mdb_lm <-
-        data.frame(read_excel("data/_input/base_supply_received_lastmonth.xlsx",
+        data.frame(read_excel("data/input/base_supply_received_lastmonth.xlsx",
             sheet = "Delivery_Table"
         ))
 
     b_mdb_2m <-
-        data.frame(read_excel("data/_input/base_supply_received_twomonth.xlsx",
+        data.frame(read_excel("data/input/base_supply_received_twomonth.xlsx",
             sheet = "Delivery_Table"
         ))
 
     b_mdb_13jan <-
-        data.frame(read_excel("data/_input/static/base_supply_weekof13jan.xlsx",
+        data.frame(read_excel("data/input/static/base_supply_weekof13jan.xlsx",
             sheet = "Delivery_Table"
         ))
 

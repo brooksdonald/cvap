@@ -18,19 +18,19 @@ transform_supp_secured <- function(supply_secured, sec_date, c_sec_cour_lm) { # 
 
 extract_supply_secured <- function() {
     print(" >> Reading supply secured data...")
-    supply_input <-
-        data.frame(read_excel("data/_input/base_supply_secured_summary.xlsx",
+    supplyinput <-
+        data.frame(read_excel("data/input/base_supply_secured_summary.xlsx",
             sheet = "supply_tracker",
             skip = 2))
 
     ## This function can be deleted in the future.
     ## It was added in July 2022 to aid the transition.
-    helper_check_if_two_rows_were_deleted(supply_input)
+    helper_check_if_two_rows_were_deleted(supplyinput)
 
     # pick only relevant columns and rename
     supply_secured <-
         select(
-            supply_input,
+            supplyinput,
             c(
                 "ISO3",
                 "Secured.and.or.Expected.Vaccine..millions.of.doses.",
@@ -63,7 +63,7 @@ extract_sup_sec_lm <- function() {
     print(" >> Reading supply secured summary lastmonth...")
     b_sec_lm <-
         data.frame(
-            read_excel("data/_input/base_supply_secured_summary_lastmonth.xlsx",
+            read_excel("data/input/base_supply_secured_summary_lastmonth.xlsx",
                 sheet = "supply_tracker",
                 skip = 2
             )

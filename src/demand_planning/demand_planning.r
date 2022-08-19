@@ -3,7 +3,7 @@
 load_demand_plan_data <- function() {
   print(" >> Loading demand planning data")
   base_dp <- data.frame(
-    read_excel("data/_input/static/base_demandplanning.xlsx",
+    read_excel("data/input/static/base_demandplanning.xlsx",
     sheet = "Data"
     )
   )

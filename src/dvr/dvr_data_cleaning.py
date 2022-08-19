@@ -37,9 +37,9 @@ def clean_path(folder):
 
 def import_data(throughput_data):
     print(" > Loading dataset...")
-    #who = pd.read_csv("data/_input/supply_data/analysis_vx_throughput_data.csv")
+    #who = pd.read_csv("data/input/supply_data/analysis_vx_throughput_data.csv")
     who = throughput_data
-    iso_mapping = pd.read_csv("data/_input/static/iso_mapping.csv")
+    iso_mapping = pd.read_csv("data/input/static/iso_mapping.csv")
     return who, iso_mapping
 
 

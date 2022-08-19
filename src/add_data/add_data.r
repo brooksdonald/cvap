@@ -12,7 +12,7 @@ load_base_smartsheet <- function() {
     print(" >> Loading base smartsheet...")
     b_smartsheet <- data.frame(
         read_excel(
-            "data/_input/base_smartsheet.xlsx",
+            "data/input/base_smartsheet.xlsx",
             sheet = "1. CRD-global-monitoring (PMO M"
         )
     )
@@ -47,7 +47,7 @@ load_base_smartsheet <- function() {
 
 load_who_dashboard <- function(refresh_api) {
     print(" >> Loading WHO vaccination data...")
-    folder <- "data/_input/interim"
+    folder <- "data/input/interim"
     link <- "https://covid19.who.int/who-data/vaccination-data.csv"
     storage_name <- paste0(folder, "/", sub(".*/", "", link))
     if (refresh_api | !file.exists(storage_name)) {

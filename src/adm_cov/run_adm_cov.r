@@ -50,9 +50,9 @@ run_adm_cov <- function(entity_characteristics,
         overall_long <- transform_monthly_supply_received(del_overall)
         admin_red <- load_administration(d_absorption_country_new, entity_characteristics)
         export_supply_xlsx(sec_overall_long, overall_long, overall_cumul_long, admin_red)
-        print(" > Done. Exported to data/_input/static/supply.xlsx")
+        print(" > Done. Exported to data/input/static/supply.xlsx")
     } else {
-        print(" > Importing supply timeseries from data/_input/static/supply.xlsx")
+        print(" > Importing supply timeseries from data/input/static/supply.xlsx")
         overall_cumul_long <- load_cum_from_xlsx()
         overall_long <- load_monthly_from_xlsx()
         print(" > Done.")

@@ -23,7 +23,7 @@ def get_data(refresh_api):
   urls = ['https://frontdoor-l4uikgap6gz3m.azurefd.net/NCOV/VAC_REP_COUNTS',
     'https://frontdoor-l4uikgap6gz3m.azurefd.net/NCOV/VAC_REP_COUNTS_EUR']
   print(" > Done.")
-  folder = "data/_input/interim"
+  folder = "data/input/interim"
 
   # 2 data sources for Throughput, one for Europe and one for ROW
   # read in separately, clean, and then bind together

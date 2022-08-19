@@ -3,7 +3,7 @@
 load_finance_data <- function() {
     print(" >> Loading financing data...")
     base_fin <- data.frame(
-        read_excel("data/_input/base_financing.xlsx",
+        read_excel("data/input/base_financing.xlsx",
         sheet = "Data Structure"
         )
     )
@@ -140,7 +140,7 @@ transform_finance_data <- function(b_fin_funding, entity_characteristics) {
 load_finance_urgent_data <- function() {
   print(" >> Loading CoVDP urgent financing data...")
   base_fin_urg <- data.frame(
-    read_excel("data/_input/base_financing_urgent.xlsx",
+    read_excel("data/input/base_financing_urgent.xlsx",
                sheet = "Funding tracker"
     )
   )
@@ -202,7 +202,7 @@ transform_fund_urgent_data <- function(base_fin_urg_fun, entity_characteristics)
 load_finance_cds_data <- function(entity_characteristics) {
   print(" >> Loading Gavi CDS financing data...")
   base_fin_cds <- data.frame(
-    read_excel("data/_input/base_financing_cds.xlsx",
+    read_excel("data/input/base_financing_cds.xlsx",
                sheet = "Status June22"
     )
   )

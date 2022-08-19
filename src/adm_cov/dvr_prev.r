@@ -3,7 +3,7 @@ load_lw_data <- function(c_vxrate_lastweek) {
     print(" >> Loading last week dataset...")
     #b_vxrate_lw_sum <- data.frame(
      #   read_excel(
-      #      "data/_input/base_dvr_lastweek.xlsx",
+      #      "data/input/base_dvr_lastweek.xlsx",
        #     sheet = "data_summary"
       #  )
     #)
@@ -35,7 +35,7 @@ load_lm_data <- function(c_vxrate_lastmonth) {
     print(" >> Loading last month dataset...")
     #b_vxrate_lm_sum <- data.frame(
      #   read_excel(
-      #      "data/_input/base_dvr_lastmonth.xlsx",
+      #      "data/input/base_dvr_lastmonth.xlsx",
        #     sheet = "data_summary"
         #)
     #)
@@ -70,7 +70,7 @@ load_l2m_data <- function(c_vxrate_twomonth) {
     print(" >> Loading last two month dataset...")
     #b_vxrate_2m_sum <- data.frame(
      #   read_excel(
-      #      "data/_input/base_dvr_twomonth.xlsx",
+      #      "data/input/base_dvr_twomonth.xlsx",
        #     sheet = "data_summary"
        # )
     #)
@@ -103,7 +103,7 @@ load_13jan_data <- function() {
     print("  >> Loading week of 13 Jan dataset...")
     b_vxrate_13jan <- data.frame(
         read_excel(
-            "data/_input/static/base_dvr_weekof13jan.xlsx",
+            "data/input/static/base_dvr_weekof13jan.xlsx",
             sheet = "data_summary"
         )
     )

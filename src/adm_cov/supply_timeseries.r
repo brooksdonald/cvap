@@ -20,43 +20,43 @@
 load_secured_expected <- function() {
   # Load datasets
   base_sec_eosep <-
-    data.frame(read_excel("data/_input/test/211005_imf-who-covid-19-vaccine-supply-tracker.xlsx",
+    data.frame(read_excel("data/input/test/211005_imf-who-covid-19-vaccine-supply-tracker.xlsx",
                           sheet = "data"))
 
   base_sec_eooct <-
-    data.frame(read_excel("data/_input/test/211102_imf-who-covid-19-vaccine-supply-tracker.xlsx",
+    data.frame(read_excel("data/input/test/211102_imf-who-covid-19-vaccine-supply-tracker.xlsx",
                           sheet = "data"))
 
   base_sec_eonov <-
-    data.frame(read_excel("data/_input/test/211201_imf-who-covid-19-vaccine-supply-tracker.xlsx",
+    data.frame(read_excel("data/input/test/211201_imf-who-covid-19-vaccine-supply-tracker.xlsx",
                           sheet = "data"))
 
   base_sec_eodec <-
-    data.frame(read_excel("data/_input/test/220105_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+    data.frame(read_excel("data/input/test/220105_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
                           sheet = "data"))
 
   base_sec_eojan <-
-    data.frame(read_excel("data/_input/test/220202_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+    data.frame(read_excel("data/input/test/220202_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
                           sheet = "supply_tracker"))
 
   base_sec_eofeb <-
-    data.frame(read_excel("data/_input/test/220302_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+    data.frame(read_excel("data/input/test/220302_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
                           sheet = "supply_tracker"))
 
   base_sec_eomar <-
-    data.frame(read_excel("data/_input/test/220406_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+    data.frame(read_excel("data/input/test/220406_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
                           sheet = "supply_tracker"))
 
   base_sec_eoapr <-
-    data.frame(read_excel("data/_input/test/220505_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+    data.frame(read_excel("data/input/test/220505_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
                           sheet = "supply_tracker"))
 
   base_sec_eomay <-
-    data.frame(read_excel("data/_input/test/220602_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+    data.frame(read_excel("data/input/test/220602_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
                           sheet = "supply_tracker"))
 
   base_sec_eojun <-
-    data.frame(read_excel("data/_input/test/220701_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
+    data.frame(read_excel("data/input/test/220701_IMF-WHO COVID-19 Vaccine Supply Tracker.xlsx",
                           sheet = "supply_tracker"))
  
   # ...
@@ -234,51 +234,51 @@ load_supply_received <- function() {
 
   # Load datasets
   base_eojul <-
-    data.frame(read_excel("data/_input/test/20210726_UNICEF_DeliveryTable.xlsx",
+    data.frame(read_excel("data/input/test/20210726_UNICEF_DeliveryTable.xlsx",
                           sheet = "Delivery_Table"))
 
   base_eoaug <-
-    data.frame(read_excel("data/_input/test/20210824_UNICEF_DeliveryTable.xlsx",
+    data.frame(read_excel("data/input/test/20210824_UNICEF_DeliveryTable.xlsx",
                           sheet = "Delivery_Table"))
 
   base_eosep <-
-    data.frame(read_excel("data/_input/test/20210927_UNICEF_DeliveryTable.xlsx",
+    data.frame(read_excel("data/input/test/20210927_UNICEF_DeliveryTable.xlsx",
                           sheet = "Delivery_Table"))
 
   base_eooct <-
-    data.frame(read_excel("data/_input/test/20211027_UNICEF_DeliveryTable.xlsx",
+    data.frame(read_excel("data/input/test/20211027_UNICEF_DeliveryTable.xlsx",
                           sheet = "Delivery_Table"))
 
   base_eonov <-
-    data.frame(read_excel("data/_input/test/20211130_UNICEF_DeliveryTable.xlsx",
+    data.frame(read_excel("data/input/test/20211130_UNICEF_DeliveryTable.xlsx",
                           sheet = "Delivery_Table"))
 
   base_eodec <-
-    data.frame(read_excel("data/_input/test/20211228_UNICEF_DeliveryTable.xlsx",
+    data.frame(read_excel("data/input/test/20211228_UNICEF_DeliveryTable.xlsx",
                           sheet = "Delivery_Table"))
 
   base_eojan <-
-    data.frame(read_excel("data/_input/test/20220126_UNICEF_DeliveryTable.xlsx",
+    data.frame(read_excel("data/input/test/20220126_UNICEF_DeliveryTable.xlsx",
                           sheet = "Delivery_Table"))
 
   base_eofeb <-
-    data.frame(read_excel("data/_input/test/20220228_UNICEF_DeliveryTable.xlsx",
+    data.frame(read_excel("data/input/test/20220228_UNICEF_DeliveryTable.xlsx",
                           sheet = "Delivery_Table"))
 
   base_eomar <-
-    data.frame(read_excel("data/_input/test/20220328_UNICEF_DeliveryTable.xlsx",
+    data.frame(read_excel("data/input/test/20220328_UNICEF_DeliveryTable.xlsx",
                           sheet = "Delivery_Table"))
 
   base_eoapr <-
-    data.frame(read_excel("data/_input/test/20220426_UNICEF_DeliveryTable.xlsx",
+    data.frame(read_excel("data/input/test/20220426_UNICEF_DeliveryTable.xlsx",
                           sheet = "Delivery_Table"))
 
   base_eomay <-
-    data.frame(read_excel("data/_input/test/20220530_UNICEF_DeliveryTable.xlsx",
+    data.frame(read_excel("data/input/test/20220530_UNICEF_DeliveryTable.xlsx",
                           sheet = "Delivery_Table"))
 
   base_eojun <-
-    data.frame(read_excel("data/_input/test/20220627_UNICEF_DeliveryTable.xlsx",
+    data.frame(read_excel("data/input/test/20220627_UNICEF_DeliveryTable.xlsx",
                           sheet = "Delivery_Table"))
 
 
@@ -702,7 +702,7 @@ load_administration <- function(d_absorption_country_new, entity_characteristics
   base_admin <- d_absorption_country_new
 
   # b_details <-
-  #   data.frame(read_excel("data/_input/static/base_entitydetails.xlsx",
+  #   data.frame(read_excel("data/input/static/base_entitydetails.xlsx",
   #                         sheet = "data"))
   b_details_red <- entity_characteristics
 
@@ -768,7 +768,7 @@ export_supply_xlsx <- function(sec_overall_long, overall_long, overall_cumul_lon
   # Export to excel
   write_xlsx(
     datalist,
-    "data/_input/static/supply.xlsx"
+    "data/input/static/supply.xlsx"
   )
 
   # return(datalist)
@@ -776,7 +776,7 @@ export_supply_xlsx <- function(sec_overall_long, overall_long, overall_cumul_lon
 
 load_cum_from_xlsx <- function() {
   overall_cumul_long <- data.frame(
-    read_excel("data/_input/static/supply.xlsx",
+    read_excel("data/input/static/supply.xlsx",
     sheet = "supply"
     )
   )
@@ -785,7 +785,7 @@ load_cum_from_xlsx <- function() {
 
 load_monthly_from_xlsx <- function() {
   overall_long <- data.frame(
-    read_excel("data/_input/static/supply.xlsx",
+    read_excel("data/input/static/supply.xlsx",
     sheet = "data"
     )
   )

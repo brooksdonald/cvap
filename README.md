@@ -23,10 +23,10 @@ To resolve languageserver installation issues, just run
 ### Main files
 Path | Content
 -------- | --------
-data/_input | input files ingested into pipeline.
-data/_input/static | input files that do not change every so often.
-data/_input/supply_data | input files from BMGF team.
-data/_input/interim/consolidate | Consolidated files aggregating all outputs from the pipeline. 
+data/input | input files ingested into pipeline.
+data/input/static | input files that do not change every so often.
+data/input/supply_data | input files from BMGF team.
+data/input/interim/consolidate | Consolidated files aggregating all outputs from the pipeline. 
 data/output | All output files generated from the pipeline. 
 src/base | Extraction, ingestion and transformation of base smartsheet & WHO dashboard.
 src/demand_planning | Extraction, ingestion and transfomation of demand planning data.

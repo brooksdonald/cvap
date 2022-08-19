@@ -7,14 +7,14 @@ import os
 def import_data(cleaned_data, refresh_api):
     # Get Data
     print(" > Getting ISO mapping...")
-    iso_mapping = pd.read_csv("data/_input/static/iso_mapping.csv")
+    iso_mapping = pd.read_csv("data/input/static/iso_mapping.csv")
     print(" > Done.")
 
     # get dose administration data for comparison
     print(" > Getting dose administration data for comparison...")
-    #owid = pd.read_csv('data/_input/supply_data/owid-covid-data.csv')
+    #owid = pd.read_csv('data/input/supply_data/owid-covid-data.csv')
     link = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv'
-    folder = "data/_input/interim"
+    folder = "data/input/interim"
     storage_name = folder + "/" + link.split('/')[-1]
     if refresh_api | (not os.path.exists(storage_name)):
         print(" > Downloading data from owid API...")
@@ -31,17 +31,17 @@ def import_data(cleaned_data, refresh_api):
 
     # get primary data
     print(" > Getting throughput cleaned data...")
-    #who = pd.read_csv('data/_input/supply_data/analysis_vx_throughput_data_cleaned.csv')
+    #who = pd.read_csv('data/input/supply_data/analysis_vx_throughput_data_cleaned.csv')
     who = cleaned_data
     print(" > Done.")
 
     # get country characteristics
     print(" > Getting country characteristics...")
-    cc = pd.read_csv("data/_input/static/country_characteristics.csv")
+    cc = pd.read_csv("data/input/static/country_characteristics.csv")
     print(" > Done.")
 
     print(" > Getting country dimensions...")
-    country_dimension = pd.read_csv("data/_input/static/country_dimension.csv")
+    country_dimension = pd.read_csv("data/input/static/country_dimension.csv")
     country = country_dimension[['iso_code', 'country_name_friendly', 'sub_region_name', 'region_name',
         'wb_income_group', 'is_amc92', 'affiliation', 'min_vx_rollout_date', 'first_covax_arrival_date',
         'first_vx_shipment_received_date']]
