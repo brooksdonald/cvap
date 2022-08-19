@@ -8,7 +8,7 @@ from matplotlib.ticker import FormatStrFormatter
 import seaborn as sns
 import warnings
 warnings.filterwarnings("ignore")
-sns.set(rc={"figure.dpi":400, 'savefig.dpi':400})
+sns.set(rc={"figure.dpi":300, 'savefig.dpi':300})
 
 def create_path(newpath_child):
     parent_dir = 'data'
@@ -175,17 +175,18 @@ def deep_clean(country_data, row, df, log, var_to_clean_iloc):
     count_previous_larger = 0
     count_after_smaller = 0
 
-    ## TODO make external functions for counting
     row_backwards_check = row
     row_forward_check = row - 1
     not_exhausted = True
-    while (country_data.iloc[min(row - 1, len(country_data) - 1), var_to_clean_iloc] < country_data.iloc[min(row_backwards_check, len(country_data) - 1), var_to_clean_iloc]) and not_exhausted:
+    next_value = country_data.iloc[min(row - 1, len(country_data) - 1), var_to_clean_iloc]
+    current_value = country_data.iloc[min(row, len(country_data) - 1), var_to_clean_iloc]
+    while (next_value < country_data.iloc[min(row_backwards_check, len(country_data) - 1), var_to_clean_iloc]) and not_exhausted:
         count_previous_larger += 1
         row_backwards_check += 1
         if row_backwards_check > len(country_data) - 1:
             not_exhausted = False
     not_exhausted = True
-    while (country_data.iloc[min(row, len(country_data) - 1), var_to_clean_iloc] > country_data.iloc[max(row_forward_check, 0), var_to_clean_iloc]) and not_exhausted:
+    while (current_value > country_data.iloc[max(row_forward_check, 0), var_to_clean_iloc]) and not_exhausted:
         count_after_smaller += 1
         row_forward_check -= 1
         if row_forward_check < 0:
@@ -214,8 +215,12 @@ def row_check(country_data, row, df, log, var_to_clean_iloc):
         return country_data, df, log
     
     ## check itself
-    if country_data.iloc[min(row, len(country_data) - 1), var_to_clean_iloc] > country_data.iloc[max(row - 1, 0), var_to_clean_iloc]: # is it larger than next one?
-        if country_data.iloc[min(row + 1, len(country_data) - 1), var_to_clean_iloc] > country_data.iloc[max(row - 1, 0), var_to_clean_iloc]: # is previous larger than next?
+    previous_value = country_data.iloc[min(row + 1, len(country_data) - 1), var_to_clean_iloc]
+    current_value = country_data.iloc[min(row, len(country_data) - 1), var_to_clean_iloc]
+    next_value = country_data.iloc[max(row - 1, 0), var_to_clean_iloc]
+
+    if current_value > next_value: # is it larger than next one?
+        if previous_value > next_value: # is previous larger than next?
             country_data, df, log = deep_clean(country_data, row, df, log, var_to_clean_iloc)
         else:
             country_data, df, log = delete_row(country_data, df, row, log)
@@ -244,18 +249,18 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder):
     background_data2 = background_data[['date', 'at_least_one_dose', 'type_line']]
     background_data3 = background_data[['date', 'fully_vaccinated', 'type_line']]
     background_data4 = background_data[['date', 'persons_booster_add_dose', 'type_line']]
-    background_data1['type_col'] = '_Total Doses'
-    background_data2['type_col'] = '_At Least One Dose'
-    background_data3['type_col'] = '_Fully Vaccinated'
-    background_data4['type_col'] = '_Persons Booster Add Dose'
+    background_data1['type_col'] = 'Total Doses'
+    background_data2['type_col'] = 'At Least One Dose'
+    background_data3['type_col'] = 'Fully Vaccinated'
+    background_data4['type_col'] = 'Persons Booster Add Dose'
     background_data1.columns = ['date', var_to_clean, 'type_line', 'type_col']
     background_data2.columns = ['date', var_to_clean, 'type_line', 'type_col']
     background_data3.columns = ['date', var_to_clean, 'type_line', 'type_col']
     background_data4.columns = ['date', var_to_clean, 'type_line', 'type_col']
     background_data = pd.concat([background_data1, background_data2, background_data3, background_data4])
-    background_data = background_data.loc[~(background_data['type_col'] == '_' + var_to_clean.replace('_', ' ').title()), :]
-    country_data['type_col'] = 'cleaned'
-    uncleaned_c['type_col'] = 'original'
+    background_data = background_data.loc[~(background_data['type_col'] == var_to_clean.replace('_', ' ').title()), :]
+    country_data['type_col'] = var_to_clean.replace('_', ' ').title() + ' cleaned'
+    uncleaned_c['type_col'] = var_to_clean.replace('_', ' ').title() + ' original'
     plot_data = pd.concat(
         [background_data,
         uncleaned_c[['date', var_to_clean, 'type_line', 'type_col']],
@@ -264,7 +269,7 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder):
     plot_data.rename({var_to_clean: 'y'}, axis = 1, inplace = True)
     plot_data['y'] = plot_data['y'].copy()/1000000
     yaxis = var_to_clean.replace('_', ' ').title() + ' (in million)'
-    customPalette = sns.color_palette(["#D3D3D3", "#D3D3D3",  "#D3D3D3", "#6495ED", "#FFA500"])
+    customPalette = sns.color_palette(["#AAAAAA", "#C1C1C1", "#D3D3D3", "#6495ED", "#FFA500"])
 
     changes = list(log.loc[log['iso_code'] == country, 'date'])
     changes.sort()
@@ -330,7 +335,7 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder):
                 ylabel = yaxis
             )
             handles, labels = ax.get_legend_handles_labels()
-            ax.legend(handles=handles[1:3], labels=labels[1:3])
+            ax.legend(handles=handles[1:6], labels=labels[1:6], prop={'size': 8})
             ymin, ymax = plt.ylim()
             zoom = True
             if (ymax - ymin > float(y_jump_max) * 80) & zoom:
