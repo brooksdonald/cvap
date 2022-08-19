@@ -187,6 +187,16 @@ def anti_join(before, after):
 
 
 def cleaning_data(df, plot_function, var_to_clean):
+    '''
+    This function checks for logical errors between total doses, at least one dose, and fully vaccinated.
+    Priority is given to total doses (which is not edited), then fully vaccinated, then at least one dose.
+
+    New columns are added to the data frame, called:
+    - at_least_one_dose_adj
+    - fully_vaccinated_adj
+
+    Any chances are logged in data/cleaning_log/...
+    '''
     print(" > Performing logical cleaning...")
     print(" > Looping through all countries to check whether total doses >= " + var_to_clean + "...")
     before_clean_fv = df.copy()
