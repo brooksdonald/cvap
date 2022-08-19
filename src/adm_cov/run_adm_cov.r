@@ -75,11 +75,11 @@ run_adm_cov <- function(entity_characteristics,
             overall_cumul_long,
             admin_red
         )
-        print(" > Done. Exported to data/_input/static/supply.xlsx")
+        print(" > Done. Exported to data/_input/interim/supply.xlsx")
 
     } else {
 
-        print(" > Importing supply timeseries from data/_input/static/supply.xlsx")
+        print(" > Importing supply timeseries from data/_input/interim/supply.xlsx")
         overall_cumul_long <- load_cum_from_xlsx()
         overall_long <- load_monthly_from_xlsx()
         print(" > Done.")
