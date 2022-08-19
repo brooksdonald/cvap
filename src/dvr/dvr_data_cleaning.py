@@ -175,17 +175,18 @@ def deep_clean(country_data, row, df, log, var_to_clean_iloc):
     count_previous_larger = 0
     count_after_smaller = 0
 
-    ## TODO make external functions for counting
     row_backwards_check = row
     row_forward_check = row - 1
     not_exhausted = True
-    while (country_data.iloc[min(row - 1, len(country_data) - 1), var_to_clean_iloc] < country_data.iloc[min(row_backwards_check, len(country_data) - 1), var_to_clean_iloc]) and not_exhausted:
+    next_value = country_data.iloc[min(row - 1, len(country_data) - 1), var_to_clean_iloc]
+    current_value = country_data.iloc[min(row, len(country_data) - 1), var_to_clean_iloc]
+    while (next_value < country_data.iloc[min(row_backwards_check, len(country_data) - 1), var_to_clean_iloc]) and not_exhausted:
         count_previous_larger += 1
         row_backwards_check += 1
         if row_backwards_check > len(country_data) - 1:
             not_exhausted = False
     not_exhausted = True
-    while (country_data.iloc[min(row, len(country_data) - 1), var_to_clean_iloc] > country_data.iloc[max(row_forward_check, 0), var_to_clean_iloc]) and not_exhausted:
+    while (current_value > country_data.iloc[max(row_forward_check, 0), var_to_clean_iloc]) and not_exhausted:
         count_after_smaller += 1
         row_forward_check -= 1
         if row_forward_check < 0:
@@ -214,8 +215,12 @@ def row_check(country_data, row, df, log, var_to_clean_iloc):
         return country_data, df, log
     
     ## check itself
-    if country_data.iloc[min(row, len(country_data) - 1), var_to_clean_iloc] > country_data.iloc[max(row - 1, 0), var_to_clean_iloc]: # is it larger than next one?
-        if country_data.iloc[min(row + 1, len(country_data) - 1), var_to_clean_iloc] > country_data.iloc[max(row - 1, 0), var_to_clean_iloc]: # is previous larger than next?
+    previous_value = country_data.iloc[min(row + 1, len(country_data) - 1), var_to_clean_iloc]
+    current_value = country_data.iloc[min(row, len(country_data) - 1), var_to_clean_iloc]
+    next_value = country_data.iloc[max(row - 1, 0), var_to_clean_iloc]
+
+    if current_value > next_value: # is it larger than next one?
+        if previous_value > next_value: # is previous larger than next?
             country_data, df, log = deep_clean(country_data, row, df, log, var_to_clean_iloc)
         else:
             country_data, df, log = delete_row(country_data, df, row, log)
