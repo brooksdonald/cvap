@@ -263,7 +263,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   # Calculate linear population coverage projection by 30 June 2022
   print(" >>> Computing linear population coverage projection by 30 June 2022...")
   a_data <- a_data %>%
-    mutate(cov_total_fv_atpace_31dec = pmin( # TODO another place to think about automating suffixes
+    mutate(cov_total_fv_atpace_31dec = pmin(
       1,
       (adm_fv_homo + (dvr_4wk_fv * timeto_t70)) / a_pop))
 
