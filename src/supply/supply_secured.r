@@ -56,6 +56,8 @@ extract_supply_secured <- function() {
             "sec_domestic_dose"
         )
 
+    print(" >> Renaming KOS to XKX...")
+    supply_secured <- helper_rename_KOS_to_XKX(supply_secured, "a_iso")
     return(supply_secured)
 }
 

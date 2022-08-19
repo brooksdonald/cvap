@@ -6,6 +6,8 @@ run_adm_cov <- function(entity_characteristics,
     source("src/adm_cov/dvr_prev.r")
     source("src/adm_cov/supply_timeseries.r")
 
+    path_to_timeseries_data <- "data/_input/test/"
+
     print(" > Starting local environment for vaccinations")
 
     # receive the current month in "%Y-%m" format
@@ -28,40 +30,76 @@ run_adm_cov <- function(entity_characteristics,
     c_vxrate_lastweek <- last_week_sum_table(
         b_vxrate,
         c_vxrate_latest,
-        c_vxrate_lastweek)
+        c_vxrate_lastweek
+    )
     c_vxrate_lastmonth <- last_month_sum_table(
         b_vxrate,
         c_vxrate_latest,
-        c_vxrate_lastmonth)
+        c_vxrate_lastmonth
+    )
     c_vxrate_twomonth <- two_month_sum_table(
         b_vxrate,
         c_vxrate_latest,
-        c_vxrate_twomonth)
-    datalist1 <- absorption_per_country(c_vxrate_eom, current_month)
+        c_vxrate_twomonth
+    )
+    datalist1 <- absorption_per_country(
+        c_vxrate_eom,
+        current_month
+    )
     d_absorb_red <- datalist1$d_absorb_red
-    d_absorption_country_new <- new_absorption_countries(c_vxrate_eom, current_month)
+    d_absorption_country_new <- new_absorption_countries(
+        c_vxrate_eom,
+        current_month
+    )
     print(" > Done.")
 
     if (refresh_supply_timeseries) {
+
         print(" > Supply timeseries")
-        sec_overall_long <- load_secured_expected()
-        del_overall <- load_supply_received()
-        overall_cumul_long <- transform_cum_supply_received(del_overall)
-        overall_long <- transform_monthly_supply_received(del_overall)
-        admin_red <- load_administration(d_absorption_country_new, entity_characteristics)
-        export_supply_xlsx(sec_overall_long, overall_long, overall_cumul_long, admin_red)
-        print(" > Done. Exported to data/input/static/supply.xlsx")
+        sec_overall_long <- load_secured_expected(
+            path_to_timeseries_data
+        )
+        overall_cumul_long <- load_supply_received(
+            path_to_timeseries_data
+        )
+        overall_long <- transform_monthly_supply_received(
+            overall_cumul_long
+        )
+        admin_red <- load_administration(
+            d_absorption_country_new,
+            entity_characteristics
+        )
+        export_supply_xlsx(
+            sec_overall_long,
+            overall_long,
+            overall_cumul_long,
+            admin_red
+        )
+        print(" > Done. Exported to data/_input/interim/supply.xlsx")
+
     } else {
-        print(" > Importing supply timeseries from data/input/static/supply.xlsx")
+
+        print(" > Importing supply timeseries from data/_input/interim/supply.xlsx")
         overall_cumul_long <- load_cum_from_xlsx()
         overall_long <- load_monthly_from_xlsx()
         print(" > Done.")
+
     }
 
-    datalist2 <- first_supplies(d_absorb_red, datalist1$d_absorption_country, overall_long)
+    datalist2 <- first_supplies(
+        d_absorb_red,
+        datalist1$d_absorption_country,
+        overall_long
+    )
     combined <- datalist2$combined
-    combined_three <- second_supplies(d_absorption_country_new, combined,
-        d_absorb_red, entity_characteristics, datalist2$b_supply_red, overall_cumul_long)
+    combined_three <- second_supplies(
+        d_absorption_country_new,
+        combined,
+        d_absorb_red,
+        entity_characteristics,
+        datalist2$b_supply_red,
+        overall_cumul_long
+    )
     print(" > Done.")
 
     print(" > Last week, last month, vaccinations and 13jan data")
