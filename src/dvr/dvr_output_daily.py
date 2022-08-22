@@ -7,12 +7,16 @@ import os
 def import_data(cleaned_data, refresh_api):
     # Get Data
     print(" > Getting ISO mapping...")
-    iso_mapping = pd.read_csv("data/input/static/iso_mapping.csv")
+    iso_mapping = pd.read_excel("data/_input/static/base_entitydetails.xlsx")
+    iso_mapping.rename(
+        {'NAMEWORKEN': 'country_name', 'CODE': 'iso_code'},
+        axis = 1, 
+        inplace = True)
+    iso_mapping = iso_mapping[['country_name', 'iso_code']]
     print(" > Done.")
 
     # get dose administration data for comparison
     print(" > Getting dose administration data for comparison...")
-    #owid = pd.read_csv('data/input/supply_data/owid-covid-data.csv')
     link = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv'
     folder = "data/input/interim"
     storage_name = folder + "/" + link.split('/')[-1]
@@ -37,7 +41,8 @@ def import_data(cleaned_data, refresh_api):
 
     # get country characteristics
     print(" > Getting country characteristics...")
-    cc = pd.read_csv("data/input/static/country_characteristics.csv")
+    # cc = pd.read_csv("data/_input/static/country_characteristics.csv")
+    cc = pd.read_excel("data/_input/static/base_population_who.xlsx")
     print(" > Done.")
 
     print(" > Getting country dimensions...")
@@ -58,15 +63,14 @@ def import_data(cleaned_data, refresh_api):
 
 def flags(who):
     print(" > Selecting columns from who dataframe...")
-    df_flags = who[['iso_code', 'date', 'is_latest_week_reported', 'manual_adjustment', 'is_data_error', 'to_remove']]
+    df_flags = who[['iso_code', 'date', 'is_latest_week_reported']]
     return df_flags
 
 
 def merge_who_country(who, country):
     print(" > Grouping and sorting who df...")
     who['date'] = pd.to_datetime(who['date'], format = '%Y-%m-%d')
-    df1 = who.loc[((who['to_remove'] == 0) & (who['to_remove_1st'] == 0) & (who['to_remove_2nd'] == 0)), :]
-    df1 = df1.merge(country, on = 'iso_code', how = 'left')
+    df1 = who.merge(country, on = 'iso_code', how = 'left')
     return df1
 
 
@@ -160,10 +164,59 @@ def minimum_rollout_date(df_inter, country):
     return df3
 
 
-def cleaning_data(df):
-    df['fully_vaccinated_adj'] = df[['total_doses','fully_vaccinated']].min(axis = 1) 
-    df['at_least_one_dose_adj'] = df[['total_doses','at_least_one_dose']].min(axis = 1)
-    df['at_least_one_dose_adj'] = df[['fully_vaccinated_adj','at_least_one_dose_adj']].max(axis = 1)
+def printing_log(country_code, country_name, n_changes):
+    print(" > {n_changes:3n} dates edited from {country_code:s} ({country_name})" \
+        .format(n_changes = n_changes, country_code = country_code, country_name = country_name))
+
+
+def anti_join(before, after):
+    for df in [before, after]:
+        if 'fully_vaccinated_adj' in df.columns:
+            df.drop('fully_vaccinated', axis = 1, inplace = True)
+            df.rename({'fully_vaccinated_adj': 'fully_vaccinated'}, axis = 1, inplace = True)
+        if 'at_least_one_dose_adj' in df.columns:
+            df.drop('at_least_one_dose', axis = 1, inplace = True)
+            df.rename({'at_least_one_dose_adj': 'at_least_one_dose'}, axis = 1, inplace = True)
+    before = before[['iso_code', 'country_name_friendly', 'date', 'total_doses',
+        'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose']]
+    after = after[['iso_code', 'country_name_friendly', 'date', 'total_doses',
+        'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose']]
+    outer_join = before.merge(after, how = 'outer', indicator = True)
+    anti_join = outer_join[~(outer_join._merge == 'both')].drop('_merge', axis = 1)
+    return anti_join
+
+
+def cleaning_data(df, plot_function, var_to_clean):
+    '''
+    This function checks for logical errors between total doses, at least one dose, and fully vaccinated.
+    Priority is given to total doses (which is not edited), then fully vaccinated, then at least one dose.
+
+    New columns are added to the data frame, called:
+    - at_least_one_dose_adj
+    - fully_vaccinated_adj
+
+    Any chances are logged in data/cleaning_log/...
+    '''
+    print(" > Performing logical cleaning...")
+    print(" > Looping through all countries to check whether total doses >= " + var_to_clean + "...")
+    before_clean_fv = df.copy()
+    df[var_to_clean + '_adj'] = df[['total_doses',var_to_clean]].min(axis = 1) 
+    if var_to_clean == 'at_least_one_dose':
+        print(" > and whether at least one dose >= fully vaccinated...")
+        df['at_least_one_dose_adj'] = df[['fully_vaccinated_adj','at_least_one_dose_adj']].max(axis = 1)
+    after_clean_fv = df.copy()
+    fixes = anti_join(before_clean_fv, after_clean_fv)
+    countries = list(set(fixes['iso_code']))
+    countries.sort()
+    for country in countries:
+        country_name = list(fixes.loc[fixes['iso_code'] == country, 'country_name_friendly'])[0]
+        printing_log(country, country_name, len(fixes.loc[fixes['iso_code'] == country, :]))
+        after_clean_fv['to_delete_automized_clean'] = 0
+        before_clean_fv['to_delete_automized_clean'] = 0
+        plot_function(after_clean_fv, before_clean_fv, country, fixes,
+            var_to_clean, var_to_clean + '/logical_cleaning')
+    fixes = fixes[['iso_code', 'date', var_to_clean]]
+    fixes.to_csv('data/cleaning_log/' + var_to_clean + '/logical_cleaning/logged_changes.csv', index = False)
     return df
 
 
@@ -337,8 +390,8 @@ def moving_averages_fv(df6, days_in_weeks4, days_in_weeks8):
 
 def join_with_cc_and_owid(df8, cc, owid1):
     print(' > merging data with cc and owid1...')
-    cc.rename(columns = {'ISO': 'iso_code', 'Population': 'population', 'Entity': 'entity_name'}, inplace = True)
-    cc['population'] = cc['population'].str.replace(',', '').astype(float)
+    cc.rename(columns = {'iso': 'iso_code', 'value': 'population', 'name': 'entity_name'}, inplace = True)
+    cc['population'] = cc['population'].astype(float)
     df9 = df8.merge(cc, on = 'iso_code', how = 'inner')
     df9['date'] = df9['date'].astype(str)
 
@@ -420,14 +473,7 @@ def final_variable_selection(df11, who, auto_cleaning):
     return df12
 
 
-def export_data(df12, folder, name):
-    print(' > Saving /analysis_vx_throughput_output_daily to csv file......')
-    path = "data/" + folder + "/" + name
-    df12.to_csv(path, index = False)
-    print(' > Done.')
-
-
-def main(cleaned_data, folder, name, refresh_api, auto_cleaning):
+def main(cleaned_data, refresh_api, auto_cleaning, plot_function):
     days_in_weeks4 = 27
     days_in_weeks8 = 55
 
@@ -439,7 +485,8 @@ def main(cleaned_data, folder, name, refresh_api, auto_cleaning):
     df_inter = interpolate_data(df_inter)
     df3 = minimum_rollout_date(df_inter, country)
     if auto_cleaning:
-        df3 = cleaning_data(df3)
+        df3 = cleaning_data(df3, plot_function, "fully_vaccinated")
+        df3 = cleaning_data(df3, plot_function, "at_least_one_dose")
     df5 = moving_averages_td(df3, days_in_weeks4, days_in_weeks8)
     df6 = moving_averages_1d(df5, days_in_weeks4, days_in_weeks8)
     df8 = moving_averages_fv(df6, days_in_weeks4, days_in_weeks8)
@@ -447,5 +494,4 @@ def main(cleaned_data, folder, name, refresh_api, auto_cleaning):
     df10 = identifying_missing_countries(df9, df_flags)
     df11 = adding_flags_for_changes(df10)
     output = final_variable_selection(df11, who, auto_cleaning)
-    export_data(output, folder, name)
     return output

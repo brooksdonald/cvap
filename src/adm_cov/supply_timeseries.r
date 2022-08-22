@@ -725,7 +725,7 @@ load_administration <- function(d_absorption_country_new, entity_characteristics
       )
     ) %>%
     rename(
-      iso = a_iso # TODO make this obsolete
+      iso = a_iso
     )
 
   # colnames(b_details_red) <-
