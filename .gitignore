@@ -14,3 +14,4 @@ debug.R
 .DS_Store
 data/.DS_Store
 src/vaccination_rate/__pycache__
+QC.r 
