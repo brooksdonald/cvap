@@ -39,7 +39,12 @@ def import_data(throughput_data):
     print(" > Loading dataset...")
     #who = pd.read_csv("data/input/supply_data/analysis_vx_throughput_data.csv")
     who = throughput_data
-    iso_mapping = pd.read_csv("data/input/static/iso_mapping.csv")
+    iso_mapping = pd.read_excel("data/input/static/base_entitydetails.xlsx")
+    iso_mapping.rename(
+        {'NAMEWORKEN': 'country_name', 'CODE': 'iso_code'},
+        axis = 1, 
+        inplace = True)
+    iso_mapping = iso_mapping[['country_name', 'iso_code']]
     return who, iso_mapping
 
 

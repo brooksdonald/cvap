@@ -1,4 +1,3 @@
-
 helper_tr_add_suffix_to_list <- function(l, suffix) {
     return(sprintf(paste0("%s", suffix), l))
 }
@@ -161,4 +160,16 @@ helper_check_if_two_rows_were_deleted <- function(data) {
         print("ERROR: Please do not delete the first two rows in supply_secured xlsx sheets.")#
         print("       The first two rows are skipped automatically.")
     }
+}
+
+helper_rename_KOS_to_XKX <- function(data, iso_column_name) {
+    data <- data %>%
+        mutate(
+            !!as.name(iso_column_name) := if_else(
+                !!as.name(iso_column_name) == "KOS",
+                "XKX",
+                !!as.name(iso_column_name)
+        ))
+    
+    return(data)
 }

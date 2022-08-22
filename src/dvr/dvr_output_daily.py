@@ -7,7 +7,7 @@ import os
 def import_data(cleaned_data, refresh_api):
     # Get Data
     print(" > Getting ISO mapping...")
-    iso_mapping = pd.read_excel("data/_input/static/base_entitydetails.xlsx")
+    iso_mapping = pd.read_excel("data/input/static/base_entitydetails.xlsx")
     iso_mapping.rename(
         {'NAMEWORKEN': 'country_name', 'CODE': 'iso_code'},
         axis = 1, 
@@ -41,8 +41,8 @@ def import_data(cleaned_data, refresh_api):
 
     # get country characteristics
     print(" > Getting country characteristics...")
-    # cc = pd.read_csv("data/_input/static/country_characteristics.csv")
-    cc = pd.read_excel("data/_input/static/base_population_who.xlsx")
+    # cc = pd.read_csv("data/input/static/country_characteristics.csv")
+    cc = pd.read_excel("data/input/static/base_population_who.xlsx")
     print(" > Done.")
 
     print(" > Getting country dimensions...")
