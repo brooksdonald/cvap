@@ -20,6 +20,7 @@ current_week <- select(
         "a_covax_status",
         "a_who_region",
         "a_csc_status",
+        "adm_fv_gen_repstat",
         "adm_td",
         "adm_fv",
         "adm_fv_hcw",
@@ -27,8 +28,8 @@ current_week <- select(
         "adm_booster",
         "dvr_4wk_td",
         "del_dose_total",
-        "a_pop_male",
-        "a_pop_female"
+        "adm_fv_hcw_repstat",
+        "adm_fv_60p_repstat"
     )
 )
 print(" > Done.")
@@ -41,6 +42,7 @@ cw <- select(
         "a_covax_status",
         "a_who_region",
         "a_csc_status",
+        "adm_fv_gen_repstat",
         "adm_td",
         "adm_fv",
         "adm_fv_hcw",
@@ -48,8 +50,8 @@ cw <- select(
         "adm_booster",
         "dvr_4wk_td",
         "del_dose_total",
-        "a_pop_male",
-        "a_pop_female"
+        "adm_fv_hcw_repstat",
+        "adm_fv_60p_repstat"
     )
 )
 colnames(cw) <- c(
@@ -58,6 +60,7 @@ colnames(cw) <- c(
     "a_covax_status",
     "a_who_region",
     "a_csc_status",
+    "cw_adm_fv_gen_repstat",
     "cw_adm_td",
     "cw_adm_fv",
     "cw_adm_fv_hcw",
@@ -65,8 +68,8 @@ colnames(cw) <- c(
     "cw_adm_booster",
     "cw_dvr_4wk_td",
     "cw_del_dose_total",
-    "cw_a_pop_male",
-    "cw_a_pop_female"
+    "cw_adm_fv_hcw_repstat",
+    "cw_adm_fv_60p_repstat"
 )
 print(" > Done.")
 
@@ -81,31 +84,31 @@ print(" > Done.")
 
 ## Number of AMC92 reporting on HCW vaccination
 print(" > Obtaining number of AMC92 reporting $ not reporting on HCW vaccination for current week...")
-amc_current_rep$hcw_vax_cw <- sum(!is.na(amc_current_rep$cw_adm_fv_hcw))
-amc_current_no_rep$hcw_vax_cw <- sum(is.na(amc_current_rep$cw_adm_fv_hcw))
+# amc_current_rep$hcw_vax_cw <- sum(!is.na(amc_current_rep$cw_adm_fv_hcw))
+# amc_current_no_rep$hcw_vax_cw <- sum(is.na(amc_current_rep$cw_adm_fv_hcw))
+amc_current_rep$hcw_vax_cw <- sum(amc_current_rep$cw_adm_fv_hcw_repstat == "Reporting")
+amc_current_no_rep$hcw_vax_cw <- sum(amc_current_rep$cw_adm_fv_hcw_repstat == "Not reporting")
 print(" > Done.")
 
 ## Number of AMC92 reporting on older adults (60p) vaccination
 print(" > Obtaining number of AMC92 reporting & not reporting on older adults (60p) vaccination for current week...")
-amc_current_rep$old_adults_cw <- sum(!is.na(amc_current_rep$cw_adm_fv_60p))
-amc_current_no_rep$old_adults_cw <- sum(is.na(amc_current_no_rep$cw_adm_fv_60p))
+# amc_current_rep$old_adults_cw <- sum(!is.na(amc_current_rep$cw_adm_fv_60p))
+# amc_current_no_rep$old_adults_cw <- sum(is.na(amc_current_no_rep$cw_adm_fv_60p))
+amc_current_rep$old_adults_cw <- sum(amc_current_rep$cw_adm_fv_60p_repstat == "Reporting")
+amc_current_no_rep$old_adults_cw <- sum(amc_current_no_rep$cw_adm_fv_60p_repstat == "Not reporting")
 print(" > Done.")
 
-## Number of AMC92 reporting on gender-disaggregated - males
-print(" > Obtaining number of AMC92 reporting & not reporting on males for current week...")
-amc_current_rep$males_cw <- sum(!is.na(amc_current_rep$cw_a_pop_male))
-amc_current_no_rep$males_cw <- sum(is.na(amc_current_no_rep$cw_a_pop_male))
-print(" > Done.")
+## Number of AMC92 reporting on vaccination coverage disaggregated by gender
+print(" > Obtaining number of AMC92 reporting on vaccination coverage disaggregated by gender for current week...")
+# amc_current_rep <- filter(amc_current_rep, cw_adm_fv_gen_repstat == "Reporting")
+amc_current_rep$gender_disag_cw <- sum(amc_current_rep$cw_adm_fv_gen_repstat == "Reporting")
+amc_current_no_rep$gender_disag_cw <- sum(amc_current_no_rep$cw_adm_fv_gen_repstat == "Not reporting")
 
-## Number of AMC92 reporting on gender-disaggregated - females
-print(" > Obtaining number of AMC92 reporting & not reporting on females for current week...")
-amc_current_rep$females_cw <- sum(!is.na(amc_current_rep$cw_a_pop_female))
-amc_current_no_rep$females_cw <- sum(is.na(amc_current_no_rep$cw_a_pop_female))
 print(" > Done.")
 
 ## Consolidate AMC reporting numbers to a df
-amc_current_rep <- amc_current_rep[1, c('hcw_vax_cw', 'old_adults_cw', 'males_cw', 'females_cw')]
-amc_current_no_rep <- amc_current_no_rep[1, c('hcw_vax_cw', 'old_adults_cw', 'males_cw', 'females_cw')]
+amc_current_rep <- amc_current_rep[1, c('hcw_vax_cw', 'old_adults_cw', 'gender_disag_cw')]
+amc_current_no_rep <- amc_current_no_rep[1, c('hcw_vax_cw', 'old_adults_cw', 'gender_disag_cw')]
 
 ## Past week
 print(" > Ingesting past week data...")
@@ -120,6 +123,7 @@ past_week <- select(
         "a_covax_status",
         "a_who_region",
         "a_csc_status",
+        "adm_fv_gen_repstat",
         "adm_td",
         "adm_fv",
         "adm_fv_hcw",
@@ -127,8 +131,8 @@ past_week <- select(
         "adm_booster",
         "dvr_4wk_td",
         "del_dose_total",
-        "a_pop_male",
-        "a_pop_female"
+        "adm_fv_hcw_repstat",
+        "adm_fv_60p_repstat"
     )
 )
 print(" > Done.")
@@ -141,6 +145,7 @@ pw <- select(
         "a_covax_status",
         "a_who_region",
         "a_csc_status",
+        "adm_fv_gen_repstat",
         "adm_td",
         "adm_fv",
         "adm_fv_hcw",
@@ -148,8 +153,8 @@ pw <- select(
         "adm_booster",
         "dvr_4wk_td",
         "del_dose_total",
-        "a_pop_male",
-        "a_pop_female"
+        "adm_fv_hcw_repstat",
+        "adm_fv_60p_repstat"
     )
 )
 colnames(pw) <- c(
@@ -158,6 +163,7 @@ colnames(pw) <- c(
     "a_covax_status",
     "a_who_region",
     "a_csc_status",
+    "pw_adm_fv_gen_repstat",
     "pw_adm_td",
     "pw_adm_fv",
     "pw_adm_fv_hcw",
@@ -165,8 +171,8 @@ colnames(pw) <- c(
     "pw_adm_booster",
     "pw_dvr_4wk_td",
     "pw_del_dose_total",
-    "pw_a_pop_male",
-    "pw_a_pop_female"
+    "pw_adm_fv_hcw_repstat",
+    "pw_adm_fv_60p_repstat"
 )
 print(" > Done.")
 
@@ -179,31 +185,28 @@ print(" > Done.")
 
 ## Number of AMC92 reporting & not reporting on HCW vaccination
 print(" > Obtaining number of AMC92 reporting & not reporting on HCW vaccination for past week...")
-amc_past_rep$hcw_vax_pw <- sum(!is.na(amc_past_rep$pw_adm_fv_hcw))
-amc_past_no_rep$hcw_vax_pw <- sum(is.na(amc_past_no_rep$pw_adm_fv_hcw))
+# amc_past_rep$hcw_vax_pw <- sum(!is.na(amc_past_rep$pw_adm_fv_hcw))
+# amc_past_no_rep$hcw_vax_pw <- sum(is.na(amc_past_no_rep$pw_adm_fv_hcw))
+amc_past_rep$hcw_vax_pw <- sum(amc_past_rep$pw_adm_fv_hcw_repstat == "Reporting")
+amc_past_no_rep$hcw_vax_pw <- sum(amc_past_rep$pw_adm_fv_hcw_repstat == "Not reporting")
 print(" > Done.")
 
 ## Number of AMC92 reporting on older adults (60p) vaccination
 print(" > Obtaining number of AMC92 reporting & not reporting on older adults (60p) vaccination for past week...")
-amc_past_rep$old_adults_pw <- sum(!is.na(amc_past_rep$pw_adm_fv_60p))
-amc_past_no_rep$old_adults_pw <- sum(is.na(amc_past_no_rep$pw_adm_fv_60p))
+# amc_past_rep$old_adults_pw <- sum(!is.na(amc_past_rep$pw_adm_fv_60p))
+# amc_past_no_rep$old_adults_pw <- sum(is.na(amc_past_no_rep$pw_adm_fv_60p))
+amc_past_rep$old_adults_pw <- sum(amc_past_rep$pw_adm_fv_60p_repstat == "Reporting")
+amc_past_no_rep$old_adults_pw <- sum(amc_past_no_rep$pw_adm_fv_60p_repstat == "Not reporting")
 print(" > Done.")
 
-## Number of AMC92 reporting on gender-disaggregated - males
-print(" > Obtaining number of AMC92 reporting & not reporting on males for past week...")
-amc_past_rep$males_pw <- sum(!is.na(amc_past_rep$pw_a_pop_male))
-amc_past_no_rep$males_pw <- sum(is.na(amc_past_no_rep$pw_a_pop_male))
-print(" > Done.")
+## Number of AMC92 reporting on vaccination coverage disaggregated by gender
+print(" > Obtaining number of AMC92 reporting on vaccination coverage disaggregated by gender for past week...")
+amc_past_rep$gender_disag_pw <- sum(amc_past_rep$pw_adm_fv_gen_repstat == "Reporting")
+amc_past_no_rep$gender_disag_pw <- sum(amc_past_no_rep$pw_adm_fv_gen_repstat == "Not reporting")
 
-## Number of AMC92 reporting on gender-disaggregated - females
-print(" > Obtaining number of AMC92 reporting & not reporting on females for past week...")
-amc_past_rep$females_pw <- sum(!is.na(amc_past_rep$pw_a_pop_female))
-amc_past_no_rep$females_pw <- sum(is.na(amc_past_no_rep$pw_a_pop_female))
-print(" > Done.")
-
-## Consolidate AMC reporting numbers to a df 
-amc_past_rep <- amc_past_rep[1, c('hcw_vax_pw', 'old_adults_pw', 'males_pw', 'females_pw')]
-amc_past_no_rep <- amc_past_no_rep[1, c('hcw_vax_pw', 'old_adults_pw', 'males_pw', 'females_pw')]
+## Consolidate AMC reporting numbers to a df
+amc_past_rep <- amc_past_rep[1, c('hcw_vax_pw', 'old_adults_pw', 'gender_disag_pw')]
+amc_past_no_rep <- amc_past_no_rep[1, c('hcw_vax_pw', 'old_adults_pw', 'gender_disag_pw')]
 
 ## Merging current & past week reporting numbers
 reporting_numbers <- left_join(
@@ -220,10 +223,8 @@ reporting_numbers <- select(
         "hcw_vax_pw",
         "old_adults_cw",
         "old_adults_pw",
-        "males_cw",
-        "males_pw",
-        "females_cw",
-        "females_pw"
+        "gender_disag_cw",
+        "gender_disag_pw"
     )
 )
 
@@ -242,10 +243,8 @@ no_rep_numbers <- select(
         "hcw_vax_pw",
         "old_adults_cw",
         "old_adults_pw",
-        "males_cw",
-        "males_pw",
-        "females_cw",
-        "females_pw"
+        "gender_disag_cw",
+        "gender_disag_pw"
     )
 )
 
@@ -284,10 +283,8 @@ df_joined <- select(
         "pw_dvr_4wk_td",
         "cw_del_dose_total",
         "pw_del_dose_total",
-        "cw_a_pop_male",
-        "pw_a_pop_male",
-        "cw_a_pop_female",
-        "pw_a_pop_female"
+        "cw_adm_fv_gen_repstat",
+        "pw_adm_fv_gen_repstat"
     )
 )
 
@@ -299,8 +296,6 @@ df_joined$diff_adm_fv_60p <- df_joined$cw_adm_fv_60p - df_joined$pw_adm_fv_60p
 df_joined$diff_adm_booster <- df_joined$cw_adm_booster - df_joined$pw_adm_booster
 df_joined$diff_dvr_4wk_td <- df_joined$cw_dvr_4wk_td - df_joined$pw_dvr_4wk_td
 df_joined$diff_del_dose_total <- df_joined$cw_del_dose_total - df_joined$pw_del_dose_total
-df_joined$diff_a_pop_male <- df_joined$cw_a_pop_male - df_joined$pw_a_pop_male
-df_joined$diff_a_pop_female <- df_joined$cw_a_pop_female - df_joined$pw_a_pop_female
 
 ## Re-organizing columns in df_joined
 print(" > Re-organizing columns in df_joined.")
@@ -331,23 +326,41 @@ df_joined <- select(
         "diff_dvr_4wk_td",
         "cw_del_dose_total",
         "pw_del_dose_total",
-        "diff_del_dose_total",
-        "cw_a_pop_male",
-        "pw_a_pop_male",
-        "diff_a_pop_male",
-        "cw_a_pop_female",
-        "pw_a_pop_female",
-        "diff_a_pop_female"
+        "diff_del_dose_total"
     )
 )
 print(" > Done.")
 
-# Exporting quality checks df to an excel output
+df_joined[, .SDcols = grep("^diff", colnames(df_joined), value = TRUE)]
+View(df_joined)
+
+# Exporting combined numbers to an excel output
 print(" > Exporting quality checks df to excel output...")
 quality_check_df <- list(
     "Combined_numbers" = df_joined,
-    "Countries_reporting" = reporting_numbers,
+    "Countries_reporting",  = reporting_numbers,
     "Countries_not_reporting" = no_rep_numbers
 )
-write_xlsx(quality_check_df, "data/output/qc.xlsx")
+write_xlsx(quality_check_df, "data/output/QC.xlsx")
 print(" > Done.")
+
+# Exporting repoting status to Excel 
+# # df_list <- list(reporting_numbers, no_rep_numbers)
+# # wb <- createWorkbook()
+# # addWorksheet(wb, "Reporting status")
+
+# # curr_row <- 1
+# # for (i in seq_along(df_list)) {
+# #     writeData(
+# #         wb, "Reporting Status",
+# #         names(df_list)[i], startCol = 1,
+# #         startRow = curr_row
+# #     )
+# #     writeData(
+# #         wb, "Reporting status", 
+# #         df_list[[i]], startCol = 1, 
+# #         startRow = curr_row+1
+# #     )
+# #     curr_row <- curr_row + nrow(df_list[[i]]) + 2
+# # }
+# # saveWorkbook(wb, "data/output/rep_status.xlsx")
