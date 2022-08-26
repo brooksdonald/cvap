@@ -29,9 +29,9 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2022-08-17")
+.GlobalEnv$refresh_date <- as.Date("2022-08-26")
 .GlobalEnv$sec_date <- as.Date("2022-08-04")
-.GlobalEnv$del_date <- as.Date("2022-08-16")
+.GlobalEnv$del_date <- as.Date("2022-08-25")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
@@ -164,8 +164,8 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red
 )
 
-# write_xlsx(all_df, "data/output/220817_output_powerbi.xlsx")
-# write_xlsx(financing_env$api, "data/output/220817_output_api.xlsx")
-# write_xlsx(all_df, "data/output/output_master.xlsx")
+write_xlsx(all_df, "data/output/220826_output_powerbi.xlsx")
+write_xlsx(financing_env$api, "data/output/220826_output_api.xlsx")
+write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
