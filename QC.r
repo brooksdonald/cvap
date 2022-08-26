@@ -331,18 +331,20 @@ df_joined <- select(
 )
 print(" > Done.")
 
-df_joined[, .SDcols = grep("^diff", colnames(df_joined), value = TRUE)]
+# Flagging negative values
+has.neg <- apply(df_joined, 1, function(row) any(row < 0))
+df_joined$flag <- has.neg
 View(df_joined)
 
-# Exporting combined numbers to an excel output
-print(" > Exporting quality checks df to excel output...")
-quality_check_df <- list(
-    "Combined_numbers" = df_joined,
-    "Countries_reporting",  = reporting_numbers,
-    "Countries_not_reporting" = no_rep_numbers
-)
-write_xlsx(quality_check_df, "data/output/QC.xlsx")
-print(" > Done.")
+# # Exporting combined numbers to an excel output
+# print(" > Exporting quality checks df to excel output...")
+# quality_check_df <- list(
+#     "Combined_numbers" = df_joined,
+#     "Countries_reporting",  = reporting_numbers,
+#     "Countries_not_reporting" = no_rep_numbers
+# )
+# write_xlsx(quality_check_df, "data/output/QC.xlsx")
+# print(" > Done.")
 
 # Exporting repoting status to Excel 
 # # df_list <- list(reporting_numbers, no_rep_numbers)
