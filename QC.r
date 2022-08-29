@@ -26,7 +26,6 @@ current_week <- select(
         "adm_fv_hcw",
         "adm_fv_60p",
         "adm_booster",
-        "dvr_4wk_td",
         "del_dose_total",
         "adm_fv_hcw_repstat",
         "adm_fv_60p_repstat"
@@ -48,7 +47,6 @@ cw <- select(
         "adm_fv_hcw",
         "adm_fv_60p",
         "adm_booster",
-        "dvr_4wk_td",
         "del_dose_total",
         "adm_fv_hcw_repstat",
         "adm_fv_60p_repstat"
@@ -66,7 +64,6 @@ colnames(cw) <- c(
     "cw_adm_fv_hcw",
     "cw_adm_fv_60p",
     "cw_adm_booster",
-    "cw_dvr_4wk_td",
     "cw_del_dose_total",
     "cw_adm_fv_hcw_repstat",
     "cw_adm_fv_60p_repstat"
@@ -84,23 +81,18 @@ print(" > Done.")
 
 ## Number of AMC92 reporting on HCW vaccination
 print(" > Obtaining number of AMC92 reporting $ not reporting on HCW vaccination for current week...")
-# amc_current_rep$hcw_vax_cw <- sum(!is.na(amc_current_rep$cw_adm_fv_hcw))
-# amc_current_no_rep$hcw_vax_cw <- sum(is.na(amc_current_rep$cw_adm_fv_hcw))
 amc_current_rep$hcw_vax_cw <- sum(amc_current_rep$cw_adm_fv_hcw_repstat == "Reporting")
 amc_current_no_rep$hcw_vax_cw <- sum(amc_current_rep$cw_adm_fv_hcw_repstat == "Not reporting")
 print(" > Done.")
 
 ## Number of AMC92 reporting on older adults (60p) vaccination
 print(" > Obtaining number of AMC92 reporting & not reporting on older adults (60p) vaccination for current week...")
-# amc_current_rep$old_adults_cw <- sum(!is.na(amc_current_rep$cw_adm_fv_60p))
-# amc_current_no_rep$old_adults_cw <- sum(is.na(amc_current_no_rep$cw_adm_fv_60p))
 amc_current_rep$old_adults_cw <- sum(amc_current_rep$cw_adm_fv_60p_repstat == "Reporting")
 amc_current_no_rep$old_adults_cw <- sum(amc_current_no_rep$cw_adm_fv_60p_repstat == "Not reporting")
 print(" > Done.")
 
 ## Number of AMC92 reporting on vaccination coverage disaggregated by gender
 print(" > Obtaining number of AMC92 reporting on vaccination coverage disaggregated by gender for current week...")
-# amc_current_rep <- filter(amc_current_rep, cw_adm_fv_gen_repstat == "Reporting")
 amc_current_rep$gender_disag_cw <- sum(amc_current_rep$cw_adm_fv_gen_repstat == "Reporting")
 amc_current_no_rep$gender_disag_cw <- sum(amc_current_no_rep$cw_adm_fv_gen_repstat == "Not reporting")
 
@@ -129,7 +121,6 @@ past_week <- select(
         "adm_fv_hcw",
         "adm_fv_60p",
         "adm_booster",
-        "dvr_4wk_td",
         "del_dose_total",
         "adm_fv_hcw_repstat",
         "adm_fv_60p_repstat"
@@ -151,7 +142,6 @@ pw <- select(
         "adm_fv_hcw",
         "adm_fv_60p",
         "adm_booster",
-        "dvr_4wk_td",
         "del_dose_total",
         "adm_fv_hcw_repstat",
         "adm_fv_60p_repstat"
@@ -169,7 +159,6 @@ colnames(pw) <- c(
     "pw_adm_fv_hcw",
     "pw_adm_fv_60p",
     "pw_adm_booster",
-    "pw_dvr_4wk_td",
     "pw_del_dose_total",
     "pw_adm_fv_hcw_repstat",
     "pw_adm_fv_60p_repstat"
@@ -185,16 +174,12 @@ print(" > Done.")
 
 ## Number of AMC92 reporting & not reporting on HCW vaccination
 print(" > Obtaining number of AMC92 reporting & not reporting on HCW vaccination for past week...")
-# amc_past_rep$hcw_vax_pw <- sum(!is.na(amc_past_rep$pw_adm_fv_hcw))
-# amc_past_no_rep$hcw_vax_pw <- sum(is.na(amc_past_no_rep$pw_adm_fv_hcw))
 amc_past_rep$hcw_vax_pw <- sum(amc_past_rep$pw_adm_fv_hcw_repstat == "Reporting")
 amc_past_no_rep$hcw_vax_pw <- sum(amc_past_rep$pw_adm_fv_hcw_repstat == "Not reporting")
 print(" > Done.")
 
 ## Number of AMC92 reporting on older adults (60p) vaccination
 print(" > Obtaining number of AMC92 reporting & not reporting on older adults (60p) vaccination for past week...")
-# amc_past_rep$old_adults_pw <- sum(!is.na(amc_past_rep$pw_adm_fv_60p))
-# amc_past_no_rep$old_adults_pw <- sum(is.na(amc_past_no_rep$pw_adm_fv_60p))
 amc_past_rep$old_adults_pw <- sum(amc_past_rep$pw_adm_fv_60p_repstat == "Reporting")
 amc_past_no_rep$old_adults_pw <- sum(amc_past_no_rep$pw_adm_fv_60p_repstat == "Not reporting")
 print(" > Done.")
@@ -279,8 +264,6 @@ df_joined <- select(
         "pw_adm_fv_60p",
         "cw_adm_booster",
         "pw_adm_booster",
-        "cw_dvr_4wk_td",
-        "pw_dvr_4wk_td",
         "cw_del_dose_total",
         "pw_del_dose_total",
         "cw_adm_fv_gen_repstat",
@@ -294,8 +277,26 @@ df_joined$diff_adm_fv <- df_joined$cw_adm_fv - df_joined$cw_adm_fv
 df_joined$diff_adm_fv_hcw <- df_joined$cw_adm_fv_hcw - df_joined$pw_adm_fv_hcw
 df_joined$diff_adm_fv_60p <- df_joined$cw_adm_fv_60p - df_joined$pw_adm_fv_60p
 df_joined$diff_adm_booster <- df_joined$cw_adm_booster - df_joined$pw_adm_booster
-df_joined$diff_dvr_4wk_td <- df_joined$cw_dvr_4wk_td - df_joined$pw_dvr_4wk_td
 df_joined$diff_del_dose_total <- df_joined$cw_del_dose_total - df_joined$pw_del_dose_total
+
+# Flag negative values
+df_joined <- df_joined %>%
+    mutate(td_neg_flag = if_else(diff_adm_td < 0, "yes", "no")) %>%
+    mutate(fv_neg_flag = if_else(diff_adm_fv < 0, "yes", "no")) %>%
+    mutate(hcw_neg_flag = if_else(diff_adm_td < 0, "yes", "no")) %>%
+    mutate(fv_60p_neg_flag = if_else(diff_adm_fv_60p < 0, "yes", "no")) %>%
+    mutate(booster_neg_flag = if_else(diff_adm_booster < 0, "yes", "no")) %>%
+    mutate(del_dose_neg_flag = if_else(diff_del_dose_total < 0, "yes", "no"))
+
+# Flag positive values from last week/last month
+df_joined <- df_joined %>%
+    mutate(td_pos_flag = if_else(((cw_adm_td - pw_adm_td)/cw_adm_td) > 0.25, "True", "False")) %>%
+    mutate(fv_pos_flag = if_else(((cw_adm_fv - pw_adm_fv)/cw_adm_fv) > 0.25, "True", "False")) %>%
+    mutate(hcw_pos_flag = if_else(((cw_adm_fv_hcw - pw_adm_fv_hcw)/cw_adm_fv_hcw) > 0.25, "True", "False")) %>%
+    mutate(fv_60p_pos_flag = if_else(((cw_adm_fv_60p - pw_adm_fv_60p)/cw_adm_fv_60p) > 0.25, "True", "False")) %>%
+    mutate(booster_pos_flag = if_else(((cw_adm_booster - pw_adm_booster)/cw_adm_booster) > 0.25, "True", "False")) %>%
+    mutate(del_dose_pos_flag = if_else(((cw_del_dose_total - pw_del_dose_total)/cw_del_dose_total) > 0.25, "True", "False"))
+
 
 ## Re-organizing columns in df_joined
 print(" > Re-organizing columns in df_joined.")
@@ -309,24 +310,33 @@ df_joined <- select(
         "cw_adm_td",
         "pw_adm_td",
         "diff_adm_td",
+        "td_neg_flag",
+        "td_pos_flag",
         "cw_adm_fv",
         "pw_adm_fv",
         "diff_adm_fv",
+        "fv_neg_flag",
+        "fv_pos_flag",
         "cw_adm_fv_hcw",
         "pw_adm_fv_hcw",
         "diff_adm_fv_hcw",
+        "hcw_neg_flag",
+        "hcw_pos_flag",
         "cw_adm_fv_60p",
         "pw_adm_fv_60p",
         "diff_adm_fv_60p",
+        "fv_60p_neg_flag",
+        "fv_60p_pos_flag",
         "cw_adm_booster",
         "pw_adm_booster",
         "diff_adm_booster",
-        "cw_dvr_4wk_td",
-        "pw_dvr_4wk_td",
-        "diff_dvr_4wk_td",
+        "booster_neg_flag",
+        "booster_pos_flag",
         "cw_del_dose_total",
         "pw_del_dose_total",
-        "diff_del_dose_total"
+        "diff_del_dose_total",
+        "del_dose_neg_flag",
+        "del_dose_pos_flag"
     )
 )
 print(" > Done.")
@@ -335,15 +345,11 @@ print(" > Done.")
 ## First row is reporting countries, second row is non-repoting numbers
 rep_numbers <- rbind(reporting_numbers, no_rep_numbers)
 
-# # Flagging negative values
-# has.neg <- apply(df_joined, 1, function(row) any(row < 0))
-# df_joined$flag <- has.neg
-
 # Exporting combined numbers to an excel output
 print(" > Exporting quality checks df to excel output...")
 quality_check_df <- list(
     "Combined_numbers" = df_joined,
     "Reporting_status" = rep_numbers
 )
-write_xlsx(quality_check_df, "data/output/QC_test_1.xlsx")
+write_xlsx(quality_check_df, "data/output/QC.xlsx")
 print(" > Done.")
