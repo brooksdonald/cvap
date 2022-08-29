@@ -281,12 +281,12 @@ df_joined$diff_del_dose_total <- df_joined$cw_del_dose_total - df_joined$pw_del_
 
 # Flag negative values
 df_joined <- df_joined %>%
-    mutate(td_neg_flag = if_else(diff_adm_td < 0, "yes", "no")) %>%
-    mutate(fv_neg_flag = if_else(diff_adm_fv < 0, "yes", "no")) %>%
-    mutate(hcw_neg_flag = if_else(diff_adm_td < 0, "yes", "no")) %>%
-    mutate(fv_60p_neg_flag = if_else(diff_adm_fv_60p < 0, "yes", "no")) %>%
-    mutate(booster_neg_flag = if_else(diff_adm_booster < 0, "yes", "no")) %>%
-    mutate(del_dose_neg_flag = if_else(diff_del_dose_total < 0, "yes", "no"))
+    mutate(td_neg_flag = if_else(diff_adm_td < 0, "True", "False")) %>%
+    mutate(fv_neg_flag = if_else(diff_adm_fv < 0, "True", "False")) %>%
+    mutate(hcw_neg_flag = if_else(diff_adm_td < 0, "True", "False")) %>%
+    mutate(fv_60p_neg_flag = if_else(diff_adm_fv_60p < 0, "True", "False")) %>%
+    mutate(booster_neg_flag = if_else(diff_adm_booster < 0, "True", "False")) %>%
+    mutate(del_dose_neg_flag = if_else(diff_del_dose_total < 0, "True", "False"))
 
 # Flag positive values from last week/last month
 df_joined <- df_joined %>%
