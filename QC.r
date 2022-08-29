@@ -331,38 +331,19 @@ df_joined <- select(
 )
 print(" > Done.")
 
-# Flagging negative values
-has.neg <- apply(df_joined, 1, function(row) any(row < 0))
-df_joined$flag <- has.neg
-View(df_joined)
+# Combining reporting numbers data fames
+## First row is reporting countries, second row is non-repoting numbers
+rep_numbers <- rbind(reporting_numbers, no_rep_numbers)
 
-# # Exporting combined numbers to an excel output
-# print(" > Exporting quality checks df to excel output...")
-# quality_check_df <- list(
-#     "Combined_numbers" = df_joined,
-#     "Countries_reporting",  = reporting_numbers,
-#     "Countries_not_reporting" = no_rep_numbers
-# )
-# write_xlsx(quality_check_df, "data/output/QC.xlsx")
-# print(" > Done.")
+# # Flagging negative values
+# has.neg <- apply(df_joined, 1, function(row) any(row < 0))
+# df_joined$flag <- has.neg
 
-# Exporting repoting status to Excel 
-# # df_list <- list(reporting_numbers, no_rep_numbers)
-# # wb <- createWorkbook()
-# # addWorksheet(wb, "Reporting status")
-
-# # curr_row <- 1
-# # for (i in seq_along(df_list)) {
-# #     writeData(
-# #         wb, "Reporting Status",
-# #         names(df_list)[i], startCol = 1,
-# #         startRow = curr_row
-# #     )
-# #     writeData(
-# #         wb, "Reporting status", 
-# #         df_list[[i]], startCol = 1, 
-# #         startRow = curr_row+1
-# #     )
-# #     curr_row <- curr_row + nrow(df_list[[i]]) + 2
-# # }
-# # saveWorkbook(wb, "data/output/rep_status.xlsx")
+# Exporting combined numbers to an excel output
+print(" > Exporting quality checks df to excel output...")
+quality_check_df <- list(
+    "Combined_numbers" = df_joined,
+    "Reporting_status" = rep_numbers
+)
+write_xlsx(quality_check_df, "data/output/QC_test_1.xlsx")
+print(" > Done.")
