@@ -321,7 +321,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
       a_pop_hcw > adm_target_hcw,
       "Yes",
       NA_character_)) %>%
-    mutate(hcw_diff = a_pop_hcw - adm_target_hcw)
+    mutate(hcw_diff = pmax(a_pop_hcw - adm_target_hcw, 0, na.rm = TRUE))
 
   # Calculate target group coverage figures
   print(" >>> Computing target group coverage figures...")
@@ -363,7 +363,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
       a_pop_hcw,
       adm_booster_hcw)) %>%
     mutate(adm_fv_hcw_adjust =
-      adm_fv_hcw + (hcw_diff * cov_total_fv)) %>%
+      pmin(adm_fv_hcw + (hcw_diff * cov_total_fv), a_pop_hcw)) %>%
     mutate(cov_hcw_a1d = if_else(
       is.na(hcw_flag),
       pmin(
