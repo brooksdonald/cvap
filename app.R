@@ -1,6 +1,6 @@
 
 # SET WD
-setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
+# setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
 # setwd("C:/Users/rafae/Desktop/covid19_vaccination_analysis") #Rafael
 
 # CLEAR ENVIRONMENT
@@ -163,8 +163,8 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red
 )
 
-write_xlsx(all_df, "data/output/220901_output_powerbi.xlsx")
-write_xlsx(financing_env$api, "data/output/220901_output_api.xlsx")
-write_xlsx(all_df, "data/output/output_master.xlsx")
+# write_xlsx(all_df, "data/output/220901_output_powerbi.xlsx")
+# write_xlsx(financing_env$api, "data/output/220901_output_api.xlsx")
+# write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")

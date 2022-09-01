@@ -11,3 +11,5 @@ data/cleaning_log
 .DS_Store
 data/.DS_Store
 src/vaccination_rate/__pycache__
+debug.r 
+debug_2.py 
