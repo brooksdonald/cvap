@@ -28,7 +28,7 @@ merge_a_data_details <- function(a_data, supply_secured, delivery_courses_doses)
 
   # Calculate supply secured proportions of totals
   a_data <- a_data %>%
-    mutate(sec_covax_prop = sec_covax / (sec_bilat + sec_covax + sec_donat + sec_other_sum)) %>% #nolint
+    mutate(sec_covax_prop = sec_covax / (sec_bilat + sec_covax + sec_donat + sec_other_sum)) %>%
     mutate(sec_noncovaxdonat_prop = (sec_bilat + sec_other_sum) / sec_total) %>%
     mutate(sec_bilat_prop = sec_bilat / sec_total)
 

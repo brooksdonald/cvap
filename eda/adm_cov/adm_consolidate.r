@@ -24,7 +24,11 @@ extract_vxrate_details <- function(c_vxrate_latest) {
         "older_def",
         "older_source",
         "a_pop",
-        "a_income_group_vis"
+        "a_income_group_vis",
+        "expiry_risk",
+        "ss_target",
+        "ss_deadline",
+        "country_source"
       )
     )
 
@@ -37,7 +41,6 @@ merge_dataframes <- function(
   population_data,
   uptake_gender_data,
   b_who_dashboard,
-  b_smartsheet,
   supply_secured,
   delivery_courses_doses,
   b_dp,
@@ -51,7 +54,6 @@ merge_dataframes <- function(
       population_data,
       uptake_gender_data,
       b_who_dashboard,
-      b_smartsheet,
       supply_secured,
       delivery_courses_doses,
       b_dp,
@@ -422,7 +424,14 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
                 if_else(
                   cov_hcw_booster == 0,
                   "1) Not reporting on HCW boosters",
-                  NA_character_))))))))
+                  NA_character_)))))))) %>%
+    
+    mutate(cov_hcw_a1d_fv = if_else(cov_hcw_fv == 0 | is.na(cov_hcw_fv),
+                                    cov_hcw_a1d,
+                                    cov_hcw_a1d - cov_hcw_fv),
+           cov_hcw_fv_booster = if_else(cov_hcw_booster == 0 | is.na(cov_hcw_booster),
+                                        cov_hcw_fv,
+                                        cov_hcw_fv - cov_hcw_booster))
 
   # Calculating older adults coverage groups
   a_data <- a_data %>%
@@ -469,7 +478,14 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
                 if_else(
                   cov_60p_booster == 0,
                   "1) Not reporting on older adult boosters",
-                  NA_character_))))))))
+                  NA_character_)))))))) %>%
+    
+    mutate(cov_60p_a1d_fv = if_else(cov_60p_fv == 0 | is.na(cov_60p_fv),
+                                    cov_60p_a1d,
+                                    cov_60p_a1d - cov_60p_fv),
+           cov_60p_fv_booster = if_else(cov_60p_booster == 0 | is.na(cov_60p_booster),
+                                        cov_60p_fv,
+                                        cov_60p_fv - cov_60p_booster))
 
   a_data$cov_hcw_fv[a_data$a_iso == "GRL"] <-
     a_data$cov_hcw_fv[a_data$a_iso == "DNK"]
@@ -491,7 +507,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   a_data$cov_hcw_fv_cat <- cut(
     a_data$cov_hcw_fv,
     breaks = c(-Inf, 0.1, 0.2, 0.4, 0.7, Inf),
-    labels = c("1) 1-10%", "2) 10-20%", "3) 20-40%", "4) 40-70%", "5) 70%+"),
+    labels = c("1) 0-10%", "2) 10-20%", "3) 20-40%", "4) 40-70%", "5) 70%+"),
     include.lowest = TRUE,
     right = FALSE
   )
@@ -499,7 +515,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   a_data$cov_60p_fv_cat <- cut(
     a_data$cov_60p_fv,
     breaks = c(-Inf, 0.1, 0.2, 0.4, 0.7, Inf),
-    labels = c("1) 1-10%", "2) 10-20%", "3) 20-40%", "4) 40-70%", "5) 70%+"),
+    labels = c("1) 0-10%", "2) 10-20%", "3) 20-40%", "4) 40-70%", "5) 70%+"),
     include.lowest = TRUE,
     right = FALSE
   )

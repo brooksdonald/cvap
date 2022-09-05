@@ -105,14 +105,14 @@ transform_sup_rec_doses <- function(supply_received, del_date) {
     print(" >> Calculate doses delivered
                 since last and previous two months...")
     supply_received_doses <- supply_received_doses %>%
-        mutate(del_dose_since_lm = del_dose_total - del_dose_total_lm)
+        mutate(del_dose_since_lm = pmax(del_dose_total - del_dose_total_lm, 0))
 
     supply_received_doses <- supply_received_doses %>%
         mutate(del_dose_prior_2m = del_dose_total_2m)
 
     supply_received_doses <- supply_received_doses %>%
-        mutate(del_dose_lm_2m = del_dose_total_lm - del_dose_total_2m) %>%
-        mutate(del_dose_lm_13jan = del_dose_total_lm - del_dose_total_13jan) %>%
+        mutate(del_dose_lm_2m = pmax(del_dose_total_lm - del_dose_total_2m, 0)) %>%
+        mutate(del_dose_lm_13jan = pmax(del_dose_total_lm - del_dose_total_13jan, 0)) %>%
         mutate(del_dose_wast = del_dose_total * 0.1)
 
     # Introducing del_date to supply_received_doses
