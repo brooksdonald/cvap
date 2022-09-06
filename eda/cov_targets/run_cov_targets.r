@@ -1,6 +1,6 @@
 # rows 1973 - 2167
 
-run_cov_targets <- function(a_data, timeto_t70, c_vxrate_sept_t10, c_vxrate_dec_t2040, c_vxrate_jun_t70, t70_deadline, b_smartsheet) {
+run_cov_targets <- function(a_data, timeto_t70, c_vxrate_sept_t10, c_vxrate_dec_t2040, c_vxrate_jun_t70, t70_deadline, entity_characteristics) {
     source("eda/cov_targets/cov_targets_gen.r")
     source("eda/cov_targets/cov_targets_cs.r")
 
@@ -30,7 +30,7 @@ run_cov_targets <- function(a_data, timeto_t70, c_vxrate_sept_t10, c_vxrate_dec_
     print(" > Done.")
 
     print(" > Calculating progress against country coverage targets...")
-    a_data <- course_progress(a_data, b_smartsheet, refresh_date, timeto_t70)
+    a_data <- course_progress(a_data, entity_characteristics, refresh_date, timeto_t70)
     print(" > Done.")
 
     print(" > Adding additional notes...")

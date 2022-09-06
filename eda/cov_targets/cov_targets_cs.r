@@ -1,4 +1,4 @@
-course_progress <- function(a_data, b_smartsheet, refresh_date, timeto_t70) {
+course_progress <- function(a_data, entity_characteristics, refresh_date, timeto_t70) {
     # Homogenize country coverage targets
     print(" >>>> Homogenizing country coverage targets...")
     a_data <- a_data %>%

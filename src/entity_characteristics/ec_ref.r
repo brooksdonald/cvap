@@ -31,16 +31,15 @@ load_entity_chars <- function() {
                 "WHO_LEGAL_STATUS_TITLE",
                 "COVAX",
                 "WBINCOMESTATUS",
-                "CSC",
                 "IFC",
                 "GAVI"
             )
         )
     
-    entity_details <- full_join(entity_details, b_pop_who, c("CODE" = "iso"))
+    entity_characteristics <- full_join(entity_details, b_pop_who, c("CODE" = "iso"))
 
     print(" >> Renaming columns...")
-    colnames(entity_details) <- c(
+    colnames(entity_characteristics) <- c(
         "a_iso",
         "a_name_long",
         "a_name_short",
@@ -52,13 +51,12 @@ load_entity_chars <- function() {
         "a_who_status",
         "a_covax_status",
         "a_income_group",
-        "a_csc_status",
         "a_ifc_status",
         "a_gavi_status",
         "a_pop"
     )
 
-    return(entity_details)
+    return(entity_characteristics)
 }
 
 load_conc_supp_list <- function() {
@@ -74,12 +72,17 @@ load_conc_supp_list <- function() {
     print(" >> Renaming adhoc Columns...")
     colnames(b_adhoc) <- c(
         "iso",
+        "a_csc_status",
         "ndvp_mid_target",
         "ndvp_mid_deadline",
         "ndvp_mid_rep_rate",
         "jj_policy",
         "older_def",
-        "older_source"
+        "older_source",
+        "expiry_risk",
+        "ss_target",
+        "ss_deadline",
+        "country_source"
     )
     return(b_adhoc)
 }

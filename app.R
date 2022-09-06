@@ -1,6 +1,6 @@
 
 # SET WD
-# setwd("C:/Users/Dalberg/Documents/GitHub/covid19_vaccination_data") #Donald
+setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
 # setwd("C:/Users/rafae/Desktop/covid19_vaccination_analysis") #Rafael
 
 # CLEAR ENVIRONMENT
@@ -9,18 +9,18 @@ rm(list = ls())
 # PACKAGES
 
 lib <- c("tidyverse",
-    "openxlsx",
-    "readxl",
-    "writexl",
-    "countrycode",
-    "lubridate",
-    "data.table",
-    "bit64",
-    "httr",
-    "jsonlite",
-    "AzureAuth",
-    "dotenv",
-    "reticulate")
+         "openxlsx",
+         "readxl",
+         "writexl",
+         "countrycode",
+         "lubridate",
+         "data.table",
+         "bit64",
+         "httr",
+         "jsonlite",
+         "AzureAuth",
+         "dotenv",
+         "reticulate")
     
 lib_na <- lib[!(lib %in% installed.packages()[, "Package"])]
 if (length(lib_na)) install.packages(lib_na)
@@ -88,7 +88,6 @@ eda_adm_cov_env <- run_eda_adm_cov(
     entity_env$population_data,
     cov_disag_env$uptake_gender_data,
     add_data_env$b_who_dashboard,
-    add_data_env$b_smartsheet,
     supply_env$supply_secured,
     supply_env$delivery_courses_doses,
     demand_plan_env$b_dp,
@@ -108,8 +107,7 @@ cov_targets_env <- run_cov_targets(
     adm_cov_env$c_vxrate_sept_t10,
     adm_cov_env$c_vxrate_dec_t2040,
     adm_cov_env$c_vxrate_jun_t70,
-    .GlobalEnv$t70_deadline,
-    add_data_env$b_smartsheet)
+    .GlobalEnv$t70_deadline)
 financing_env <- run_financing(cov_targets_env$a_data)
 qual_data_env <- run_qual_data(financing_env$a_data)
 rank_bin_env <- run_rank_bin(qual_data_env$a_data)
