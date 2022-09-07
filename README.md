@@ -54,7 +54,7 @@ app.r | Main run file for CoVDP pipeline. Includes all consolidated functions us
 QC.r | quality check script to compare current week outputs from previous week outputs.  
 
 ### Diagram
-![covax architecture](https://user-images.githubusercontent.com/36184732/177362152-eca32704-22c5-44e4-818d-7d6aaec4874f.PNG)
+![Covdp_architecture](https://user-images.githubusercontent.com/36184732/188884251-e7debdba-6322-4c23-ae8d-73cfefc817ac.png)
 ### Design Principles
 Design principles (rules) abided by while building & contributing to this architecture include:
 1. Separation of Concerns (SoC)
