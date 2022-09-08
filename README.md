@@ -95,9 +95,6 @@ QC.r | quality check script to compare current week outputs from previous week o
 - Path to consolidate module.
 - Exporting analyzed data to excel using write_xlsx package.
 
-## How to contribute
-To build on to the architecture, modify or enhance the current code base, reach out to Donald Brooks (brooksd@who.int) for access to the private repository.
-
 ## Upcoming developments
 1. Preparation of monthly time series data view across supply secured, supply received, coverage, daily vaccination rate, financing, and coverage in high-risk groups.
 2. Removal of the 13-Jan daily vaccination rate dataset and replacement with dataframe created from times series.
