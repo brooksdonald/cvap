@@ -1,25 +1,42 @@
 # COVID-19 Vaccine Delivery Partnership (CoVDP) Core Analysis Pipeline (CCAP)
-# This pipeline is leveraging local environments to create clean and consice analysis
+
+## Description 
+The COVID-19 Vaccine Delivery Partnership (CoVDP) Core Analysis Pipeline (CCAP) is a modular analytical pipeline designed to consolidate, analyze, and disseminate COVID-19 vaccine implementation data across all countries, areas, and territories for use by the global community.  It is produced and maintained by the CoVDP Data, Analytics, and Monitoring (DAM) team and is hosted on GitHub.
+
 ## History
-With the breakout of Coronavirus as global pandemic in 2020, a global collaboration unit - COVAX, was formed to accelerate the development, production and equitable acces to COVID-19 tests, treatments and vaccines. 
+Since the beginning of the COVID-19 vaccine rollout, up to date COVID-19 vaccine implementation data have been needed to inform operational and policy decision-making at all levels.  Under the COVAX Country Readiness & Delivery (CRD) workstream, a PowerBI-based precursor to the current CCAP was developed to routinely centralize, homogenize, and overlay various data from along the vaccine introduction ‘value chain’.  Needing additional flexibility and greater security, the precursor solution was translated into an R-based analytical pipeline, now known as the CCAP, in December 2021. 
 
-With countries around the world reporting their numbers regarding vaccination supplies, utilization, population coverage and funding, the CoVDP Core Analysis Pipeline (CCAP) was produced and maintained by the COVID-19 Vaccine Delivery Partnership to collate, manipulate, and analyze key COVID-19 vaccine implementation metrics for all countries, areas, and territories.
+The CCAP was first committed to GitHub end of January 2022.  The original pipeline was a monolith application, incorporating data relating to daily vaccination rate, coverage, and supply secured & received.  Soon after the first commit, the CCAP was thematically expanded to include analysis of coverage in high & highest risks groups and allocated external financing for vaccine delivery. 
 
-## Envrironment and installation
-The codebase is written in R with the exception of one module (dvr) which is in Python. Both R Studio and VS Code can be used.
+Over the course of the first quarter of 2022, the CCAP was transitioned from a monolith pipeline to a modular pipeline, sectioned according to thematic data divisions, orchestrated by a central run script. This transition permitted for greater pipeline stability, as each module could be debugged, deployed, and managed independently of the rest, and greater flexibility, allowing facile introduction of new functionalities. 
+
+Following adoption of the new modular architecture, inputs to the pipeline were automated to the greatest extent possible, privileging API data connections over local data file ingestion.  Further, additional pieces of key data analysis, notably cleaning of ingested administration data and direct calculation of daily vaccination rates, were reappropriated from collaborating partners to enable greater quality control and to shorten debugging timelines. 
+
+Through the above development, the CCAP has become a main pillar of the global data system for the consolidation, analysis, and dissemination of COVID-19 vaccination data.  Data produced by the CCAP flow throughout WHO, UNICEF, Gavi, and other partners and inform decisions ranging from vaccine dose allocations and vaccine demand planning to the assignment of technical assistance and financing.  Data produced by the CCAP are made publicly available via the CoVDP’s [Information Hub](https://infohub.crd.co). 
+
+## Environment and access 
+The CCAP is written in R, with the exception of one module (dvr), which is written in Python. It is hosted in a private GitHub repository. 
+
 ### Prerequisites 
-1. Ensure R is installed in your machine. If not installed, find the installation download link [here](https://cran.r-project.org/)
-2. Install R Studio from [here](https://www.rstudio.com/products/rstudio/)
-3. Install Visual Studio Code from [here](https://code.visualstudio.com/Download)
-    1.   R extension will be needed to run R in VS Code. Get it from [here](https://code.visualstudio.com/docs/languages/r#:~:text=The%20R%20extension%20for%20Visual%20Studio%20Code%20supports,managing%20packages%20and%20working%20with%20R%20Markdown%20documents.)
+1. Ensure R is installed on your machine. If not installed, download the software [here](https://cran.r-project.org/). 
+2. Install [R Studio](https://www.rstudio.com/products/rstudio/) or [Visual Studio Code](https://code.visualstudio.com/Download). 
+    1.  The R extension will be needed to run R in VS Code; get it [here](https://code.visualstudio.com/docs/languages/r#:~:text=The%20R%20extension%20for%20Visual%20Studio%20Code%20supports,managing%20packages%20and%20working%20with%20R%20Markdown%20documents).
 
-If using Ubuntu - Don't forget to update your ubuntu apt
-`apt update && apt upgrade`
-
-To resolve languageserver installation issues, just run
-`apt install libcurl4-openssl-dev libssl-dev libxml2-dev`
+## Repository access  
+To access the CCAP GitHub repository, contact Donald Brooks (brooksd@who.int). 
 
 ## Architecture overview
+### Design Principles
+Design principles (rules) abided by while building & contributing to this architecture include:
+1. Separation of Concerns (SoC)
+Each distinct sections are separated to address different individual concerns.
+2. Don't Repeat Yourself (DRY)
+Minimal to no repetition of software patterns are observed. The system is designed with a single, authoritative and unambiguous representation for every piece of knowledge.
+3. Keep it short and simple (KISS)
+Simple design to building the architecture is observed.
+4. SOLID
+The design principles used are dedicated to making software designs flexible, maintainable, and flexible.
+
 ### Main files
 Path | Content
 -------- | --------
@@ -44,7 +61,6 @@ eda/adm_cov | EDA and consolidation of administrative coverage data.
 eda/cov_targets | EDA and consolidation of coverage target data. 
 eda/finance | EDA of finance data consolidation.
 eda/prod_util | EDA and consolidation of product utilization data. 
-<!-- eda/qual_data |  -->
 eda/rank_bin | Grouping and ranking of data.
 eda/supply | EDA of supplies data consolidation.
 helpers | Folder containing different helper functions which are repeatedly & frequently used in different sections within the CCAP.
@@ -52,19 +68,12 @@ helpers | Folder containing different helper functions which are repeatedly & fr
 .gitignore | file containing any item to be excluded from online GitHub repository.
 app.r | Main run file for CoVDP pipeline. Includes all consolidated functions used within the CCAP and one main function that writes all outputs to one Excel document. 
 QC.r | quality check script to compare current week outputs from previous week outputs.  
+<!-- eda/qual_data |  -->
 
 ### Diagram
-![Covdp_architecture](https://user-images.githubusercontent.com/36184732/188884251-e7debdba-6322-4c23-ae8d-73cfefc817ac.png)
-### Design Principles
-Design principles (rules) abided by while building & contributing to this architecture include:
-1. Separation of Concerns (SoC)
-Each distinct sections are separated to address different individual concerns.
-2. Don't Repeat Yourself (DRY)
-Minimal to no repition of software patterns are observed. The system is designed with a single, authoritative and unambiguous representation for every piece of knowledge.
-3. Keep it short and simple (KISS)
-Simple design to building the architecture is observed.
-4. SOLID
-The design principles used are dedicated to making software designs flexible, maintainable, and flexible.  
+![CCAP architecture](https://user-images.githubusercontent.com/36184732/188884251-e7debdba-6322-4c23-ae8d-73cfefc817ac.png)
+
+  
 ## Running the pipeline
 - All modules contain run files with run functions named after the specific module. 
 - Each module can be tested by calling the run function at the end of the script e.g., run_add_data() for the add_data module.
@@ -89,7 +98,6 @@ The design principles used are dedicated to making software designs flexible, ma
 ## How to contribute
 To build on to the architecture, modify or enhance the current code base, reach out to Donald Brooks (brooksd@who.int) for access to the private repository.
 
-## Next development
-1. Preparation of monthly time series data view across supply secured, supply received, coverage, daily vaccination rate, financing, and coverage in high risk groups.
-2. Build out business analytics view of DAM KPIs: visits to CoVDP Infohub, IAI reports produced, etc.
-3. Create SOP for CCAP modification, including module addition (link) and subtraction (de-link), "UAT" branch before merge to main.
+## Upcoming developments
+1. Preparation of monthly time series data view across supply secured, supply received, coverage, daily vaccination rate, financing, and coverage in high-risk groups.
+2. Removal of the 13-Jan daily vaccination rate dataset and replacement with dataframe created from times series.
