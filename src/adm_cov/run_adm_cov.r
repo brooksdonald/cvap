@@ -102,7 +102,7 @@ run_adm_cov <- function(entity_characteristics,
     )
     print(" > Done.")
 
-    print(" > Last week, last month, vaccinations and 13jan data")
+    print(" > Last week, last month, vaccinations and recreated 13jan data")
     print(" > Last week's data")
     b_vxrate_lw_sum <- load_lw_data(c_vxrate_lastweek)
     datalist3 <- transform_lw_data(b_vxrate_lw_sum, c_vxrate_latest)
@@ -120,7 +120,7 @@ run_adm_cov <- function(entity_characteristics,
     c_vxrate_latest <- merge_with_summary(c_vxrate_latest, b_vxrate_2m_sum) 
 
     print(" > Week of 13 Jan")
-    b_vxrate_13jan <- load_13jan_data()
+    b_vxrate_13jan <- recreate_df(b_vxrate)
     c_vxrate_latest <- merge_with_summary(c_vxrate_latest, b_vxrate_13jan)
 
     print(" > Done.")
