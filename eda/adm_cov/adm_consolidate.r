@@ -436,7 +436,9 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   # Calculating older adults coverage groups
   a_data <- a_data %>%
     mutate(adm_fv_60p_homo = pmin(
-      a_pop_older, adm_fv_60p)) %>%
+      a_pop_older, adm_fv_60p),
+      adm_a1d_60p_homo = pmin(
+        a_pop_older, adm_a1d_60p)) %>%
     mutate(cov_60p_a1d = pmin(
       adm_a1d_60p / a_pop_older, 1)) %>%
     mutate(cov_60p_a1d_adjust = if_else(
