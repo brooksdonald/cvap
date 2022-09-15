@@ -22,20 +22,20 @@ The CCAP is written in R, with the exception of one module (dvr), which is writt
 2. Install [R Studio](https://www.rstudio.com/products/rstudio/) or [Visual Studio Code](https://code.visualstudio.com/Download). 
     1.  The R extension will be needed to run R in VS Code; get it [here](https://code.visualstudio.com/docs/languages/r#:~:text=The%20R%20extension%20for%20Visual%20Studio%20Code%20supports,managing%20packages%20and%20working%20with%20R%20Markdown%20documents).
 
-## Repository access  
+### Repository access  
 To access the CCAP GitHub repository, contact Donald Brooks (brooksd@who.int). 
 
 ## Architecture overview
 ### Design Principles
-Design principles (rules) abided by while building & contributing to this architecture include:
+Design principles abided by while building & contributing to this architecture include:
 1. Separation of Concerns (SoC)
-Each distinct sections are separated to address different individual concerns.
+Each distinct section is separated to address different individual concerns.
 2. Don't Repeat Yourself (DRY)
-Minimal to no repetition of software patterns are observed. The system is designed with a single, authoritative and unambiguous representation for every piece of knowledge.
+Minimal to no repetition of software patterns are observed. The system is designed with a single, authoritative, and unambiguous representation for every piece of knowledge.
 3. Keep it short and simple (KISS)
 Simple design to building the architecture is observed.
 4. SOLID
-The design principles used are dedicated to making software designs flexible, maintainable, and flexible.
+The design principles used are dedicated to making software designs flexible and maintainable.
 
 ### Main files
 Path | Content
