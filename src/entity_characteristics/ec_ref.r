@@ -82,7 +82,8 @@ load_conc_supp_list <- function() {
         "expiry_risk",
         "ss_target",
         "ss_deadline",
-        "country_source"
+        "country_source",
+        "date"
     )
     return(b_adhoc)
 }
