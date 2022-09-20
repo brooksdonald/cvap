@@ -105,4 +105,3 @@ eda/qual_data |  -->
 
 ## Upcoming developments
 1. Preparation of monthly time series data view across supply secured, supply received, coverage, daily vaccination rate, financing, and coverage in high-risk groups.
-2. Removal of the 13-Jan daily vaccination rate dataset and replacement with dataframe created from times series.
