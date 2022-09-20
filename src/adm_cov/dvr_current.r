@@ -197,9 +197,19 @@ recreate_df <- function(b_vxrate) {
   b_vxrate_data$date <- as.Date(b_vxrate_data$date)
   print(" > Done.")
 
-  print(" >> Merge b_vxrate_data and stable dates config data...")
-  stable_dates <- read_excel("data/input/static/stable_country_dates.xlsx")
+  print(" >> Merge b_vxrate_data and 13 Jan dates data...")
+  stable_dates <- data.frame(
+    read_excel(
+      "data/input/static/base_adhoc.xlsx",
+      sheet = "data"
+    )
+  )
+  print(" >> Selecting iso and date columns...")
+  stable_dates <- stable_dates %>%
+    select(iso, date)
+  print(" >> Change date column to date formart...")
   stable_dates$date <- as.Date(stable_dates$date)
+  names(stable_dates)[1] <- "iso_code"
   print("Done.")
 
   print(" >> inner join of the df...")
