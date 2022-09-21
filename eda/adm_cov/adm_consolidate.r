@@ -567,6 +567,48 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
       tags[2]
     ))
 
+  # Calculate coverage difference between HCWs and total in reporting countries
+  print(" >>> Computing coverage difference between HCWs and total in reporting countries...")
+  a_data <- a_data %>%
+    mutate(
+      cov_total_hcw_diff = ifelse(
+      adm_fv_hcw_repstat == "Reporting",
+      cov_hcw_fv - cov_total_fv,
+      NA
+      ))
+  
+  # Calculate coverage difference between 60 plus and total in reporting countries
+  print(" >>> Computing coverage difference between HCWs and total in reporting countries...")
+  a_data <- a_data %>%
+    mutate(
+      cov_total_60p_diff = ifelse(
+        adm_fv_60p_repstat == "Reporting",
+        cov_60p_fv - cov_total_fv,
+        NA
+      ))
+  
+  # Categorize comparison of coverage between HCWs and total
+  breaks <- c(-Inf, 0, Inf)
+  tags <- c("AMC participants with percentage of healthcare workers with c.p.s.* lesser than total", "AMC participants with percentage of healthcare workers with c.p.s.* greater than total")
+  a_data$cov_total_hcw_com <- cut(
+    a_data$cov_total_hcw_diff,
+    breaks = breaks,
+    labels = tags,
+    include.lowest = FALSE,
+    right = TRUE
+  )
+  
+  # Categorize comparison of coverage between 60 plus and total
+  breaks <- c(-Inf, 0, Inf)
+  tags <- c("AMC participants with percentage of older adults with c.p.s.* lesser than total", "AMC participants with percentage of older adults with c.p.s.* greater than total")
+  a_data$cov_total_60p_com <- cut(
+    a_data$cov_total_60p_diff,
+    breaks = breaks,
+    labels = tags,
+    include.lowest = FALSE,
+    right = TRUE
+  )
+  
   breaks <- c(-Inf, -0.25, 0.25, Inf)
   tags <- c("Downward", "Stable", "Upward")
   a_data$dvr_4wk_td_change_lm_trend <- cut(
