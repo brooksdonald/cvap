@@ -21,6 +21,8 @@ load_base_condense_file <- function(a_data) {
             "ndvp_status",
             "booster_status",
             "cov_hcw_booster_cat",
+            "cov_total_hcw_com",
+            "cov_total_60p_com",
             "pu_used_per_cat",
             "del_cour_total_per_cat",
             "sec_total_per_cat"
