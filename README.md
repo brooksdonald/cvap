@@ -27,9 +27,29 @@ To access the CCAP GitHub repository, contact Donald Brooks (brooksd@who.int).
 
 ## Architecture overview
 ### Architecture breakdown
-1. Data folder - This folder contains all data ingested, processed and produced as output files within the CCAP. 
-2. src folder - This is the source (src) folder that contains all modules dealing with the Extraction, Transformation and Load (ETL) process of the CCAP. 
-3. eda folder - The Exploratory Data Analysis (EDA) folder contains all modules dealing with the CCAP EDA processes.
+1. Data folder - This folder contains all data ingested, processed and produced as output files within the CCAP.
+ - All data to be ingested into the CCAP are found within the input folder.
+  - Interim folder (within input folder) holds temporary data that is produced during the execution of CCAP.
+  - static folder (within input folder) holds static data that changes less frequently over time. 
+ - All data produced and consolidated as processed data are contained in the output folder.
+ - All data that go through some form of cleaning of its entry points are contained within the cleaning_log folder.
+2. src folder - This is the source (src) folder that contains all modules dealing with the Extraction, Transformation and Load (ETL) process of the CCAP. The modules within the src folder are:
+ - add_data
+ - adm_cov
+ - cov_disag
+ - demand_planning
+ - dvr
+ - entity_characteristics
+ - finance
+ - supply
+3. eda folder - The Exploratory Data Analysis (EDA) folder contains all modules dealing with the CCAP EDA processes. The modules within the eda folder are:
+ - adm_cov
+ - cov_targets
+ - finance
+ - prod_util
+ - qual_data
+ - rank_bin
+ - supply
 4. consolidate folder - Consolidation of all modules in the CCAP are contained in this folder.
 5. helpers folder - Helper functions are contained within scripts found in this folder. The helper functions are used to replace frequently used functions in the CCAP and enforce the DRY principle. 
 6. app.R file - Main file used to execute the pipeline. It contains consolidated functions from all modules as well as static variables such as dates as well as libraries needed for the pipeline to run. Also included within the app.R file is the write to Excel function which writes all processed data to different Excel files as final outputs.
