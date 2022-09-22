@@ -182,6 +182,44 @@ transform_current_vxrate <- function(
     return(b_vxrate)
 }
 
+# 13jan data re-creation
+recreate_df <- function(b_vxrate) {
+  print(" >> Select columns required to recreate 13jan data frrom b_vxrate...")
+  b_vxrate_data <- b_vxrate %>%
+    select(a_iso, adm_date, adm_td, adm_a1d, adm_fv, adm_booster)
+  print(" > Done.")
+
+  print(" >> Rename b_vxrate_data columns...")
+  colnames(b_vxrate_data) <- c("iso_code", "date", "adm_td_13jan", "adm_a1d_13jan", "adm_fv_13jan", "adm_booster_13jan")
+  print(" > Done.")
+
+  print(" >> Change date format")
+  b_vxrate_data$date <- as.Date(b_vxrate_data$date)
+  print(" > Done.")
+
+  print(" >> Merge b_vxrate_data and 13 Jan dates data...")
+  stable_dates <- data.frame(
+    read_excel(
+      "data/input/static/base_adhoc.xlsx",
+      sheet = "data"
+    )
+  )
+  print(" >> Selecting iso and date columns...")
+  stable_dates <- stable_dates %>%
+    select(iso, date)
+  print(" >> Change date column to date formart...")
+  stable_dates$date <- as.Date(stable_dates$date)
+  names(stable_dates)[1] <- "iso_code"
+  print("Done.")
+
+  print(" >> inner join of the df...")
+  recreated_data <- inner_join(b_vxrate_data, stable_dates, by = c("iso_code", "date"))
+  names(recreated_data)[1] <- "a_iso"
+  print(" > Done.")
+
+  return(recreated_data)
+}
+ 
 ## Create clean long form subsets and select relevant columns
 transform_current_vxrate_pub <- function(b_vxrate, auto_cleaning) {
   print(" >> Create clean long form subsets for b_vxrate_pub")

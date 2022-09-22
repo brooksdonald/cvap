@@ -99,36 +99,6 @@ load_l2m_data <- function(c_vxrate_twomonth) {
     return(b_vxrate_2m_sum)
 }
 
-load_13jan_data <- function() {
-    print("  >> Loading week of 13 Jan dataset...")
-    b_vxrate_13jan <- data.frame(
-        read_excel(
-            "data/input/static/base_dvr_weekof13jan.xlsx",
-            sheet = "data_summary"
-        )
-    )
-    ## Select relevant columns and rename
-    b_vxrate_13jan <- select(
-        b_vxrate_13jan,
-        c(
-            "iso_code",
-            "total_doses",
-            "fully_vaccinated",
-            "at_least_one_dose",
-            "persons_booster_add_dose"
-        )
-    )
-    print(" >> Renaming columns...")
-    colnames(b_vxrate_13jan) <- c(
-        "a_iso",
-        "adm_td_13jan",
-        "adm_fv_13jan",
-        "adm_a1d_13jan",
-        "adm_booster_13jan"
-    )
-    return(b_vxrate_13jan)
-}
-
 transform_lw_data <- function(b_vxrate_lw_sum, c_vxrate_latest) {
     print(" >> Transform last week data...")
 

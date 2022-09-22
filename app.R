@@ -29,9 +29,9 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2022-09-15")
+.GlobalEnv$refresh_date <- as.Date("2022-09-22")
 .GlobalEnv$sec_date <- as.Date("2022-08-31")
-.GlobalEnv$del_date <- as.Date("2022-09-13")
+.GlobalEnv$del_date <- as.Date("2022-09-20")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
