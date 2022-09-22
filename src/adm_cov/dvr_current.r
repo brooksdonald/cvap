@@ -237,7 +237,6 @@ transform_current_vxrate_pub <- function(b_vxrate, auto_cleaning) {
     "a_covax_status",
     "a_income_group",
     "a_csc_status",
-    "a_ifc_status",
     "a_continent_sub"
   )
   if (auto_cleaning) {
@@ -282,7 +281,6 @@ transform_subset_amc <- function(b_vxrate) {
         "a_covax_status",
         "a_income_group",
         "a_csc_status",
-        "a_ifc_status",
         "a_continent_sub"
       )
     )
@@ -397,7 +395,6 @@ transform_abspt_by_month <- function(b_vxrate, current_month) {
         "a_csc_status",
         "a_income_group",
         "a_csc_status",
-        "a_ifc_status",
         "adm_date_month",
         "adm_td"
       )
@@ -448,6 +445,7 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
       "a_iso",
       "a_covax_status",
       "a_csc_status",
+      "adm_td",
       "adm_date_month",
       "adm_td_absorbed"
     )
@@ -465,6 +463,7 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
       "a_iso",
       "a_covax_status",
       "a_csc_status",
+      "adm_td",
       "adm_td_absorbed",
       "adm_date_month_name"
     )
@@ -474,6 +473,7 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
     "iso",
     "a_covax_status",
     "a_csc_status",
+    "adm_td",
     "value",
     "month_name"
   )
@@ -484,14 +484,16 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
     c(
       "iso",
       "month_name",
-      "value"
+      "value",
+      "adm_td"
     )
   )
   print(" >> Renaming columns for d_absorb_red...")
   colnames(d_absorb_red) <- c(
     "iso",
     "month_name",
-    "absorbed"
+    "absorbed",
+    "adm_td"
   )
   datalist <- list("d_absorb_red" = d_absorb_red,
     "d_absorption_country" = d_absorption_country)
@@ -610,11 +612,6 @@ absorption_sum_by_month <- function(c_vxrate_eom, current_month) {
     filter(c_vxrate_eom, a_csc_status == "Concerted support country")
   d_absorption_csc <- groupby_and_summarize(c_vxrate_eom_csc)
 
-  #### Immediate focus country status = IFC
-  c_vxrate_eom_ifc <-
-    filter(c_vxrate_eom, a_ifc_status == "Immediate focus")
-  d_absorption_ifc <- groupby_and_summarize(c_vxrate_eom_ifc)
-
   #### Continent = Africa
   c_vxrate_eom_africa <-
     filter(c_vxrate_eom, a_continent == "Africa")
@@ -642,8 +639,7 @@ absorption_sum_by_month <- function(c_vxrate_eom, current_month) {
     left_join(., d_absorption_wpr, by = "adm_date_month") %>%
     left_join(., d_absorption_eur, by = "adm_date_month") %>%
     left_join(., d_absorption_amc91, by = "adm_date_month") %>%
-    left_join(., d_absorption_csc, by = "adm_date_month") %>%
-    left_join(., d_absorption_ifc, by = "adm_date_month")
+    left_join(., d_absorption_csc, by = "adm_date_month")
 
     ## Note: list of months is automatically generated from "2021-01" to month of refresh_date
     d_absorption$adm_date_month_name <- helper_mapping_months(
