@@ -26,7 +26,7 @@ The CCAP is written in R, with the exception of one module (dvr), which is writt
 To access the CCAP GitHub repository, contact Donald Brooks (brooksd@who.int). 
 
 ## Architecture overview
-### Architecture breakdown
+<!-- ### Architecture breakdown
 1. Data folder - This folder contains all data ingested, processed and produced as output files within the CCAP.
  - All data to be ingested into the CCAP are found within the input folder.
   - Interim folder (within input folder) holds temporary data that is produced during the execution of CCAP.
@@ -54,19 +54,19 @@ To access the CCAP GitHub repository, contact Donald Brooks (brooksd@who.int).
 5. helpers folder - Helper functions are contained within scripts found in this folder. The helper functions are used to replace frequently used functions in the CCAP and enforce the DRY principle. 
 6. app.R file - Main file used to execute the pipeline. It contains consolidated functions from all modules as well as static variables such as dates as well as libraries needed for the pipeline to run. Also included within the app.R file is the write to Excel function which writes all processed data to different Excel files as final outputs.
 7. .gitignore file - This is a text file that is placed within the root folder of the CCAP that tells Git which files and folders to ignore in online Git repository. 
-8. LICENSE.md file - This is a file that contains an open source license that enables others to freely use, change, and distribute the COVID-19 analysis pipeline.
+8. LICENSE.md file - This is a file that contains an open source license that enables others to freely use, change, and distribute the COVID-19 analysis pipeline. -->
 ### Design Principles
 Design principles (rules) abided by while building & contributing to this architecture include:
-1. Separation of Concerns (SoC).
+1. Separation of Concerns (SoC)
 Each distinct section is separated to address different individual concerns.
-2. Don't Repeat Yourself (DRY).
+2. Don't Repeat Yourself (DRY)
 Minimal to no repetition of software patterns are observed. The system is designed with a single, authoritative and unambiguous representation for every piece of knowledge.
-3. Keep it short and simple (KISS).
+3. Keep it short and simple (KISS)
 Simple design to building the architecture is observed.
-4. SOLID.
+4. SOLID
 The design principles used are dedicated to making software designs flexible, maintainable, and flexible.
 
-<!-- ### Main files
+### Main files
 Path | Content
 -------- | --------
 consolidate | module that consolidates all data from the CCAP.
@@ -97,10 +97,11 @@ helpers | Folder containing different helper functions which are repeatedly & fr
 .gitignore | file containing any item to be excluded from online GitHub repository.
 app.r | Main run file for CoVDP pipeline. Includes all consolidated functions used within the CCAP and one main function that writes all outputs to one Excel document. 
 QC.r | quality check script to compare current week outputs from previous week outputs.  
-eda/qual_data |  -->
+<!-- eda/qual_data |  -->
 
 ### Diagram
-![CCAP architecture](https://user-images.githubusercontent.com/36184732/191306747-6debbd05-e201-42ca-a5c7-9dfbb0400594.png)
+<!-- ![CCAP architecture](https://user-images.githubusercontent.com/36184732/191306747-6debbd05-e201-42ca-a5c7-9dfbb0400594.png) -->
+![CCAP architecture](https://user-images.githubusercontent.com/36184732/188884251-e7debdba-6322-4c23-ae8d-73cfefc817ac.png)
 
 ## Running the pipeline
 - All modules contain run files with run functions named after the specific module. 
