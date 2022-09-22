@@ -38,7 +38,7 @@ To access the CCAP GitHub repository, contact Donald Brooks (brooksd@who.int).
 ### Design Principles
 Design principles (rules) abided by while building & contributing to this architecture include:
 1. Separation of Concerns (SoC).
-Each distinct sections are separated to address different individual concerns.
+Each distinct section is separated to address different individual concerns.
 2. Don't Repeat Yourself (DRY).
 Minimal to no repetition of software patterns are observed. The system is designed with a single, authoritative and unambiguous representation for every piece of knowledge.
 3. Keep it short and simple (KISS).
