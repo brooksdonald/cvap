@@ -477,6 +477,9 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
     "value",
     "month_name"
   )
+  d_absorption_country$a_amc_status <- NA
+  d_absorption_country$a_amc_status[d_absorption_country$a_covax_status == "AMC" & d_absorption_country$iso != "IND"] <- "AMC91"  
+  d_absorption_country$a_amc_status[d_absorption_country$a_covax_status == "AMC" & d_absorption_country$iso == "IND"] <- "India"  
   d_absorption_country$type <- "Absorbed"
   print(" >> Selecting columns needed from d_absorption_country for d_absorb_red...") #nolint
   d_absorb_red <- select(
@@ -607,6 +610,11 @@ absorption_sum_by_month <- function(c_vxrate_eom, current_month) {
     filter(c_vxrate_eom, a_covax_status == "AMC" & a_iso != "IND")
   d_absorption_amc91 <- groupby_and_summarize(c_vxrate_eom_amc91)
 
+  #### COVAX participation = India
+  c_vxrate_eom_ind <-
+    filter(c_vxrate_eom, a_iso == "IND")
+  d_absorption_ind <- groupby_and_summarize(c_vxrate_eom_ind)
+  
   #### Concerted support status = csc
   c_vxrate_eom_csc <-
     filter(c_vxrate_eom, a_csc_status == "Concerted support country")
@@ -639,8 +647,9 @@ absorption_sum_by_month <- function(c_vxrate_eom, current_month) {
     left_join(., d_absorption_wpr, by = "adm_date_month") %>%
     left_join(., d_absorption_eur, by = "adm_date_month") %>%
     left_join(., d_absorption_amc91, by = "adm_date_month") %>%
-    left_join(., d_absorption_csc, by = "adm_date_month")
-
+    left_join(., d_absorption_csc, by = "adm_date_month") %>%
+    left_join(., d_absorption_ind, by = "adm_date_month")
+  
     ## Note: list of months is automatically generated from "2021-01" to month of refresh_date
     d_absorption$adm_date_month_name <- helper_mapping_months(
       d_absorption$adm_date_month,
