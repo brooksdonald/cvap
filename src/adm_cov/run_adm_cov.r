@@ -89,7 +89,8 @@ run_adm_cov <- function(entity_characteristics,
     datalist2 <- first_supplies(
         d_absorb_red,
         datalist1$d_absorption_country,
-        overall_long
+        overall_long,
+        overall_cumul_long
     )
     combined <- datalist2$combined
     combined_three <- second_supplies(

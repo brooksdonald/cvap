@@ -503,7 +503,8 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
   return(datalist)
 }
 
-first_supplies <- function(d_absorb_red, d_absorption_country, overall_long) {
+first_supplies <- function(d_absorb_red, d_absorption_country, overall_long, 
+                           overall_cumul_long) {
   print(" >> Loading supplies data from supply dataset...")
   b_supply <- overall_long
   print(" >> Selecting columns needed for b_supply_red...")
@@ -521,6 +522,18 @@ first_supplies <- function(d_absorb_red, d_absorption_country, overall_long) {
     "month_name",
     "received"
   )
+  b_supply_add <- overall_cumul_long
+  print(" >> Selecting columns needed for b_supply_red...")
+  b_supply_add <- select(
+    b_supply_add,
+    c(
+      "iso",
+      "month_name",
+      "supply"
+    )
+  )
+  b_supply_red <- left_join(b_supply_red, b_supply_add, by = c("iso" = "iso", 
+                                                               "month_name" = "month_name"))
   combined <- rbind(d_absorption_country, b_supply)
   datalist <- list("combined" = combined, "b_supply_red" = b_supply_red)
   return(datalist)
