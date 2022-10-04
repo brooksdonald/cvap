@@ -10,111 +10,172 @@ library("data.table")
 
 source("helpers/joins.r")
 
-# load_financial_data <- function(path) {
-#     # reading in list of files in directory
-#     print(" >> Selecting finance timeseries data files to read in...")
-#     files <- unlist(
-#         list.files(
-#             path = path,
-#             pattern = "C19VFM")
-#     )
-    
-#     # finding the right sheet to read in
-#     print(" >> Finding the right sheet to read in...")
-#     sheet_vector <- c()
-#     for (file in files) {
-#         sheets <- excel_sheets(path = paste0(path, file))
-#         # if sheet names change in the future, simply add to this list
-#         possible_sheet_names <- c("Data Structure")
-#         for (name in possible_sheet_names) {
-#             if (name %in% sheets) {
-#                 relevant_sheet <- name
-#             }
-#         }
-        
-#         # throw error if there is no sheet with one of the names above
-#         if (is.na(relevant_sheet)) {
-#             stop(paste0("Error: ", file, " does not have a sheet with a right name.
-#             Add new sheet name to the list of 
-#             possible sheet names in supply_timeseries.r"))
-#         }
-#         sheet_vector <- append(sheet_vector, relevant_sheet)
-#         remove(relevant_sheet)
+# import_finance_data <- function() {
+#     folder <- "data/input/test/"
+#     sheet_name <- "Data Structure"
+
+#     # getting a list of files available in specified folder
+#     files <- unlist(list.files(
+#         path = folder,
+#         # add to this pattern if the file name changes in the future
+#         pattern = "C19VFM"
+#     ))
+
+#     # checking for duplicate months
+#     print(" >> Checking if data is valid...")
+#     months <- substr(files, 1, 4)
+#     if (sum(duplicated(months))) {
+#         stop(paste0("Error:
+#         Two files in ",
+#         folder,
+#         " with 'imf' in the name have the same year month combination."))
 #     }
 
-#     # import files from excel
-#     print(" >> Read in Data Structure data...")
-#     df_list <- helper_load_list_of_files(
-#         files = paste0(path, files),
-#         sheets = sheet_vector,
-#         date_format = "%y%m%d",
-#         month_lag = 1
-#     )
-#     # end of automated read-in
+#     # checking for reasonable years (between 2021 and 2040) 
+#     # and months (between 01 and 12)
+#     years <- substr(files, 1, 2)
+#     months <- substr(files, 3, 4)
+#     if (
+#         sum(as.numeric(years) > 40) |
+#         sum(as.numeric(years) < 21) |
+#         sum(as.numeric(months) > 12) |
+#         sum(as.numeric(months) < 1)) {
+#         stop("One of IMF datasets does not conform to year-month format
+#             (must be, e.g., 2108 for Aug 2021)")
+#     }
+#     print(paste0(" >> Names of all ", length(files), " files are valid"))
 
-#     # Reduce dataframes to required columns
-#     print(" >> Transforming financing data...")
-#     # df_list_trans <- list()
+#     # importing data
+#     print(paste0(" >> Loading ", length(files), " files from ", folder))
+#     df_list <- helper_load_list_of_files(
+#         files = paste0(folder, files),
+#         sheets = sheet_name,
+#         date_format = "%y%m%d"
+#     )
+
+#     print(" >> Selecting relevant columns...")
 #     for (i in seq_along(df_list)) {
-#         # df <- df_list[[i]]
 #         df_list[[i]] <- df_list[[i]] %>%
 #             select(
-#                 ISO.Code,
-#                 Recipient.Type,
-#                 Information.Type,
-#                 Allocation.Type,
-#                 Funding.Amount,
-#                 # Funding.Source.Type.2,
-#                 Funding.Source,
-#                 Double.Counting
-#                 # Commitments,
-#                 # Disbursements,
-#                 # FA
+#                 c(
+#                     "ISO.Code",
+#                     "Recipient.Type",
+#                     "Information.Type",
+#                     "Allocation.Type",
+#                     "Funding.Amount",
+#                     "Funding.Source.Type",
+#                     "Funding.Source",
+#                     "Double.Counting",
+#                     "month_name"
+#                 )
 #             )
-#         }
-#     print(colnames(df_list[[]]))
+#     }
+
+#     # appending all dataframes together
+#     print(" >> Combining monthly delivery data...")
+#     overall_cumul_long <- df_list %>%
+#         bind_rows() %>%
+#         arrange(month_name, ISO.Code)
+#     print(" >> Done.")
+
+#     return(overall_cumul_long)
 # }
+
+
+# View(import_finance_data())
 
 jan_april_finance_data <- function() {
     print(">> Loading finance data from 2021 to 2022...")
+    # Jan data
     jan_data <- data.frame(
         read_excel("data/input/test/220126_C19VFM.xlsx",
-            sheet = "Data Structure"
+            sheet = "Data Structure",
+            skip = 1
         )
-    )
-    feb_data <- data.frame(
-        read_excel("data/input/test/220228_C19VFM.xlsx",
-            sheet = "Data Structure"
-        )
-    )
-    mar_data <- data.frame(
-        read_excel("data/input/test/220330_C19VFM.xlsx",
-            sheet = "Data Structure"
-        )
-    )
-    apr_data <- data.frame(
-        read_excel("data/input/test/220427_C19VFM.xlsx",
-            sheet = "Data Structure"
-        )
-    )
-    jan_apr <- helper_join_dataframe_list(
-        list(jan_data, feb_data, mar_data, apr_data),
-        join_by = c("ISO.Code")
-    )
-    jan_apr <- select(
-        jan_apr,
+    ) %>% select(
         c(
             "ISO.Code",
             "Recipient.Type",
             "Information.Type",
             "Allocation.Type",
             "Funding.Amount",
-            "Funding.Source.Type.2",
+            "Funding.Source.Type",
             "Funding.Source",
             "Double.Counting"
         )
     )
-    write_xlsx(jan_apr, "data/output")
-    print("Done.")
+    jan_data$month <- "2022-01"
+    print(" > Jan data loaded...")
+    # Feb data
+    feb_data <- data.frame(
+        read_excel("data/input/test/220228_C19VFM.xlsx",
+            sheet = "Data Structure",
+            skip = 1
+        )
+    ) %>% select(
+        c(
+            "ISO.Code",
+            "Recipient.Type",
+            "Information.Type",
+            "Allocation.Type",
+            "Funding.Amount",
+            "Funding.Source.Type",
+            "Funding.Source",
+            "Double.Counting"
+        )
+    )
+    feb_data$month <- "2022-02"
+    print(" > Feb data loaded...")
+    # March data
+    mar_data <- data.frame(
+        read_excel("data/input/test/220330_C19VFM.xlsx",
+            sheet = "Data Structure",
+            skip = 1
+        )
+    ) %>% select(
+        c(
+            "ISO.Code",
+            "Recipient.Type",
+            "Information.Type",
+            "Allocation.Type",
+            "Funding.Amount",
+            "Funding.Source.Type",
+            "Funding.Source",
+            "Double.Counting"
+        )
+    )
+    mar_data$month <- "2022-03"
+    print(" > March data loaded...")
+    # April data
+    apr_data <- data.frame(
+        read_excel("data/input/test/220427_C19VFM.xlsx",
+            sheet = "Data Structure",
+            skip = 1
+        )
+    ) %>% select(
+        c(
+            "ISO.Code",
+            "Recipient.Type",
+            "Information.Type",
+            "Allocation.Type",
+            "Funding.Amount",
+            "Funding.Source.Type",
+            "Funding.Source",
+            "Double.Counting"
+        )
+    )
+    apr_data$month <- "2022-04"
+    print(" > April data loaded...")
+
+    # Combine Jan to April 2022 data
+    print(" > Merging data from Jan to April 2022...")
+    combined_data <- rbind(
+        jan_data,
+        feb_data,
+        mar_data,
+        apr_data
+    )
+    print(" > merge done")
+    print(head(combined_data))
 }
 jan_april_finance_data()
