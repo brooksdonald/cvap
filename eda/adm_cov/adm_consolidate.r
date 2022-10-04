@@ -589,7 +589,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   
   # Categorize comparison of coverage between HCWs and total
   breaks <- c(-Inf, 0, Inf)
-  tags <- c("AMC participants with complete primary series coverage of healthcare workers lesser than total", "AMC participants with complete primary series coverage ofhealthcare workers greater than total")
+  tags <- c("AMC participants with complete primary series coverage of healthcare workers lesser than total", "AMC participants with complete primary series coverage of healthcare workers greater than total")
   a_data$cov_total_hcw_com <- cut(
     a_data$cov_total_hcw_diff,
     breaks = breaks,
