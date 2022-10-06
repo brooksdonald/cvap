@@ -17,7 +17,8 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold){
                                     as.numeric(month(month_name) + 12),
                                     as.numeric(month(month_name)))) %>%
     mutate(cov_total_fv = adm_fv / a_pop,
-           cov_total_a1d = adm_a1d / a_pop)
+           cov_total_a1d = adm_a1d / a_pop,
+           cov_total_booster = adm_booster / a_pop)
 
   print(" > Join dataframes...")
   # Merge with HCW population data frame
@@ -60,6 +61,10 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold){
       is.na(hcw_flag),
       pmin(N_VACC_DOSE1 / a_pop_hcw, 1),
       pmin((N_VACC_DOSE1 + (hcw_diff * cov_total_a1d)) / a_pop_hcw, 1))) %>%
+    mutate(adm_hcw_a1d = if_else(
+      is.na(hcw_flag),
+      pmin(N_VACC_DOSE1, a_pop_hcw),
+      pmin((N_VACC_DOSE1 + (hcw_diff * cov_total_a1d)), a_pop_hcw))) %>%
     mutate(cov_hcw_fv =
              pmin(
                (N_VACC_LAST_DOSE + if_else(
@@ -68,6 +73,13 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold){
                  hcw_diff * cov_total_fv
                )) / a_pop_hcw,
                1)) %>%
+    mutate(adm_hcw_fv =
+             pmin(
+               (N_VACC_LAST_DOSE + if_else(
+                 is.na(hcw_flag),
+                 0,
+                 hcw_diff * cov_total_fv
+               )), a_pop_hcw)) %>%
     mutate(cov_hcw_booster =
              pmin(1, N_VACC_BOOSTER_DOSE / a_pop_hcw)) 
   
@@ -111,14 +123,17 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold){
       a_pop,
       cov_total_fv,
       cov_total_a1d,
+      cov_total_booster,
       a_pop_hcw,
       a_pop_older,
       N_VACC_DOSE1,
       N_VACC_LAST_DOSE,
       N_VACC_BOOSTER_DOSE,
-      N_VACC_DOSE1_old,
-      N_VACC_LAST_DOSE_old,
-      N_VACC_BOOSTER_DOSE_old,
+      adm_a1d_old_cap,
+      adm_fv_old_cap,
+      adm_booster_old_cap,
+      adm_hcw_a1d,
+      adm_hcw_fv,
       cov_hcw_a1d,
       cov_hcw_fv,
       cov_hcw_booster,
@@ -136,9 +151,11 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold){
            "N_VACC_DOSE1",
            "N_VACC_LAST_DOSE",
            "N_VACC_BOOSTER_DOSE",
-           "N_VACC_DOSE1_old",
-           "N_VACC_LAST_DOSE_old",
-           "N_VACC_BOOSTER_DOSE_old",
+           "adm_a1d_old_cap",
+           "adm_fv_old_cap",
+           "adm_booster_old_cap",
+           "adm_hcw_a1d",
+           "adm_hcw_fv",
            "cov_old_a1d",
            "cov_old_fv",
            "cov_old_booster"))
