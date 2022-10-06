@@ -1,6 +1,6 @@
 
 # SET WD
-# setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
+setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
 # setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
 
 # CLEAR ENVIRONMENT
@@ -20,7 +20,8 @@ lib <- c("tidyverse",
          "jsonlite",
          "AzureAuth",
          "dotenv",
-         "reticulate")
+         "reticulate",
+         "ggrepel")
     
 lib_na <- lib[!(lib %in% installed.packages()[, "Package"])]
 if (length(lib_na)) install.packages(lib_na)
@@ -94,8 +95,11 @@ eda_adm_cov_env <- run_eda_adm_cov(
     supply_env$c_delivery_product,
     finance_env$b_fin_fund_del_sum,
     .GlobalEnv$refresh_date,
-    .GlobalEnv$t70_deadline
+    .GlobalEnv$t70_deadline,
+    cov_disag_env$target_hcwold,
+    adm_cov_env$combined_three
 )
+
 supplies_env <- run_eda_supplies(eda_adm_cov_env$a_data)
 prod_util_env <- run_prod_util(
     supplies_env$a_data,
@@ -134,7 +138,7 @@ all_df <- list(
     "1_absorption_month" = adm_cov_env$d_absorption,
     "1_absorption_month_country" = adm_cov_env$combined,
     "1_cum_absorb_month_country" = adm_cov_env$d_absorption_country_new,
-    "1_stock" = adm_cov_env$combined_three,
+    "1_stock" = eda_adm_cov_env$timeseries,
     "1_adm_all_long" = adm_cov_env$b_vxrate_pub,
     "1_delivery_doses" = supply_env$supply_received_by_product,
     "1_secview" = prod_util_env$z_temp,
@@ -163,8 +167,8 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red
 )
 
- write_xlsx(all_df, "data/output/221006_output_powerbi.xlsx")
- write_xlsx(financing_env$api, "data/output/221006_output_api.xlsx")
+ write_xlsx(all_df, "data/output/220929_output_powerbi.xlsx")
+ write_xlsx(financing_env$api, "data/output/220929_output_api.xlsx")
  write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")

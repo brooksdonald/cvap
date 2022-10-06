@@ -12,9 +12,12 @@ run_eda_adm_cov <- function(
     c_delivery_product,
     b_fin_fund_del_sum,
     refresh_date,
-    t70_deadline
+    t70_deadline,
+    target_hcwold,
+    combined_three
 ) {
     source("eda/adm_cov/adm_consolidate.r")
+    source("eda/adm_cov/adm_timeseries.r")
 
     print(" > Starting local environment for vxrate...")
 
@@ -42,5 +45,7 @@ run_eda_adm_cov <- function(
     a_data <- datalist$a_data
     timeto_t70 <- datalist$timeto_t70
     print(" > Done.")
+    
+    timeseries <- merge_timeseries(a_data, combined_three, target_hcwold)
     return(environment())
 }
