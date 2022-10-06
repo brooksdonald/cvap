@@ -167,8 +167,8 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red
 )
 
- write_xlsx(all_df, "data/output/220929_output_powerbi.xlsx")
- write_xlsx(financing_env$api, "data/output/220929_output_api.xlsx")
+ write_xlsx(all_df, "data/output/221006_output_powerbi.xlsx")
+ write_xlsx(financing_env$api, "data/output/221006_output_api.xlsx")
  write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
