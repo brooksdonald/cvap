@@ -41,7 +41,7 @@ import_finance_data <- function() {
         sum(as.numeric(years) < 21) |
         sum(as.numeric(months) > 12) |
         sum(as.numeric(months) < 1)) {
-        stop("One of IMF datasets does not conform to year-month format
+        stop("One of C19VFM datasets does not conform to year-month format
             (must be, e.g., 2108 for Aug 2021)")
     }
     print(paste0(" >> Names of all ", length(files), " files are valid"))
@@ -82,20 +82,19 @@ import_finance_data <- function() {
         select(
             columns
         )
-    # Summing 
+    # Summing up the fund total
     df_list[[i]] <- df_list[[i]] %>%
       drop_na(ISO.Code) %>%
-      select(
-        ISO.Code,
-        Funding.Amount,
-        Recipient.Type,
-        Information.Type,
-        Allocation.Type,
-        Double.Counting,
-        month_name
-      ) %>%
-      group_by(ISO.Code, month_name, Recipient.Type, Information.Type,  Allocation.Type, Double.Counting,) %>%
-      summarize_at("Funding.Amount", sum, na.rm = TRUE)
+        filter(
+            Recipient.Type == "Country" &
+            Information.Type == "Funding Information" &
+            Double.Counting == "Keep" &
+            Allocation.Type == "Vaccine Delivery" &
+            is.na(Funding.Amount) == FALSE &
+            Funding.Amount != 0
+        ) %>%
+    group_by(ISO.Code, month_name) %>%
+    summarize_at("Funding.Amount", sum, na.rm = TRUE)
     }
     # appending all dataframes together
     print(" >> Combining monthly delivery data...")
@@ -131,20 +130,19 @@ overall_cumul_long <- import_finance_data()
 transform_fin_data <- function(overall_cumul_long) {
     print(" >> Transforming finacial data...")
     overall_long <- overall_cumul_long %>%
-    filter(
-        Recipient.Type == "Country" &
-      Information.Type == "Funding Information" &
-      Double.Counting == "Keep" &
-      Allocation.Type == "Vaccine Delivery" &
-      is.na(Funding.Amount) == FALSE &
-      Funding.Amount != 0
-    )
+        arrange(month_name) %>%
+        mutate(Net_per_month = Funding.Amount - lag(Funding.Amount))
     return(overall_long)
 }
-# View(transform_fin_data(overall_cumul_long))
 overall_long <- transform_fin_data(overall_cumul_long)
+View(transform_fin_data(overall_cumul_long))
+
 # write_xlsx(overall_long, "data/output/finance_ts_v1.xlsx")
-View(overall_long)
+# View(overall_long)
+
+
+
+
 
 # }
 # transform_fin_data(overall_cumul_long)
