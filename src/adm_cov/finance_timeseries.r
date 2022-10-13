@@ -143,8 +143,8 @@ transform_fin_data <- function(overall_cumul_long) {
 }
 # View(transform_fin_data(overall_cumul_long))
 overall_long <- transform_fin_data(overall_cumul_long)
-write_xlsx(overall_long, "data/output/finance_ts_v1.xlsx")
-# View(overall_long)
+# write_xlsx(overall_long, "data/output/finance_ts_v1.xlsx")
+View(overall_long)
 
 # }
 # transform_fin_data(overall_cumul_long)
