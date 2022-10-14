@@ -100,7 +100,11 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
            cov_old_a1d = pmin(adm_a1d_old_cap / a_pop_older, 1),
            cov_old_fv = pmin(adm_fv_old_cap / a_pop_older, 1),
            cov_old_booster = pmin(adm_booster_old_cap / a_pop_older, 1))
-  
+
+  # Calculate per capita funing amount
+  timeseries <- timeseries %>%
+    mutate(Funds_per_capita = Funding.Amount / a_pop)
+
   timeseries <- timeseries %>%
     select(
       iso,
@@ -140,7 +144,9 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
       cov_hcw_booster,
       cov_old_a1d,
       cov_old_fv,
-      cov_old_booster
+      cov_old_booster,
+      Funding.Amount,
+      Funds_per_capita
     )
   
   timeseries <- timeseries %>%
@@ -162,8 +168,6 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
            "cov_old_booster"))
   
   view(timeseries)
-  
-  
   
   print(" > Returning...")
 
