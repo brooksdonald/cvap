@@ -95,7 +95,10 @@ eda_adm_cov_env <- run_eda_adm_cov(
     supply_env$c_delivery_product,
     finance_env$b_fin_fund_del_sum,
     .GlobalEnv$refresh_date,
-    .GlobalEnv$t70_deadline
+    .GlobalEnv$t70_deadline,
+    cov_disag_env$target_hcwold,
+    adm_cov_env$combined_three,
+    adm_cov_env$overall_fin_cumul_long
 )
 supplies_env <- run_eda_supplies(eda_adm_cov_env$a_data)
 prod_util_env <- run_prod_util(
@@ -164,8 +167,8 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red
 )
 
- write_xlsx(all_df, "data/output/220921_output_powerbi.xlsx")
- write_xlsx(financing_env$api, "data/output/220921_output_api.xlsx")
- write_xlsx(all_df, "data/output/output_master.xlsx")
+#  write_xlsx(all_df, "data/output/220921_output_powerbi.xlsx")
+#  write_xlsx(financing_env$api, "data/output/220921_output_api.xlsx")
+#  write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")

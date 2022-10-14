@@ -61,16 +61,12 @@ import_finance_data <- function() {
         "Information.Type",
         "Allocation.Type",
         "Funding.Amount",
-        "Funding.Source.Type.2",
-        "Funding.Source.Type",
-        "Funding.Source",
         "Double.Counting",
-        "Commitments",
-        "Disbursements",
-        "FA",
         "month_name"
     )
+    print(" > Done.")
     # Loop through all columns in files to check existence of all column
+    print(" > Looping through all columns in the files present to check if all columns exist...")
     for (i in seq_along(df_list)) {
         for (c in columns) {
             if (!(c %in% colnames(df_list[[i]]))) {
@@ -104,17 +100,19 @@ import_finance_data <- function() {
     return(overall_cumul_long)
 }
 # View(import_finance_data())
-overall_cumul_long <- import_finance_data()
 
-transform_fin_data <- function(overall_cumul_long) {
-    print(" >> Transforming finacial data...")
-    overall_long <- overall_cumul_long %>%
-        arrange(month_name) %>%
-        mutate(Net_per_month = Funding.Amount - lag(Funding.Amount))
-    return(overall_long)
-}
-overall_long <- transform_fin_data(overall_cumul_long)
-View(transform_fin_data(overall_cumul_long))
 
-# write_xlsx(overall_long, "data/output/finance_ts_v1.xlsx")
+# Uncomment section below to get net per month.
+# overall_fin_cumul_long <- import_finance_data()
+# transform_fin_data <- function(overall_fin_cumul_long) {
+#     print(" >> Transforming finacial data...")
+#     overall_fin_long <- overall_fin_cumul_long %>%
+#         arrange(month_name) %>%
+#         mutate(Net_per_month = Funding.Amount - lag(Funding.Amount))
+#     return(overall_fin_long)
+# }
+# overall_fin_long <- transform_fin_data(overall_fin_cumul_long)
+# View(transform_fin_data(overall_cumul_long))
+
+# write_xlsx(overall_long, "data/output/finance_ts_v2.xlsx")
 # View(overall_long)
