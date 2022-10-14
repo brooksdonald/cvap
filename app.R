@@ -97,7 +97,8 @@ eda_adm_cov_env <- run_eda_adm_cov(
     .GlobalEnv$refresh_date,
     .GlobalEnv$t70_deadline,
     cov_disag_env$target_hcwold,
-    adm_cov_env$combined_three
+    adm_cov_env$combined_three,
+    adm_cov_env$overall_fin_cumul_long
 )
 
 supplies_env <- run_eda_supplies(eda_adm_cov_env$a_data)

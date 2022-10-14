@@ -1,5 +1,5 @@
 
-merge_timeseries <- function(a_data, combined_three, target_hcwold){
+merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_cumul_long){
   
   # Select necessary entity characteristics
   a_data_temp_ts <- a_data %>%
@@ -21,10 +21,11 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold){
            cov_total_booster = adm_booster / a_pop)
 
   print(" > Join dataframes...")
-  # Merge with HCW population data frame
+  # Merge finance timeseries data with HCW population data frame
   timeseries <- left_join(combined_three, a_data_temp_ts, by = c("iso" = "a_iso"), copy = TRUE) %>%
-    left_join(., target_hcwold, by = c("iso" = "ISO_3_CODE", "adm_date_month" = "adm_date_month"), copy = TRUE)
-  
+    left_join(., target_hcwold, by = c("iso" = "ISO_3_CODE", "adm_date_month" = "adm_date_month"), copy = TRUE) %>%
+    left_join(., overall_fin_cumul_long, by = c("iso" = "ISO.Code", "month_name"), copy = TRUE)
+
   print(" > Calculating HCW specific fields...")
   # Calculate HCW flag & diff
   timeseries <- timeseries %>%
@@ -99,7 +100,11 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold){
            cov_old_a1d = pmin(adm_a1d_old_cap / a_pop_older, 1),
            cov_old_fv = pmin(adm_fv_old_cap / a_pop_older, 1),
            cov_old_booster = pmin(adm_booster_old_cap / a_pop_older, 1))
-  
+
+  # Calculate per capita funing amount
+  timeseries <- timeseries %>%
+    mutate(Funds_per_capita = Funding.Amount / a_pop)
+
   timeseries <- timeseries %>%
     select(
       iso,
@@ -139,7 +144,9 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold){
       cov_hcw_booster,
       cov_old_a1d,
       cov_old_fv,
-      cov_old_booster
+      cov_old_booster,
+      Funding.Amount,
+      Funds_per_capita
     )
   
   timeseries <- timeseries %>%
@@ -161,8 +168,6 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold){
            "cov_old_booster"))
   
   view(timeseries)
-  
-  
   
   print(" > Returning...")
 

@@ -14,7 +14,8 @@ run_eda_adm_cov <- function(
     refresh_date,
     t70_deadline,
     target_hcwold,
-    combined_three
+    combined_three,
+    overall_fin_cumul_long
 ) {
     source("eda/adm_cov/adm_consolidate.r")
     source("eda/adm_cov/adm_timeseries.r")
@@ -46,6 +47,6 @@ run_eda_adm_cov <- function(
     timeto_t70 <- datalist$timeto_t70
     print(" > Done.")
     
-    timeseries <- merge_timeseries(a_data, combined_three, target_hcwold)
+    timeseries <- merge_timeseries(a_data, combined_three, target_hcwold, overall_fin_cumul_long)
     return(environment())
 }

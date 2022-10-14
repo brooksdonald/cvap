@@ -5,6 +5,7 @@ run_adm_cov <- function(entity_characteristics,
     source("src/adm_cov/dvr_current.r")
     source("src/adm_cov/dvr_prev.r")
     source("src/adm_cov/supply_timeseries.r")
+    source("src/adm_cov/finance_timeseries.r")
 
     path_to_timeseries_data <- "data/input/test/"
 
@@ -101,6 +102,11 @@ run_adm_cov <- function(entity_characteristics,
         datalist2$b_supply_red,
         overall_cumul_long
     )
+    print(" > Done.")
+
+    print(" > Producing finance timeseries data...")
+    overall_fin_cumul_long <- import_finance_data()
+    # overall_fin_long <- transform_fin_data(overall_fin_cumul_long) # Uncomment to include net per month
     print(" > Done.")
 
     print(" > Last week, last month, vaccinations and recreated 13jan data")
