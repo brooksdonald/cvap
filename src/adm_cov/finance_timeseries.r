@@ -96,10 +96,12 @@ import_finance_data <- function() {
     print(" >> Combining monthly delivery data...")
     overall_cumul_long <- df_list %>%
         bind_rows() %>%
-        arrange(month_name, ISO.Code)
+        arrange(month_name, ISO.Code) %>%
+        mutate(month_name = as.Date(paste0(as.character(month_name), '-01'), format = '%Y-%m-%d'))    
+    # overall_cumul_long$month_name <- as.Date(overall_cumul_long$month_name)
     return(overall_cumul_long)
 }
-# View(import_finance_data())
+View(import_finance_data())
 
 
 # Uncomment section below to get net per month.

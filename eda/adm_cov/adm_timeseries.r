@@ -24,7 +24,7 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
   # Merge finance timeseries data with HCW population data frame
   timeseries <- left_join(combined_three, a_data_temp_ts, by = c("iso" = "a_iso"), copy = TRUE) %>%
     left_join(., target_hcwold, by = c("iso" = "ISO_3_CODE", "adm_date_month" = "adm_date_month"), copy = TRUE) %>%
-    left_join(., overall_fin_cumul_long, by = c("iso" = "ISO.Code"), copy = TRUE)
+    left_join(., overall_fin_cumul_long, by = c("iso" = "ISO.Code", "month_name"), copy = TRUE)
 
   print(" > Calculating HCW specific fields...")
   # Calculate HCW flag & diff
