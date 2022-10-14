@@ -243,23 +243,18 @@ transform_current_vxrate_pub <- function(b_vxrate, auto_cleaning) {
     columns <- append(columns,
       c("adm_a1d_adj", "adm_fv_adj"))
   }
-  b_vxrate_pub <-
-  select(
-    b_vxrate,
-    columns
-    )
-    ### Calculate dvr_4wk_td_per in long form subsets
-    b_vxrate_pub <- b_vxrate_pub %>%
-      mutate(dvr_4wk_td_per = dvr_4wk_td / a_pop)
-    
+
     ### Calculate population coverage in long form datasets
-    b_vxrate_pub <- b_vxrate_pub %>%
-      mutate(cov_total_fv = adm_fv / a_pop) %>%
-      
-      mutate(cov_total_fv_theo = (adm_td / 2) / a_pop)
+    b_vxrate_pub <- b_vxrate %>%
+      select(columns) %>%
+      mutate(dvr_4wk_td_per = dvr_4wk_td / a_pop,
+             cov_total_fv = adm_fv / a_pop,
+             cov_total_fv_theo = (adm_td / 2) / a_pop,
+             cov_total_a1d = adm_a1d / a_pop)
 
     return(b_vxrate_pub)
 }
+
 
 transform_subset_amc <- function(b_vxrate) {
   print(" >> Create clean long form subsets for b_vxrate_amc")
@@ -396,18 +391,23 @@ transform_abspt_by_month <- function(b_vxrate, current_month) {
         "a_income_group",
         "a_csc_status",
         "adm_date_month",
-        "adm_td"
+        "adm_td",
+        "adm_a1d",
+        "adm_fv",
+        "adm_booster"
       )
     )
 
   ### Create temporary previous month data frame to allow calculation
   z_vxrate_eom_temp <- 
-    select(c_vxrate_eom, c("a_iso", "adm_date_month", "adm_td"))
+    select(c_vxrate_eom, c("a_iso", "adm_date_month", "adm_td", 
+                           "adm_a1d","adm_fv", "adm_booster"))
   
   z_vxrate_eom_temp <- z_vxrate_eom_temp %>%
     mutate(adm_date_month = adm_date_month + 1)
     colnames(z_vxrate_eom_temp) <-
-      c("a_iso", "adm_date_month", "adm_td_lm")
+      c("a_iso", "adm_date_month", "adm_td_lm", "adm_a1d_lm","adm_fv_lm",
+        "adm_booster_lm")
 
   ### Calculate change by month
   c_vxrate_eom <- 
@@ -418,13 +418,28 @@ transform_abspt_by_month <- function(b_vxrate, current_month) {
     )
 
   c_vxrate_eom <- c_vxrate_eom %>%
-    mutate(adm_td_absorbed = adm_td - adm_td_lm)
+    mutate(adm_td_absorbed = adm_td - adm_td_lm,
+           adm_a1d_change = adm_a1d - adm_a1d_lm,
+           adm_fv_change = adm_fv - adm_fv_lm,
+           adm_booster_change = adm_booster - adm_booster_lm)
 
   c_vxrate_eom <- c_vxrate_eom %>%
     mutate(adm_td_absorbed = if_else(
       is.na(adm_td_absorbed),
       adm_td,
-      adm_td_absorbed))
+      adm_td_absorbed)) %>%
+    mutate(adm_a1d_change = if_else(
+      is.na(adm_a1d_change),
+      adm_a1d,
+      adm_a1d_change)) %>%
+    mutate(adm_fv_change = if_else(
+      is.na(adm_fv_change),
+      adm_fv,
+      adm_fv_change)) %>%
+    mutate(adm_booster_change = if_else(
+      is.na(adm_booster_change),
+      adm_booster,
+      adm_booster_change))
 
   ## Note: list of months is automatically generated from "2021-01" to month of refresh_date
   c_vxrate_eom$adm_date_month_name <- helper_mapping_months( 
@@ -447,7 +462,13 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
       "a_csc_status",
       "adm_td",
       "adm_date_month",
-      "adm_td_absorbed"
+      "adm_td_absorbed",
+      "adm_fv",
+      "adm_fv_change",
+      "adm_a1d",
+      "adm_a1d_change",
+      "adm_booster",
+      "adm_booster_change"
     )
   )
   ## Note: list of months is automatically generated from "2021-01" to month of refresh_date
@@ -465,7 +486,13 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
       "a_csc_status",
       "adm_td",
       "adm_td_absorbed",
-      "adm_date_month_name"
+      "adm_date_month_name",
+      "adm_fv",
+      "adm_fv_change",
+      "adm_a1d",
+      "adm_a1d_change",
+      "adm_booster",
+      "adm_booster_change"
     )
   )
   print(" >> Renaming columns...")
@@ -475,20 +502,32 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
     "a_csc_status",
     "adm_td",
     "value",
-    "month_name"
+    "month_name",
+    "adm_fv",
+    "adm_fv_change",
+    "adm_a1d",
+    "adm_a1d_change",
+    "adm_booster",
+    "adm_booster_change"
   )
   d_absorption_country$a_amc_status <- NA
   d_absorption_country$a_amc_status[d_absorption_country$a_covax_status == "AMC" & d_absorption_country$iso != "IND"] <- "AMC91"  
   d_absorption_country$a_amc_status[d_absorption_country$a_covax_status == "AMC" & d_absorption_country$iso == "IND"] <- "India"  
   d_absorption_country$type <- "Absorbed"
-  print(" >> Selecting columns needed from d_absorption_country for d_absorb_red...") #nolint
+  print(" >> Selecting columns needed from d_absorption_country for d_absorb_red...")
   d_absorb_red <- select(
     d_absorption_country,
     c(
       "iso",
       "month_name",
       "value",
-      "adm_td"
+      "adm_td",
+      "adm_fv",
+      "adm_fv_change",
+      "adm_a1d",
+      "adm_a1d_change",
+      "adm_booster",
+      "adm_booster_change"
     )
   )
   print(" >> Renaming columns for d_absorb_red...")
@@ -496,14 +535,21 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
     "iso",
     "month_name",
     "absorbed",
-    "adm_td"
+    "adm_td",
+    "adm_fv",
+    "adm_fv_change",
+    "adm_a1d",
+    "adm_a1d_change",
+    "adm_booster",
+    "adm_booster_change"
   )
   datalist <- list("d_absorb_red" = d_absorb_red,
     "d_absorption_country" = d_absorption_country)
   return(datalist)
 }
 
-first_supplies <- function(d_absorb_red, d_absorption_country, overall_long) {
+first_supplies <- function(d_absorb_red, d_absorption_country, overall_long, 
+                           overall_cumul_long) {
   print(" >> Loading supplies data from supply dataset...")
   b_supply <- overall_long
   print(" >> Selecting columns needed for b_supply_red...")
@@ -521,6 +567,18 @@ first_supplies <- function(d_absorb_red, d_absorption_country, overall_long) {
     "month_name",
     "received"
   )
+  b_supply_add <- overall_cumul_long
+  print(" >> Selecting columns needed for b_supply_red...")
+  b_supply_add <- select(
+    b_supply_add,
+    c(
+      "iso",
+      "month_name",
+      "supply"
+    )
+  )
+  b_supply_red <- left_join(b_supply_red, b_supply_add, by = c("iso" = "iso", 
+                                                               "month_name" = "month_name"))
   combined <- rbind(d_absorption_country, b_supply)
   datalist <- list("combined" = combined, "b_supply_red" = b_supply_red)
   return(datalist)

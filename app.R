@@ -1,7 +1,6 @@
 
 # SET WD
 # setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
-# setwd("C:/Users/rafae/Desktop/covid19_vaccination_analysis") #Rafael
 # setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
 
 # CLEAR ENVIRONMENT
@@ -21,7 +20,8 @@ lib <- c("tidyverse",
          "jsonlite",
          "AzureAuth",
          "dotenv",
-         "reticulate")
+         "reticulate",
+         "ggrepel")
     
 lib_na <- lib[!(lib %in% installed.packages()[, "Package"])]
 if (length(lib_na)) install.packages(lib_na)
@@ -29,9 +29,9 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2022-09-22")
+.GlobalEnv$refresh_date <- as.Date("2022-10-13")
 .GlobalEnv$sec_date <- as.Date("2022-08-31")
-.GlobalEnv$del_date <- as.Date("2022-09-20")
+.GlobalEnv$del_date <- as.Date("2022-10-11")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
@@ -100,6 +100,7 @@ eda_adm_cov_env <- run_eda_adm_cov(
     adm_cov_env$combined_three,
     adm_cov_env$overall_fin_cumul_long
 )
+
 supplies_env <- run_eda_supplies(eda_adm_cov_env$a_data)
 prod_util_env <- run_prod_util(
     supplies_env$a_data,
@@ -138,7 +139,7 @@ all_df <- list(
     "1_absorption_month" = adm_cov_env$d_absorption,
     "1_absorption_month_country" = adm_cov_env$combined,
     "1_cum_absorb_month_country" = adm_cov_env$d_absorption_country_new,
-    "1_stock" = adm_cov_env$combined_three,
+    "1_stock" = eda_adm_cov_env$timeseries,
     "1_adm_all_long" = adm_cov_env$b_vxrate_pub,
     "1_delivery_doses" = supply_env$supply_received_by_product,
     "1_secview" = prod_util_env$z_temp,
@@ -167,8 +168,8 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red
 )
 
-#  write_xlsx(all_df, "data/output/220921_output_powerbi.xlsx")
-#  write_xlsx(financing_env$api, "data/output/220921_output_api.xlsx")
+#  write_xlsx(all_df, "data/output/221013_output_powerbi.xlsx")
+#  write_xlsx(financing_env$api, "data/output/221013_output_api.xlsx")
 #  write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")

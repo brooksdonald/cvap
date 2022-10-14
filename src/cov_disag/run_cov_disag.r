@@ -2,6 +2,7 @@
 
 run_cov_disag <- function(headers, refresh_api) {
     source("src/cov_disag/cov_disag.r")
+    source("src/cov_disag/cov_disag_long.r")
 
     print(" > Starting local environment for cov_disag")
 
@@ -12,6 +13,8 @@ run_cov_disag <- function(headers, refresh_api) {
         as.data.frame(datalist$uptake_groups)
     )
     print(" > Done.")
+    
+    target_hcwold <- create_hrg_timeseries()
 
     print(" > Returning to global environment. ")
     return(environment())

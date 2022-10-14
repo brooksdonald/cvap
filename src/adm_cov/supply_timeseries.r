@@ -218,7 +218,6 @@ transform_monthly_supply_received <- function(overall_cumul_long) {
     # adding type
     mutate(type = "Received") %>%
     # removing supply column and observation from July 2021
-    select(-supply) %>%
     filter(
       month_name != first(overall_cumul_long$month_name))
 
