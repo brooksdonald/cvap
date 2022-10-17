@@ -609,6 +609,78 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     right = TRUE
   )
   
+  # Calculate coverage difference between HCWs and total in reporting countries
+  print(" >>> Computing coverage difference between HCWs and total in reporting countries...")
+  a_data <- a_data %>%
+    mutate(
+      csc_cov_total_fv = ifelse(
+        a_csc_status == "Concerted support country",
+        cov_total_fv,
+        NA
+      ))
+  
+  # Calculate coverage difference between HCWs and total in reporting countries
+  print(" >>> Computing coverage difference between HCWs and total in reporting countries...")
+  a_data <- a_data %>%
+    mutate(
+      csc_cov_hcw_fv = ifelse(
+        a_csc_status == "Concerted support country",
+        cov_hcw_fv,
+        NA
+      ))
+
+  # Calculate coverage difference between HCWs and total in reporting countries
+  print(" >>> Computing coverage difference between HCWs and total in reporting countries...")
+  a_data <- a_data %>%
+    mutate(
+      csc_cov_60p_fv = ifelse(
+        a_csc_status == "Concerted support country",
+        cov_60p_fv,
+        NA
+      ))
+  
+  # Calculate coverage difference between HCWs and total in reporting countries
+  print(" >>> Computing coverage difference between HCWs and total in reporting countries...")
+  a_data <- a_data %>%
+    mutate(
+      csc_cov_total_hcw_diff = ifelse(
+        adm_fv_hcw_repstat == "Reporting" & a_csc_status == "Concerted support country",
+        cov_hcw_fv - cov_total_fv,
+        NA
+      ))
+  
+  # Calculate coverage difference between 60 plus and total in reporting countries
+  print(" >>> Computing coverage difference between HCWs and total in reporting countries...")
+  a_data <- a_data %>%
+    mutate(
+      csc_cov_total_60p_diff = ifelse(
+        adm_fv_60p_repstat == "Reporting" & a_csc_status == "Concerted support country",
+        cov_60p_fv - cov_total_fv,
+        NA
+      ))
+  
+  # Categorize comparison of coverage between HCWs and total
+  breaks <- c(-Inf, 0, Inf)
+  tags <- c("CSC countries with complete primary series coverage of healthcare workers lesser than total", "CSC countries with complete primary series coverage of healthcare workers greater than total")
+  a_data$cov_total_hcw_com_csc <- cut(
+    a_data$csc_cov_total_hcw_diff,
+    breaks = breaks,
+    labels = tags,
+    include.lowest = FALSE,
+    right = TRUE
+  )
+  
+  # Categorize comparison of coverage between 60 plus and total
+  breaks <- c(-Inf, 0, Inf)
+  tags <- c("CSC countries with complete primary series coverage of older adults lesser than total", "CSC countries with complete primary series coverage of older adults greater than total")
+  a_data$cov_total_60p_com_csc <- cut(
+    a_data$csc_cov_total_60p_diff,
+    breaks = breaks,
+    labels = tags,
+    include.lowest = FALSE,
+    right = TRUE
+  )
+  
   breaks <- c(-Inf, -0.25, 0.25, Inf)
   tags <- c("Downward", "Stable", "Upward")
   a_data$dvr_4wk_td_change_lm_trend <- cut(
@@ -618,7 +690,13 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     include.lowest = FALSE,
     right = TRUE
   )
+  
+  a_data <- a_data %>%
+    mutate(adm_hcw_booster_cap = pmin(adm_booster_hcw, a_pop_hcw))
 
+  a_data <- a_data %>%
+    mutate(adm_60p_booster_cap = pmin(adm_booster_60p, a_pop_60p))
+  
   a_data <- a_data %>%
     mutate(dvr_4wk_td_change_lm_trend = replace_na(
       dvr_4wk_td_change_lm_trend,
