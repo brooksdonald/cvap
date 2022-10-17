@@ -42,8 +42,8 @@ comparisons <- function(condense_list) {
     data_list[["cov_60p_"]], join_by = "com_stat"
   )
   return(list(
-    "com_hcw_all" = e_com_hcw_all,
-    "com_60p_all" = e_com_60p_all
+    "com_hcw" = e_com_hcw_all,
+    "com_60p" = e_com_60p_all
   )
   )
 }

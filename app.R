@@ -1,7 +1,7 @@
 
 # SET WD
 # setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
-setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
+# setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
 
 # CLEAR ENVIRONMENT
 rm(list = ls())
@@ -29,7 +29,7 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2022-10-16")
+.GlobalEnv$refresh_date <- as.Date("2022-10-13")
 .GlobalEnv$sec_date <- as.Date("2022-08-31")
 .GlobalEnv$del_date <- as.Date("2022-10-11")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
@@ -160,8 +160,6 @@ all_df <- list(
     "8_cov_cat" = consolidate_env$e_cov_all,
     "8_cov_com_hcw_all" = consolidate_env$e_cov_com_hcw_all,
     "8_cov_com_60p_all" = consolidate_env$e_cov_com_60p_all,
-    "8_cov_com_hcw_csc" = consolidate_env$e_cov_com_hcw_csc,
-    "8_cov_com_60p_csc" = consolidate_env$e_cov_com_60p_csc,
     "8_ndvp_tar_cat" = consolidate_env$e_ndvp_all,
     "9_values" = consolidate_env$z_values,
     "1_funding_long" = finance_env$b_fin_fund_del_long,
@@ -170,8 +168,8 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red
 )
 
-#  write_xlsx(all_df, "data/output/221016_output_powerbi.xlsx")
-#  write_xlsx(financing_env$api, "data/output/221016_output_api.xlsx")
+#  write_xlsx(all_df, "data/output/221013_output_powerbi.xlsx")
+#  write_xlsx(financing_env$api, "data/output/221013_output_api.xlsx")
 #  write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
