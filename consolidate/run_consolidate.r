@@ -9,8 +9,7 @@ run_consolidate <- function(a_data, a_data_amc, a_data_africa,
     source("consolidate/consolidate_values.r")
     source("consolidate/consolidate_filter.r")
     source("consolidate/consolidate_covcom.r")
-    source("consolidate/consolidate_covcom_csc.r")
-  
+
     print(" > Starting local environment for consolidation summary")
     print(" > Consolidating base file...")
     condense_list <- load_base_condense_file(a_data)
@@ -26,10 +25,6 @@ run_consolidate <- function(a_data, a_data_amc, a_data_africa,
     
     print(" > Consolidating comparisons...")
     com_list <- comparisons(condense_list)
-    print(" > Done.")
-    
-    print(" > Consolidating comparisons (CSC)...")
-    com_list_csc <- comparisons_csc(condense_list)
     print(" > Done.")
     
     print(" > Consolidating Supplies & Product utilization...")
@@ -70,10 +65,8 @@ run_consolidate <- function(a_data, a_data_amc, a_data_africa,
     e_ndvp_all <- tgt_list[["ndvp"]]
     e_secdelpu_all <- supp_list[["all"]]
     e_cov_all <- supp_list[["coverage"]]
-    e_cov_com_hcw_all <- com_list[["com_hcw_all"]]
-    e_cov_com_60p_all <- com_list[["com_60p_all"]]
-    e_cov_com_hcw_csc <- com_list_csc[["com_hcw_csc"]]
-    e_cov_com_60p_csc <- com_list_csc[["com_60p_csc"]]
+    e_cov_com_hcw_all <- com_list[["com_hcw"]]
+    e_cov_com_60p_all <- com_list[["com_60p"]]
     print(" > Ok.")
     return(environment())
 }
