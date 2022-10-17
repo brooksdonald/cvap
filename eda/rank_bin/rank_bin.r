@@ -6,6 +6,12 @@ grouping_by_one <- function(a_data) {
     mutate(cov_total_fv_rank = row_number(cov_total_fv)) %>%
     mutate(cov_total_fv_bins = ntile(cov_total_fv_rank, 2))
 
+  # Coverage fully vaccinated (% pop.)
+  a_data <- a_data %>%
+    group_by(a_csc_status) %>%
+    mutate(csc_cov_total_fv_rank = row_number(csc_cov_total_fv)) %>%
+    mutate(csc_cov_total_fv_bins = ntile(csc_cov_total_fv, 2))
+  
   ##4-week average daily vaccination rate (% pop. / day)
   a_data <- a_data %>%
     group_by(a_covax_status) %>%
@@ -95,6 +101,18 @@ grouping_by_two <- function(a_data) {
     mutate(cov_60p_fv_rank = row_number(cov_60p_fv)) %>%
     mutate(cov_60p_fv_bins = ntile(cov_60p_fv_rank, 2))
   
+  ## HCW coverage
+  a_data <- a_data %>%
+    group_by(a_csc_status, intro_status) %>%
+    mutate(csc_cov_hcw_fv_rank = row_number(csc_cov_hcw_fv)) %>%
+    mutate(csc_cov_hcw_fv_bins = ntile(csc_cov_hcw_fv_rank, 2))
+  
+  ## 60+ coverage
+  a_data <- a_data %>%
+    group_by(a_csc_status, intro_status) %>%
+    mutate(csc_cov_60p_fv_rank = row_number(csc_cov_60p_fv)) %>%
+    mutate(csc_cov_60p_fv_bins = ntile(csc_cov_60p_fv_rank, 2))
+
   ## Gender coverage
   a_data <- a_data %>%
     group_by(a_covax_status, intro_status) %>%

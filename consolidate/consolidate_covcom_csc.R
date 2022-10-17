@@ -1,7 +1,7 @@
 ## Past coverage targets
 
-comparisons <- function(condense_list) {
-  target_list <- list("amc")
+comparisons_csc <- function(condense_list) {
+  target_list <- list("csc")
   
   column_names_value <- list("cov_hcw_", "cov_60p_")
   column_names_name <- list(
@@ -17,8 +17,8 @@ comparisons <- function(condense_list) {
   for (target in target_list) {
     df <- condense_list[[target]]
     aggregate_columns_list <- list(
-      df$cov_total_hcw_com,
-      df$cov_total_60p_com
+      df$cov_total_hcw_com_csc,
+      df$cov_total_60p_com_csc
     )
     for (i in seq_len(length(column_names_value))) {
       df_value <- aggregate(df$a_name_short,
@@ -35,15 +35,15 @@ comparisons <- function(condense_list) {
   }
   
 
-  e_com_hcw_all <- helper_join_dataframe_list(
+  e_com_hcw_csc <- helper_join_dataframe_list(
     data_list[["cov_hcw_"]], join_by = "com_stat"
   )
-  e_com_60p_all <- helper_join_dataframe_list(
+  e_com_60p_csc <- helper_join_dataframe_list(
     data_list[["cov_60p_"]], join_by = "com_stat"
   )
   return(list(
-    "com_hcw_all" = e_com_hcw_all,
-    "com_60p_all" = e_com_60p_all
+    "com_hcw_csc" = e_com_hcw_csc,
+    "com_60p_csc" = e_com_60p_csc
   )
   )
 }
