@@ -608,7 +608,55 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     include.lowest = FALSE,
     right = TRUE
   )
+
+  # Categorize comparison of coverage between HCWs and total for CSC countries
+  a_data$cov_total_hcw_com_csc <- gsub("AMC participants", "CSC countries", a_data$cov_total_hcw_com)
+  a_data$cov_total_hcw_com_csc[a_data$a_csc_status == "Concerted support country" ] <- NA  
   
+  # Categorize comparison of coverage between 60 plus and total for CSC countries
+  a_data$cov_total_60p_com_csc <- gsub("AMC participants", "CSC countries", a_data$cov_total_60p_com)
+  a_data$cov_total_60p_com_csc[a_data$a_csc_status == "Concerted support country" ] <- NA  
+  
+  #   
+  # # Categorize comparison of coverage between HCWs and total
+  # breaks <- c(-Inf, 0, Inf)
+  # tags <- c("CSC countries with complete primary series coverage of healthcare workers lesser than total", "CSC countries with complete primary series coverage of healthcare workers greater than total")
+  # a_data$cov_total_hcw_com_csc <- cut(
+  #   a_data$cov_total_hcw_diff,
+  #   breaks = breaks,
+  #   labels = tags,
+  #   include.lowest = FALSE,
+  #   right = TRUE
+  # )
+  # 
+  # a_data <- a_data %>%
+  #   mutate(
+  #     cov_total_hcw_com_csc = ifelse(
+  #       a_csc_status == "Concerted support country",
+  #       cov_total_hcw_com_csc,
+  #       NA
+  #     ))  
+  # 
+  # # Categorize comparison of coverage between 60 plus and total
+  # breaks <- c(-Inf, 0, Inf)
+  # tags <- c("CSC countries with complete primary series coverage of older adults lesser than total", "CSC countries with complete primary series coverage of older adults greater than total")
+  # a_data$cov_total_60p_com_csc <- cut(
+  #   a_data$cov_total_60p_diff,
+  #   breaks = breaks,
+  #   labels = tags,
+  #   include.lowest = FALSE,
+  #   right = TRUE
+  # )  
+  # 
+  # a_data <- a_data %>%
+  #   mutate(
+  #     cov_total_60p_com_csc = ifelse(
+  #       a_csc_status == "Concerted support country",
+  #       cov_total_60p_com_csc,
+  #       NA
+  #     ))  
+  # 
+
   breaks <- c(-Inf, -0.25, 0.25, Inf)
   tags <- c("Downward", "Stable", "Upward")
   a_data$dvr_4wk_td_change_lm_trend <- cut(
