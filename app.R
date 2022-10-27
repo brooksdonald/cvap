@@ -29,7 +29,7 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2022-10-20")
+.GlobalEnv$refresh_date <- as.Date("2022-10-27")
 .GlobalEnv$sec_date <- as.Date("2022-08-31")
 .GlobalEnv$del_date <- as.Date("2022-10-17")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
@@ -131,11 +131,15 @@ consolidate_env <- run_consolidate(
     .GlobalEnv$refresh_date
 )
 
+source("consolidate/last_month/run_last_month.r")
+base_data_lm_env <- run_last_month()
+
 # EXPORT
 
 print(" > Exporting data outputs from pipeline to Excel workbooks...")
 all_df <- list(
     "0_base_data" = rank_bin_env$a_data,
+    "0_base_data_lm_change" = base_data_lm_env$base_data_lm_change,
     "1_absorption_month" = adm_cov_env$d_absorption,
     "1_absorption_month_country" = adm_cov_env$combined,
     "1_cum_absorb_month_country" = adm_cov_env$d_absorption_country_new,
@@ -170,8 +174,8 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red
 )
 
-  write_xlsx(all_df, "data/output/221020_output_powerbi.xlsx")
-  write_xlsx(financing_env$api, "data/output/221020_output_api.xlsx")
+  write_xlsx(all_df, "data/output/221027_output_powerbi.xlsx")
+  write_xlsx(financing_env$api, "data/output/221027_output_api.xlsx")
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")

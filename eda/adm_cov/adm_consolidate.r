@@ -617,6 +617,12 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   a_data$cov_total_60p_com_csc <- gsub("AMC participants", "CSC countries", a_data$cov_total_60p_com)
   a_data$cov_total_60p_com_csc[a_data$a_csc_status == "Concerted support country" ] <- NA  
   
+  a_data <- a_data %>%
+    mutate(adm_hcw_booster_cap = pmin(adm_booster_hcw, a_pop_hcw)) %>%
+    mutate(adm_60p_booster_cap = pmin(adm_booster_60p, a_pop_60p)) %>%
+    mutate(adm_hcw_a1d_cap = pmin(adm_a1d_hcw, a_pop_hcw)) %>%
+    mutate(adm_60p_a1d_cap = pmin(adm_a1d_60p, a_pop_60p))
+    
   #   
   # # Categorize comparison of coverage between HCWs and total
   # breaks <- c(-Inf, 0, Inf)

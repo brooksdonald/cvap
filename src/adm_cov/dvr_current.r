@@ -395,7 +395,7 @@ transform_abspt_by_month <- function(b_vxrate, current_month) {
         "adm_a1d",
         "adm_fv",
         "adm_booster"
-      )
+        )
     )
 
   ### Create temporary previous month data frame to allow calculation
