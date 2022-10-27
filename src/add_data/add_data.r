@@ -1,46 +1,9 @@
 load_base_data <- function(refresh_api) {
     print(" >> Load base smartsheet & WHO dashboard...")
-    b_smartsheet <- load_base_smartsheet()
+    #b_smartsheet <- load_base_smartsheet()
     b_who_dashboard <- load_who_dashboard(refresh_api)
-    datalist <- list("b_smartsheet" = b_smartsheet,
-        "b_who_dashboard" = b_who_dashboard)
+    datalist <- list("b_who_dashboard" = b_who_dashboard)
     return(datalist)
-}
-
-# Loading base smartsheet data
-load_base_smartsheet <- function() {
-    print(" >> Loading base smartsheet...")
-    b_smartsheet <- data.frame(
-        read_excel(
-            "data/input/base_smartsheet.xlsx",
-            sheet = "1. CRD-global-monitoring (PMO M"
-        )
-    )
-
-    # IMR Smartsheet
-    ## Select relevant columns and rename
-    print(" >> Selecting base smartsheet data...")
-    b_smartsheet <-
-        select(
-            b_smartsheet,
-            c(
-                "ISO3",
-                "NDVP...Coverage.target..",
-                "NDVP...Coverage.deadline",
-                "At.risk.for.expiry"
-            )
-        )
-
-    print(" >> Renaming Columns...")
-    colnames(b_smartsheet) <- c(
-        "a_iso",
-        "ss_target",
-        "ss_deadline",
-        "expiry_risk"
-    )
-
-    return(b_smartsheet)
-
 }
 
 # WHO COVID-19 Dashboard
@@ -85,40 +48,3 @@ load_who_dashboard <- function(refresh_api) {
     return(b_who_dashboard)
 }
 
-transform_base_smartsheet <- function(b_smartsheet) {
-    ## Rename expiry risk
-    print(" >> Renaming expiry risk...")
-    b_smartsheet$expiry_risk <- helper_replace_values_with_map(
-        data = b_smartsheet$expiry_risk,
-        values = c(
-            "Red",
-            "Yellow",
-            "Green"
-        ),
-        map = c(
-            "Doses at risk",
-            "Under observation",
-            "No doses at risk"
-        ),
-        na_fill = "Unknown"
-
-    )
-    b_smartsheet$expiry_risk_num <- helper_replace_values_with_map(
-        data = b_smartsheet$expiry_risk,
-        values = c(
-            "Doses at risk",
-            "Under observation",
-            "No doses at risk"
-        ),
-        map = c(1, 2, 3),
-        na_fill = 4,
-    )
-
-
-    ## Change country target field type to date
-    b_smartsheet$ss_deadline <-
-    as.Date(b_smartsheet$ss_deadline)
-
-    return(b_smartsheet)
-
-}
