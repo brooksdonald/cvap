@@ -28,8 +28,7 @@ extract_vxrate_details <- function(c_vxrate_latest) {
         "expiry_risk",
         "ss_target",
         "ss_deadline",
-        "country_source",
-        "adm_target_hcw_wpro"
+        "country_source"
       )
     )
 
@@ -317,14 +316,6 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     a_data$adm_fv_gen_repstat[a_data$a_iso == "DNK"]
   a_data$adm_fv_gen_repstat[a_data$a_iso == "SJM"] <-
     a_data$adm_fv_gen_repstat[a_data$a_iso == "NOR"]
-  
-  # Smooth WPRO healthcare worker target
-  a_data <- a_data %>%
-    mutate(adm_target_hcw = if_else(
-      is.na(adm_target_hcw_wpro), 
-      adm_target_hcw,
-      as.integer(adm_target_hcw_wpro)
-    ))
   
   # Healthcare worker
   a_data <- a_data %>%
@@ -627,17 +618,11 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   a_data$cov_total_60p_com_csc[a_data$a_csc_status == "Concerted support country" ] <- NA  
   
   a_data <- a_data %>%
-    mutate(adm_hcw_booster_cap = pmin(adm_booster_hcw, a_pop_hcw))
-  
-  a_data <- a_data %>%
-    mutate(adm_60p_booster_cap = pmin(adm_booster_60p, a_pop_60p))
-  
-  a_data <- a_data %>%
-    mutate(adm_hcw_a1d_cap = pmin(adm_a1d_hcw_homo, a_pop_hcw))
-  
-  a_data <- a_data %>%
-    mutate(adm_60p_a1d_cap = pmin(adm_a1d_60p_homo, a_pop_60p))
-  
+    mutate(adm_hcw_booster_cap = pmin(adm_booster_hcw, a_pop_hcw)) %>%
+    mutate(adm_60p_booster_cap = pmin(adm_booster_60p, a_pop_60p)) %>%
+    mutate(adm_hcw_a1d_cap = pmin(adm_a1d_hcw, a_pop_hcw)) %>%
+    mutate(adm_60p_a1d_cap = pmin(adm_a1d_60p, a_pop_60p))
+    
   #   
   # # Categorize comparison of coverage between HCWs and total
   # breaks <- c(-Inf, 0, Inf)
