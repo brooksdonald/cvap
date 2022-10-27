@@ -83,7 +83,8 @@ load_conc_supp_list <- function() {
         "ss_target",
         "ss_deadline",
         "country_source",
-        "date"
+        "date",
+        "adm_target_hcw_wpro"
     )
     return(b_adhoc)
 }
