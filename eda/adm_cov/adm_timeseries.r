@@ -167,8 +167,6 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
            "cov_old_fv",
            "cov_old_booster"))
   
-  view(timeseries)
-  
   print(" > Returning...")
 
   return(timeseries)

@@ -28,7 +28,8 @@ extract_vxrate_details <- function(c_vxrate_latest) {
         "expiry_risk",
         "ss_target",
         "ss_deadline",
-        "country_source"
+        "country_source",
+        "adm_target_hcw_wpro"
       )
     )
 
@@ -316,6 +317,14 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     a_data$adm_fv_gen_repstat[a_data$a_iso == "DNK"]
   a_data$adm_fv_gen_repstat[a_data$a_iso == "SJM"] <-
     a_data$adm_fv_gen_repstat[a_data$a_iso == "NOR"]
+  
+  # Smooth WPRO healthcare worker target
+  a_data <- a_data %>%
+    mutate(adm_target_hcw = if_else(
+      is.na(adm_target_hcw_wpro), 
+      adm_target_hcw,
+      as.integer(adm_target_hcw_wpro)
+    ))
   
   # Healthcare worker
   a_data <- a_data %>%
