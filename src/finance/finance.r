@@ -155,7 +155,7 @@ load_finance_urgent_data <- function() {
       "Details.on.the.request",
       "Status",
       "Sources.of.funding.identified..yes...no...Identified.as.not.urgent.",
-      "Estimated.utilization.rate"
+      "Utilization.rate"
     )
   )
   colnames(base_fin_urg_fun) <- c(
