@@ -1,7 +1,7 @@
 
 # SET WD
-setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
-#setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
+#setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
+setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
 
 # CLEAR ENVIRONMENT
 rm(list = ls())
@@ -29,14 +29,14 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2022-10-27")
+.GlobalEnv$refresh_date <- as.Date("2022-10-28")
 .GlobalEnv$sec_date <- as.Date("2022-08-31")
-.GlobalEnv$del_date <- as.Date("2022-10-17")
+.GlobalEnv$del_date <- as.Date("2022-10-26")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
 .GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
-.GlobalEnv$refresh_supply_timeseries <- TRUE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
+.GlobalEnv$refresh_supply_timeseries <- FALSE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
 
 # HELPERS
 
@@ -132,14 +132,15 @@ consolidate_env <- run_consolidate(
 )
 
 source("consolidate/last_month/run_last_month.r")
-base_data_lm_env <- run_last_month()
+
+last_month_env <- run_last_month()
 
 # EXPORT
 
 print(" > Exporting data outputs from pipeline to Excel workbooks...")
 all_df <- list(
     "0_base_data" = rank_bin_env$a_data,
-    "0_base_data_lm_change" = base_data_lm_env$base_data_lm_change,
+    "0_base_data_lm_change" = last_month_env$base_data_lm_change,
     "1_absorption_month" = adm_cov_env$d_absorption,
     "1_absorption_month_country" = adm_cov_env$combined,
     "1_cum_absorb_month_country" = adm_cov_env$d_absorption_country_new,
@@ -174,8 +175,8 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red
 )
 
-  write_xlsx(all_df, "data/output/221027_output_powerbi.xlsx")
-  write_xlsx(financing_env$api, "data/output/221027_output_api.xlsx")
+  write_xlsx(all_df, "data/output/221028_output_powerbi.xlsx")
+  write_xlsx(financing_env$api, "data/output/221028_output_api.xlsx")
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
