@@ -1,7 +1,7 @@
 
 # SET WD
-#setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
-setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
+setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
+#setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
 
 # CLEAR ENVIRONMENT
 rm(list = ls())
@@ -36,7 +36,7 @@ lapply(lib, library, character.only = TRUE)
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
 .GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
-.GlobalEnv$refresh_supply_timeseries <- FALSE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
+.GlobalEnv$refresh_supply_timeseries <- TRUE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
 
 # HELPERS
 

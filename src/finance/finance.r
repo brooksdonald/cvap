@@ -203,7 +203,7 @@ load_finance_cds_data <- function(entity_characteristics) {
   print(" >> Loading Gavi CDS financing data...")
   base_fin_cds <- data.frame(
     read_excel("data/input/base_financing_cds.xlsx",
-               sheet = "Status June22"
+               sheet = "Gavi CDS "
     )
   )
   print(" >> Select relevant columns from base_fin_cds & renaming...")
@@ -212,7 +212,7 @@ load_finance_cds_data <- function(entity_characteristics) {
     c(
       "ISO",
       "Comment",
-      "Application.approved",
+      "Date.of.First.Disbursement",
       "Amount.approved",
       "Amount.disbursed",
       "Funding.type"
