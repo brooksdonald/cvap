@@ -1,7 +1,7 @@
 
 # SET WD
-setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
-#setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
+# setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
+setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
 
 # CLEAR ENVIRONMENT
 rm(list = ls())
@@ -29,14 +29,14 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2022-10-28")
+.GlobalEnv$refresh_date <- as.Date("2022-11-03")
 .GlobalEnv$sec_date <- as.Date("2022-08-31")
 .GlobalEnv$del_date <- as.Date("2022-10-26")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
-.GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
-.GlobalEnv$refresh_supply_timeseries <- TRUE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
+.GlobalEnv$refresh_api <- FALSE # set to FALSE to use last API call
+.GlobalEnv$refresh_supply_timeseries <- FALSE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
 
 # HELPERS
 
@@ -175,8 +175,8 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red
 )
 
-  write_xlsx(all_df, "data/output/221028_output_powerbi.xlsx")
-  write_xlsx(financing_env$api, "data/output/221028_output_api.xlsx")
+  write_xlsx(all_df, "data/output/221103_output_powerbi.xlsx")
+  write_xlsx(financing_env$api, "data/output/221103_output_api.xlsx")
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
