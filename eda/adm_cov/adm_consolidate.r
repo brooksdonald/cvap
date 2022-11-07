@@ -618,6 +618,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   a_data$cov_total_60p_com_csc[a_data$a_csc_status == "Concerted support country" ] <- NA  
   
 
+  a_data$adm_booster_cap <- pmin(a_data$adm_booster, a_data$a_pop)
   a_data$adm_hcw_booster_cap <- pmin(a_data$adm_booster_hcw, a_data$a_pop_hcw)
   a_data$adm_60p_booster_cap <- pmin(a_data$adm_booster_60p, a_data$a_pop_60p)
   a_data$adm_hcw_a1d_cap <- pmin(a_data$adm_a1d_hcw, a_data$a_pop_hcw)
