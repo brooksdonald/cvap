@@ -29,7 +29,7 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2022-11-03")
+.GlobalEnv$refresh_date <- as.Date("2022-11-04")
 .GlobalEnv$sec_date <- as.Date("2022-08-31")
 .GlobalEnv$del_date <- as.Date("2022-10-26")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
@@ -132,8 +132,10 @@ consolidate_env <- run_consolidate(
 )
 
 source("consolidate/last_month/run_last_month.r")
+source("consolidate/funding_tracker/run_funding_tracker.r")
 
 last_month_env <- run_last_month()
+funding_tracker_env <- run_funding_tracker()
 
 # EXPORT
 
@@ -172,11 +174,14 @@ all_df <- list(
     "1_funding_long" = finance_env$b_fin_fund_del_long,
     "1_funding_urgent" = finance_env$base_fin_urg_fun_sum,
     "1_fund_urg_long" = finance_env$base_fin_urg_fun_long,
-    "1_fund_cds_long" = finance_env$base_fin_cds_red
+    "1_fund_cds_long" = finance_env$base_fin_cds_red,
+    "1_fund_one_budget_tracker" = funding_tracker_env$base_one_budget_tracker,
+    "1_fund_one_budget_cds" = funding_tracker_env$base_one_budget_cds,
+    "1_fund_requests" = funding_tracker_env$base_requests
 )
 
-  write_xlsx(all_df, "data/output/221103_output_powerbi.xlsx")
-  write_xlsx(financing_env$api, "data/output/221103_output_api.xlsx")
+  write_xlsx(all_df, "data/output/221104_output_powerbi.xlsx")
+  write_xlsx(financing_env$api, "data/output/221104_output_api.xlsx")
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
