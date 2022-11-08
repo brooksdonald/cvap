@@ -42,7 +42,9 @@ load_one_budget_cds <- function() {
     c(
       "Country",
       "One.Budget.Status",
-      "Open.One.Plan...One.Budget.TA.request.status"
+      "Open.One.Plan...One.Budget.TA.request.status",
+      "Application.Status..CDS.3.0.",
+      "TA.request.for.CDS"
     )
   )
   
@@ -50,7 +52,9 @@ load_one_budget_cds <- function() {
   colnames(base_one_budget_cds) <- c(
     "a_name_long",
     "one_budget_status",
-    "request_status"
+    "request_status",
+    "cds3_application_status",
+    "cds3_technical_assistance"
   )
   
   print(" >> Finished 'load_one_budget_cds' function...")
@@ -89,3 +93,25 @@ load_requests <- function() {
   )
   return(base_requests)
 }
+
+  transform_base_one_budget_cds <- function(base_one_budget_cds) {
+    base_one_budget_cds$cds3_application_status[base_one_budget_cds$cds3_application_status == "Submitted before Sep 30 (CDS2 )
+Planning future submission of CDS3"] <- "Submitted"
+    base_one_budget_cds$cds3_application_status[base_one_budget_cds$cds3_application_status == "Submitted before Sep 30"] <- "Submitted"
+    base_one_budget_cds$cds3_application_status[base_one_budget_cds$cds3_application_status == "New deadline offcially communicated 15.11.2022"] <- "New deadline"
+    
+    base_one_budget_cds$cds3_application_status[base_one_budget_cds$cds3_application_status == "Delay expected- NB request submitted end of August"] <- "Delay expected"
+    base_one_budget_cds$cds3_application_status[base_one_budget_cds$cds3_application_status == "Delay expected (1-2 weeks - tracking towards 15th Oct)"] <- "Delay expected"
+    base_one_budget_cds$cds3_application_status[base_one_budget_cds$cds3_application_status == "Delay expected - just received NBW"] <- "Delay expected"
+    base_one_budget_cds$cds3_application_status[base_one_budget_cds$cds3_application_status == "Delay expected  - tracking towards mid-October"] <- "Delay expected"
+    
+    base_one_budget_cds$cds3_technical_assistance[base_one_budget_cds$cds3_technical_assistance == "Requested and provided by DO and SL"] <- "Requested and provided"
+    base_one_budget_cds$cds3_technical_assistance[base_one_budget_cds$cds3_technical_assistance == "Requested and being provided by DO"] <- "Requested and provided"
+    base_one_budget_cds$cds3_technical_assistance[base_one_budget_cds$cds3_technical_assistance == "provided by partners"] <- "Requested and provided"
+    base_one_budget_cds$cds3_technical_assistance[base_one_budget_cds$cds3_technical_assistance == "Provided"] <- "Requested and provided"
+    base_one_budget_cds$cds3_technical_assistance[base_one_budget_cds$cds3_technical_assistance == "Person TBC"] <- "TBC"
+    base_one_budget_cds$cds3_technical_assistance[base_one_budget_cds$cds3_technical_assistance == "TBD - partner to be tapped"] <- "TBC"
+    
+    return(base_one_budget_cds)
+  }
+  

@@ -180,8 +180,8 @@ all_df <- list(
     "1_fund_requests" = funding_tracker_env$base_requests
 )
 
-  write_xlsx(all_df, "data/output/221104_output_powerbi.xlsx")
-  write_xlsx(financing_env$api, "data/output/221104_output_api.xlsx")
+  write_xlsx(all_df, "data/output/221108_output_powerbi.xlsx")
+  write_xlsx(financing_env$api, "data/output/221108_output_api.xlsx")
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
