@@ -1,7 +1,7 @@
 ## Past coverage targets
 
 comparisons_csc <- function(condense_list) {
-  target_list <- list("amc")
+  target_list <- list("csc")
   
   column_names_value <- list("cov_hcw_", "cov_60p_")
   column_names_name <- list(
