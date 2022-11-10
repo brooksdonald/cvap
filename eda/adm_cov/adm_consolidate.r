@@ -112,7 +112,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   )
 
   # Calculate population percentages
-  print(" >>> Computing pop percentages...")
+  print(" >>> Computing population percentages...")
   a_data <- a_data %>%
     mutate(a_pop_10 = a_pop * 0.1) %>%
     mutate(a_pop_20 = a_pop * 0.2) %>%
@@ -120,7 +120,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     mutate(a_pop_70 = a_pop * 0.7)
   
   # Calculate population proportions
-  print(" >>> Computing pop proportions...")
+  print(" >>> Computing population proportions...")
   a_data <- a_data %>%
     mutate(a_pop_18p_prop = a_pop_18p / a_pop_2021) %>%
     mutate(a_pop_18u_prop = a_pop_18u / a_pop_2021) %>%
@@ -139,13 +139,14 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
                       if_else(older_def == "60 and older", a_pop_60p,
                               if_else(older_def == "65 and older", a_pop_65p,
                                       if_else(older_def == "70 and older", a_pop_70p,
+                                              if_else(older_def == "75 and older", a_pop_75p,
                                       a_pop_60p))
               )
       )
-    ))))
+    )))))
 
   # Calculate theoretical fully vaccinated for non-reporters for current, lm, and 2m
-  print(" >>> Computing theoreticaally fully vaxxed for non reporters...")
+  print(" >>> Computing theoretically fully vaxxed for non reporters...")
   a_data <- a_data %>%
   mutate(adm_fv_homo = if_else(
     adm_a1d == 0 & adm_fv == 0 & adm_booster == 0,
@@ -194,11 +195,12 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
             adm_td_13jan - adm_a1d_13jan - adm_booster_13jan,
             adm_fv_13jan))))) %>%
   mutate(adm_a1d_homo = if_else(
-    adm_a1d == 0 & adm_fv == 0,
-    adm_td / 2,
-    adm_a1d)) %>%
+    adm_a1d == 0 & adm_fv == 0, adm_td / 2,
+    if_else(adm_a1d < adm_fv_homo, adm_fv_homo,
+            adm_a1d))) %>%
   mutate(adm_td_per = adm_td / a_pop) %>%
-  mutate(adm_pv = pmax(0, adm_a1d - adm_fv))
+  mutate(adm_pv = pmax(0, adm_a1d_homo - adm_fv_homo)) %>%
+  mutate(adm_booster_homo = pmin(adm_booster, adm_fv_homo, a_pop))
   
   # Calculate td and fv change from lm and 2m
   print(" >>> Computing td and fv change from lm and 2m...")
@@ -300,7 +302,6 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   a_data$adm_fv_female <- as.numeric(a_data$adm_fv_female)
   a_data$adm_a1d_hcw <- as.numeric(a_data$adm_a1d_hcw)
   a_data$adm_fv_hcw <- as.numeric(a_data$adm_fv_hcw)
-  a_data$adm_fv_60p <- as.numeric(a_data$adm_fv_60p)
   
   a_data$adm_fv_hcw_repstat[a_data$a_iso == "GRL"] <-
     a_data$adm_fv_hcw_repstat[a_data$a_iso == "DNK"]
@@ -355,25 +356,23 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
 
   # Calculate healthcare workers coverage
   a_data <- a_data %>%
-    mutate(adm_a1d_hcw_homo = pmin(
-      adm_a1d_hcw,
-      a_pop_hcw)) %>%
     mutate(adm_fv_hcw_homo = pmin(
       adm_fv_hcw,
       a_pop_hcw)) %>%
-    mutate(adm_booster_hcw_homo = pmin(
-      a_pop_hcw,
-      adm_booster_hcw)) %>%
     mutate(adm_fv_hcw_adjust =
       pmin(adm_fv_hcw + (hcw_diff * cov_total_fv), a_pop_hcw)) %>%
+    mutate(adm_a1d_hcw_homo = if_else(
+      pmin(adm_a1d_hcw, a_pop_hcw) < adm_fv_hcw_adjust, 
+      adm_fv_hcw_adjust,
+      pmin(adm_a1d_hcw, a_pop_hcw))) %>%
+    mutate(adm_booster_hcw_homo = pmin(
+      a_pop_hcw,
+      adm_booster_hcw,
+      adm_fv_hcw_adjust)) %>%
     mutate(cov_hcw_a1d = if_else(
       is.na(hcw_flag),
-      pmin(
-        adm_a1d_hcw / a_pop_hcw,
-        1),
-        pmin(
-          (adm_a1d_hcw + (hcw_diff * cov_total_a1d)) / a_pop_hcw,
-          1)
+      pmin(adm_a1d_hcw_homo / a_pop_hcw, 1),
+      pmin((adm_a1d_hcw_homo + (hcw_diff * cov_total_a1d)) / a_pop_hcw, 1)
     )) %>%
     mutate(cov_hcw_a1d_adjust = if_else(
       adm_a1d_hcw <= adm_fv_hcw,
@@ -381,18 +380,14 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
       cov_hcw_a1d)) %>%
     mutate(cov_hcw_fv =
       pmin(
-        (adm_fv_hcw + if_else(
-          is.na(hcw_flag),
-          0,
-          hcw_diff * cov_total_fv
-        )) / a_pop_hcw,
+        adm_fv_hcw_adjust/ a_pop_hcw,
         1
       )
     ) %>%
     mutate(cov_hcw_booster =
       pmin(
         1,
-        adm_booster_hcw / a_pop_hcw)) %>%
+        adm_booster_hcw_homo / a_pop_hcw)) %>%
     mutate(adm_booster_hcw_status = if_else(
       is.na(adm_fv_hcw) | adm_fv_hcw == 0,
       "3) Not reporting on HCW uptake",
@@ -435,20 +430,21 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
 
   # Calculating older adults coverage groups
   a_data <- a_data %>%
-    mutate(adm_fv_60p_homo = pmin(
-      a_pop_older, adm_fv_60p),
-      adm_a1d_60p_homo = pmin(
-        a_pop_older, adm_a1d_60p)) %>%
+    mutate(adm_fv_60p_homo = pmin(a_pop_older, adm_fv_60p),
+           adm_a1d_60p_homo = if_else(pmin(a_pop_older, adm_a1d_60p) < adm_fv_60p_homo,
+                                      adm_fv_60p_homo,
+                                      pmin(a_pop_older, adm_a1d_60p)),
+           adm_booster_60p_homo = pmin(adm_booster_60p, a_pop_older)) %>%
     mutate(cov_60p_a1d = pmin(
-      adm_a1d_60p / a_pop_older, 1)) %>%
+      adm_a1d_60p_homo / a_pop_older, 1)) %>%
     mutate(cov_60p_a1d_adjust = if_else(
       adm_a1d_60p <= adm_fv_60p,
       NA_real_,
       cov_60p_a1d)) %>%
     mutate(cov_60p_fv = pmin(
-      adm_fv_60p / a_pop_older, 1)) %>%
+      adm_fv_60p_homo / a_pop_older, 1)) %>%
     mutate(cov_60p_booster = pmin(
-      1, adm_booster_60p / a_pop_older)) %>%
+      1, adm_booster_60p_homo / a_pop_older)) %>%
     mutate(adm_booster_60p_status = if_else(
       is.na(adm_fv_60p) | adm_fv_60p == 0,
       "3) Not reporting on 60+ uptake",
@@ -619,12 +615,6 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   a_data$cov_total_60p_com_csc <- gsub("AMC participants", "CSC countries", a_data$cov_total_60p_com)
   a_data$cov_total_60p_com_csc[a_data$a_csc_status != "Concerted support country" ] <- NA  
   
-
-  a_data$adm_booster_cap <- pmin(a_data$adm_booster, a_data$adm_fv_hcw_adjust, a_data$a_pop)
-  a_data$adm_hcw_booster_cap <- pmin(a_data$adm_booster_hcw, a_data$adm_fv_60p_homo, a_data$a_pop_hcw)
-  a_data$adm_60p_booster_cap <- pmin(a_data$adm_booster_60p, a_data$a_pop_60p)
-  a_data$adm_hcw_a1d_cap <- pmin(a_data$adm_a1d_hcw, a_data$a_pop_hcw)
-  a_data$adm_60p_a1d_cap <- pmin(a_data$adm_a1d_60p, a_data$a_pop_60p)
   
   #   
   # # Categorize comparison of coverage between HCWs and total

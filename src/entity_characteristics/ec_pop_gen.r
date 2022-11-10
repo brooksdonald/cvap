@@ -57,9 +57,11 @@ transform_base_population <- function(base_population, population_hcw) {
     a_pop_60p <- helper_add_char_to_list(c(60:100), "Y")
     a_pop_65p <- helper_add_char_to_list(c(65:100), "Y")
     a_pop_70p <- helper_add_char_to_list(c(70:100), "Y")
+    a_pop_75p <- helper_add_char_to_list(c(75:100), "Y")
 
     age_ranges <- list(a_pop_12u, a_pop_12p, a_pop_18u, a_pop_18p, a_pop_45p,
-                       a_pop_50p, a_pop_55p, a_pop_60p, a_pop_65p, a_pop_70p)
+                       a_pop_50p, a_pop_55p, a_pop_60p, a_pop_65p, a_pop_70p,
+                       a_pop_75p)
     
     # has to match the length of a list above
     age_ranges_names <- c(
@@ -72,7 +74,8 @@ transform_base_population <- function(base_population, population_hcw) {
         "a_pop_55p",
         "a_pop_60p",
         "a_pop_65p",
-        "a_pop_70p"
+        "a_pop_70p",
+        "a_pop_75p"
     )
 
 
