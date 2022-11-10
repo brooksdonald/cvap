@@ -31,40 +31,40 @@ extract_vxrate_details <- function(c_vxrate_latest) {
         "country_source"
       )
     )
-
-    return(c_vxrate_latest_red)
+  
+  return(c_vxrate_latest_red)
 }
 
 merge_dataframes <- function(
-  entity_characteristics,
-  c_vxrate_latest_red,
-  population_data,
-  uptake_gender_data,
-  b_who_dashboard,
-  supply_secured,
-  delivery_courses_doses,
-  b_dp,
-  c_delivery_product,
-  b_fin_fund_del_sum
-  ) {
-    # Renaming iso columns to a_iso before merge
-    df_list <- list(
-      entity_characteristics,
-      c_vxrate_latest_red,
-      population_data,
-      uptake_gender_data,
-      b_who_dashboard,
-      supply_secured,
-      delivery_courses_doses,
-      b_dp,
-      c_delivery_product,
-      b_fin_fund_del_sum
-    )
-    # Merge details
-    a_data <- helper_join_dataframe_list(
-      df_list,
-      join_by = "a_iso"
-    )
+    entity_characteristics,
+    c_vxrate_latest_red,
+    population_data,
+    uptake_gender_data,
+    b_who_dashboard,
+    supply_secured,
+    delivery_courses_doses,
+    b_dp,
+    c_delivery_product,
+    b_fin_fund_del_sum
+) {
+  # Renaming iso columns to a_iso before merge
+  df_list <- list(
+    entity_characteristics,
+    c_vxrate_latest_red,
+    population_data,
+    uptake_gender_data,
+    b_who_dashboard,
+    supply_secured,
+    delivery_courses_doses,
+    b_dp,
+    c_delivery_product,
+    b_fin_fund_del_sum
+  )
+  # Merge details
+  a_data <- helper_join_dataframe_list(
+    df_list,
+    join_by = "a_iso"
+  )
   return(as.data.frame(a_data))
 }
 
@@ -73,16 +73,16 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   print(" >>> Setting static dates")
   timeto_t70 <- as.numeric(t70_deadline - refresh_date)
   a_data$a_refresh_date <- refresh_date
-
+  
   #Calculate JJ proportion
   print(" >>> Computing JJ doses KPIs")
   a_data <- a_data %>%
-      mutate(del_dose_minjj = del_dose_total  - del_dose_jj) %>% 
-      mutate(del_dose_jj_prop = if_else(
-        is.na(del_dose_jj),
-        0,
-        del_dose_jj / del_dose_total))
-
+    mutate(del_dose_minjj = del_dose_total  - del_dose_jj) %>% 
+    mutate(del_dose_jj_prop = if_else(
+      is.na(del_dose_jj),
+      0,
+      del_dose_jj / del_dose_total))
+  
   # Calculate introduction status
   print(" >>> Computing introduction status...")
   a_data <- a_data %>%
@@ -91,17 +91,17 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
       "No product introduced",
       "Product introduced"
     )
-  )
-
+    )
+  
   a_data <- a_data %>%
     mutate(csc_status_numb = if_else(
       a_csc_status == "Concerted support country",
       1,
       NA_real_))
-
+  
   # Assign population size category
   breaks <- c(0, 1000000, 10000000, 100000000,
-    max(a_data$a_pop, na.rm = TRUE) + 1)
+              max(a_data$a_pop, na.rm = TRUE) + 1)
   tags <- c("1) <1M", "2) 1-10M", "3) 10-100M", "4) 100M+")
   a_data$a_pop_cat <- cut(
     a_data$a_pop,
@@ -110,7 +110,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     right = FALSE,
     labels = tags
   )
-
+  
   # Calculate population percentages
   print(" >>> Computing pop percentages...")
   a_data <- a_data %>%
@@ -134,22 +134,22 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     mutate(a_pop_older = if_else(
       is.na(older_def), a_pop_60p,
       if_else(older_def == "45 and older", a_pop_45p,
-      if_else(older_def == "50 and older", a_pop_50p,
-              if_else(older_def == "55 and older", a_pop_55p,
-                      if_else(older_def == "60 and older", a_pop_60p,
-                              if_else(older_def == "65 and older", a_pop_65p,
-                                      if_else(older_def == "70 and older", a_pop_70p,
-                                      a_pop_60p))
-              )
-      )
-    ))))
-
+              if_else(older_def == "50 and older", a_pop_50p,
+                      if_else(older_def == "55 and older", a_pop_55p,
+                              if_else(older_def == "60 and older", a_pop_60p,
+                                      if_else(older_def == "65 and older", a_pop_65p,
+                                              if_else(older_def == "70 and older", a_pop_70p,
+                                                      a_pop_60p))
+                              )
+                      )
+              ))))
+  
   # Calculate theoretical fully vaccinated for non-reporters for current, lm, and 2m
   print(" >>> Computing theoreticaally fully vaxxed for non reporters...")
   a_data <- a_data %>%
-  mutate(adm_fv_homo = if_else(
-    adm_a1d == 0 & adm_fv == 0 & adm_booster == 0,
-    adm_td / 2,
+    mutate(adm_fv_homo = if_else(
+      adm_a1d == 0 & adm_fv == 0 & adm_booster == 0,
+      adm_td / 2,
       if_else(
         adm_a1d == 0 & adm_fv == 0 & adm_booster != 0,
         (adm_td - adm_booster)/ 2,
@@ -160,27 +160,27 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
             adm_a1d != 0 & adm_fv == 0 & adm_booster != 0,
             adm_td - adm_a1d - adm_booster,
             adm_fv))))) %>%
-  mutate(adm_fv_lm_homo = if_else(
-    adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm == 0,
-    adm_td_lm / 2,
-    if_else(
-      adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm != 0,
-      (adm_td_lm - adm_booster_lm)/ 2,
+    mutate(adm_fv_lm_homo = if_else(
+      adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm == 0,
+      adm_td_lm / 2,
       if_else(
-        adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm == 0,
-        adm_td_lm - adm_a1d_lm,
+        adm_a1d_lm == 0 & adm_fv_lm == 0 & adm_booster_lm != 0,
+        (adm_td_lm - adm_booster_lm)/ 2,
         if_else(
-          adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm != 0,
-          adm_td_lm - adm_a1d_lm - adm_booster_lm,
-          adm_fv_lm))))) %>%
-  mutate(adm_fv_2m_homo = if_else(
-    adm_a1d_2m == 0 & adm_fv_2m == 0,
-    adm_td_2m / 2,
-    if_else(
-      adm_a1d_2m != 0 & adm_fv_2m == 0,
-      adm_td_2m - adm_a1d_2m,
-      adm_fv_2m))) %>%
-  mutate(adm_fv_13jan_homo = if_else(
+          adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm == 0,
+          adm_td_lm - adm_a1d_lm,
+          if_else(
+            adm_a1d_lm != 0 & adm_fv_lm == 0 & adm_booster_lm != 0,
+            adm_td_lm - adm_a1d_lm - adm_booster_lm,
+            adm_fv_lm))))) %>%
+    mutate(adm_fv_2m_homo = if_else(
+      adm_a1d_2m == 0 & adm_fv_2m == 0,
+      adm_td_2m / 2,
+      if_else(
+        adm_a1d_2m != 0 & adm_fv_2m == 0,
+        adm_td_2m - adm_a1d_2m,
+        adm_fv_2m))) %>%
+    mutate(adm_fv_13jan_homo = if_else(
       adm_a1d_13jan == 0 & adm_fv_13jan == 0 & adm_booster_13jan == 0,
       adm_td_13jan / 2,
       if_else(
@@ -193,12 +193,12 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
             adm_a1d_13jan != 0 & adm_fv_13jan == 0 & adm_booster_13jan != 0,
             adm_td_13jan - adm_a1d_13jan - adm_booster_13jan,
             adm_fv_13jan))))) %>%
-  mutate(adm_a1d_homo = if_else(
-    adm_a1d == 0 & adm_fv == 0,
-    adm_td / 2,
-    adm_a1d)) %>%
-  mutate(adm_td_per = adm_td / a_pop) %>%
-  mutate(adm_pv = pmax(0, adm_a1d - adm_fv))
+    mutate(adm_a1d_homo = if_else(
+      adm_a1d == 0 & adm_fv == 0,
+      adm_td / 2,
+      adm_a1d)) %>%
+    mutate(adm_td_per = adm_td / a_pop) %>%
+    mutate(adm_pv = pmax(0, adm_a1d - adm_fv))
   
   # Calculate td and fv change from lm and 2m
   print(" >>> Computing td and fv change from lm and 2m...")
@@ -208,7 +208,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     mutate(adm_td_1m_13jan = adm_td_lm - adm_td_13jan) %>%
     mutate(adm_fv_less_1m = adm_fv_homo - adm_fv_lm_homo) %>%
     mutate(adm_fv_1m_2m = adm_fv_lm_homo - adm_fv_2m_homo)
-
+  
   # Calculate adm_a1d and adm_fv coverage for current, lm, and 2m, including change
   print(" >>> Computing adm_a1d and adm_fv coverage...")
   a_data <- a_data %>%
@@ -236,13 +236,13 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   
   a_data$cov_total_fv[a_data$a_iso == "SJM"] <-
     a_data$cov_total_fv[a_data$a_iso == "NOR"]
-
-
+  
+  
   # Assign coverage category for current and lw
   print(" >>> Assigning coverage category for current and lw...")
   breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 0.7, Inf)
   tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%",
-    "4) 20-40%", "5) 40-70%", "6) 70%+")
+            "4) 20-40%", "5) 40-70%", "6) 70%+")
   a_data$cov_total_fv_cat <- cut(
     a_data$cov_total_fv,
     breaks = breaks,
@@ -250,10 +250,10 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     right = FALSE,
     labels = tags
   )
-
+  
   breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 0.7, Inf)
   tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%",
-    "4) 20-40%", "5) 40-70%", "6) 70%+")
+            "4) 20-40%", "5) 40-70%", "6) 70%+")
   a_data$cov_total_fv_lw_cat <- cut(
     a_data$cov_total_fv_lw,
     breaks = breaks,
@@ -261,15 +261,15 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     right = FALSE,
     labels = tags
   )
-
+  
   # Calculate linear population coverage projection by 30 June 2022
   print(" >>> Computing linear population coverage projection by 30 June 2022...")
   a_data <- a_data %>%
     mutate(cov_total_fv_atpace_31dec = pmin(
       1,
       (adm_fv_homo + (dvr_4wk_fv * timeto_t70)) / a_pop))
-
-
+  
+  
   # Indicator reporting status for target group-specific uptake data
   print(" >>> Indicator reporting status for target group-specific uptake data...")
   a_data <- a_data %>%
@@ -294,7 +294,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
         adm_fv_female > 0,
         "Reporting",
         "Not reporting")))
-
+  
   # Converting Ingested data from API to numeric values
   a_data$adm_fv_male <- as.numeric(a_data$adm_fv_male)
   a_data$adm_fv_female <- as.numeric(a_data$adm_fv_female)
@@ -324,7 +324,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
       "Yes",
       NA_character_)) %>%
     mutate(hcw_diff = pmax(a_pop_hcw - adm_target_hcw, 0, na.rm = TRUE))
-
+  
   # Calculate target group coverage figures
   print(" >>> Computing target group coverage figures...")
   a_data$adm_fv_male <- as.double(a_data$adm_fv_male)
@@ -352,7 +352,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
           adm_booster_female > 0,
           "Reporting on gender-disaggregated boosters",
           "Reporting on gender-disaggregated uptake, but not boosters"))))
-
+  
   # Calculate healthcare workers coverage
   a_data <- a_data %>%
     mutate(adm_a1d_hcw_homo = pmin(
@@ -365,34 +365,35 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
       a_pop_hcw,
       adm_booster_hcw)) %>%
     mutate(adm_fv_hcw_adjust =
-      pmin(adm_fv_hcw + (hcw_diff * cov_total_fv), a_pop_hcw)) %>%
+             pmin(adm_fv_hcw + (hcw_diff * cov_total_fv), a_pop_hcw)) %>%
     mutate(cov_hcw_a1d = if_else(
       is.na(hcw_flag),
       pmin(
         adm_a1d_hcw / a_pop_hcw,
         1),
-        pmin(
-          (adm_a1d_hcw + (hcw_diff * cov_total_a1d)) / a_pop_hcw,
-          1)
+      pmin(
+        (adm_a1d_hcw + (hcw_diff * cov_total_a1d)) / a_pop_hcw,
+        1)
     )) %>%
     mutate(cov_hcw_a1d_adjust = if_else(
       adm_a1d_hcw <= adm_fv_hcw,
       NA_real_,
       cov_hcw_a1d)) %>%
     mutate(cov_hcw_fv =
-      pmin(
-        (adm_fv_hcw + if_else(
-          is.na(hcw_flag),
-          0,
-          hcw_diff * cov_total_fv
-        )) / a_pop_hcw,
-        1
-      )
+             pmin(
+               (adm_fv_hcw + if_else(
+                 is.na(hcw_flag),
+                 0,
+                 hcw_diff * cov_total_fv
+               )) / a_pop_hcw,
+               1
+             )
     ) %>%
+    mutate(adm_hcw_booster_cap = pmin(adm_booster_hcw, adm_fv_hcw_adjust, a_pop_hcw)) %>% # TEST
     mutate(cov_hcw_booster =
-      pmin(
-        1,
-        adm_booster_hcw / a_pop_hcw)) %>%
+             pmin(
+               1,
+               adm_hcw_booster_cap / a_pop_hcw)) %>%
     mutate(adm_booster_hcw_status = if_else(
       is.na(adm_fv_hcw) | adm_fv_hcw == 0,
       "3) Not reporting on HCW uptake",
@@ -400,7 +401,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
         is.na(cov_hcw_booster) & is.na(adm_fv_hcw) == FALSE,
         "2) Reporting on HCW uptake, but not boosters",
         if_else(
-          adm_booster_hcw > 0,
+          adm_hcw_booster_cap > 0,
           "1) Reporting on HCW boosters",
           "2) Reporting on HCW uptake, but not boosters")))) %>%
     mutate(cov_hcw_booster_cat = if_else(
@@ -425,14 +426,14 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
                   cov_hcw_booster == 0,
                   "1) Not reporting on HCW boosters",
                   NA_character_)))))))) %>%
-    
+    mutate(adm_hcw_a1d_cap = pmin(adm_a1d_hcw, a_pop_hcw)) %>%
     mutate(cov_hcw_a1d_fv = if_else(cov_hcw_fv == 0 | is.na(cov_hcw_fv),
-                                    cov_hcw_a1d,
-                                    cov_hcw_a1d - cov_hcw_fv),
+                                    adm_hcw_a1d_cap,
+                                    adm_hcw_a1d_cap - cov_hcw_fv),
            cov_hcw_fv_booster = if_else(cov_hcw_booster == 0 | is.na(cov_hcw_booster),
                                         cov_hcw_fv,
                                         cov_hcw_fv - cov_hcw_booster))
-
+  
   # Calculating older adults coverage groups
   a_data <- a_data %>%
     mutate(adm_fv_60p_homo = pmin(
@@ -447,17 +448,19 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
       cov_60p_a1d)) %>%
     mutate(cov_60p_fv = pmin(
       adm_fv_60p / a_pop_older, 1)) %>%
+    mutate(adm_60p_booster_cap = pmin(
+      adm_booster_60p, adm_fv_60p_homo, a_pop_older)) %>%
     mutate(cov_60p_booster = pmin(
-      1, adm_booster_60p / a_pop_older)) %>%
+      1, adm_60p_booster_cap / a_pop_older)) %>%
     mutate(adm_booster_60p_status = if_else(
       is.na(adm_fv_60p) | adm_fv_60p == 0,
       "3) Not reporting on 60+ uptake",
       if_else(is.na(cov_60p_booster) & is.na(adm_fv_60p) == FALSE, 
-        "2) Reporting on 60+ uptake, but not boosters",
-        if_else(
-          adm_booster_60p > 0,
-          "1) Reporting on 60+ boosters",
-          "2) Reporting on 60+ uptake, but not boosters")))) %>%
+              "2) Reporting on 60+ uptake, but not boosters",
+              if_else(
+                adm_60p_booster_cap > 0,
+                "1) Reporting on 60+ boosters",
+                "2) Reporting on 60+ uptake, but not boosters")))) %>%
     mutate(cov_60p_booster_cat = if_else(
       is.na(adm_fv_60p) | adm_fv_60p == 0,
       "0) Not reporting on older adult uptake",
@@ -482,30 +485,32 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
                   "1) Not reporting on older adult boosters",
                   NA_character_)))))))) %>%
     
+    mutate(adm_60p_a1d_cap = pmin(adm_a1d_60p, a_pop_older)) %>%
+    
     mutate(cov_60p_a1d_fv = if_else(cov_60p_fv == 0 | is.na(cov_60p_fv),
                                     cov_60p_a1d,
                                     cov_60p_a1d - cov_60p_fv),
            cov_60p_fv_booster = if_else(cov_60p_booster == 0 | is.na(cov_60p_booster),
                                         cov_60p_fv,
                                         cov_60p_fv - cov_60p_booster))
-
+  
   a_data$cov_hcw_fv[a_data$a_iso == "GRL"] <-
     a_data$cov_hcw_fv[a_data$a_iso == "DNK"]
   a_data$cov_hcw_fv[a_data$a_iso == "SJM"] <-
     a_data$cov_hcw_fv[a_data$a_iso == "NOR"]
-
+  
   a_data$cov_60p_fv[a_data$a_iso == "GRL"] <-
     a_data$cov_60p_fv[a_data$a_iso == "DNK"]
   a_data$cov_60p_fv[a_data$a_iso == "SJM"] <-
     a_data$cov_60p_fv[a_data$a_iso == "NOR"]
-
+  
   # Calculate gender coverage difference in reporting countries
   print(" >>> Computing gender coverage difference in reporting countries...")
   a_data <- a_data %>%
     mutate(cov_total_gen_diff = cov_total_fem_fv - cov_total_male_fv)
   
   # Coverage categories in target groups
-
+  
   a_data$cov_hcw_fv_cat <- cut(
     a_data$cov_hcw_fv,
     breaks = c(-Inf, 0.1, 0.2, 0.4, 0.7, Inf),
@@ -513,7 +518,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     include.lowest = TRUE,
     right = FALSE
   )
-
+  
   a_data$cov_60p_fv_cat <- cut(
     a_data$cov_60p_fv,
     breaks = c(-Inf, 0.1, 0.2, 0.4, 0.7, Inf),
@@ -521,7 +526,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     include.lowest = TRUE,
     right = FALSE
   )
-
+  
   # Calculate 4-week average daily rates as % of pop.
   print(" >>> Computing 4-week average daily rates as % of pop...")
   a_data <- a_data %>%
@@ -529,7 +534,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     mutate(dvr_4wk_td_per = dvr_4wk_td / a_pop) %>%
     mutate(dvr_4wk_fv_per = dvr_4wk_fv / a_pop) %>%
     mutate(dvr_4wk_td_max_per = dvr_4wk_td_max / a_pop)
-
+  
   # Assign vaccination rate category
   print(" >>> Assigning vaccination rate category...")
   breaks <- c(0, 0.0015, 0.0035, 0.0065, 1)
@@ -541,7 +546,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     right = FALSE,
     labels = tags
   )
-
+  
   # Calculate (percent) change in 4-week average daily vaccination rate & assign category
   print(" >>> Computing % change in 4-week average daily vxrate & assign category...")
   a_data <- a_data %>%
@@ -550,7 +555,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
       is.infinite(dvr_4wk_td_change_lm / dvr_4wk_td_lm),
       1,
       dvr_4wk_td_change_lm / dvr_4wk_td_lm))
-
+  
   breaks <- c(-Inf, -0.25, 0, 0.25, Inf)
   tags <- c("1) < (-25)%", "2) (-25)-0%", "3) 0-25%", "4) > 25%")
   a_data$dvr_4wk_td_change_lm_per_cat <- cut(
@@ -560,21 +565,21 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     include.lowest = TRUE,
     right = TRUE
   )
-
+  
   a_data <- a_data %>%
     mutate(dvr_4wk_td_change_lm_per_cat = replace_na(
       dvr_4wk_td_change_lm_per_cat,
       tags[2]
     ))
-
+  
   # Calculate coverage difference between HCWs and total in reporting countries
   print(" >>> Computing coverage difference between HCWs and total in reporting countries...")
   a_data <- a_data %>%
     mutate(
       cov_total_hcw_diff = ifelse(
-      adm_fv_hcw_repstat == "Reporting",
-      cov_hcw_fv - cov_total_fv,
-      NA
+        adm_fv_hcw_repstat == "Reporting",
+        cov_hcw_fv - cov_total_fv,
+        NA
       ))
   
   # Calculate coverage difference between 60 plus and total in reporting countries
@@ -619,12 +624,8 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   a_data$cov_total_60p_com_csc <- gsub("AMC participants", "CSC countries", a_data$cov_total_60p_com)
   a_data$cov_total_60p_com_csc[a_data$a_csc_status != "Concerted support country" ] <- NA  
   
-
-  a_data$adm_booster_cap <- pmin(a_data$adm_booster, a_data$adm_fv_hcw_adjust, a_data$a_pop)
-  a_data$adm_hcw_booster_cap <- pmin(a_data$adm_booster_hcw, a_data$adm_fv_60p_homo, a_data$a_pop_hcw)
-  a_data$adm_60p_booster_cap <- pmin(a_data$adm_booster_60p, a_data$a_pop_60p)
-  a_data$adm_hcw_a1d_cap <- pmin(a_data$adm_a1d_hcw, a_data$a_pop_hcw)
-  a_data$adm_60p_a1d_cap <- pmin(a_data$adm_a1d_60p, a_data$a_pop_60p)
+  
+  a_data$adm_booster_cap <- pmin(a_data$adm_booster, a_data$adm_fv_homo, a_data$a_pop)
   
   #   
   # # Categorize comparison of coverage between HCWs and total
@@ -665,7 +666,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   #       NA
   #     ))  
   # 
-
+  
   breaks <- c(-Inf, -0.25, 0.25, Inf)
   tags <- c("Downward", "Stable", "Upward")
   a_data$dvr_4wk_td_change_lm_trend <- cut(
@@ -675,15 +676,15 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     include.lowest = FALSE,
     right = TRUE
   )
-
+  
   a_data <- a_data %>%
     mutate(dvr_4wk_td_change_lm_trend = replace_na(
       dvr_4wk_td_change_lm_trend,
       tags[2]
     ))
-
-
+  
+  
   datalist <- list("a_data" = a_data,
-    "timeto_t70" = timeto_t70)
+                   "timeto_t70" = timeto_t70)
   return(datalist)
 }
