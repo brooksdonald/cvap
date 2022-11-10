@@ -152,7 +152,11 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
   timeseries <- timeseries %>%
     group_by(iso) %>%
     arrange(month_name) %>%
-    fill(c("cov_hcw_a1d",
+    fill(c("adm_fv",
+           "cov_total_fv",
+           "cov_total_a1d",
+           "cov_total_booster",
+           "cov_hcw_a1d",
            "cov_hcw_fv",
            "cov_hcw_booster",
            "N_VACC_DOSE1",
