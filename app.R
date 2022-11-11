@@ -1,7 +1,7 @@
 
 # SET WD
-setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
-# setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
+# setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
+setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
 
 # CLEAR ENVIRONMENT
 rm(list = ls())
@@ -180,8 +180,8 @@ all_df <- list(
     "1_fund_requests" = funding_tracker_env$base_requests
 )
 
-  write_xlsx(all_df, "data/output/221110_output_powerbi.xlsx")
-  write_xlsx(financing_env$api, "data/output/221110_output_api.xlsx")
+  write_xlsx(all_df, "data/output/221111_output_powerbi.xlsx")
+  write_xlsx(financing_env$api, "data/output/221111_output_api.xlsx")
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
