@@ -85,9 +85,10 @@ load_conc_supp_list <- function() {
         "ss_deadline",
         "country_source",
         "date",
-        "adm_target_hcw_wpro"
+        "adm_target_hcw_wpro",
+        "a_pop_hcw"
     )
-    b_adhoc <- subset(b_adhoc, select=-c(a_who_region))
+    b_adhoc <- subset(b_adhoc, select=-c(a_who_region, a_pop_hcw))
     
     return(b_adhoc)
 }
