@@ -1,149 +1,149 @@
 
 load_population_uptake <- function(headers, refresh_api) {
-    print(" >> Load target groups and gender...")
-    uptake_gender <- load_pop_target_gender(headers, refresh_api)
-    uptake_groups <- load_pop_target_groups(headers, refresh_api)
-    datalist <- list("uptake_gender" = uptake_gender,
-        "uptake_groups" = uptake_groups)
+    print(" >> Loading population uptake data... ")
+    base_uptake_gender <- load_population_uptake_gender(headers, refresh_api)
+    base_uptake_group <- load_population_uptake_group(headers, refresh_api)
+    datalist <- list("uptake_gender" = base_uptake_gender,
+                     "uptake_group" = base_uptake_group)
+    print(" >> Function 'load_population_uptake' done")
     return(datalist)
 }
 
-transform_population_uptake <- function(uptake_gender, uptake_groups) {
-    print(" >> Transform target groups and gender...")
-    uptake_genders <- transform_pop_target_gender(uptake_gender)
-    uptake_groupss <- transform_pop_target_groups(uptake_groups)
-
-    df_to_append <- append(uptake_groupss, uptake_genders)
-
-    output <- helper_join_dataframe_list(
-        df_to_append,
-        join_by = "a_iso",
-        ally = TRUE
-    ) # full join
-
-    output$adm_date_gender <- output$adm_date_gender.x
-    output <- select(output, -c("adm_date_gender.y", "adm_date_gender.x"))
-
-    return(output)
+transform_population_uptake <- function(uptake_gender, uptake_group) {
+    print(" >> Transforming population uptake data... ")
+    temp_uptake_gender_df <- transform_population_uptake_gender(uptake_gender)
+    temp_uptake_group_df <- transform_population_uptake_group(uptake_group)
+    temp_population_uptake_df <- append(temp_uptake_group_df, temp_uptake_gender_df)
+    
+    population_uptake <- helper_join_dataframe_list(
+      temp_population_uptake_df,
+      join_by = "a_iso",
+      ally = TRUE
+    )
+    
+    population_uptake$adm_date_gender <- population_uptake$adm_date_gender.x
+    population_uptake <- select(population_uptake, -c("adm_date_gender.y", "adm_date_gender.x"))
+    
+    print(" >> Function 'transform_population_uptake' done")
+    return(population_uptake)
 }
 
-load_pop_target_gender <- function(headers, refresh_api) {
-    print(" >> Loading COV Uptake gender data...")
-    uptake_gender <- helper_wiise_api(
-        "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_GENDER_LAST_MONTH_LONG",
-        headers, refresh_api)
-    # Reduce columns & rename
-    print(" >> Selecting uptake gender data...")
-    uptake_gender <-
-        select(
-            uptake_gender,
-            c
-            (
-                "ISO_3_CODE",
-                "DATE",
-                "GENDER",
-                "N_VACC_DOSE1",
-                "N_VACC_LAST_DOSE",
-                "N_VACC_BOOSTER_DOSE"
-            )
+load_population_uptake_gender <- function(headers, refresh_api) {
+    print(" >> Loading population uptake gender data... ")
+    base_uptake_gender <- helper_wiise_api(
+      "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_GENDER_LAST_MONTH_LONG",
+      headers, refresh_api)
+    
+    print(" >> Selecting relevant columns... ")
+    base_uptake_gender <- select(
+      base_uptake_gender, c(
+        "ISO_3_CODE",
+        "DATE",
+        "GENDER",
+        "N_VACC_DOSE1",
+        "N_VACC_LAST_DOSE",
+        "N_VACC_BOOSTER_DOSE"
         )
-
-    print(" >> Renaming Columns...")
-    colnames(uptake_gender) <- c(
-        "a_iso",
-        "date",
-        "gender",
-        "adm_a1d",
-        "adm_fv",
-        "adm_booster"
-    )
-
-    return(uptake_gender)
+      )
+    
+    print(" >> Renaming columns... ")
+    colnames(base_uptake_gender) <- c(
+      "a_iso",
+      "date",
+      "gender",
+      "adm_a1d",
+      "adm_fv",
+      "adm_booster"
+      )
+    
+    print(" >> Function 'load_population_uptake_gender' done")
+    return(base_uptake_gender)
 }
 
-load_pop_target_groups <- function(headers, refresh_api) {
-    print(" >> Loading COV Uptake target group data...")
-    uptake_target_group <- helper_wiise_api(
-        "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_TARGETGROUP_LAST_MONTH_LONG",
-        headers, refresh_api)
-    # Reduce columns & rename
-    print(" >> Reducing columns and renaming them...")
-    uptake_target_group <-
-        select(
-            uptake_target_group,
-            c(
-                "ISO_3_CODE",
-                "DATE",
-                "TARGET_GROUP",
-                "N_VACC_DOSE1",
-                "N_VACC_LAST_DOSE",
-                "N_VACC_BOOSTER_DOSE",
-                "NUMBER_TARGET"
-            )
-        )
-
-    print(" >> Renaming columns...")
-    colnames(uptake_target_group) <- c(
-        "a_iso",
-        "date",
-        "target_group",
-        "adm_a1d",
-        "adm_fv",
-        "adm_booster",
-        "adm_target"
+load_population_uptake_group <- function(headers, refresh_api) {
+    print(" >> Loading population uptake group data... ")
+    base_uptake_group <- helper_wiise_api(
+      "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_TARGETGROUP_LAST_MONTH_LONG",
+      headers, refresh_api)
+  
+    print(" >> Selecting relevant columns... ")
+    base_uptake_group <- select(
+      base_uptake_group, c(
+      "ISO_3_CODE",
+      "DATE",
+      "TARGET_GROUP",
+      "N_VACC_DOSE1",
+      "N_VACC_LAST_DOSE",
+      "N_VACC_BOOSTER_DOSE",
+      "NUMBER_TARGET"
+      )
     )
-
+    
+    print(" >> Renaming columns... ")
+    colnames(base_uptake_group) <- c(
+      "a_iso",
+      "date",
+      "target_group",
+      "adm_a1d",
+      "adm_fv",
+      "adm_booster",
+      "adm_target"
+      )
+    
     print(" >> Removing duplicates...")
-    uptake_target_group <- helper_check_for_duplicates(uptake_target_group)
-    return(uptake_target_group)
+    base_uptake_group <- helper_check_for_duplicates(base_uptake_group)
+    
+    print(" >> Function 'load_population_uptake_group' done")
+    return(base_uptake_group)
 }
 
-transform_pop_target_gender <- function(uptake_gender) {
-    print(" >>> Transforming gender df...")
-    data_frames <- list()
-
+transform_population_uptake_gender <- function(base_uptake_gender) {
+    print(" >> Transforming population uptake gender data... ")
+    temp_uptake_gender_df <- list()
+    
+    print(" >> Sorting for gender, removing target columns...")
     var_columns <- c("adm_a1d", "adm_fv", "adm_booster")
     for (g in c("MALE", "FEMALE")) {
-        df <- uptake_gender %>%
-            filter(
-                gender == g
-            )
-        df <- df %>% select(-"gender")
-        colnames(df) <- c(
-            "a_iso", "adm_date_gender",
-            helper_tr_add_suffix_to_list(var_columns, paste0("_", tolower(g)))
+      temp_uptake_gender <- base_uptake_gender %>%
+        filter(gender == g) %>%
+        select(-"gender")
+      
+      print(" >> Renaming columns... ")
+      colnames(temp_uptake_gender) <- c(
+        "a_iso", 
+        "adm_date_gender",
+        helper_tr_add_suffix_to_list(var_columns, paste0("_", tolower(g)))
         )
-        data_frames <- append(data_frames, list(df))
+      temp_uptake_gender_df <- append(temp_uptake_gender_df, list(temp_uptake_gender))
     }
-
-    return(data_frames)
+    print(" >> Function 'transform_population_uptake_gender' done")
+    return(temp_uptake_gender_df)
 }
 
 
-transform_pop_target_groups <- function(uptake_target_group) {
-    print(" >>> Transforming groups df...")
-    uptake_df <- list()
-
-    # Sort for healthcare workers, remove target columns
-    print(" >> Sorting for healthcare workers and removing target columns...")
-
+transform_population_uptake_group <- function(base_uptake_group) {
+    print(" >> Transforming population uptake groups data... ")
+    temp_uptake_group_df <- list()
+    
     age_group_suffix <- list("HW" = "_hcw", "OLDER_60" = "_60p")
     var_columns <- c("adm_date", "adm_a1d", "adm_fv", "adm_booster","adm_target")
-
+    
+    print(" >> Sorting for healthcare workers and older adults, removing target columns...")
     for (tg in c("HW", "OLDER_60")) {
-        df <- uptake_target_group %>%
-            filter(target_group == paste(tg) & is.na(adm_fv) == FALSE) %>%
-            select(-"target_group")
-
-        colnames(df) <-
-            c(
-                "a_iso",
-                helper_tr_add_suffix_to_list(var_columns, unlist(age_group_suffix[[tg]]))
-            )
-
-        uptake_df <- append(uptake_df, list(df))
+      temp_uptake_group <- base_uptake_group %>%
+        filter(target_group == paste(tg) & is.na(adm_fv) == FALSE) %>%
+        select(-"target_group")
+      
+      print(" >> Renaming columns... ")
+      colnames(temp_uptake_group) <- c(
+        "a_iso",
+        helper_tr_add_suffix_to_list(var_columns, unlist(age_group_suffix[[tg]]))
+        )
+      
+      temp_uptake_group_df <- append(temp_uptake_group_df, list(temp_uptake_group))
     }
-
-    return(uptake_df)
+    
+    print(" >> Function 'transform_population_uptake_group' done")
+    return(temp_uptake_group_df)
 }
 

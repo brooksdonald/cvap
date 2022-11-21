@@ -35,7 +35,7 @@ lapply(lib, library, character.only = TRUE)
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
-.GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
+.GlobalEnv$refresh_api <- FALSE # set to FALSE to use last API call
 .GlobalEnv$refresh_supply_timeseries <- FALSE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
 
 # HELPERS
@@ -55,6 +55,8 @@ source("src/cov_disag/run_cov_disag.r")
 source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
 source("src/add_data/run_add_data.r")
+source("src/last_month/run_last_month.r")
+source("src/funding_tracker/run_funding_tracker.r")
 
 dvr_env <- run_dvr(.GlobalEnv$adm_api,
     .GlobalEnv$auto_cleaning,
@@ -72,6 +74,8 @@ cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
 finance_env <- run_finance(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
 add_data_env <- run_add_data(.GlobalEnv$refresh_api)
+last_month_env <- run_last_month()
+funding_tracker_env <- run_funding_tracker()
 
 # EDA
 
@@ -131,18 +135,12 @@ consolidate_env <- run_consolidate(
     .GlobalEnv$refresh_date
 )
 
-source("consolidate/last_month/run_last_month.r")
-source("consolidate/funding_tracker/run_funding_tracker.r")
-
-last_month_env <- run_last_month()
-funding_tracker_env <- run_funding_tracker()
-
 # EXPORT
 
 print(" > Exporting data outputs from pipeline to Excel workbooks...")
 all_df <- list(
     "0_base_data" = rank_bin_env$a_data,
-    "0_base_data_lm_change" = last_month_env$base_data_lm_change,
+    "0_base_data_lm_change" = consolidate_env$base_data_lm_change,
     "1_absorption_month" = adm_cov_env$d_absorption,
     "1_absorption_month_country" = adm_cov_env$combined,
     "1_cum_absorb_month_country" = adm_cov_env$d_absorption_country_new,
@@ -180,8 +178,8 @@ all_df <- list(
     "1_fund_requests" = funding_tracker_env$base_requests
 )
 
-  write_xlsx(all_df, "data/output/221117_output_powerbi.xlsx")
-  write_xlsx(financing_env$api, "data/output/221117_output_api.xlsx")
+  write_xlsx(all_df, "data/output/221121_output_powerbi.xlsx")
+  write_xlsx(financing_env$api, "data/output/221121_output_api.xlsx")
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")

@@ -1,15 +1,16 @@
-# Rows 1648 - 1719
 
 run_add_data <- function(refresh_api) {
+    print(" > Starting local environment for additional data module...")
     source("src/add_data/add_data.r")
-
-    print(" > Starting local environment for base data...")
-
-    datalist <- load_base_data(refresh_api)
-    b_who_dashboard <- datalist$b_who_dashboard
+  
+    print(" > Loading additional data...")
+    b_who_dashboard <- load_who_dashboard(refresh_api)
     print(" > Done.")
-
-    print(" > Returning to local environment.")
-
+    
+    print(" > Adding data to datalist...")
+    datalist <- list("b_who_dashboard" = b_who_dashboard)
+    print(" > Done.")
+    
+    print(" > Returning to global environment.")
     return(environment())
 }

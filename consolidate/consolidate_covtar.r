@@ -1,16 +1,10 @@
-## Past coverage targets
 
 targets <- function(condense_list) {
+    print(" >> Generating target lists for AMC participants and Africa region...")
     target_list <- list("amc", "africa")
-
     column_names_value <- list("t10_", "t20_", "t40_", "t70_", "ndvp_")
-    column_names_name <- list(
-        "tar_stat",
-        "tar_stat",
-        "tar_stat",
-        "tar_stat",
-        "ndvp_cat"
-    )
+    column_names_name <- list("tar_stat", "tar_stat", "tar_stat", 
+                              "tar_stat", "ndvp_cat")
     data_list <- list()
 
     for (colname in column_names_value) {
@@ -50,6 +44,8 @@ targets <- function(condense_list) {
     e_ndvp_all <- helper_join_dataframe_list(
         data_list[["ndvp_"]], join_by = "ndvp_cat"
     )
+    
+    print(" >> Function 'targets' done")
     return(list(
         "tenperc" = e_tar_past_all,
         "seventyperc" = e_tar_cur_all,

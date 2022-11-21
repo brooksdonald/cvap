@@ -1,6 +1,7 @@
-supplies_cons <- function(condense_list) {
-    supplies_list <- list("amc", "africa", "amr", "emr")
 
+supplies_cons <- function(condense_list) {
+    print(" >> Generating supplies lists for AMC participants, Africa, America, and Eastern Meditteranean region...")
+    supplies_list <- list("amc", "africa", "amr", "emr")
     col_names_value <- list("seccat_", "delcat_", "pucat_", "covcat_")
     col_names_name <- list("cat", "cat", "cat", "cov_cat")
     data_list <- list()
@@ -40,6 +41,11 @@ supplies_cons <- function(condense_list) {
     e_cov_all <- helper_join_dataframe_list(
         data_list[["covcat_"]], join_by = "cov_cat"
     )
-    return(list("all" = e_secdelpu_all, "coverage" = e_cov_all))
-
+    
+    print(" >> Function 'supplies_cons' done")
+    return(list(
+        "all" = e_secdelpu_all,
+        "coverage" = e_cov_all
+        )
+      )
 }

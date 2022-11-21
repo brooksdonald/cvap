@@ -1,5 +1,6 @@
+
 supply_admin_summary <- function(a_data) {
-  # Create supply summary table
+  print(" >> Creating supply summary table...")
   z_temp_sec <- select(a_data, c("a_iso","a_covax_status","a_csc_status","a_ifc_status","a_name_short","sec_total_dose"))
   colnames(z_temp_sec) <- c("a_iso", "a_covax_status","a_csc_status","a_ifc_status","a_name_short", "doses")
   z_temp_sec$category <- "Secured"
@@ -40,8 +41,7 @@ supply_admin_summary <- function(a_data) {
     bind_rows(., z_temp_wast) %>%
     bind_rows(., z_temp_adm)
   
-  # Last month
-  
+  print(" >> Creating last month supply summary table...")
   z_temp_sec_lm <- select(a_data, c("a_iso","a_covax_status","a_csc_status","a_ifc_status","a_name_short","sec_total_dose_lm"))
   colnames(z_temp_sec_lm) <- c("a_iso", "a_covax_status","a_csc_status","a_ifc_status","a_name_short", "doses")
   z_temp_sec_lm$category <- "Secured"
@@ -78,8 +78,7 @@ supply_admin_summary <- function(a_data) {
   z_temp_lm_short <- select(z_temp_lm, c("a_iso", "doses","category"))
   colnames(z_temp_lm_short) <- c("a_iso","doses_lm", "category")
   
-  # Combine this month and last month
-  
+  print(" >> Combining current and last month supply summary tables...")
   z_secview <- left_join(z_temp, z_temp_lm_short, by = c("a_iso", "category"))
   
   z_secview <- z_secview %>%
@@ -94,6 +93,7 @@ supply_admin_summary <- function(a_data) {
     "z_temp" = z_temp,
     "z_temp_lm" = z_temp_lm,
     "z_secview_long" = z_secview_long)
-  return(datalist)
   
+  print(" >> Function 'prod_util_consolidate' done")
+  return(datalist)
 }

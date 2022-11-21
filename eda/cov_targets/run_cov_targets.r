@@ -1,18 +1,16 @@
-# rows 1973 - 2167
 
-run_cov_targets <- function(a_data, timeto_t70, c_vxrate_sept_t10, c_vxrate_dec_t2040, c_vxrate_jun_t70, t70_deadline, entity_characteristics) {
-    source("eda/cov_targets/cov_targets_gen.r")
-    source("eda/cov_targets/cov_targets_cs.r")
-
+run_cov_targets <- function(a_data, timeto_t70, c_vxrate_sept_t10, 
+                            c_vxrate_dec_t2040, c_vxrate_jun_t70, 
+                            t70_deadline, entity_characteristics) {
     print(" > Starting local environment for eda coverage module...")
+    source("eda/cov_targets/cov_targets.r")
+    source("eda/cov_targets/cov_targets_consolidate.r")
 
-    print(" > Defining the suffix of the variables...")
+    print(" > Defining suffix for coverage target variables...")
     deadline_suffix <- "_31dec"
-    # the following line automatically generates the suffix from `t70_deadline`. 
-    # uncomment if needed.
-    # deadline_suffix <- paste0("_",tolower(strftime(t70_deadline, format = "%d%b")))
     print(" > Done.")
 
+    print(" > Getting target progress against coverage targets...")
     print(" > 10% target...")
     a_data <- target_group_ten(a_data, timeto_t70, c_vxrate_sept_t10, deadline_suffix)
     print(" > Done.")
@@ -37,6 +35,6 @@ run_cov_targets <- function(a_data, timeto_t70, c_vxrate_sept_t10, c_vxrate_dec_
     a_data <- course_add_notes(a_data, refresh_date)
     print(" > Done.")
   
+    print(" > Returning to global environment.")
     return(environment())
-
 }

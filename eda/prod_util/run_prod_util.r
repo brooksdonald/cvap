@@ -1,12 +1,10 @@
-# rows 2258 - 2569
 
 run_prod_util <- function(a_data, refresh_date, timeto_t70) {
+    print(" > Starting local environment for product utilization eda module...")
     source("eda/prod_util/product_utilization.r")
     source("eda/prod_util/combination.r")
-
-    print(" > Starting local environment for product utilization eda")
     
-    print(" > dose utilization ...")
+    print(" > Calculating dose utilization ...")
     a_data <- dose_utilization(a_data, refresh_date)
     print(" > Done.")
 
@@ -26,5 +24,6 @@ run_prod_util <- function(a_data, refresh_date, timeto_t70) {
     z_secview_long <- datalist$z_secview_long
     print(" > Done.")
 
+    print(" > Returning to global environment.")
     return(environment())
 }

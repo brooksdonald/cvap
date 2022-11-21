@@ -1,6 +1,7 @@
-vxrate <- function(condense_list) {
-    name_list <- list("amc", "africa", "emr", "amr")
 
+vxrate <- function(condense_list) {
+    print(" >> Generating category lists for daily vaccination rate, monthly vxrate trend and booster...")
+    name_list <- list("amc", "africa", "emr", "amr")
     col_names_value <- list("dvr_cat", "dvr_trend", "booster_stat", "booster_hcw_stat")
     col_names_name <- list("cat_", "trend_", "booster_", "booster_hcw_")
     data_list <- list()
@@ -11,8 +12,6 @@ vxrate <- function(condense_list) {
 
     for (name in name_list) {
         df <- condense_list[[name]]
-
-        # Daily vaccination rate category, Monthly vxrate rate trend & booster
         aggregate_col_list <- list(
             df$dvr_4wk_td_per_cat,
             df$dvr_4wk_td_change_lm_trend,
@@ -44,11 +43,13 @@ vxrate <- function(condense_list) {
     e_booster_hcw <- helper_join_dataframe_list(
       data_list[["booster_hcw_"]], join_by = "booster_hcw_stat"
     )
+    
+    print(" >> Function 'vxrate' done")
     return(list(
         "all" = e_vrcat_all,
         "trend" = e_trend_month_emr,
         "booster" = e_booster_all,
         "booster_hcw" = e_booster_hcw
         )
-    )
+      )
 }

@@ -1,22 +1,22 @@
-# rows 2698 - 3280
 
 run_consolidate <- function(a_data, a_data_amc, a_data_africa,
     a_data_csc, a_data_ifc, b_vxrate_change_lw, refresh_date) {
+    print(" > Starting local environment for consolidation summary...")
+    source("consolidate/consolidate_filter.r")
     source("consolidate/consolidate_adm.r")
-    source("consolidate/consolidate_change.r")
     source("consolidate/consolidate_covtar.r")
+    source("consolidate/consolidate_covcom_amc.r")
+    source("consolidate/consolidate_covcom_csc.r")
     source("consolidate/consolidate_supply_util.r")
     source("consolidate/consolidate_values.r")
-    source("consolidate/consolidate_filter.r")
-    source("consolidate/consolidate_covcom.r")
-    source("consolidate/consolidate_covcom_csc.r")
-  
-    print(" > Starting local environment for consolidation summary")
+    source("consolidate/consolidate_change.r")
+    source("consolidate/consolidate_last_month.r")
+
     print(" > Consolidating base file...")
     condense_list <- load_base_condense_file(a_data)
     print(" > Done.")
 
-    print(" > Consolidating Vaccination rate...")
+    print(" > Consolidating vaccination rate...")
     vrcat_list <- vxrate(condense_list)
     print(" > Done.")
 
@@ -24,11 +24,11 @@ run_consolidate <- function(a_data, a_data_amc, a_data_africa,
     tgt_list <- targets(condense_list)
     print(" > Done.")
     
-    print(" > Consolidating comparisons...")
-    com_list <- comparisons(condense_list)
+    print(" > Consolidating comparisons for AMC participants...")
+    com_list_amc <- comparisons_amc(condense_list)
     print(" > Done.")
     
-    print(" > Consolidating comparisons...")
+    print(" > Consolidating comparisons for CS countries...")
     com_list_csc <- comparisons_csc(condense_list)
     print(" > Done.")
     
@@ -59,6 +59,10 @@ run_consolidate <- function(a_data, a_data_amc, a_data_africa,
     f_cov_change_count_af <- cov_cat_af(a_data)
     print(" > Done.")
     
+    print(" > Coverage category change Africa...")
+    base_data_lm_change <- transform_last_month_data(last_month_env$base_data_lm)
+    print(" > Done.")
+    
     print(" > Loading eda consolidation data back to global environment...") 
     e_vrcat_all <- vrcat_list[["all"]]
     e_trend_all <- vrcat_list[["trend"]]
@@ -70,10 +74,12 @@ run_consolidate <- function(a_data, a_data_amc, a_data_africa,
     e_ndvp_all <- tgt_list[["ndvp"]]
     e_secdelpu_all <- supp_list[["all"]]
     e_cov_all <- supp_list[["coverage"]]
-    e_cov_com_hcw_all <- com_list[["com_hcw"]]
-    e_cov_com_60p_all <- com_list[["com_60p"]]
+    e_cov_com_hcw_all <- com_list_amc[["com_hcw"]]
+    e_cov_com_60p_all <- com_list_amc[["com_60p"]]
     e_cov_com_hcw_csc <- com_list_csc[["com_hcw"]]
     e_cov_com_60p_csc <- com_list_csc[["com_60p"]]
-    print(" > Ok.")
+    print(" > Done.")
+    
+    print(" > Returning to global environment.")
     return(environment())
 }
