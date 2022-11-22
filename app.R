@@ -55,6 +55,7 @@ source("src/cov_disag/run_cov_disag.r")
 source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
 source("src/add_data/run_add_data.r")
+source("src/pin/run_pin.r")
 
 dvr_env <- run_dvr(.GlobalEnv$adm_api,
     .GlobalEnv$auto_cleaning,
@@ -72,6 +73,7 @@ cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
 finance_env <- run_finance(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
 add_data_env <- run_add_data(.GlobalEnv$refresh_api)
+pin_env <- run_pin()
 
 # EDA
 
@@ -177,11 +179,12 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red,
     "1_fund_one_budget_tracker" = funding_tracker_env$base_one_budget_tracker,
     "1_fund_one_budget_cds" = funding_tracker_env$base_one_budget_cds,
-    "1_fund_requests" = funding_tracker_env$base_requests
+    "1_fund_requests" = funding_tracker_env$base_requests,
+    "9_population_pin" = pin_env$population_pin
 )
 
-  write_xlsx(all_df, "data/output/221117_output_powerbi.xlsx")
-  write_xlsx(financing_env$api, "data/output/221117_output_api.xlsx")
+  write_xlsx(all_df, "data/output/221122_output_powerbi.xlsx")
+  write_xlsx(financing_env$api, "data/output/221122_output_api.xlsx")
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")

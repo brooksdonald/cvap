@@ -3,3 +3,4 @@ World filter=lfs diff=lfs merge=lfs -text
 Health filter=lfs diff=lfs merge=lfs -text
 Organization/covid19_vaccination_analysis/data/input/interim/owid-covid-data.csv filter=lfs diff=lfs merge=lfs -text
 C:/Users/rafae/OneDrive filter=lfs diff=lfs merge=lfs -text
+*.csv filter=lfs diff=lfs merge=lfs -text
