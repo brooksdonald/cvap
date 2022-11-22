@@ -35,9 +35,8 @@ load_pin_data <- function() {
   return(population_pin)
 }
 
-load_pin_data <- function(population_pin) {
-  temp_pin_hcw <- rank_bin_env$a_data
-  
+transform_pin_data <- function(population_pin) {
+  temp_pin_hcw <- entity_env$population_hcw
   
   temp_pin_hcw <- select(
     temp_pin_hcw,

@@ -7,7 +7,10 @@ run_pin <- function(refresh_api) {
     population_pin <- load_pin_data()
     print(" > Done.")
 
+    print(" > Loading people in need data...")
+    population_pin <- transform_pin_data(population_pin)
+    print(" > Done.")
+    
     print(" > Returning to local environment.")
-
     return(environment())
 }
