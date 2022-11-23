@@ -72,6 +72,7 @@ load_conc_supp_list <- function() {
     print(" >> Renaming adhoc Columns...")
     colnames(b_adhoc) <- c(
         "iso",
+        "a_who_region",
         "a_csc_status",
         "ndvp_mid_target",
         "ndvp_mid_deadline",
@@ -84,15 +85,19 @@ load_conc_supp_list <- function() {
         "ss_deadline",
         "country_source",
         "date",
-        "adm_target_hcw_wpro"
+        "adm_target_hcw_wpro",
+        "a_pop_hcw"
     )
+    b_adhoc <- subset(b_adhoc, select=-c(a_who_region, a_pop_hcw))
+    
     return(b_adhoc)
 }
 
 transform_entity_chars <- function(entity_characteristics, b_adhoc) {
+  
     print(" >> Joining b_csl to entity_characteristics...")
     entity_characteristics <- left_join(
-        entity_characteristics, b_adhoc, by = c("a_iso" = "iso")
+      entity_characteristics, b_adhoc, by = c("a_iso" = "iso")
     )
 
     print(" >> Rework WHO region...")
