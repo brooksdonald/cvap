@@ -29,9 +29,9 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2022-11-17")
+.GlobalEnv$refresh_date <- as.Date("2022-11-28")
 .GlobalEnv$sec_date <- as.Date("2022-08-31")
-.GlobalEnv$del_date <- as.Date("2022-11-14")
+.GlobalEnv$del_date <- as.Date("2022-11-22")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
@@ -100,7 +100,8 @@ eda_adm_cov_env <- run_eda_adm_cov(
     .GlobalEnv$t70_deadline,
     cov_disag_env$target_hcwold,
     adm_cov_env$combined_three,
-    adm_cov_env$overall_fin_cumul_long
+    adm_cov_env$overall_fin_cumul_long,
+    adm_cov_env$b_vxrate_pub
 )
 
 supplies_env <- run_eda_supplies(eda_adm_cov_env$a_data)
@@ -149,7 +150,7 @@ all_df <- list(
     "1_absorption_month_country" = adm_cov_env$combined,
     "1_cum_absorb_month_country" = adm_cov_env$d_absorption_country_new,
     "1_stock" = eda_adm_cov_env$timeseries,
-    "1_adm_all_long" = adm_cov_env$b_vxrate_pub,
+    "1_adm_all_long" = eda_adm_cov_env$b_vxrate_pub,
     "1_delivery_doses" = supply_env$supply_received_by_product,
     "1_secview" = prod_util_env$z_temp,
     "1_secview_lm" = prod_util_env$z_temp_lm,
@@ -183,8 +184,8 @@ all_df <- list(
     "9_population_pin" = pin_env$population_pin
 )
 
-  write_xlsx(all_df, "data/output/221122_output_powerbi.xlsx")
-  write_xlsx(financing_env$api, "data/output/221122_output_api.xlsx")
+  write_xlsx(all_df, "data/output/221128_output_powerbi.xlsx")
+  write_xlsx(financing_env$api, "data/output/221128_output_api.xlsx")
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
