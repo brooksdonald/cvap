@@ -15,11 +15,13 @@ run_eda_adm_cov <- function(
     t70_deadline,
     target_hcwold,
     combined_three,
-    overall_fin_cumul_long
+    overall_fin_cumul_long,
+    adm_all_long
 ) {
     source("eda/adm_cov/adm_consolidate.r")
     source("eda/adm_cov/adm_timeseries.r")
-
+  source("eda/adm_cov/adm_elig_booster.r")
+  
     print(" > Starting local environment for vxrate...")
 
     print(" >  Extracting consolidated vxrate summary...")
@@ -48,5 +50,10 @@ run_eda_adm_cov <- function(
     print(" > Done.")
     
     timeseries <- merge_timeseries(a_data, combined_three, target_hcwold, overall_fin_cumul_long)
+    
+    b_vxrate_pub <- calculate_elig_booster(adm_all_long)
+    
+    a_data <- merge_elig_booster(b_vxrate_pub, a_data)
+    
     return(environment())
 }
