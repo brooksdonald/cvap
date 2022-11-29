@@ -14,10 +14,11 @@ load_pin_data <- function() {
       "Country",
       "Region",	
       "Number.of.Health.Cluster.partners",
+      "Total.People.in.Need",
+      "Vaccination.data.as.of",
       "Total.doses.administered",	
       "Total.doses.administered.per.100.pop.",
-      "Persons.fully.vaccinated.per.100.pop.",
-      "Total.People.in.Need"
+      "Persons.fully.vaccinated.per.100.pop."
     )
   )
   
@@ -27,10 +28,11 @@ load_pin_data <- function() {
     "a_name_short",
     "a_district_sub",
     "num_healthclusterpartners",
+    "a_pop_pin",
+    "ghc_date",
     "adm_td_pin",
     "adm_td_pin_per",
-    "cov_pin_fv",
-    "a_pop_pin"
+    "cov_pin_fv"
   )
   return(population_pin)
 }
@@ -45,6 +47,8 @@ transform_pin_data <- function(population_pin) {
   
   population_pin <- left_join(population_pin, temp_pin_hcw, by = "a_iso")
   
+  population_pin$ghc_date_max <- max(population_pin$ghc_date)
+    
   return(population_pin)
   
 }

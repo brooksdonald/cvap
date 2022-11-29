@@ -84,6 +84,7 @@ source("eda/cov_targets/run_cov_targets.r")
 source("eda/finance/run_finance.r")
 source("eda/qual_data/run_qual_data.r")
 source("eda/rank_bin/run_rank_bin.r")
+source("eda/pin/run_pin.r")
 
 eda_adm_cov_env <- run_eda_adm_cov(
     adm_cov_env$c_vxrate_latest,
@@ -119,13 +120,14 @@ cov_targets_env <- run_cov_targets(
 financing_env <- run_financing(cov_targets_env$a_data)
 qual_data_env <- run_qual_data(financing_env$a_data)
 rank_bin_env <- run_rank_bin(qual_data_env$a_data)
+eda_pin_env <- run_eda_pin(rank_bin_env$a_data, pin_env$population_pin)
 
 # CONSOLIDATE
 
 source("consolidate/run_consolidate.r")
 
 consolidate_env <- run_consolidate(
-    rank_bin_env$a_data,
+    eda_pin_env$a_data,
     financing_env$a_data_amc,
     financing_env$a_data_africa,
     financing_env$a_data_csc,
@@ -144,7 +146,7 @@ funding_tracker_env <- run_funding_tracker()
 
 print(" > Exporting data outputs from pipeline to Excel workbooks...")
 all_df <- list(
-    "0_base_data" = rank_bin_env$a_data,
+    "0_base_data" = eda_pin_env$a_data,
     "0_base_data_lm_change" = last_month_env$base_data_lm_change,
     "1_absorption_month" = adm_cov_env$d_absorption,
     "1_absorption_month_country" = adm_cov_env$combined,
