@@ -42,6 +42,9 @@ merge_pin <- function(a_data, temp_population_pin){
   a_data <- a_data %>%
     mutate(cov_pin_fv = adm_td_pin / a_pop_pin)
     
+  a_data <- a_data %>%
+    mutate(a_pop_pin_per = a_pop_pin / a_pop)
+  
   print(" >> Function 'merge_pin' done")
   return(a_data)  
 }
