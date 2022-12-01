@@ -29,7 +29,7 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2022-11-28")
+.GlobalEnv$refresh_date <- as.Date("2022-12-01")
 .GlobalEnv$sec_date <- as.Date("2022-08-31")
 .GlobalEnv$del_date <- as.Date("2022-11-22")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
@@ -186,8 +186,8 @@ all_df <- list(
     "9_population_pin" = pin_env$population_pin
 )
 
-  write_xlsx(all_df, "data/output/221128_output_powerbi.xlsx")
-  write_xlsx(financing_env$api, "data/output/221128_output_api.xlsx")
+  write_xlsx(all_df, "data/output/221201_output_powerbi.xlsx")
+  write_xlsx(financing_env$api, "data/output/221201_output_api.xlsx")
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
