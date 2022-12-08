@@ -174,6 +174,7 @@ all_df <- list(
     "8_cov_com_60p_all" = consolidate_env$e_cov_com_60p_all,
     "8_cov_com_hcw_csc" = consolidate_env$e_cov_com_hcw_csc,
     "8_cov_com_60p_csc" = consolidate_env$e_cov_com_60p_csc,
+    "8_cov_comorbidity" = consolidate_env$e_cov_comorb,
     "8_ndvp_tar_cat" = consolidate_env$e_ndvp_all,
     "9_values" = consolidate_env$z_values,
     "1_funding_long" = finance_env$b_fin_fund_del_long,
@@ -186,8 +187,8 @@ all_df <- list(
     "9_population_pin" = pin_env$population_pin
 )
 
-  write_xlsx(all_df, "data/output/221201_output_powerbi.xlsx")
-  write_xlsx(financing_env$api, "data/output/221201_output_api.xlsx")
+  write_xlsx(all_df, "data/output/221207_output_powerbi.xlsx")
+  write_xlsx(financing_env$api, "data/output/221207_output_api.xlsx")
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")

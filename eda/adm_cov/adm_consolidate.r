@@ -28,7 +28,14 @@ extract_vxrate_details <- function(c_vxrate_latest) {
         "expiry_risk",
         "ss_target",
         "ss_deadline",
-        "country_source"
+        "country_source",
+        "a_pop_comorb",
+        "adm_a1d_comorb",	
+        "adm_fv_comorb",	
+        "adm_booster_comorb",	
+        "adm_unknown_comorb",	
+        "adm_partial_comorb",	
+        "adm_unvaccinated_comorb"
       )
     )
 
@@ -615,6 +622,104 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   a_data$cov_total_60p_com_csc <- gsub("AMC participants", "CSC countries", a_data$cov_total_60p_com)
   a_data$cov_total_60p_com_csc[a_data$a_csc_status != "Concerted support country" ] <- NA  
   
+
+  
+
+  # Indicator reporting status for comorbidity data
+  print(" >>> Indicator reporting status for comorbidity data...")
+  a_data <- a_data %>%
+    mutate(adm_comorb_repstat = if_else(
+      is.na(adm_fv_comorb),
+      "Not reporting",
+      if_else(
+        adm_fv_comorb > 0,
+        "Reporting",
+        "Not reporting")))
+  
+  # Calculate coverage of population with at least one comorbidity in reporting countries
+  print(" >>> Computing coverage of population with at least one comorbidity in reporting countries...")
+  
+  a_data <- a_data %>%
+    mutate(adm_a1d_comorb_homo = pmin(adm_a1d_comorb, a_pop_comorb)) %>%
+    mutate(adm_fv_comorb_homo = pmin(adm_fv_comorb, a_pop_comorb)) %>%
+    mutate(adm_booster_comorb_homo = pmin(adm_booster_comorb, a_pop_comorb))
+    
+  a_data <- a_data %>%
+    mutate(cov_comorb_a1d = adm_a1d_comorb_homo / a_pop_comorb) %>%
+    mutate(cov_comorb_fv = adm_fv_comorb_homo / a_pop_comorb) %>%
+    mutate(cov_comorb_booster = adm_booster_comorb_homo / a_pop_comorb)
+  
+  a_data <- a_data %>%
+    mutate(cov_comorb_booster = pmin(1, adm_booster_comorb_homo / a_pop_comorb)) %>%
+    mutate(cov_comorb_a1d_fv = if_else(cov_comorb_fv == 0 | is.na(cov_comorb_fv),
+                                       cov_comorb_a1d,
+                                       cov_comorb_a1d - cov_comorb_fv)) %>%
+    mutate(cov_comorb_fv_booster = if_else(cov_comorb_booster == 0 | is.na(cov_comorb_booster),
+                                        cov_comorb_fv,
+                                        cov_comorb_fv - cov_comorb_booster))
+  
+  # Assign comorbidity category
+  print(" >>> Assigning coverage category for population with at least one comorbidity...")
+  breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 0.7, Inf)
+  tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%",
+            "4) 20-40%", "5) 40-70%", "6) 70%+")
+  a_data$cov_comorb_cat <- cut(
+    a_data$cov_comorb_fv,
+    breaks = breaks,
+    include.lowest = TRUE,
+    right = FALSE,
+    labels = tags
+  )
+
+  # Calculate coverage difference between persons with at least one comorbidity and total in reporting countries
+  print(" >>> Computing coverage difference between persons with at least one comorbidity and total in reporting countries...")
+  a_data <- a_data %>%
+    mutate(
+      cov_total_comorb_diff = ifelse(
+        adm_comorb_repstat == "Reporting",
+        cov_comorb_fv - cov_total_fv,
+        NA
+      ))
+
+  # Categorize comparison of percent of population with at least one comorbidity and total coverage
+  breaks <- c(-Inf, 0, Inf)
+  tags <- c("AMC participants with complete primary series coverage of persons with at least one comorbidity lesser than total", "AMC participants with complete primary series coverage of persons with at least one comorbidity greater than total")
+  a_data$cov_total_comorb_com <- cut(
+    a_data$cov_total_comorb_diff,
+    breaks = breaks,
+    labels = tags,
+    include.lowest = FALSE,
+    right = TRUE
+  )
+  a_data$cov_total_comorb_com[a_data$adm_comorb_repstat != "Reporting" ] <- NA    
+  
+  a_data <- a_data %>%
+    mutate(cov_comorb_a1d = if_else(
+      is.infinite(cov_comorb_a1d),
+      NA_real_,
+      cov_comorb_a1d)) %>%
+    mutate(cov_comorb_fv = if_else(
+      is.infinite(cov_comorb_fv),
+      NA_real_,
+      cov_comorb_fv)) %>%
+    mutate(cov_comorb_booster = if_else(
+      is.infinite(cov_comorb_booster),
+      NA_real_,
+      cov_comorb_booster))
+  
+  
+  
+
+  
+  # cov_comorb_fv_cat
+  # 
+  # cov_comorb_fv
+  # 
+  # cov_com_comorb_all
+  # 
+  # 
+  # 
+  # 
   
   #   
   # # Categorize comparison of coverage between HCWs and total

@@ -197,6 +197,17 @@ course_progress <- function(a_data, entity_characteristics, refresh_date, timeto
         include.lowest = TRUE,
         right = FALSE
     )
+    
+    a_data <- a_data %>%
+      mutate(ndvp_rate_needed = if_else(
+        is.infinite(ndvp_rate_needed),
+        NA_real_,
+        ndvp_rate_needed)) %>%
+      mutate(ndvp_rate_needed_dose = if_else(
+        is.infinite(ndvp_rate_needed_dose),
+        NA_real_,
+        ndvp_rate_needed_dose))
+    
     return(a_data)
 }
 
@@ -240,6 +251,7 @@ course_add_notes <- function(a_data, refresh_date) {
         "Yes",
         "No"))
 
+    
     return(a_data)
 
 }

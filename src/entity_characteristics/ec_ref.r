@@ -86,7 +86,14 @@ load_conc_supp_list <- function() {
         "country_source",
         "date",
         "adm_target_hcw_wpro",
-        "a_pop_hcw"
+        "a_pop_hcw",
+        "a_pop_comorb",	
+        "adm_a1d_comorb",	
+        "adm_fv_comorb",	
+        "adm_booster_comorb",	
+        "adm_unknown_comorb",	
+        "adm_partial_comorb",	
+        "adm_unvaccinated_comorb"
     )
     b_adhoc <- subset(b_adhoc, select=-c(a_who_region, a_pop_hcw))
     
