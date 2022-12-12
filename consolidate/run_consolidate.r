@@ -10,7 +10,7 @@ run_consolidate <- function(a_data, a_data_amc, a_data_africa,
     source("consolidate/consolidate_filter.r")
     source("consolidate/consolidate_covcom.r")
     source("consolidate/consolidate_covcom_csc.r")
-  
+
     print(" > Starting local environment for consolidation summary")
     print(" > Consolidating base file...")
     condense_list <- load_base_condense_file(a_data)
@@ -35,7 +35,7 @@ run_consolidate <- function(a_data, a_data_amc, a_data_africa,
     print(" > Consolidating Supplies & Product utilization...")
     supp_list <- supplies_cons(condense_list)
     print(" > Done.")
-
+    
     print(" > Creating values table...")
     z_values <- values_table(a_data, a_data_amc, a_data_africa,
         a_data_csc, a_data_ifc, refresh_date)
@@ -74,6 +74,7 @@ run_consolidate <- function(a_data, a_data_amc, a_data_africa,
     e_cov_com_60p_all <- com_list[["com_60p"]]
     e_cov_com_hcw_csc <- com_list_csc[["com_hcw"]]
     e_cov_com_60p_csc <- com_list_csc[["com_60p"]]
+
     print(" > Ok.")
     return(environment())
 }

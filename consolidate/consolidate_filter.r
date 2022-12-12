@@ -28,7 +28,8 @@ load_base_condense_file <- function(a_data) {
             "cov_total_60p_com_csc",
             "pu_used_per_cat",
             "del_cour_total_per_cat",
-            "sec_total_per_cat"
+            "sec_total_per_cat",
+            "cov_total_fv_cat_ce"
         )
     )
 
