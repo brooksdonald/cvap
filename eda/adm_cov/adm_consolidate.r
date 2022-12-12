@@ -616,6 +616,56 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   a_data$cov_total_60p_com_csc[a_data$a_csc_status != "Concerted support country" ] <- NA  
   
   
+  
+  
+  
+  
+  
+  # Assign coverage category for current and lw
+  print(" >>> Assigning coverage category for current and lw...")
+  breaks <- c(0, 0.2, 0.3, Inf)
+  tags <- c("1) Less than 20%", "2) 20-30%", "3) Greater than 30%")
+  a_data$cov_total_fv_cat_ce <- cut(
+    a_data$cov_total_fv,
+    breaks = breaks,
+    include.lowest = TRUE,
+    right = FALSE,
+    labels = tags
+  )
+  
+  a_data <- a_data %>%
+    mutate(direction_forward_ce = if_else(
+      cov_total_fv < .2,
+      "Focus on general population",
+      if_else(adm_booster_homo / a_pop <.05,
+              "Focus on boosters",
+              if_else(cov_total_fv > cov_hcw_fv & cov_total_fv > cov_60p_fv,
+                      "Focus on risk groups",
+                      ""
+              )
+        
+      )))
+
+#     
+#   
+#   cov_total_fv < .2
+#   
+#   cov_hcw_fv < cov_total_fv
+#   
+#   cov_60p_fv < cov_total_fv
+#   
+#   
+#   Create a brief synthetic sentence per country that indicates “direction forward” based on data
+#   If country below 20, focus on general, and political advocacy likely necessary
+#   If general is above HCWs/older adults, focus on risk groups
+#   If country is above 30, but booster is low or 0, focus on boosting
+#   Etc.
+#   
+#   
+# 
+  
+  
+  
   #   
   # # Categorize comparison of coverage between HCWs and total
   # breaks <- c(-Inf, 0, Inf)
