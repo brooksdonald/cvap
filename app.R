@@ -29,13 +29,13 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2022-12-08")
+.GlobalEnv$refresh_date <- as.Date("2022-12-20")
 .GlobalEnv$sec_date <- as.Date("2022-08-31")
-.GlobalEnv$del_date <- as.Date("2022-12-06")
+.GlobalEnv$del_date <- as.Date("2022-12-16")
 .GlobalEnv$t70_deadline <- as.Date("2022-12-31")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
-.GlobalEnv$refresh_api <- FALSE # set to FALSE to use last API call
+.GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
 .GlobalEnv$refresh_supply_timeseries <- FALSE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
 
 # HELPERS
@@ -120,14 +120,16 @@ cov_targets_env <- run_cov_targets(
 financing_env <- run_financing(cov_targets_env$a_data)
 qual_data_env <- run_qual_data(financing_env$a_data)
 rank_bin_env <- run_rank_bin(qual_data_env$a_data)
+
 eda_pin_env <- run_eda_pin(rank_bin_env$a_data, pin_env$population_pin)
+
 
 # CONSOLIDATE
 
 source("consolidate/run_consolidate.r")
 
 consolidate_env <- run_consolidate(
-    eda_pin_env$a_data,
+  qual_data_env$a_data,
     financing_env$a_data_amc,
     financing_env$a_data_africa,
     financing_env$a_data_csc,
@@ -186,8 +188,8 @@ all_df <- list(
     "9_population_pin" = pin_env$population_pin
 )
 
-  write_xlsx(all_df, "data/output/221208_output_powerbi.xlsx")
-  write_xlsx(financing_env$api, "data/output/221208_output_api.xlsx")
+  write_xlsx(all_df, "data/output/221220_output_powerbi.xlsx")
+  write_xlsx(financing_env$api, "data/output/221220_output_api.xlsx")
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
