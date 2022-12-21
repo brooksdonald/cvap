@@ -19,7 +19,7 @@ transform_supp_secured <- function(supply_secured, sec_date, c_sec_cour_lm) { # 
 extract_supply_secured <- function() {
     print(" >> Reading supply secured data...")
     supplyinput <-
-        data.frame(read_excel("data/input/base_supply_secured_summary.xlsx",
+        data.frame(read_excel("data/input/static/base_supply_secured_summary.xlsx",
             sheet = "supply_tracker",
             skip = 2))
 
@@ -65,7 +65,7 @@ extract_sup_sec_lm <- function() {
     print(" >> Reading supply secured summary lastmonth...")
     b_sec_lm <-
         data.frame(
-            read_excel("data/input/base_supply_secured_summary_lastmonth.xlsx",
+            read_excel("data/input/static/base_supply_secured_summary_lastmonth.xlsx",
                 sheet = "supply_tracker",
                 skip = 2
             )
