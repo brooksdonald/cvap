@@ -12,11 +12,11 @@ grouping_by_one <- function(a_data) {
     mutate(dvr_4wk_td_per_rank = row_number(dvr_4wk_td_per)) %>%
     mutate(dvr_4wk_td_per_bins = ntile(dvr_4wk_td_per_rank, 2))
 
-  ##Supply secured and/or expected (% pop.)
-  a_data <- a_data %>%
-    group_by(a_covax_status) %>%
-    mutate(sec_total_per_rank = row_number(sec_total_per)) %>%
-    mutate(sec_total_per_bins = ntile(sec_total_per_rank, 2))
+  # ##Supply secured and/or expected (% pop.)
+  # a_data <- a_data %>%
+  #   group_by(a_covax_status) %>%
+  #   mutate(sec_total_per_rank = row_number(sec_total_per)) %>%
+  #   mutate(sec_total_per_bins = ntile(sec_total_per_rank, 2))
 
   ##Supply received (% pop.)
   a_data <- a_data %>%
@@ -71,11 +71,11 @@ grouping_by_two <- function(a_data) {
     mutate(cov_total_fv_less_1m_rank = row_number(cov_total_fv_less_1m_prop)) %>% #nolint
     mutate(cov_total_fv_less_1m_bins = ntile(cov_total_fv_less_1m_rank, 2))
 
-  ##Proportion of secured courses that have been received
-  a_data <- a_data %>%
-    group_by(a_covax_status, intro_status) %>%
-    mutate(sec_del_prop_rank = row_number(sec_del_prop)) %>%
-    mutate(sec_del_prop_bins = ntile(sec_del_prop_rank, 2))
+  # ##Proportion of secured courses that have been received
+  # a_data <- a_data %>%
+  #   group_by(a_covax_status, intro_status) %>%
+  #   mutate(sec_del_prop_rank = row_number(sec_del_prop)) %>%
+  #   mutate(sec_del_prop_bins = ntile(sec_del_prop_rank, 2))
   
   ## Financing per capita
   a_data <- a_data %>%
@@ -121,11 +121,11 @@ grouping_by_two <- function(a_data) {
     mutate(csc_del_dose_rank = row_number(del_dose_total)) %>%
     mutate(csc_del_dose_bins = ntile(csc_del_dose_rank, 2))
 
-  ##Proportion of supply secured from COVAX
-  a_data <- a_data %>%
-    group_by(a_covax_status, intro_status) %>%
-    mutate(sec_covax_prop_rank = row_number(sec_covax_prop)) %>%
-    mutate(sec_covax_prop_bins = ntile(sec_covax_prop_rank, 2))
+  # ##Proportion of supply secured from COVAX
+  # a_data <- a_data %>%
+  #   group_by(a_covax_status, intro_status) %>%
+  #   mutate(sec_covax_prop_rank = row_number(sec_covax_prop)) %>%
+  #   mutate(sec_covax_prop_bins = ntile(sec_covax_prop_rank, 2))
 
    ## Proportion of JJ doses
   a_data <- a_data %>%

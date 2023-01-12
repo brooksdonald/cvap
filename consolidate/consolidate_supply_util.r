@@ -1,8 +1,8 @@
 supplies_cons <- function(condense_list) {
     supplies_list <- list("amc", "africa", "amr", "emr")
 
-    col_names_value <- list("seccat_", "delcat_", "pucat_", "covcat_")
-    col_names_name <- list("cat", "cat", "cat", "cov_cat")
+    col_names_value <- list("delcat_", "pucat_", "covcat_")
+    col_names_name <- list("cat", "cat", "cov_cat")
     data_list <- list()
 
     for (colname in col_names_value) {
@@ -14,7 +14,6 @@ supplies_cons <- function(condense_list) {
 
         # Secured, Courses delivered, Product utilization, Coverage category
         aggregate_col_list <- list(
-            df$sec_total_per_cat,
             df$del_cour_total_per_cat,
             df$pu_used_per_cat,
             df$cov_total_fv_cat
@@ -33,7 +32,7 @@ supplies_cons <- function(condense_list) {
         }
     }
     e_secdelpu_all <- helper_join_dataframe_list(as.list(c(
-        data_list$seccat_, data_list$delcat_, data_list$pucat_)),
+        data_list$delcat_, data_list$pucat_)),
         join_by = "cat"
     )
     e_secdelpu_all <- e_secdelpu_all %>% replace(is.na(.), "None")

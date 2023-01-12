@@ -28,7 +28,13 @@ extract_vxrate_details <- function(c_vxrate_latest) {
         "expiry_risk",
         "ss_target",
         "ss_deadline",
-        "country_source"
+        "country_source",
+        "a_pop_hcw",
+        "date_13jan",
+        "a_pop",
+        "desk_officer",
+        "booster_policy",
+        "date"
       )
     )
 
@@ -41,11 +47,11 @@ merge_dataframes <- function(
   population_data,
   uptake_gender_data,
   b_who_dashboard,
-  supply_secured,
   delivery_courses_doses,
   b_dp,
   c_delivery_product,
-  b_fin_fund_del_sum
+  b_fin_fund_del_sum,
+  population_pin
   ) {
     # Renaming iso columns to a_iso before merge
     df_list <- list(
@@ -54,11 +60,11 @@ merge_dataframes <- function(
       population_data,
       uptake_gender_data,
       b_who_dashboard,
-      supply_secured,
       delivery_courses_doses,
       b_dp,
       c_delivery_product,
-      b_fin_fund_del_sum
+      b_fin_fund_del_sum,
+      population_pin
     )
     # Merge details
     a_data <- helper_join_dataframe_list(
@@ -117,7 +123,8 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     mutate(a_pop_10 = a_pop * 0.1) %>%
     mutate(a_pop_20 = a_pop * 0.2) %>%
     mutate(a_pop_40 = a_pop * 0.4) %>%
-    mutate(a_pop_70 = a_pop * 0.7)
+    mutate(a_pop_70 = a_pop * 0.7) %>%
+    mutate(date = as.Date(date))
   
   # Calculate population proportions
   print(" >>> Computing population proportions...")

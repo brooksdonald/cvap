@@ -2,7 +2,7 @@
 load_pin_data <- function() {
   print(" >> Loading people in need data...")
   population_pin <- data.frame(
-    read_excel("data/input/static/base_population_pin.xlsx",
+    read_excel("data/input/base_humanitarian.xlsx",
                sheet = "Data"
     )
   )
@@ -11,43 +11,48 @@ load_pin_data <- function() {
   population_pin <- select(
     population_pin,
     c("ISO",
-      "Country",
       "Region",	
-      "Number.of.Health.Cluster.partners",
+      "Population",
       "Total.People.in.Need",
       "Vaccination.data.as.of",
       "Total.doses.administered",	
-      "Total.doses.administered.per.100.pop.",
-      "Persons.fully.vaccinated.per.100.pop."
+      "Persons.vaccinated.with.1..dose",
+      "Persons.fully.vaccinated",
+      "Persons.received.booster.dose"
     )
   )
   
   print(" >> Renaming columns...")
   colnames(population_pin) <- c(
     "a_iso",
-    "a_name_short",
-    "a_district_sub",
-    "num_healthclusterpartners",
+    "a_name_sub",
+    "a_pop_hum",
     "a_pop_pin",
-    "ghc_date",
-    "adm_td_pin",
-    "adm_td_pin_per",
-    "cov_pin_fv"
+    "adm_date_hum",
+    "adm_td_hum",
+    "adm_a1d_hum",
+    "adm_fv_hum",
+    "adm_booster_hum"
   )
   return(population_pin)
 }
 
 transform_pin_data <- function(population_pin) {
-  temp_pin_hcw <- entity_env$population_hcw
-  
-  temp_pin_hcw <- select(
-    temp_pin_hcw,
-    c("a_iso","a_pop_hcw")
-  )
-  
-  population_pin <- left_join(population_pin, temp_pin_hcw, by = "a_iso")
-  
-  population_pin$ghc_date_max <- max(population_pin$ghc_date)
+
+  print(" >> Calculating aggregate sum for people in need variables...")
+  population_pin <- population_pin %>%
+    group_by(a_iso) %>%
+    summarize(adm_td_hum = sum(adm_td_hum),
+              a_pop_hum = sum(a_pop_hum),
+              a_pop_pin = sum(a_pop_pin),
+              adm_a1d_hum = sum(adm_a1d_hum),
+              adm_booster_hum = sum(adm_booster_hum),
+              adm_fv_hum = sum(adm_fv_hum),
+              adm_date_hum = max(adm_date_hum)) %>%
+    mutate(adm_date_hum = as.Date(adm_date_hum))
+
+    
+  print(" >> Function 'calculate_pin' done")
     
   return(population_pin)
   

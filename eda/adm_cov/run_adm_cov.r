@@ -6,7 +6,6 @@ run_eda_adm_cov <- function(
     population_data,
     uptake_gender_data,
     b_who_dashboard,
-    supply_secured,
     delivery_courses_doses,
     b_dp,
     c_delivery_product,
@@ -16,11 +15,12 @@ run_eda_adm_cov <- function(
     target_hcwold,
     combined_three,
     overall_fin_cumul_long,
-    adm_all_long
+    adm_all_long,
+    population_pin
 ) {
     source("eda/adm_cov/adm_consolidate.r")
     source("eda/adm_cov/adm_timeseries.r")
-  source("eda/adm_cov/adm_elig_booster.r")
+    # source("eda/adm_cov/adm_elig_booster.r")
   
     print(" > Starting local environment for vxrate...")
 
@@ -35,11 +35,11 @@ run_eda_adm_cov <- function(
         population_data,
         uptake_gender_data,
         b_who_dashboard,
-        supply_secured,
         delivery_courses_doses,
         b_dp,
         c_delivery_product,
-        b_fin_fund_del_sum
+        b_fin_fund_del_sum,
+        population_pin
     )
     print(" > Done.")
 
@@ -51,9 +51,9 @@ run_eda_adm_cov <- function(
     
     timeseries <- merge_timeseries(a_data, combined_three, target_hcwold, overall_fin_cumul_long)
     
-    b_vxrate_pub <- calculate_elig_booster(adm_all_long)
-    
-    a_data <- merge_elig_booster(b_vxrate_pub, a_data)
+    # b_vxrate_pub <- calculate_elig_booster(adm_all_long)
+    # 
+    # a_data <- merge_elig_booster(b_vxrate_pub, a_data)
     
     return(environment())
 }

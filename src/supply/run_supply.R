@@ -1,17 +1,7 @@
-run_supply <- function(sec_date, del_date) {
+run_supply <- function(del_date) {
     print(" > Starting local environment for supply module...")
 
-    source("src/supply/supply_secured.r", TRUE)
     source("src/supply/supply_received.r", TRUE)
-
-    print(" > Secured supply...")
-    datalist1 <- load_supply_secured_data()
-    supply_secured <- transform_supp_secured(
-        as.data.frame(datalist1$supply_secured),
-        sec_date,
-        as.data.frame(datalist1$c_sec_cour_lm)
-    )
-    print(" > Done.")
 
     print(" > Received supply...")
     supply_received <- load_sup_rec()

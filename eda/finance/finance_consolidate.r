@@ -82,11 +82,6 @@ api_export_table <- function(a_data) {
     "a_pop_60p",
     "a_pop_70",
     "a_pop_hcw",
-    "sec_date",
-    "sec_total",
-    "sec_total_per",
-    "sec_tobedel",
-    "sec_tobedel_per",
     "del_date",
     "del_dose_total",
     "del_dose_since_lm",
@@ -138,13 +133,11 @@ api_export_table <- function(a_data) {
     "t40_status",
     "t40_timeto",
     "t40_cour_req",
-    "t40_cour_need_sec",
     "t40_cour_need_del",
     "t40_cour_need_adm",
     "t70_status",
     "t70_timeto",
     "t70_cour_req",
-    "t70_cour_need_sec",
     "t70_cour_need_del",
     "t70_cour_need_adm",
     "ndvp_target",
@@ -176,11 +169,6 @@ api_export_table <- function(a_data) {
     "pop_60p",
     "pop_70per",
     "pop_hcw",
-    "sec_date",
-    "sec_total",
-    "sec_total_per",
-    "sec_tobedel",
-    "sec_tobedel_per",
     "del_date",
     "del_dose_total",
     "del_dose_since_lm",
@@ -232,13 +220,11 @@ api_export_table <- function(a_data) {
     "t40_status",
     "t40_timeto",
     "t40_cour_req",
-    "t40_cour_need_sec",
     "t40_cour_need_del",
     "t40_cour_need_adm",
     "t70_status",
     "t70_timeto",
     "t70_cour_req",
-    "t70_cour_need_sec",
     "t70_cour_need_del",
     "t70_cour_need_adm",
     "ndvp_target",
@@ -256,8 +242,8 @@ api_export_table <- function(a_data) {
   
   return(api)
 }
-
-covdp_ifc_status <- function(a_data) {
-  a_data_ifc <- filter(a_data, a_ifc_status == "Immediate focus")
-  return(a_data_ifc)
-}
+# 
+# covdp_ifc_status <- function(a_data) {
+#   a_data_ifc <- filter(a_data, a_ifc_status == "Immediate focus")
+#   return(a_data_ifc)
+# }

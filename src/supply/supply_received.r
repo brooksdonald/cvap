@@ -102,8 +102,7 @@ transform_sup_rec_doses <- function(supply_received, del_date) {
         "del_dose_total_13jan"
     )
 
-    print(" >> Calculate doses delivered
-                since last and previous two months...")
+    print(" >> Calculate doses delivered since last and previous two months...")
     supply_received_doses <- supply_received_doses %>%
         mutate(del_dose_since_lm = pmax(del_dose_total - del_dose_total_lm, 0))
 
