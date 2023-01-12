@@ -69,11 +69,6 @@ supply_pending <- function(a_data) {
     # Calculate supply secured not yet delivered, supply received not yet administered
     print(" >>> Computing supply secured not yet delivered, supply received not yet administered...")
     a_data <- a_data %>%
-    mutate(sec_tobedel = pmax(sec_total - del_cour_total, 0)) %>%
-    mutate(sec_tobedel_per = sec_tobedel / a_pop) %>%
-    mutate(sec_tobedel_dose = sec_total_dose - del_dose_total) %>%
-    mutate(sec_tobedel_dose_lm = sec_total_dose_lm - del_dose_total_lm) %>%
-    mutate(sec_tobedel_dose_per = sec_tobedel_dose / a_pop) %>%
     mutate(rem_cour_del = pmax(del_cour_total - del_cour_wast - adm_fv_homo -
         (((adm_a1d_homo - adm_fv_homo) + adm_booster)  * 0.5), 0)) %>%
     mutate(rem_cour_del_wast = pmax(del_cour_total - adm_fv_homo -
@@ -85,24 +80,13 @@ supply_pending <- function(a_data) {
 }
 
 course_sufficiency <- function(a_data, refresh_date) {
-    # Calculate proportions of courses of total
-    print(" >>> Computing proportions of courses of total...")
-    a_data <- a_data %>%
-        mutate(sec_del_prop = del_cour_total / sec_total)
-
     # Calculate if courses secured, received, and administered sufficient to reach targets
-    print(" >>> Computing if courses secured, received, & administered sufficient to reach targets...")
+    print(" >>> Computing if courses received & administered sufficient to reach targets...")
     a_data <- a_data %>%
-        mutate(t20_suff_sec = if_else(
-            sec_total_per >= 0.2, "Yes", "No")) %>%
         mutate(t20_suff_del = if_else(
             del_cour_total_per >= 0.2, "Yes", "No")) %>%
-        mutate(t40_suff_sec = if_else(
-            sec_total_per >= 0.4, "Yes", "No")) %>%
         mutate(t40_suff_del = if_else(
             del_cour_total_per >= 0.4, "Yes", "No")) %>%
-        mutate(t70_suff_sec = if_else(
-            sec_total_per >= 0.7, "Yes", "No")) %>%
         mutate(t70_suff_del = if_else(
             del_cour_total_per >= 0.7, "Yes", "No"))    
  
@@ -116,23 +100,18 @@ course_sufficiency <- function(a_data, refresh_date) {
     # Calculate remaining secured, received, and admnistered courses required for targets
     print(" >>> Computing remaining secured, received, and admnistered courses required for targets...")
     a_data <- a_data %>%
-        mutate(t20_cour_need_sec =
-            round(pmax(t20_cour_req - sec_total, 0))) %>%
         mutate(t20_cour_need_del =
             round(pmax(t20_cour_req - del_cour_total, 0))) %>%
         mutate(t20_cour_need_adm =
             round(pmax(t20_cour_req - adm_fv_homo, 0))) %>%
-        mutate(t40_cour_need_sec =
-            round(pmax(t40_cour_req - sec_total, 0))) %>%
         mutate(t40_cour_need_del =
             round(pmax(t40_cour_req - del_cour_total, 0))) %>%
         mutate(t40_cour_need_adm =
             round(pmax(t40_cour_req - adm_fv_homo, 0))) %>%
-        mutate(t70_cour_need_sec =
-            round(pmax(t70_cour_req - sec_total, 0))) %>%
         mutate(t70_cour_need_del =
             round(pmax(t70_cour_req - del_cour_total, 0))) %>%
         mutate(t70_cour_need_adm =
             round(pmax(t70_cour_req - adm_fv_homo, 0)))
+    
     return(a_data)
 }

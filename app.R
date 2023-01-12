@@ -1,7 +1,7 @@
 
 # SET WD
-# setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
-setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
+setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
+# setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
 
 # CLEAR ENVIRONMENT
 rm(list = ls())
@@ -29,14 +29,13 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2022-12-21")
-.GlobalEnv$sec_date <- as.Date("2022-08-31")
-.GlobalEnv$del_date <- as.Date("2022-12-21")
-.GlobalEnv$t70_deadline <- as.Date("2022-12-31")
+.GlobalEnv$refresh_date <- as.Date("2023-01-11")
+.GlobalEnv$del_date <- as.Date("2023-01-04")
+.GlobalEnv$t70_deadline <- as.Date("2023-06-30")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
 .GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
-.GlobalEnv$refresh_supply_timeseries <- FALSE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
+.GlobalEnv$refresh_supply_timeseries <- TRUE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
 
 # HELPERS
 
@@ -49,7 +48,7 @@ api_env <- run_api()
 
 source("src/dvr/run_dvr.r")
 source("src/entity_characteristics/run_entity_characteristics.r")
-source("src/supply/run_supply.R")
+source("src/supply/run_supply.r")
 source("src/adm_cov/run_adm_cov.r")
 source("src/cov_disag/run_cov_disag.r")
 source("src/finance/run_finance.r")
@@ -62,7 +61,7 @@ dvr_env <- run_dvr(.GlobalEnv$adm_api,
     api_env$headers,
     .GlobalEnv$refresh_api)
 entity_env <- run_entity()
-supply_env <- run_supply(.GlobalEnv$sec_date, .GlobalEnv$del_date)
+supply_env <- run_supply(.GlobalEnv$del_date)
 adm_cov_env <- run_adm_cov(
     entity_env$entity_characteristics,
     .GlobalEnv$refresh_date, dvr_env$dvr_data,
@@ -92,7 +91,6 @@ eda_adm_cov_env <- run_eda_adm_cov(
     entity_env$population_data,
     cov_disag_env$uptake_gender_data,
     add_data_env$b_who_dashboard,
-    supply_env$supply_secured,
     supply_env$delivery_courses_doses,
     demand_plan_env$b_dp,
     supply_env$c_delivery_product,
@@ -102,7 +100,8 @@ eda_adm_cov_env <- run_eda_adm_cov(
     cov_disag_env$target_hcwold,
     adm_cov_env$combined_three,
     adm_cov_env$overall_fin_cumul_long,
-    adm_cov_env$b_vxrate_pub
+    adm_cov_env$b_vxrate_pub,
+    pin_env$population_pin
 )
 
 supplies_env <- run_eda_supplies(eda_adm_cov_env$a_data)
@@ -120,7 +119,6 @@ cov_targets_env <- run_cov_targets(
 financing_env <- run_financing(cov_targets_env$a_data)
 qual_data_env <- run_qual_data(financing_env$a_data)
 rank_bin_env <- run_rank_bin(qual_data_env$a_data)
-
 eda_pin_env <- run_eda_pin(rank_bin_env$a_data, pin_env$population_pin)
 
 
@@ -154,24 +152,10 @@ all_df <- list(
     "1_absorption_month_country" = adm_cov_env$combined,
     "1_cum_absorb_month_country" = adm_cov_env$d_absorption_country_new,
     "1_stock" = eda_adm_cov_env$timeseries,
-    "1_adm_all_long" = eda_adm_cov_env$b_vxrate_pub,
+    "1_adm_all_long" = adm_cov_env$b_vxrate_pub,
     "1_delivery_doses" = supply_env$supply_received_by_product,
-    "1_secview" = prod_util_env$z_temp,
-    "1_secview_lm" = prod_util_env$z_temp_lm,
-    "1_secview_all" = prod_util_env$z_secview_long,
     "1_funding_source" = finance_env$b_fin_fund_del_source,
-    "2_dvr_perchange_count" = consolidate_env$f_dvr_change_count,
-    "2_cov_change_count" = consolidate_env$f_cov_change_count,
-    "2_dvr_perchange_count_af" = consolidate_env$f_dvr_change_count_af,
-    "2_cov_change_count_af" = consolidate_env$f_cov_change_count_af,
     "8_dvr_cat" = consolidate_env$e_vrcat_all,
-    "8_dvr_lm_trend" = consolidate_env$e_trend_all,
-    "8_tarpast_cat" = consolidate_env$e_tar_past_all,
-    "8_booster_status" = consolidate_env$e_booster_all,
-    "8_booster_hcw" = consolidate_env$e_booster_hcw,
-    "8_curtar_all" = consolidate_env$e_tar_cur_all,
-    "8_secdelpu_cat" = consolidate_env$e_secdelpu_all,
-    "8_cov_cat" = consolidate_env$e_cov_all,
     "8_cov_com_hcw_all" = consolidate_env$e_cov_com_hcw_all,
     "8_cov_com_60p_all" = consolidate_env$e_cov_com_60p_all,
     "8_cov_com_hcw_csc" = consolidate_env$e_cov_com_hcw_csc,
@@ -184,12 +168,11 @@ all_df <- list(
     "1_fund_cds_long" = finance_env$base_fin_cds_red,
     "1_fund_one_budget_tracker" = funding_tracker_env$base_one_budget_tracker,
     "1_fund_one_budget_cds" = funding_tracker_env$base_one_budget_cds,
-    "1_fund_requests" = funding_tracker_env$base_requests,
-    "9_population_pin" = pin_env$population_pin
+    "1_fund_requests" = funding_tracker_env$base_requests
 )
 
-  write_xlsx(all_df, "data/output/221221_output_powerbi.xlsx")
-  write_xlsx(financing_env$api, "data/output/221221_output_api.xlsx")
+  write_xlsx(all_df, "data/output/230111_output_powerbi.xlsx")
+  write_xlsx(financing_env$api, "data/output/230111_output_api.xlsx")
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")

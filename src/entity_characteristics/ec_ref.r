@@ -6,17 +6,9 @@ load_entity_chars <- function() {
             sheet = "data"
         )
     )
-    
-    b_pop_who <- data.frame(
-      read_excel("data/input/static/base_population_who.xlsx",
-                 sheet = "data"
-      )
-    )
-    
-    b_pop_who <- select(b_pop_who, c("iso","value"))
 
     print(" >> Selecting data...")
-    entity_details <-
+    entity_characteristics <-
         select(
             entity_details,
             c(
@@ -35,8 +27,6 @@ load_entity_chars <- function() {
                 "GAVI"
             )
         )
-    
-    entity_characteristics <- full_join(entity_details, b_pop_who, c("CODE" = "iso"))
 
     print(" >> Renaming columns...")
     colnames(entity_characteristics) <- c(
@@ -52,8 +42,7 @@ load_entity_chars <- function() {
         "a_covax_status",
         "a_income_group",
         "a_ifc_status",
-        "a_gavi_status",
-        "a_pop"
+        "a_gavi_status"
     )
 
     return(entity_characteristics)
@@ -86,9 +75,14 @@ load_conc_supp_list <- function() {
         "country_source",
         "date",
         "adm_target_hcw_wpro",
-        "a_pop_hcw"
+        "a_pop_hcw",
+        "desk_officer",
+        "booster_policy",
+        "a_pop"
     )
-    b_adhoc <- subset(b_adhoc, select=-c(a_who_region, a_pop_hcw))
+    b_adhoc <- subset(b_adhoc, select=-c(a_who_region))
+    b_adhoc <- b_adhoc %>%
+      mutate(ndvp_mid_deadline = as.Date(ndvp_mid_deadline))
     
     return(b_adhoc)
 }
@@ -143,6 +137,9 @@ transform_entity_chars <- function(entity_characteristics, b_adhoc) {
         map = c("Eastern", "Western", "Central", "Southern", "Northern"),
         drop_rest = FALSE
     )
+    
+    entity_characteristics <- entity_characteristics %>%
+      mutate(a_pop_hcw = if_else(a_pop_hcw == 0, NA_real_, a_pop_hcw))
 
     return(entity_characteristics)
 }

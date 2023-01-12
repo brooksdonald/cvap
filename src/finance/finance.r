@@ -35,7 +35,7 @@ load_finance_data <- function() {
         "double_count",
         "fund_committed",
         "fund_disbursed",
-        "fun_add"
+        "fund_add"
     )
     return(b_fin_funding)
 }
@@ -120,6 +120,12 @@ transform_finance_data <- function(b_fin_funding, entity_characteristics) {
     b_fin_fund_del_long_temp <- select(b_fin_fund_del_long_temp, -c("fund_disbursed"))
     
     b_fin_fund_del_long <- bind_rows(b_fin_fund_del_long, b_fin_fund_del_long_temp)
+    
+    entity_characteristics <- entity_characteristics %>%
+      select(-c("ndvp_mid_deadline",
+                "ss_deadline",
+                "date"
+             ))
   
     b_fin_fund_del_long <- left_join(
       b_fin_fund_del_long,

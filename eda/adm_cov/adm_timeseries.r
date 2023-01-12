@@ -5,7 +5,6 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
   a_data_temp_ts <- a_data %>%
     select(
       a_iso,
-      a_pop_hcw,
       a_pop_older,
       adm_target_hcw
     )

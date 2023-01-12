@@ -109,9 +109,6 @@ transform_base_population <- function(base_population, population_hcw) {
     }
 
     # Consolidate population values into single dataframe
-
-    data_frames <- append(data_frames, list(population_hcw))
-
     population_data <- helper_join_dataframe_list(
         data_frames,
         join_by = "a_iso",
