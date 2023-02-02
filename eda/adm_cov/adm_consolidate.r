@@ -34,7 +34,12 @@ extract_vxrate_details <- function(c_vxrate_latest) {
         "a_pop",
         "desk_officer",
         "booster_policy",
-        "date"
+        "date",
+        "ri_dtp1",
+        "ri_dtp3",
+        "ri_mcv1",
+        "ri_mcv2",
+        "ri_zero_dose"
       )
     )
 

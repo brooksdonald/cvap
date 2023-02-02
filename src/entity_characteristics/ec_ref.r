@@ -78,7 +78,12 @@ load_conc_supp_list <- function() {
         "a_pop_hcw",
         "desk_officer",
         "booster_policy",
-        "a_pop"
+        "a_pop",
+        "ri_dtp1",
+        "ri_dtp3",
+        "ri_mcv1",
+        "ri_mcv2",
+        "ri_zero_dose"
     )
     b_adhoc <- subset(b_adhoc, select=-c(a_who_region))
     b_adhoc <- b_adhoc %>%
