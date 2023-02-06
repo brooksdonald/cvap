@@ -2,7 +2,7 @@
 load_pin_data <- function() {
   print(" >> Loading people in need data...")
   population_pin <- data.frame(
-    read_excel("data/input/base_humanitarian.xlsx",
+    read_excel("data/input/static/base_humanitarian.xlsx",
                sheet = "Data"
     )
   )

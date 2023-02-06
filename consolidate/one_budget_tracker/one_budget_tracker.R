@@ -3,7 +3,7 @@ load_one_budget_tracker <- function() {
   print(" >> Loading One Budget Tracker data...")
   base_one_budget_tracker <- data.frame(
     read_excel(
-      "data/input/base_funding_tracker.xlsx",
+      "data/input/base_one_budget_tracker.xlsx",
       sheet = "One Budget tracker")
     )
   
@@ -11,7 +11,7 @@ load_one_budget_tracker <- function() {
   base_one_budget_tracker <- select(
     base_one_budget_tracker,
     c(
-      "Country",
+      "ISO",
       "One.Budget.Status",
       "Progress.Tracker...current.step.being.worked.on...achieved"
       )
@@ -19,7 +19,7 @@ load_one_budget_tracker <- function() {
 
   print(" >> Renaming Columns...")
   colnames(base_one_budget_tracker) <- c(
-    "a_name_long",
+    "a_iso",
     "one_budget_status",
     "progress_tracker"
   )
@@ -32,7 +32,7 @@ load_one_budget_cds <- function() {
   print(" >> Loading One Budget CDS data...")
   base_one_budget_cds <- data.frame(
     read_excel(
-      "data/input/base_funding_tracker.xlsx",
+      "data/input/base_one_budget_tracker.xlsx",
       sheet = "One Budget & CDS ")
   )
   
@@ -91,6 +91,8 @@ load_requests <- function() {
     "amount_approved",
     "request_status"
   )
+  
+  print(" >> Finished 'load_requests' function...")
   return(base_requests)
 }
 
@@ -114,4 +116,13 @@ Planning future submission of CDS3"] <- "Submitted"
     
     return(base_one_budget_cds)
   }
+  
+  merge_one_budget_tracker <- function(a_data, base_one_budget_tracker) {
+    a_data<-merge(x=a_data,y=base_one_budget_tracker, by="a_iso",all.x=TRUE)
+    
+    print(" >> Finished 'merge_one_budget_tracker' function...")
+    return(a_data)
+  }
+    
+  
   
