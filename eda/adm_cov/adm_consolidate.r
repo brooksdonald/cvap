@@ -34,6 +34,7 @@ extract_vxrate_details <- function(c_vxrate_latest) {
         "a_pop",
         "desk_officer",
         "booster_policy",
+        "adm_target_hcw_wpro",
         "date",
         "ri_dtp1",
         "ri_dtp3",
@@ -42,7 +43,7 @@ extract_vxrate_details <- function(c_vxrate_latest) {
         "ri_zero_dose"
       )
     )
-
+    
     return(c_vxrate_latest_red)
 }
 
@@ -734,7 +735,16 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
       tags[2]
     ))
 
-
+  
+  a_data <- a_data %>%
+    mutate(
+      adm_target_hcw = ifelse(
+        is.na(adm_target_hcw_wpro),
+        adm_target_hcw,
+        adm_target_hcw_wpro
+      ))
+  
+  
   datalist <- list("a_data" = a_data,
     "timeto_t70" = timeto_t70)
   return(datalist)
