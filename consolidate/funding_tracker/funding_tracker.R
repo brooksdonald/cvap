@@ -3,7 +3,7 @@ load_one_budget_tracker <- function() {
   print(" >> Loading One Budget Tracker data...")
   base_one_budget_tracker <- data.frame(
     read_excel(
-      "data/input/base_funding_tracker.xlsx",
+      "data/input/base_one_budget_tracker.xlsx",
       sheet = "One Budget tracker")
     )
   
@@ -32,7 +32,7 @@ load_one_budget_cds <- function() {
   print(" >> Loading One Budget CDS data...")
   base_one_budget_cds <- data.frame(
     read_excel(
-      "data/input/base_funding_tracker.xlsx",
+      "data/input/base_one_budget_tracker.xlsx",
       sheet = "One Budget & CDS ")
   )
   
@@ -73,7 +73,7 @@ load_requests <- function() {
   base_requests <- select(
     base_requests,
     c(
-      "ISO",
+      "ISO.Code",
       "Country.supported",
       "Type.of.request",
       "Total.amount.of.funding.request.received.initially..or.amount.of.standard.request.discussed.",

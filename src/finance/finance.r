@@ -154,7 +154,7 @@ load_finance_urgent_data <- function() {
   base_fin_urg_fun <- select(
     base_fin_urg,
     c(
-      "ISO",
+      "ISO.Code",
       "Amount.to.be.funded",
       "Funds.disbursed..yes...no.",
       "Source.of.funding.identified..Details.",
