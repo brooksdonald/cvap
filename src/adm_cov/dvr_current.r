@@ -73,10 +73,10 @@ transform_current_vxrate <- function(
     ## Add year, month, and week numbers
     b_vxrate <- b_vxrate %>%
     mutate(adm_date_year = if_else(
-      year(adm_date) == 2021,
-      2021,
+      year(adm_date) == 2021, 2021,
       if_else(year(adm_date) == 2022, 2022,
-      NA_real_)
+              if_else(year(adm_date) == 2023, 2023,
+      NA_real_))
     )) %>%
     mutate(
       adm_date_month = ifelse(
@@ -85,12 +85,14 @@ transform_current_vxrate <- function(
         ifelse(
           year(adm_date) == 2022,
           month(adm_date) + 12,
+          if_else(year(adm_date) == 2023,
+                  month(adm_date) + 24,
           NA
         )
       )
-    ) %>%
+    )) %>%
     mutate(adm_date_week = if_else(
-      year(adm_date) == 2021 | year(adm_date) == 2022,
+      year(adm_date) == 2021 | year(adm_date) == 2022 | year(adm_date) == 2023,
       isoweek(adm_date),
       NA_integer_
       )
@@ -98,7 +100,7 @@ transform_current_vxrate <- function(
     ## Remove pre-2021 entries
     b_vxrate <-
       filter(
-        b_vxrate, adm_date_year == 2021 | adm_date_year == 2022
+        b_vxrate, adm_date_year == 2021 | adm_date_year == 2022 | adm_date_year == 2023
       )
 
     ## Indicate latest entry per ISO code
