@@ -87,7 +87,7 @@ transform_current_vxrate <- function(
           month(adm_date) + 12,
           if_else(year(adm_date) == 2023,
                   month(adm_date) + 24,
-          NA
+                  NA_real_
         )
       )
     )) %>%

@@ -35,6 +35,7 @@ extract_vxrate_details <- function(c_vxrate_latest) {
         "desk_officer",
         "booster_policy",
         "date",
+        "adm_target_hcw_wpro",
         "ri_dtp1",
         "ri_dtp3",
         "ri_mcv1",
@@ -85,6 +86,15 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   timeto_t70 <- as.numeric(t70_deadline - refresh_date)
   a_data$a_refresh_date <- refresh_date
 
+  a_data <- a_data %>%
+    mutate(
+      adm_target_hcw = ifelse(
+        is.na(adm_target_hcw_wpro),
+        adm_target_hcw,
+        adm_target_hcw_wpro
+      ))
+  
+  
   #Calculate JJ proportion
   print(" >>> Computing JJ doses KPIs")
   a_data <- a_data %>%
