@@ -1,16 +1,17 @@
 
-create_hrg_timeseries <- function() {
+create_hrg_timeseries <- function(refresh_api) {
+print(" >> Getting long time series data for HRG...")
+link <- 'https://frontdoor-l4uikgap6gz3m.azurefd.net/WIISE/V_COV_UPTAKE_TARGETGROUP_LONG'
+targetgroup_api_data <- helper_wiise_api(
+  link, headers = FALSE, refresh_api
+)
+base_target <- as.data.frame(targetgroup_api_data)
+print(" >> Done.")
 
-raw_target <-
-  GET(
-    'https://frontdoor-l4uikgap6gz3m.azurefd.net/WIISE/V_COV_UPTAKE_TARGETGROUP_LONG'
-  )
-raw_target_text <- content(raw_target, "text")
-raw_target_json <- fromJSON(raw_target_text, flatten = TRUE)
-base_target <- as.data.frame(raw_target_json)
+print(" >> Transforming Targetgroup long data...")
 
 # Remove first six characters from API data frames
-names(base_target) <- substring(names(base_target), 7)
+# names(base_target) <- substring(names(base_target), 7)
 
 # Filter target for HCW
 target_hcw <- filter(base_target, TARGET_GROUP == "HW")
@@ -91,7 +92,7 @@ target_hcwold <- target_hcwold %>%
   mutate(adm_date_month = if_else(year(DATE) == 2022, 
                                   as.numeric(month(DATE) + 12),
                                   as.numeric(month(DATE))))
-
+print(" > Done.")
 return(target_hcwold)
 
 }

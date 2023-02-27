@@ -14,7 +14,7 @@ run_cov_disag <- function(headers, refresh_api) {
     )
     print(" > Done.")
     
-    target_hcwold <- create_hrg_timeseries()
+    target_hcwold <- create_hrg_timeseries(refresh_api)
 
     print(" > Returning to global environment. ")
     return(environment())
