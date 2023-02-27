@@ -1,7 +1,7 @@
 
 create_hrg_timeseries <- function(refresh_api) {
 print(" >> Getting long time series data for HRG...")
-link <- 'https://frontdoor-l4uikgap6gz3m.azurefd.net/WIISE/V_COV_UPTAKE_TARGETGROUP_LONG'
+link <- 'https://frontdoor-l4uikgap6gz3m.azurefd.net/WIISE/MT_COV_UPTAKE_TARGETGROUP_LONG'
 targetgroup_api_data <- helper_wiise_api(
   link, headers = FALSE, refresh_api
 )
