@@ -139,16 +139,18 @@ consolidate_env <- run_consolidate(
 source("consolidate/last_month/run_last_month.r")
 source("consolidate/funding_tracker/run_funding_tracker.r")
 source("consolidate/sov/run_sov.r")
+source("eda/data_checks/run_check.r")
 
 last_month_env <- run_last_month()
 funding_tracker_env <- run_funding_tracker()
 sov_env <- run_sov(eda_pin_env$a_data)
+data_checks_env <- run_check(sov_env$a_data, last_month_env$base_data_lm_change)
 
 # EXPORT
 
 print(" > Exporting data outputs from pipeline to Excel workbooks...")
 all_df <- list(
-    "0_base_data" = sov_env$a_data,
+    "0_base_data" = data_checks_env$a_data,
     "0_base_data_lm_change" = last_month_env$base_data_lm_change,
     "1_absorption_month" = adm_cov_env$d_absorption,
     "1_absorption_month_country" = adm_cov_env$combined,
