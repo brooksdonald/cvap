@@ -188,8 +188,12 @@ course_progress <- function(a_data, entity_characteristics, refresh_date, timeto
     mutate(ndvp_scaleup_dose_homo = if_else(
         is.infinite(round((ndvp_mid_rate_needed_homo / dvr_4wk_td), 2)), 
         NA_real_,
-        round(ndvp_mid_rate_needed_homo / dvr_4wk_td), 2))
-
+        round(ndvp_mid_rate_needed_homo / dvr_4wk_td), 2)) %>%
+      mutate(ndvp_goalmet_calc = if_else(
+        ndvp_goalmet == "Yes",
+        "Yes",
+        "No"))
+      
     a_data$ndvp_scaleup_cat_kpi <- cut(
         a_data$ndvp_mid_scaleup_dose,
         breaks = c(-Inf, 2, 10, Inf),

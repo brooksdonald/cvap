@@ -51,9 +51,5 @@ run_eda_adm_cov <- function(
     
     timeseries <- merge_timeseries(a_data, combined_three, target_hcwold, overall_fin_cumul_long)
     
-    # b_vxrate_pub <- calculate_elig_booster(adm_all_long)
-    # 
-    # a_data <- merge_elig_booster(b_vxrate_pub, a_data)
-    
     return(environment())
 }

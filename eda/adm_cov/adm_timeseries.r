@@ -6,7 +6,8 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
     select(
       a_iso,
       a_pop_older,
-      adm_target_hcw
+      adm_target_hcw,
+      adm_td_adj
     )
   print(" > Adding month date...")
   # Prepare combined time series
@@ -112,6 +113,7 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
       supply,
       absorbed,
       adm_td,
+      adm_td_adj,
       adm_fv,
       adm_fv_change,
       adm_a1d,
