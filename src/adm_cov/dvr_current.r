@@ -239,7 +239,8 @@ transform_current_vxrate_pub <- function(b_vxrate, auto_cleaning) {
     "a_covax_status",
     "a_income_group",
     "a_csc_status",
-    "a_continent_sub"
+    "a_continent_sub",
+    "a_who_status"
   )
   if (auto_cleaning) {
     columns <- append(columns,
@@ -390,6 +391,7 @@ transform_abspt_by_month <- function(b_vxrate, current_month) {
         "a_continent",
         "a_covax_status",
         "a_csc_status",
+        "a_who_status",
         "a_income_group",
         "a_csc_status",
         "adm_date_month",
@@ -679,6 +681,11 @@ absorption_sum_by_month <- function(c_vxrate_eom, current_month) {
   c_vxrate_eom_csc <-
     filter(c_vxrate_eom, a_csc_status == "Concerted support country")
   d_absorption_csc <- groupby_and_summarize(c_vxrate_eom_csc)
+  
+  #### WHO Member States
+  c_vxrate_eom_who <-
+    filter(c_vxrate_eom, a_who_status == "Member States")
+  d_absorption_who <- groupby_and_summarize(c_vxrate_eom_who)
 
   #### Continent = Africa
   c_vxrate_eom_africa <-
@@ -708,7 +715,8 @@ absorption_sum_by_month <- function(c_vxrate_eom, current_month) {
     left_join(., d_absorption_eur, by = "adm_date_month") %>%
     left_join(., d_absorption_amc91, by = "adm_date_month") %>%
     left_join(., d_absorption_csc, by = "adm_date_month") %>%
-    left_join(., d_absorption_ind, by = "adm_date_month")
+    left_join(., d_absorption_ind, by = "adm_date_month") %>%
+    left_join(., d_absorption_who, by = "adm_date_month")
   
     ## Note: list of months is automatically generated from "2021-01" to month of refresh_date
     d_absorption$adm_date_month_name <- helper_mapping_months(
