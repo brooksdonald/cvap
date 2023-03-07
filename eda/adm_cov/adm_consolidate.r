@@ -742,7 +742,8 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     mutate(dvr_4wk_td_change_lm_trend = replace_na(
       dvr_4wk_td_change_lm_trend,
       tags[2]
-    ))
+    )) %>%
+    mutate(adm_td_adj  = adm_td / a_pop)
 
 
   datalist <- list("a_data" = a_data,

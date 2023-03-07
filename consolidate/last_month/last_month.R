@@ -37,7 +37,15 @@ transform_last_month_data <- function(base_data_lm) {
       "a_pop",
       "dvr_4wk_td_per",
       "fund_percapita",
-      "del_cour_total_per"
+      "del_cour_total_per",
+      "adm_fv_hcw_homo",
+      "t10_status",
+      "t40_status",
+      "t70_status",
+      "booster_status",
+      "adm_fv",
+      "adm_fv_hcw",
+      "adm_fv_60p"
     )
   )
   
@@ -66,7 +74,15 @@ transform_last_month_data <- function(base_data_lm) {
       "a_pop",
       "dvr_4wk_td_per",
       "fund_percapita",
-      "del_cour_total_per"
+      "del_cour_total_per",
+      "adm_fv_hcw_homo",
+      "t10_status",
+      "t40_status",
+      "t70_status",
+      "booster_status",
+      "adm_fv",
+      "adm_fv_hcw",
+      "adm_fv_60p"
       )
     )
     
@@ -92,7 +108,15 @@ transform_last_month_data <- function(base_data_lm) {
     "a_pop_lm",
     "dvr_4wk_td_per_lm",
     "fund_percapita_lm",
-    "del_cour_total_per_lm"
+    "del_cour_total_per_lm",
+    "adm_fv_hcw_homo_lm",
+    "t10_status_lm",
+    "t40_status_lm",
+    "t70_status_lm",
+    "booster_status_lm",
+    "adm_fv_lm",
+    "adm_fv_hcw_lm",
+    "adm_fv_60p_lm"
   )
   
   base_data_lm_change <- left_join(base_data_current, base_data_lm, by = c("a_iso" = "a_iso"))

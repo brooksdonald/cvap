@@ -1,4 +1,4 @@
-merge_a_data_details <- function(a_data, delivery_courses_doses) {
+merge_a_data_details <- function(a_data) {
   # Calculate delivered courses as percent of population
   a_data <- a_data %>%
     mutate(del_cour_total_per = del_cour_total / a_pop) %>%
@@ -28,3 +28,30 @@ merge_a_data_details <- function(a_data, delivery_courses_doses) {
 
   return(a_data)
 }
+
+merge_supply_received_by_product <- function(a_data, supply_received_by_product) {
+  a_data_temp <-
+    select(a_data,
+      c("a_iso",
+        "a_income_group",
+        "a_income_group_vis"
+      )
+    )
+  
+  a_data_temp <- a_data_temp %>%
+    mutate(a_income_group_ind = 
+             ifelse(a_income_group_vis == "2) LMIC",
+                    ifelse(a_iso == "IDN" | a_iso == "IND",
+                           "2) LMIC - India & Indonesia",
+                           "2) LMIC excl. India & Indonesia"),
+                    a_income_group_vis))
+           
+  supply_received_by_product<-merge(x=supply_received_by_product,y=a_data_temp, by="a_iso",all.x=TRUE)
+  
+ return(supply_received_by_product) 
+}
+  
+  
+  
+  
+  

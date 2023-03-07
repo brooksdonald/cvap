@@ -15,14 +15,14 @@ run_funding_tracker <- function() {
   base_requests <- load_requests()
   print(" > Done.")
   
-    
-    
+  print(" >> Transform one budget cds data...")
   base_one_budget_cds <- transform_base_one_budget_cds(base_one_budget_cds)
-    
-    
+  print(" > Done.")
+  
+  print(" >> Transform funding requests data...")
+  base_requests <- transform_requests(base_requests)
+  print(" > Done.")
     
   print(" > Returning to local environment.")
-
-    
-    return(environment())
+  return(environment())
 }
