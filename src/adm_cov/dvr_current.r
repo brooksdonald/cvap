@@ -684,7 +684,7 @@ absorption_sum_by_month <- function(c_vxrate_eom, current_month) {
   
   #### WHO Member States
   c_vxrate_eom_who <-
-    filter(c_vxrate_eom, a_who_status == "Member States")
+    filter(c_vxrate_eom, a_who_status == "Member State")
   d_absorption_who <- groupby_and_summarize(c_vxrate_eom_who)
 
   #### Continent = Africa
