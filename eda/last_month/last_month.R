@@ -1,22 +1,12 @@
 
-load_last_month_data <- function() {
-    print(" >> Load last month output data...")
-  
-  base_data_lm <- data.frame(
-    read_excel(
-      "data/input/output_master_lm.xlsx",
-      sheet = "0_base_data")
-  )
-      
-    return(base_data_lm)
-}
-
-transform_last_month_data <- function(base_data_lm) {
-  base_data_current <- rank_bin_env$a_data
-  base_data_current <- select(
-    base_data_current,
-    c(
+transform_last_month <- function(a_data, a_data_lm) {
+  print(" >> Loading current output data...")
+  print(" >> Selecting relevant columns...")
+  a_data <- select(
+    a_data, c(
       "a_iso",
+      "a_who_status",
+      "intro_status",
       "adm_a1d_homo",
       "adm_fv_homo",
       "adm_booster_homo",
@@ -49,11 +39,14 @@ transform_last_month_data <- function(base_data_lm) {
     )
   )
   
-  
-  base_data_lm <- select(
-    base_data_lm,
+  print(" >> Loading last month output data...")
+  print(" >> Selecting relevant columns...")
+  a_data_lm <- select(
+    a_data_lm,
     c(
       "a_iso",
+      "a_who_status",
+      "intro_status",
       "adm_a1d_homo",
       "adm_fv_homo",
       "adm_booster",
@@ -83,11 +76,14 @@ transform_last_month_data <- function(base_data_lm) {
       "adm_fv",
       "adm_fv_hcw",
       "adm_fv_60p"
-      )
     )
-    
-  colnames(base_data_lm) <- c(
+  )
+  
+  print(" >> Renaming columns...")
+  colnames(a_data_lm) <- c(
     "a_iso",
+    "a_who_status_lm",
+    "intro_status_lm",
     "adm_a1d_homo_lm",
     "adm_fv_homo_lm",
     "adm_booster_homo_lm",
@@ -119,9 +115,9 @@ transform_last_month_data <- function(base_data_lm) {
     "adm_fv_60p_lm"
   )
   
-  base_data_lm_change <- left_join(base_data_current, base_data_lm, by = c("a_iso" = "a_iso"))
-                                   
-  return(base_data_lm_change)
+  print(" >> Joining last month output data with current output data...")
+  a_data_lm_change <- left_join(a_data, a_data_lm, by = c("a_iso" = "a_iso"))
+  
+  print(" >> Function 'transform_last_month' done")
+  return(a_data_lm_change)
 }
-
-

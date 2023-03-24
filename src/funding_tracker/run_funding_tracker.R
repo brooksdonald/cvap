@@ -1,7 +1,7 @@
 
 run_funding_tracker <- function() {
   print(" > Starting local environment for funding tracker base data...")
-  source("consolidate/funding_tracker/funding_tracker.r")
+  source("src/funding_tracker/funding_tracker.r")
 
   print(" >> Load one budget tracker data...")
   base_one_budget_tracker <- load_one_budget_tracker()

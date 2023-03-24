@@ -1,49 +1,75 @@
-## Past coverage targets
 
 comparisons <- function(condense_list) {
-  target_list <- list("amc")
+  name_list <- list("amc", "csc")
   
-  column_names_value <- list("cov_hcw_", "cov_60p_")
-  column_names_name <- list(
-    "com_stat",
-    "com_stat"
-  )
+  col_names_value <- list("cov_hcw_amc", "cov_60p_amc", "cov_hcw_csc", "cov_60p_csc")
+  col_names_name <- list("com_hcw_amc_stat_", "com_60p_amc_stat_", "com_hcw_csc_stat_", "com_60p_csc_stat_")
+  
   data_list <- list()
   
-  for (colname in column_names_value) {
+  for (colname in col_names_value) {
     data_list[[colname]] <- list()
-  }
+    }
   
-  for (target in target_list) {
-    df <- condense_list[[target]]
-    aggregate_columns_list <- list(
+  for (name in name_list) {
+    df <- condense_list[[name]]
+    aggregate_col_list <- list(
       df$cov_total_hcw_com,
-      df$cov_total_60p_com
-    )
-    for (i in seq_len(length(column_names_value))) {
+      df$cov_total_60p_com,
+      df$cov_total_hcw_com_csc,
+      df$cov_total_60p_com_csc
+      )
+    for (i in seq_len(length(col_names_value))) {
       df_value <- aggregate(df$a_name_short,
-                            list(aggregate_columns_list[[i]]),
+                            list(aggregate_col_list[[i]]),
                             paste,
                             collapse = "; "
-      )
+                            )
       colnames(df_value) <- c(
-        column_names_name[i], paste0(column_names_value[i], target
-        )
+        col_names_value[[i]], paste0(col_names_name[[i]], name)
       )
-      data_list[[i]] <- append(data_list[[i]], list(df_value))
+      data_list[[col_names_name[[i]]]] <- append(data_list[[col_names_name[[i]]]], list(df_value))
     }
   }
   
-
-  e_com_hcw_all <- helper_join_dataframe_list(
-    data_list[["cov_hcw_"]], join_by = "com_stat"
+  # Comparison Data: AMC Countries | HCWs
+  e_com_hcw_amc <- helper_join_dataframe_list(
+    data_list[["com_hcw_amc_stat_"]], join_by = "cov_hcw_amc"
   )
-  e_com_60p_all <- helper_join_dataframe_list(
-    data_list[["cov_60p_"]], join_by = "com_stat"
+  
+  colnames(e_com_hcw_amc) <- c("com_stat", "cov_hcw_amc", "cov_hcw_csc")
+  e_com_hcw_amc <- select(e_com_hcw_amc, -c("cov_hcw_csc"))
+      
+  # Comparison Data: AMC Countries | 60 plus
+  e_com_60p_amc <- helper_join_dataframe_list(
+    data_list[["com_60p_amc_stat_"]], join_by = "cov_60p_amc"
   )
-  return(list(
-    "com_hcw" = e_com_hcw_all,
-    "com_60p" = e_com_60p_all
+  
+  colnames(e_com_60p_amc) <- c("com_stat", "cov_60p_amc", "cov_60p_csc")
+  e_com_60p_amc <- select(e_com_60p_amc, -c("cov_60p_csc"))
+  
+  # Comparison Data: CSC Countries | HCWs
+  e_com_hcw_csc <- helper_join_dataframe_list(
+    data_list[["com_hcw_csc_stat_"]], join_by = "cov_hcw_csc"
   )
+  
+  colnames(e_com_hcw_csc) <- c("com_stat", "cov_hcw_amc", "cov_hcw_csc")
+  e_com_hcw_csc <- select(e_com_hcw_csc, -c("cov_hcw_amc"))
+  
+  # Comparison Data: CSC Countries | 60 plus
+  e_com_60p_csc <- helper_join_dataframe_list(
+    data_list[["com_60p_csc_stat_"]], join_by = "cov_60p_csc"
   )
+  
+  colnames(e_com_60p_csc) <- c("com_stat", "cov_60p_amc", "cov_60p_csc")
+  e_com_60p_csc <- select(e_com_60p_csc, -c("cov_60p_amc"))
+  
+  print(" >> Function 'comparisons' done")
+  return(
+    list("com_hcw_amc" = e_com_hcw_amc,
+         "com_60p_amc" = e_com_60p_amc,
+         "com_hcw_csc" = e_com_hcw_csc,
+         "com_60p_csc" = e_com_60p_csc
+         )
+    )
 }

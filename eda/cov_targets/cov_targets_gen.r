@@ -1,3 +1,4 @@
+
 target_group_ten <- function(a_data, timeto_t70, c_vxrate_sept_t10, deadline_suffix) {
   print(" >>> Getting 10% target progress against coverage targets...")
   # Progress against coverage targets
