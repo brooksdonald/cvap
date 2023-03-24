@@ -28,6 +28,7 @@ load_one_budget_tracker <- function() {
   return(base_one_budget_tracker)
 }
 
+
 load_one_budget_cds <- function() {
   print(" >> Loading One Budget CDS data...")
   base_one_budget_cds <- data.frame(
@@ -61,6 +62,7 @@ load_one_budget_cds <- function() {
   return(base_one_budget_cds)
 }
 
+
 load_requests <- function() {
   print(" >> Loading requests data...")
   base_requests <- data.frame(
@@ -91,10 +93,13 @@ load_requests <- function() {
     "amount_approved",
     "request_status"
   )
+  
+  print(" >> Finished 'load_requests' function...")
   return(base_requests)
 }
 
 transform_requests <- function(base_requests) {
+  print(" >> Transforming 'amount requested' variable...")
   base_requests <- base_requests %>%
     mutate(amount_requested = ifelse(amount_requested == "TBD",
                                      "-777",
@@ -106,6 +111,7 @@ transform_requests <- function(base_requests) {
                                      "TBD",
                                      amount_requested))
   
+  print(" >> Transforming 'amount approved' variable...")
   base_requests <- base_requests %>%
     mutate(amount_approved = ifelse(amount_approved == "TBD",
                                      "-777",
@@ -117,6 +123,7 @@ transform_requests <- function(base_requests) {
                                      "TBD",
                                     amount_approved))
   
+  print(" >> Finished 'transform_requests' function...")
   return(base_requests)
 }
 

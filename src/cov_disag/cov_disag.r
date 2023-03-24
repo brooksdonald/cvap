@@ -29,6 +29,7 @@ transform_population_uptake <- function(uptake_gender, uptake_groups) {
 
 load_pop_target_gender <- function(headers, refresh_api) {
     print(" >> Loading COV Uptake gender data...")
+  
     uptake_gender <- helper_wiise_api(
         "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_GENDER_LAST_MONTH_LONG",
         headers, refresh_api)
@@ -37,8 +38,7 @@ load_pop_target_gender <- function(headers, refresh_api) {
     uptake_gender <-
         select(
             uptake_gender,
-            c
-            (
+            c(
                 "ISO_3_CODE",
                 "DATE",
                 "GENDER",
