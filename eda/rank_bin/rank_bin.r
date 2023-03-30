@@ -1,5 +1,5 @@
-grouping_by_one <- function(a_data) {
 
+grouping_by_one <- function(a_data) {
   # Coverage fully vaccinated (% pop.)
   a_data <- a_data %>%
     group_by(a_covax_status) %>%
@@ -36,8 +36,8 @@ grouping_by_one <- function(a_data) {
     mutate(pu_used_per_rank = row_number(pu_used_per)) %>%
     mutate(pu_used_per_bins = ntile(pu_used_per_rank, 2))
 
-    return(a_data)
-
+  print(" >> Function 'grouping_by_one' done")
+  return(a_data)
 }
 
 grouping_by_two <- function(a_data) {
@@ -104,9 +104,7 @@ grouping_by_two <- function(a_data) {
   ## Gender coverage repstat
   a_data <- a_data %>%
   group_by(adm_fv_gen_repstat, intro_status) %>%
-
   mutate(cov_total_gen_diff_rank = row_number(cov_total_gen_diff)) %>%
-
   mutate(cov_total_gen_diff_bins = ntile(cov_total_gen_diff_rank, 2))
 
   ## Country coverage target
@@ -131,7 +129,9 @@ grouping_by_two <- function(a_data) {
   a_data <- a_data %>%
     group_by(intro_status, a_csc_status) %>%
     mutate(csc_del_dose_jj_rank = row_number(del_dose_jj_prop)) %>%
-    mutate(csc_del_dose_jj_bins = ntile(csc_del_dose_jj_rank, 2))  
+    mutate(csc_del_dose_jj_bins = ntile(csc_del_dose_jj_rank, 2)) 
+  
+  print(" >> Function 'grouping_by_two' done")
   return(a_data)
 }
 
@@ -147,4 +147,7 @@ grouping_by_three <- function(a_data) {
     mutate(booster_rank = row_number(cov_total_booster)) %>%
     mutate(booster_bins = ntile(booster_rank, 2)) %>%
     data.frame()
+  
+  print(" >> Function 'grouping_by_three' done")
+  return(a_data)
 }

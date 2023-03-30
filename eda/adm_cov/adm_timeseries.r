@@ -174,6 +174,6 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
   
   print(" > Returning...")
 
+  print(" >> Function 'merge_timeseries' done")  
   return(timeseries)
-  
 }

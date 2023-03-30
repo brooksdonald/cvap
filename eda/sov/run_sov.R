@@ -1,10 +1,10 @@
 
 run_sov <- function(a_data) {
-  print(" > Starting local environment for sov base data fixes...")
-  source("consolidate/sov/sov.r")
-  
+  source("eda/sov/sov.r")
+  print(" > Starting local environment for sov base data fixes module...")
+
   print(" >> Transforming data...")
-  a_data <- sov(a_data)
+  a_data <- sov_analyse(a_data)
   print(" > Done.")
   
   print(" > Returning to local environment.")

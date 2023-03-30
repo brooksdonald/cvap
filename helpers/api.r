@@ -34,14 +34,16 @@ helper_wiise_api <- function(link, headers, refresh_api) {
     storage_name <- paste0(folder, "/", sub(".*/", "", link), ".csv")
     if (refresh_api | !file.exists(storage_name)) {
         print(" > Downloading data from who.int API...")
-        if (!headers) {
-            response <- GET(link)
-        } else {
-            response <- GET(link, headers)
-        }
-        json <- content(response, "text", encoding = "UTF-8")
-        data <- fromJSON(json)
-        data <- data$value
+      
+      if (!headers) {
+        response <- GET(link)
+      } else {
+        response <- GET(link, headers)
+      }
+      
+      json <- content(response, "text", encoding = "UTF-8")
+      data <- fromJSON(json)
+      data <- data$value
         print(" > Done.")
         print(" > Data is stored for future API calls...")
         if (!file.exists(folder)) {
