@@ -1,19 +1,11 @@
 
 # load current daily vxrate
-load_b_vxrate <- function(dvr_data, adm_api, auto_cleaning) {
-  if (adm_api) {
-    print(" >> Using data from API...")
-    b_vxrate <- as.data.frame(dvr_data)
-    b_vxrate$date <- as.Date(b_vxrate$date, format = "%Y-%m-%d")
-  } else {
-    print(" >> Loading current daily vaccination rate from Excel...")
-    b_vxrate <-
-        data.frame(
-            read_excel("data/input/base_dvr_current.xlsx",
-            sheet = "data"
-        )
-    )
-  }
+load_b_vxrate <- function(dvr_data, auto_cleaning) {
+
+  print(" >> Using data from API...")
+  b_vxrate <- as.data.frame(dvr_data)
+  b_vxrate$date <- as.Date(b_vxrate$date, format = "%Y-%m-%d")
+
   print(" >> Selecting relevant current daily vaccination rate columns...")
   columns <- c(
     "iso_code",
