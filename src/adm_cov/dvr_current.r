@@ -204,7 +204,7 @@ recreate_df <- function(b_vxrate) {
   print(" >> Change date column to date formart...")
   stable_dates$date_13jan <- as.Date(stable_dates$date_13jan)
   names(stable_dates)[1] <- "iso_code"
-  print("Done.")
+  print(" > Done.")
 
   print(" >> inner join of the df...")
   recreated_data <- inner_join(b_vxrate_data, stable_dates, by = c("iso_code", "date_13jan"))
