@@ -33,7 +33,6 @@ lapply(lib, library, character.only = TRUE)
 .GlobalEnv$del_date <- as.Date("2023-02-23")
 .GlobalEnv$t70_deadline <- as.Date("2023-06-30")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
-.GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
 .GlobalEnv$refresh_api <- FALSE # set to FALSE to use last API call
 .GlobalEnv$refresh_supply_timeseries <- TRUE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
 
@@ -56,7 +55,7 @@ source("src/demand_planning/run_demand_planning.r")
 source("src/add_data/run_add_data.r")
 source("src/pin/run_pin.r")
 
-dvr_env <- run_dvr(.GlobalEnv$adm_api,
+dvr_env <- run_dvr(
     .GlobalEnv$auto_cleaning,
     api_env$headers,
     .GlobalEnv$refresh_api)
@@ -64,8 +63,8 @@ entity_env <- run_entity()
 supply_env <- run_supply(.GlobalEnv$del_date)
 adm_cov_env <- run_adm_cov(
     entity_env$entity_characteristics,
-    .GlobalEnv$refresh_date, dvr_env$dvr_data,
-    .GlobalEnv$adm_api,
+    .GlobalEnv$refresh_date,
+    dvr_env$dvr_data,
     .GlobalEnv$auto_cleaning,
     .GlobalEnv$refresh_supply_timeseries)
 cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
