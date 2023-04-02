@@ -23,7 +23,7 @@ run_dvr <- function(auto_cleaning, headers, refresh_api) {
     plot_function <- export_plots_of_changes
 
     source_python("src/dvr/dvr_output_daily.py")
-    dvr_data <- main(cleaned_data, refresh_api, auto_cleaning, plot_function, only_export_plots_weekly)
+    dvr_data <- main(cleaned_data, auto_cleaning, plot_function, only_export_plots_weekly)
 
     return(environment())
 }
