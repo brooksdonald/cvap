@@ -83,7 +83,10 @@ load_conc_supp_list <- function() {
         "ri_dtp3",
         "ri_mcv1",
         "ri_mcv2",
-        "ri_zero_dose"
+        "ri_zero_dose",
+        "country_name_friendly",
+        "region_name",
+        "min_vx_rollout_date"
     )
     b_adhoc <- subset(b_adhoc, select=-c(a_who_region))
     b_adhoc <- b_adhoc %>%
