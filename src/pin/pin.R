@@ -3,14 +3,14 @@ load_pin_data <- function() {
   print(" >> Loading people in need data...")
   population_pin <- data.frame(
     read_excel("data/input/base_humanitarian.xlsx",
-               sheet = "Data"
+               sheet = "Subnational Data"
     )
   )
   
   print(" >> Selecting relevant columns...")
   population_pin <- select(
     population_pin,
-    c("ISO",
+    c("Country.ISO.code",
       "Region",	
       "Population",
       "Total.People.in.Need",
