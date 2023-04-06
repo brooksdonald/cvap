@@ -31,8 +31,8 @@ load_pop_target_gender <- function(headers, refresh_api) {
     print(" >> Loading COV Uptake gender data...")
   
     uptake_gender <- helper_wiise_api(
-        "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_GENDER_LAST_MONTH_LONG",
-        headers, refresh_api)
+        "https://frontdoor-l4uikgap6gz3m.azurefd.net/WIISE/V_COV_UPTAKE_GENDER_LAST_MONTH_LONG",
+        headers = FALSE, refresh_api)
     # Reduce columns & rename
     print(" >> Selecting uptake gender data...")
     uptake_gender <-
@@ -64,8 +64,8 @@ load_pop_target_gender <- function(headers, refresh_api) {
 load_pop_target_groups <- function(headers, refresh_api) {
     print(" >> Loading COV Uptake target group data...")
     uptake_target_group <- helper_wiise_api(
-        "https://extranet.who.int/xmart-api/odata/WIISE/V_COV_UPTAKE_TARGETGROUP_LAST_MONTH_LONG",
-        headers, refresh_api)
+        "https://frontdoor-l4uikgap6gz3m.azurefd.net/WIISE/V_COV_UPTAKE_TARGETGROUP_LAST_MONTH_LONG",
+        headers = FALSE, refresh_api)
     # Reduce columns & rename
     print(" >> Reducing columns and renaming them...")
     uptake_target_group <-
