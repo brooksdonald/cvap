@@ -29,8 +29,8 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2023-03-23")
-.GlobalEnv$del_date <- as.Date("2023-03-22")
+.GlobalEnv$refresh_date <- as.Date("2023-04-05")
+.GlobalEnv$del_date <- as.Date("2023-04-05")
 .GlobalEnv$t70_deadline <- as.Date("2023-06-30")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
@@ -55,6 +55,7 @@ source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
 source("src/add_data/run_add_data.r")
 source("src/pin/run_pin.r")
+source("src/last_month/run_last_month.r")
 
 dvr_env <- run_dvr(.GlobalEnv$adm_api,
     .GlobalEnv$auto_cleaning,
@@ -73,6 +74,7 @@ finance_env <- run_finance(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
 add_data_env <- run_add_data(.GlobalEnv$refresh_api)
 pin_env <- run_pin()
+last_month_env <- run_last_month()
 
 # EDA
 
@@ -84,6 +86,8 @@ source("eda/finance/run_finance.r")
 source("eda/qual_data/run_qual_data.r")
 source("eda/rank_bin/run_rank_bin.r")
 source("eda/pin/run_pin.r")
+source("eda/sov/run_sov.r")
+source("eda/last_month/run_last_month.r")
 
 eda_adm_cov_env <- run_eda_adm_cov(
     adm_cov_env$c_vxrate_latest,
@@ -120,6 +124,8 @@ financing_env <- run_financing(cov_targets_env$a_data)
 qual_data_env <- run_qual_data(financing_env$a_data)
 rank_bin_env <- run_rank_bin(qual_data_env$a_data)
 eda_pin_env <- run_eda_pin(rank_bin_env$a_data, pin_env$population_pin)
+eda_sov_env <- run_sov(eda_pin_env$a_data)
+eda_last_month_env <- run_last_month(eda_sov_env$a_data, last_month_env$a_data_lm)
 
 
 # CONSOLIDATE
@@ -146,7 +152,7 @@ funding_tracker_env <- run_funding_tracker()
 
 print(" > Exporting data outputs from pipeline to Excel workbooks...")
 all_df <- list(
-    "0_base_data" = eda_pin_env$a_data,
+    "0_base_data" = eda_sov_env$a_data,
     "0_base_data_lm_change" = last_month_env$base_data_lm_change,
     "1_absorption_month" = adm_cov_env$d_absorption,
     "1_absorption_month_country" = adm_cov_env$combined,
@@ -162,17 +168,17 @@ all_df <- list(
     "8_cov_com_60p_csc" = consolidate_env$e_cov_com_60p_csc,
     "8_ndvp_tar_cat" = consolidate_env$e_ndvp_all,
     "9_values" = consolidate_env$z_values,
-    "1_funding_long" = finance_env$b_fin_fund_del_long,
-    "1_funding_urgent" = finance_env$base_fin_urg_fun_sum,
-    "1_fund_urg_long" = finance_env$base_fin_urg_fun_long,
-    "1_fund_cds_long" = finance_env$base_fin_cds_red,
+    # "1_funding_long" = finance_env$b_fin_fund_del_long,
+    # "1_funding_urgent" = finance_env$base_fin_urg_fun_sum,
+    # "1_fund_urg_long" = finance_env$base_fin_urg_fun_long,
+    # "1_fund_cds_long" = finance_env$base_fin_cds_red,
     "1_fund_one_budget_tracker" = funding_tracker_env$base_one_budget_tracker,
     "1_fund_one_budget_cds" = funding_tracker_env$base_one_budget_cds,
     "1_fund_requests" = funding_tracker_env$base_requests
 )
 
-  write_xlsx(all_df, "data/output/230323_output_powerbi.xlsx")
-  write_xlsx(financing_env$api, "data/output/230323_output_api.xlsx")
+  write_xlsx(all_df, "data/output/230405_output_powerbi.xlsx")
+  write_xlsx(financing_env$api, "data/output/230405_output_api.xlsx")
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
