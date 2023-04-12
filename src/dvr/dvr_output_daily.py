@@ -228,10 +228,11 @@ def moving_averages_td(df4, days_in_weeks4, days_in_weeks8):
     df5.drop('prev_total', axis = 1, inplace = True)
 
     print(' > Calculating moving averages...')
-    df5['hours'] = '00.00.00'
-    df5['DateTime'] = df5['date'].astype(str).str.cat(df5['hours'], sep = " ") 
-    df5.drop("hours", axis = 1, inplace = True)
-    df5.DateTime = df5.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H.%M.%S'))
+    # df5['hours'] = '00.00.00'
+    df5['DateTime'] = df5['date'].astype(str)
+    # .str.cat(df5['hours'], sep = " ") 
+    # df5.drop("hours", axis = 1, inplace = True)
+    df5.DateTime = df5.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H:%M:%S.000%f'))
     df5.index = df5.DateTime
     df5.sort_index(inplace = True)
 
@@ -282,10 +283,11 @@ def moving_averages_1d(df5, days_in_weeks4, days_in_weeks8):
     df6.drop('prev_total', axis = 1, inplace = True)
 
     print(' > Calculating moving averages...')
-    df6['hours'] = '00.00.00'
-    df6['DateTime'] = df6['date'].astype(str).str.cat(df6['hours'], sep = " ") 
-    df6.drop("hours", axis = 1, inplace = True)
-    df6.DateTime = df6.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H.%M.%S'))
+    # df6['hours'] = '00.00.00'
+    df6['DateTime'] = df6['date'].astype(str)
+    # .str.cat(df6['hours'], sep = " ") 
+    # df6.drop("hours", axis = 1, inplace = True)
+    df6.DateTime = df6.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H:%M:%S.000%f'))
     df6.index = df6.DateTime
     df6.sort_index(inplace = True)
 
@@ -338,10 +340,11 @@ def moving_averages_fv(df6, days_in_weeks4, days_in_weeks8):
     df7.drop('prev_total', axis = 1, inplace = True)
 
     print(' > Calculating moving averages...')
-    df7['hours'] = '00.00.00'
-    df7['DateTime'] = df7['date'].astype(str).str.cat(df7['hours'], sep = " ") 
-    df7.drop("hours", axis = 1, inplace = True)
-    df7.DateTime = df7.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H.%M.%S'))
+    # df7['hours'] = '00.00.00'
+    df7['DateTime'] = df7['date'].astype(str)
+    # .str.cat(df7['hours'], sep = " ") 
+    # df7.drop("hours", axis = 1, inplace = True)
+    df7.DateTime = df7.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H:%M:%S.000%f'))
     df7.index = df7.DateTime
     df7.sort_index(inplace = True)
 
