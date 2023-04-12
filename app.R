@@ -55,6 +55,7 @@ source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
 source("src/add_data/run_add_data.r")
 source("src/pin/run_pin.r")
+source("src/last_month/run_last_month.r")
 
 dvr_env <- run_dvr(
     .GlobalEnv$auto_cleaning,
@@ -73,6 +74,7 @@ finance_env <- run_finance(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
 add_data_env <- run_add_data(.GlobalEnv$refresh_api)
 pin_env <- run_pin()
+last_month_env <- run_last_month()
 
 # EDA
 
@@ -84,6 +86,8 @@ source("eda/finance/run_finance.r")
 source("eda/qual_data/run_qual_data.r")
 source("eda/rank_bin/run_rank_bin.r")
 source("eda/pin/run_pin.r")
+source("eda/sov/run_sov.r")
+source("eda/last_month/run_last_month.r")
 
 eda_adm_cov_env <- run_eda_adm_cov(
     adm_cov_env$c_vxrate_latest,
@@ -120,6 +124,8 @@ financing_env <- run_financing(cov_targets_env$a_data)
 qual_data_env <- run_qual_data(financing_env$a_data)
 rank_bin_env <- run_rank_bin(qual_data_env$a_data)
 eda_pin_env <- run_eda_pin(rank_bin_env$a_data, pin_env$population_pin)
+eda_sov_env <- run_sov(eda_pin_env$a_data)
+eda_last_month_env <- run_last_month(eda_sov_env$a_data, last_month_env$a_data_lm)
 
 
 # CONSOLIDATE
@@ -138,26 +144,22 @@ consolidate_env <- run_consolidate(
 
 source("consolidate/last_month/run_last_month.r")
 source("consolidate/funding_tracker/run_funding_tracker.r")
-source("consolidate/sov/run_sov.r")
-source("eda/data_checks/run_check.r")
 
 last_month_env <- run_last_month()
 funding_tracker_env <- run_funding_tracker()
-sov_env <- run_sov(eda_pin_env$a_data)
-data_checks_env <- run_check(sov_env$a_data, last_month_env$base_data_lm_change)
 
 # EXPORT
 
 print(" > Exporting data outputs from pipeline to Excel workbooks...")
 all_df <- list(
-    "0_base_data" = data_checks_env$a_data,
+    "0_base_data" = eda_sov_env$a_data,
     "0_base_data_lm_change" = last_month_env$base_data_lm_change,
     "1_absorption_month" = adm_cov_env$d_absorption,
     "1_absorption_month_country" = adm_cov_env$combined,
     "1_cum_absorb_month_country" = adm_cov_env$d_absorption_country_new,
     "1_stock" = eda_adm_cov_env$timeseries,
     "1_adm_all_long" = adm_cov_env$b_vxrate_pub,
-    "1_delivery_doses" = supplies_env$supply_received_by_product,
+    "1_delivery_doses" = supply_env$supply_received_by_product,
     "1_funding_source" = finance_env$b_fin_fund_del_source,
     "8_dvr_cat" = consolidate_env$e_vrcat_all,
     "8_cov_com_hcw_all" = consolidate_env$e_cov_com_hcw_all,
@@ -166,10 +168,10 @@ all_df <- list(
     "8_cov_com_60p_csc" = consolidate_env$e_cov_com_60p_csc,
     "8_ndvp_tar_cat" = consolidate_env$e_ndvp_all,
     "9_values" = consolidate_env$z_values,
-    "1_funding_long" = finance_env$b_fin_fund_del_long,
-    "1_funding_urgent" = finance_env$base_fin_urg_fun_sum,
-    "1_fund_urg_long" = finance_env$base_fin_urg_fun_long,
-    "1_fund_cds_long" = finance_env$base_fin_cds_red,
+    # "1_funding_long" = finance_env$b_fin_fund_del_long,
+    # "1_funding_urgent" = finance_env$base_fin_urg_fun_sum,
+    # "1_fund_urg_long" = finance_env$base_fin_urg_fun_long,
+    # "1_fund_cds_long" = finance_env$base_fin_cds_red,
     "1_fund_one_budget_tracker" = funding_tracker_env$base_one_budget_tracker,
     "1_fund_one_budget_cds" = funding_tracker_env$base_one_budget_cds,
     "1_fund_requests" = funding_tracker_env$base_requests
