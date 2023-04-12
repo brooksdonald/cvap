@@ -24,9 +24,7 @@ def clean_path(folder):
     parent_dir = 'data'
     path = parent_dir + '/' + folder
     for f in os.listdir(path):
-        try:
-            os.remove(os.path.join(path, f))
-        except:
+        if f[-4:] != '.txt': ## retaining .txt files in the parent folder
             for j in os.listdir(os.path.join(path, f)):
                 try:
                     os.remove(os.path.join(os.path.join(path, f), j))
@@ -358,8 +356,47 @@ def export_plots_of_changes(df2, uncleaned, country, log, var_to_clean, folder):
                 path += '_' + str(count)
             plt.savefig(path)
 
+def check_last_update(plot_weekly):
+    '''
+    Checks if plots have been exported in the last 7 days.
+    Function also exists in src/dvr/dvr_output_daily.py. Make sure to keep consistent.
+    '''
+    print(" > Check if plots need to be saved...")
 
-def automized_cleaning(df2, uncleaned_df, var_to_clean, delete_errors):
+    file_path = 'data/cleaning_log/last_time_plots_were_updated.txt'
+    
+    if os.path.isfile(file_path):
+        # File exists, read in its contents
+        with open(file_path, 'r') as f:
+            file_contents = f.read().strip()
+            
+        if file_contents:
+            # File contains a date, check if it's within the last 6 days
+            file_date = datetime.datetime.strptime(file_contents, '%Y-%m-%d')
+        else:
+            # File does not contain a date, set file_date to None
+            file_date = None
+    else:
+        # File does not exist, set file_date to None
+        file_date = None
+    
+    six_days_ago = datetime.datetime.now() - datetime.timedelta(days=6)
+    
+    if file_date and file_date >= six_days_ago and plot_weekly:
+        # Date is within the last 6 days, return False
+        print(" > Plots were last exported on", file_date)
+        print(" > Plots will not be exported to reduce run time.")
+        return False
+    
+    # Create a new file with today's date
+    with open(file_path, 'w') as f:
+        print(" > Plots will be exported to data/cleaning_log. Runtime is somewhat slower.")
+        f.write(datetime.datetime.now().strftime('%Y-%m-%d'))
+        
+    # Return True since we created a new file
+    return True
+
+def automized_cleaning(df2, uncleaned_df, export_plots, var_to_clean, delete_errors):
     """
     This automatized cleaning function loops through all countries to
     1. check whether the total_doses are monotonically increasing over time,
@@ -383,8 +420,10 @@ def automized_cleaning(df2, uncleaned_df, var_to_clean, delete_errors):
                 row = 0
                 country_data, df2, log = row_check(country_data, row, df2, log, var_to_clean_iloc)
             printing_log(country_data.copy(), log.copy())
-            export_plots_of_changes(df2, uncleaned_df, country, log, var_to_clean, var_to_clean + '/decrease_cleaning')
-    print(" > Saving plots of cleaned changes to data/cleaning_log...")
+            if export_plots:
+                export_plots_of_changes(df2, uncleaned_df, country, log, var_to_clean, var_to_clean + '/decrease_cleaning')
+    if export_plots:
+        print(" > Saving plots of cleaned changes to data/cleaning_log...")
     if delete_errors:
         df2 = df2.loc[df2['to_delete_automized_clean'] == 0, :]
     else:
@@ -398,17 +437,19 @@ def automized_cleaning(df2, uncleaned_df, var_to_clean, delete_errors):
     return df2
 
 
-def main(auto_cleaning, throughput_data):
+def main(auto_cleaning, throughput_data, plot_weekly):
     who, iso_mapping = import_data(throughput_data)
     who = convert_data_types(who)
     df1 = cleaning(who)
     df1 = date_to_date_week(df1)
     df1, df2 = map_iso_codes(df1, iso_mapping)
     if auto_cleaning:
-        clean_path(folder = "cleaning_log")
+        export_plots = check_last_update(plot_weekly)
+        if export_plots:
+            clean_path(folder = "cleaning_log")
         uncleaned_df = df2.copy()
-        df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'total_doses', delete_errors = False)
-        df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'at_least_one_dose', delete_errors = False)
-        df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'fully_vaccinated', delete_errors = False)
-        df2 = automized_cleaning(df2, uncleaned_df, var_to_clean = 'persons_booster_add_dose', delete_errors = False)
+        df2 = automized_cleaning(df2, uncleaned_df, export_plots, var_to_clean = 'total_doses', delete_errors = False)
+        df2 = automized_cleaning(df2, uncleaned_df, export_plots, var_to_clean = 'at_least_one_dose', delete_errors = False)
+        df2 = automized_cleaning(df2, uncleaned_df, export_plots, var_to_clean = 'fully_vaccinated', delete_errors = False)
+        df2 = automized_cleaning(df2, uncleaned_df, export_plots, var_to_clean = 'persons_booster_add_dose', delete_errors = False)
     return df2

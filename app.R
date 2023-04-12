@@ -1,10 +1,11 @@
 
 # SET WD
-# setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
-setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
+setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
+# setwd("C:/Users/rafae/OneDrive - World Health Organization/covid19_vaccination_analysis") #Rafael
 
 # CLEAR ENVIRONMENT
 rm(list = ls())
+gc()
 
 # PACKAGES
 
@@ -29,13 +30,12 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$refresh_date <- as.Date("2023-04-05")
-.GlobalEnv$del_date <- as.Date("2023-04-05")
+.GlobalEnv$refresh_date <- as.Date("2023-04-06")
+.GlobalEnv$del_date <- as.Date("2023-03-30")
 .GlobalEnv$t70_deadline <- as.Date("2023-06-30")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
-.GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
 .GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
-.GlobalEnv$refresh_supply_timeseries <- TRUE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
+.GlobalEnv$refresh_supply_timeseries <- FALSE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
 
 # HELPERS
 
@@ -57,7 +57,7 @@ source("src/add_data/run_add_data.r")
 source("src/pin/run_pin.r")
 source("src/last_month/run_last_month.r")
 
-dvr_env <- run_dvr(.GlobalEnv$adm_api,
+dvr_env <- run_dvr(
     .GlobalEnv$auto_cleaning,
     api_env$headers,
     .GlobalEnv$refresh_api)
@@ -65,8 +65,8 @@ entity_env <- run_entity()
 supply_env <- run_supply(.GlobalEnv$del_date)
 adm_cov_env <- run_adm_cov(
     entity_env$entity_characteristics,
-    .GlobalEnv$refresh_date, dvr_env$dvr_data,
-    .GlobalEnv$adm_api,
+    .GlobalEnv$refresh_date,
+    dvr_env$dvr_data,
     .GlobalEnv$auto_cleaning,
     .GlobalEnv$refresh_supply_timeseries)
 cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
@@ -177,8 +177,8 @@ all_df <- list(
     "1_fund_requests" = funding_tracker_env$base_requests
 )
 
-  write_xlsx(all_df, "data/output/230405_output_powerbi.xlsx")
-  write_xlsx(financing_env$api, "data/output/230405_output_api.xlsx")
+  write_xlsx(all_df, "data/output/230412_output_powerbi.xlsx")
+  write_xlsx(financing_env$api, "data/output/230412_output_api.xlsx")
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")

@@ -63,6 +63,7 @@ load_conc_supp_list <- function() {
         "iso",
         "a_who_region",
         "a_csc_status",
+        "a_ivb_status",
         "ndvp_mid_target",
         "ndvp_mid_deadline",
         "ndvp_mid_rep_rate",
@@ -83,7 +84,14 @@ load_conc_supp_list <- function() {
         "ri_dtp3",
         "ri_mcv1",
         "ri_mcv2",
-        "ri_zero_dose"
+        "ri_zero_dose",
+        "a_pop_comorb_increased_prop",
+        "a_pop_comorb_high_prop",
+        "a_pop_comorb_high_young_prop",
+        "a_pop_comorb_high_older_prop",
+        "country_name_friendly",
+        "region_name",
+        "min_vx_rollout_date"
     )
     b_adhoc <- subset(b_adhoc, select=-c(a_who_region))
     b_adhoc <- b_adhoc %>%

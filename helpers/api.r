@@ -34,7 +34,8 @@ helper_wiise_api <- function(link, headers, refresh_api) {
     storage_name <- paste0(folder, "/", sub(".*/", "", link), ".csv")
     if (refresh_api | !file.exists(storage_name)) {
         print(" > Downloading data from who.int API...")
-      if (!headers) {
+
+        if (is.logical(headers) && !headers) {
             response <- GET(link)
         } else {
             response <- GET(link, headers)

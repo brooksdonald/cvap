@@ -1,19 +1,11 @@
 
 # load current daily vxrate
-load_b_vxrate <- function(dvr_data, adm_api, auto_cleaning) {
-  if (adm_api) {
-    print(" >> Using data from API...")
-    b_vxrate <- as.data.frame(dvr_data)
-    b_vxrate$date <- as.Date(b_vxrate$date, format = "%Y-%m-%d")
-  } else {
-    print(" >> Loading current daily vaccination rate from Excel...")
-    b_vxrate <-
-        data.frame(
-            read_excel("data/input/base_dvr_current.xlsx",
-            sheet = "data"
-        )
-    )
-  }
+load_b_vxrate <- function(dvr_data, auto_cleaning) {
+
+  print(" >> Using data from API...")
+  b_vxrate <- as.data.frame(dvr_data)
+  b_vxrate$date <- as.Date(b_vxrate$date, format = "%Y-%m-%d")
+
   print(" >> Selecting relevant current daily vaccination rate columns...")
   columns <- c(
     "iso_code",
@@ -212,7 +204,7 @@ recreate_df <- function(b_vxrate) {
   print(" >> Change date column to date formart...")
   stable_dates$date_13jan <- as.Date(stable_dates$date_13jan)
   names(stable_dates)[1] <- "iso_code"
-  print("Done.")
+  print(" > Done.")
 
   print(" >> inner join of the df...")
   recreated_data <- inner_join(b_vxrate_data, stable_dates, by = c("iso_code", "date_13jan"))
