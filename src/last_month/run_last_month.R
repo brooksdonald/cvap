@@ -6,7 +6,7 @@ run_last_month <- function() {
   print(" > Loading last month output data...")
   a_data_lm <- load_last_month()
   print(" > Done.")
-
+  
   print(" > Returning to local environment.")
   return(environment())
 }

@@ -1,41 +1,47 @@
-# Load demand planning data
 
-load_demand_plan_data <- function() {
+load_demandplanning <- function() {
   print(" >> Loading demand planning data")
-  base_dp <- data.frame(
+  base_demandplanning <- data.frame(
     read_excel("data/input/static/base_demandplanning.xlsx",
-    sheet = "Data"
+               sheet = "Data"
     )
   )
-  print(" >> Select and rename columns from base_dp...")
-  b_dp_red <- select(
-    base_dp,
-    c(
+  
+  print(" >> Selecting relevant columns...")
+  base_demandplanning <- select(
+    base_demandplanning, c(
       "ISOCountry",
       "Coverage.target.in..",
       "Expected.date.to.reach.coverage.target"
-      )
     )
-    colnames(b_dp_red) <- c(
-      "a_iso",
-      "dp_target",
-      "dp_deadline"
-    )
-    return(b_dp_red)
+  )
+  
+  colnames(base_demandplanning) <- c(
+    "a_iso",
+    "dp_target",
+    "dp_deadline"
+  )
+  
+  print(" >> Function 'load_demandplanning' done")
+  return(base_demandplanning)
 }
 
-transform_demandplan_data <- function(b_dp_red) {
-  b_dp_red <- subset(b_dp_red, dp_target != "")
-  b_dp <- b_dp_red %>%
+transform_demandplanning <- function(base_demandplanning) {
+  base_demandplanning <- subset(base_demandplanning, dp_target != "")
+  
+  base_demandplanning <- base_demandplanning %>%
     group_by(a_iso) %>%
     summarise(
       dp_target = head(dp_target, 1),
       dp_deadline = head(dp_deadline, 1)
     )
-  b_dp <- subset(b_dp, a_iso != 0)
-  b_dp$dp_deadline <- format(
-    as.Date(b_dp$dp_deadline, format = "%d/%m/%Y"),
+  
+  base_demandplanning <- subset(base_demandplanning, a_iso != 0)
+  base_demandplanning$dp_deadline <- format(
+    as.Date(base_demandplanning$dp_deadline, format = "%d/%m/%Y"),
     "%Y-%m-%d"
   )
-  return(b_dp)
+  
+  print(" >> Function 'transform_demandplanning' done")
+  return(base_demandplanning)
 }

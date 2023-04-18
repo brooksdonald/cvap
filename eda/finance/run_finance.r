@@ -1,34 +1,36 @@
-run_financing <- function(a_data) {
-  source("eda/finance/finance_consolidate.r")
+
+run_eda_finance <- function(a_data) {
+  source("eda/finance/finance.r")
+  print(" > Starting local environment for finance eda module...")
   
-  print(" > Starting local environment for financing summary")
   print(" > Calculating financing overview...")
-  a_data <- financing_overview(a_data)
+  a_data <- finance_analyse(a_data)
   print(" > Done.")
   
-  print(" > Filtering AMC covax status...")
-  a_data_amc <- amc_covax_status(a_data)
+  print(" > Filtering AMC countries...")
+  a_data_amc <- finance_analyse_amc(a_data)
   print(" > Done.")
   
-  print(" > Filtering HIC income group...")
-  a_data_hic <- hic_income_group(a_data)
+  print(" > Filtering HIC income countries...")
+  a_data_hic <- finance_analyse_hic(a_data)
   print(" > Done.")
   
-  print(" > Filtering CoVDP csc status...")
-  a_data_csc <- covdp_csc_status(a_data)
+  print(" > Filtering Concerted support countries...")
+  a_data_csc <- finance_analyse_csc(a_data)
   print(" > Done.")
   
-  print(" > Filtering CoVDP IFC status ...")
-  a_data_ifc <- covdp_ifc_status(a_data)
+  print(" > Filtering Immediate focus countries...")
+  a_data_ifc <- finance_analyse_ifc(a_data)
   print(" > Done.")
   
-  print(" > Filtering African continent...")
-  a_data_africa <- africa_continent(a_data)
+  print(" > Filtering African countries...")
+  a_data_afr <- finance_analyse_afr(a_data)
   print(" > Done.")
   
   print(" > Filtering for API view...")
   api <- api_export_table(a_data)
   print(" > Done.")
-
+  
+  print(" > Returning to local environment.")
   return(environment())
 }

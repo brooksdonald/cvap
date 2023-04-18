@@ -1,24 +1,23 @@
-load_secured_expected <- function(path) {
 
-  # reading in list of files in directory
+load_secured_expected <- function(path) {
+  print(" >> Loading demand planning data")
+  
   print(" >> Selecting files to read in...")
   files <- unlist(list.files(
     path = path,
-    # add to this pattern if the file name changes in the future
     pattern = "IMF|imf"
   ))
-
-  # checking for duplicate months
+  
   print(" >> Checking if data is valid...")
   months <- substr(files, 1, 4)
   if (sum(duplicated(months))) {
     stop(paste0("Error:
       Two files in ",
-      path,
-      " with 'imf' in the name have the same year month combination."))
+                path,
+                " with 'imf' in the name have the same year month combination."))
   }
-
-  # checking for reasonable years and months
+  
+  print(" >> Checking for reasonable years and months...")
   years <- substr(files, 1, 2)
   months <- substr(files, 3, 4)
   if (
@@ -26,23 +25,20 @@ load_secured_expected <- function(path) {
     sum(as.numeric(years) < 21) |
     sum(as.numeric(months) > 12) |
     sum(as.numeric(months) < 1)) {
-      stop("One of IMF datasets does not conform to year-month format
+    stop("One of IMF datasets does not conform to year-month format
         (must be, e.g., 2108 for Aug 2021)")
-    }
-
-  # finding the right sheet to read in
+  }
+  
   print(" >> Finding the right sheet to read in...")
   sheet_vector <- c()
   for (file in files) {
     sheets <- excel_sheets(path = paste0(path, file))
-    # if sheet names change in the future, simply add to this list
     possible_sheet_names <- c("supply_tracker", "data")
     for (name in possible_sheet_names) {
       if (name %in% sheets) {
         relevant_sheet <- name
       }
     }
-    # throw error if there is no sheet with one of the names above
     if (is.na(relevant_sheet)) {
       stop(paste0("Error: ", file, " does not have a sheet with a right name.
         Add new sheet name to the list of
@@ -51,7 +47,7 @@ load_secured_expected <- function(path) {
     sheet_vector <- append(sheet_vector, relevant_sheet)
     remove(relevant_sheet)
   }
-
+  
   print(" >> Read in supply_tracker data...")
   df_list <- helper_load_list_of_files(
     files = paste0(path, files),
@@ -59,23 +55,20 @@ load_secured_expected <- function(path) {
     date_format = "%y%m%d",
     month_lag = 1
   )
-
-  ## end of automated read-in
-
-  # Reduce dataframe to required columns
+  
   print(" >> Transforming secured data...")
   df_list_trans <- list()
+  print(" >> Finding columns to extract and to exclude...")
   for (i in seq_along(df_list)) {
     df <- df_list[[i]]
-
-    # finding the right column to extract and columns to be excluded
+    
     col_vaccine_secured <- grep("secured", tolower(colnames(df)), value = TRUE)
     col_not_to_select <- c(
       grep("adjustment", col_vaccine_secured, value = TRUE),
       grep("population", col_vaccine_secured, value = TRUE)
     )
     column_name <- setdiff(col_vaccine_secured, col_not_to_select)
-
+    
     if (length(column_name) > 1) {
       stop(paste0(
         "Error in supply_timeseries.r:
@@ -85,16 +78,15 @@ load_secured_expected <- function(path) {
         paste(as.character(column_name), collapse = ", ")
       ))
     }
-
-    # adding selected columns to a list of dataframes
+    
+    print(" >> Adding selected columns to list of dataframes...")
     df <- df %>%
       rename_all(., .funs = tolower) %>%
       select(all_of(c("iso3", column_name, "month_name"))) %>%
       rename(sec = !!as.name(column_name)) %>%
       rename(iso = iso3) %>%
       helper_rename_KOS_to_XKX("iso")
-
-    # multiplying column with the respective factor
+    
     if (grepl("courses", column_name, fixed = TRUE)) {
       df$sec <- df$sec * 2
     }
@@ -102,35 +94,35 @@ load_secured_expected <- function(path) {
     df$type <- "Secured" # never used
     df_list_trans[[i]] <- df
   }
-
-  sec_overall_long <- df_list_trans %>%
+  
+  overall_secured_expected <- df_list_trans %>%
     bind_rows() %>%
     mutate_if(is.numeric, round)
-
-  return(sec_overall_long)
+  
+  print(" >> Function 'load_secured_expected' done")  
+  return(overall_secured_expected)
 }
 
 
 load_supply_received <- function(path) {
-
-  # reading in list of files in directory
+  print(" >> Loading demand planning data")
+  
   print(" >> Selecting files to read in...")
   files <- unlist(list.files(
     path = path,
-    # add to this pattern if the file name changes in the future
     pattern = "UNICEF|unicef"
   ))
-
-  # checking for duplicate months
+  
+  print(" >> Checking if data is valid...")
   months <- substr(files, 1, 6)
   if (sum(duplicated(months))) {
     stop(paste0("Error:
       Two files in ",
-      path,
-      " with 'imf' in the name have the same year month combination."))
+                path,
+                " with 'imf' in the name have the same year month combination."))
   }
-
-  # checking for reasonable years and months
+  
+  print(" >> Checking for reasonable years and months...")
   years <- substr(files, 1, 4)
   months <- substr(files, 5, 6)
   if (
@@ -138,22 +130,20 @@ load_supply_received <- function(path) {
     sum(as.numeric(years) < 2021) |
     sum(as.numeric(months) > 12) |
     sum(as.numeric(months) < 1)) {
-      stop("One of IMF datasets does not conform to year-month format
+    stop("One of IMF datasets does not conform to year-month format
         (must be, e.g., 2108 for Aug 2021)")
-    }
-
-  # finding the right sheet to read in
+  }
+  
+  print(" >> Finding the right sheet to read in...")
   sheet_vector <- c()
   for (file in files) {
     sheets <- excel_sheets(path = paste0(path, file))
-    # if sheet names change in the future, simply add to this list
     possible_sheet_names <- c("Delivery_Table")
     for (name in possible_sheet_names) {
       if (name %in% sheets) {
         relevant_sheet <- name
       }
     }
-    # throw error if there is no sheet with one of the names above
     if (is.na(relevant_sheet)) {
       stop(paste0("Error: ", file, " does not have a sheet with a right name.
         Add new sheet name to the list of
@@ -162,20 +152,16 @@ load_supply_received <- function(path) {
     sheet_vector <- append(sheet_vector, relevant_sheet)
     remove(relevant_sheet)
   }
-
-  # import files from excel
+  
   print(" >> Reading in UNICEF delivery table data...")
   df_list <- helper_load_list_of_files(
     files = paste0(path, files),
     sheets = sheet_vector,
     date_format = "%Y%m%d"
   )
-
-  # end of automated files
-
+  
   print(" >> Transforming delivery data...")
   for (i in seq_along(df_list)) {
-    # adding country codes to each observation
     colnames(df_list[[i]]) <- tolower(colnames(df_list[[i]]))
     df_list[[i]]$iso <- countrycode(
       df_list[[i]]$country.territory,
@@ -183,7 +169,6 @@ load_supply_received <- function(path) {
       destination = "iso3c",
       warn = TRUE
     )
-    # fixing Kosovo, NAs, and summing supply per month and country
     options(dplyr.summarise.inform = FALSE)
     df_list[[i]] <- df_list[[i]] %>%
       mutate(iso = replace(iso, country.territory == "Kosovo", "XKX")) %>%
@@ -196,40 +181,38 @@ load_supply_received <- function(path) {
       group_by(iso, month_name) %>%
       summarize(supply = sum(total.doses.delivered))
   }
-
-  # appending all dataframes together
+  
   print(" >> Combining monthly delivery data...")
-  overall_cumul_long <- df_list %>%
+  overall_supply_received <- df_list %>%
     bind_rows() %>%
     arrange(month_name, iso)
-
-  return(overall_cumul_long)
+  
+  print(" >> Function 'load_supply_received' done")  
+  return(overall_supply_received)
 }
 
-transform_monthly_supply_received <- function(overall_cumul_long) {
 
+transform_supply_received <- function(overall_supply_received) {
+  print(" >> Transforming monthly received supply data...")
+  
   print(" >> Calculating monthly difference in received supply...")
-  overall_long <- overall_cumul_long %>%
+  overall_long <- overall_supply_received %>%
     mutate(supply = replace_na(supply, 0)) %>%
-    # calculating difference between months
     arrange(month_name) %>%
     group_by(iso) %>%
     mutate(value = supply - lag(supply)) %>%
-    # adding type
     mutate(type = "Received") %>%
-    # removing supply column and observation from July 2021
     filter(
-      month_name != first(overall_cumul_long$month_name))
-
+      month_name != first(overall_supply_received$month_name))
+  
+  print(" >> Function 'transform_supply_received' done")  
   return(overall_long)
 }
 
 
-load_administration <- function(d_absorption_country_new, entity_characteristics) {
-
-  # Merge base details with adminstration data
+load_administration <- function(new_absorption_countries, entity_characteristics) {
   print(" >> Loading administration data...")
-  admin_red <- entity_characteristics %>%
+  administration_red <- entity_characteristics %>%
     select(
       c(
         "a_iso",
@@ -237,62 +220,74 @@ load_administration <- function(d_absorption_country_new, entity_characteristics
         "a_csc_status"
       )) %>%
     rename(iso = a_iso) %>%
-    right_join(d_absorption_country_new, by = "iso") %>%
+    right_join(new_absorption_countries, by = "iso") %>%
     select(iso, a_csc_status, a_covax_status, absorbed, month_name) %>%
     rename(value = absorbed)
-
-  return(admin_red)
+  
+  print(" >> Function 'load_administration' done")  
+  return(administration_red)
 }
 
-export_supply_xlsx <- function(
-  sec_overall_long, overall_long, overall_cumul_long, admin_red) {
 
-  # Merge supply secured / supply received / administration
+export_supply_xlsx <- function(
+    overall_secured_expected, overall_long, overall_supply_received, administration_red) {
+  print(" >> Merging supply data...")  
+  
   print(" >> Exporting supply data...")
   combined_long <- full_join(
-      sec_overall_long,
-      overall_cumul_long,
-      by = c("iso", "month_name")) %>%
+    overall_secured_expected,
+    overall_supply_received,
+    by = c("iso", "month_name")) %>%
     full_join(.,
-      admin_red,
-      by = c("iso", "month_name"))
-
-  # Remove type
+              administration_red,
+              by = c("iso", "month_name"))
+  
+  print(" >> Selecting relevant columns...")
   combined_long <- select(combined_long, -type)
-
-  # Cap values to positives
+  
+  print(" >> Capping values...")
   combined_long <- combined_long %>%
     mutate(sec_tobedel = pmax(sec - supply, 0)) %>%
     mutate(del_tobeadmin = pmax(supply - value, 0))
-
-  # Making a datalist
+  
+  print(" >> Creating list of dataframes...")
   datalist <- list(
     "data" = overall_long,
-    "supply" = overall_cumul_long,
+    "supply" = overall_supply_received,
     "all" = combined_long
   )
-
-  # Export to excel
+  
+  print(" >> Exporting to excel...")
   write_xlsx(
     datalist,
     "data/input/interim/supply.xlsx"
   )
+  
+  print(" >> Function 'export_supply_xlsx' done")  
 }
 
-load_cum_from_xlsx <- function() {
+
+load_supply_cum_xlsx <- function() {
+  print(" >> Loading supply (cumulative) data...")
   overall_cumul_long <- data.frame(
     read_excel("data/input/interim/supply.xlsx",
-      sheet = "supply"
+               sheet = "supply"
     )
   )
+  
+  print(" >> Function 'load_supply_cum_xlsx' done")  
   return(overall_cumul_long)
 }
 
-load_monthly_from_xlsx <- function() {
+
+load_supply_month_xlsx <- function() {
+  print(" >> Loading supply (monthly) data...")  
   overall_long <- data.frame(
     read_excel("data/input/interim/supply.xlsx",
-      sheet = "data"
+               sheet = "data"
     )
   )
+  
+  print(" >> Function 'load_supply_month_xlsx' done")  
   return(overall_long)
 }
