@@ -51,7 +51,9 @@ target_group_seventy <- function(a_data, timeto_t70, c_vxrate_jun_t70, deadline_
                                      if_else(a_iso == "KIR", "No",
                                              if_else(a_iso == "TUV", "No",
                                                      if_else(a_iso == "UKR", "No",
-                                                             t70_goalmet_jun))))) %>%
+                                                             if_else(a_iso == "BIH", "No",
+                                                                     if_else(a_iso == "SMR", "No",
+                                                             t70_goalmet_jun))))))) %>%
     mutate(t70_goalmet_after = if_else(cov_total_fv >= 0.7,"Yes","No")) %>%
     mutate(t70_notmet = if_else(cov_total_fv < 0.7,"Yes","No")) %>%
     helper_goal_target_groups(70, timeto_t70, deadline_suffix)
