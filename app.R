@@ -30,12 +30,22 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
+<<<<<<< Updated upstream
 .GlobalEnv$refresh_date <- as.Date("2023-04-06")
 .GlobalEnv$del_date <- as.Date("2023-03-30")
 .GlobalEnv$t70_deadline <- as.Date("2023-06-30")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
 .GlobalEnv$refresh_supply_timeseries <- FALSE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
+=======
+.GlobalEnv$refresh_date <- as.Date("2023-05-05")
+.GlobalEnv$del_date <- as.Date("2023-05-03")
+.GlobalEnv$t70_deadline <- as.Date("2023-06-30")
+.GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
+.GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
+.GlobalEnv$refresh_api <- FALSE # set to FALSE to use last API call
+.GlobalEnv$refresh_supply_timeseries <- TRUE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
+>>>>>>> Stashed changes
 
 # HELPERS
 
@@ -142,11 +152,27 @@ consolidate_env <- run_consolidate(
     .GlobalEnv$refresh_date
 )
 
+<<<<<<< Updated upstream
 source("consolidate/last_month/run_last_month.r")
 source("consolidate/funding_tracker/run_funding_tracker.r")
 
 last_month_env <- run_last_month()
 funding_tracker_env <- run_funding_tracker()
+=======
+# Data Checks
+source("eda/data_checks/run_check.r")
+eda_data_checks_env <- run_check(.GlobalEnv$refresh_date, 
+                                 eda_sov_env$a_data, 
+                                 eda_last_month_env$a_data_lm_change,
+                                 adm_cov_env$d_absorption,
+                                 adm_cov_env$combined,
+                                 adm_cov_env$d_absorption_country_new,
+                                 eda_adm_cov_env$timeseries,
+                                 adm_cov_env$b_vxrate_pub,
+                                 supply_env$supply_received_by_product,
+                                 one_budget_tracker_env$base_one_budget_tracker,
+                                 one_budget_tracker_env$base_one_budget_cds)
+>>>>>>> Stashed changes
 
 # EXPORT
 
@@ -168,6 +194,7 @@ all_df <- list(
     "8_cov_com_60p_csc" = consolidate_env$e_cov_com_60p_csc,
     "8_ndvp_tar_cat" = consolidate_env$e_ndvp_all,
     "9_values" = consolidate_env$z_values,
+<<<<<<< Updated upstream
     # "1_funding_long" = finance_env$b_fin_fund_del_long,
     # "1_funding_urgent" = finance_env$base_fin_urg_fun_sum,
     # "1_fund_urg_long" = finance_env$base_fin_urg_fun_long,
@@ -179,6 +206,16 @@ all_df <- list(
 
   write_xlsx(all_df, "data/output/230412_output_powerbi.xlsx")
   write_xlsx(financing_env$api, "data/output/230412_output_api.xlsx")
+=======
+    "1_fund_one_budget_tracker" = one_budget_tracker_env$base_one_budget_tracker,
+    "1_fund_one_budget_cds" = one_budget_tracker_env$base_one_budget_cds,
+    "1_fund_requests" = one_budget_tracker_env$base_requests,
+    "0_output_master_checks" = eda_data_checks_env$output_master_checks
+)
+
+  write_xlsx(all_df, "data/output/230508_output_powerbi.xlsx")
+  write_xlsx(eda_finance_env$api, "data/output/230508_output_api.xlsx")
+>>>>>>> Stashed changes
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")

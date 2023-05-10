@@ -56,6 +56,7 @@ target_old <- target_old %>%
       is.na(N_VACC_LAST_DOSE) == FALSE & N_VACC_LAST_DOSE != 0,
       "Reporting",
       NA_character_
+<<<<<<< Updated upstream
     ))
 
 # Change field type
@@ -95,4 +96,54 @@ target_hcwold <- target_hcwold %>%
 print(" > Done.")
 return(target_hcwold)
 
+=======
+    )
+    )
+  
+  print(" >> Formatting date variable...")
+  target_old$DATE <-
+    as.Date(paste0(as.character(target_old$DATE), '-01'), format = '%Y-%m-%d')
+  
+  print(" >> Filtering for countries reporting on older adults...")
+  target_old <- filter(target_old, old_repstat == "Reporting")
+  
+  print(" >> Calculating maximum entry per ISO and DATE for doses...")
+  target_old <- target_old %>%
+    group_by(ISO_3_CODE, DATE) %>%
+    top_n(1, N_VACC_LAST_DOSE)
+  
+  print(" >> Selecting relevant columns...")
+  target_old <- target_old %>%
+    select(ISO_3_CODE,
+           DATE,
+           N_VACC_DOSE1,
+           N_VACC_LAST_DOSE,
+           N_VACC_BOOSTER_DOSE
+    )
+  
+  print(" >> Renaming columns...")
+  colnames(target_old) <- c(
+    "ISO_3_CODE",
+    "DATE",
+    "N_VACC_DOSE1_old",
+    "N_VACC_LAST_DOSE_old",
+    "N_VACC_BOOSTER_DOSE_old"
+  )
+  
+  print(" >> Joining healthcare workers and older adults target group data...")
+  target_hcwold <- full_join(target_hcw, 
+                             target_old, 
+                             by = c("ISO_3_CODE" = "ISO_3_CODE","DATE" = "DATE"))
+  
+  target_hcwold <- target_hcwold %>%
+    mutate(adm_date_month = if_else(year(DATE) == 2022, 
+                                    as.numeric(month(DATE) + 12),
+                                    if_else(year(DATE) == 2023, 
+                                            as.numeric(month(DATE) + 24),
+                                            as.numeric(month(DATE)))))
+  print(" > Done.")
+  
+  print(" >> Function 'create_hrg_timeseries' done")  
+  return(target_hcwold)
+>>>>>>> Stashed changes
 }
