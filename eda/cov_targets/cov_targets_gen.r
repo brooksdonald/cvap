@@ -75,9 +75,9 @@ booster_doses <- function(a_data) {
       )
     )
   
-  breaks <- c(-Inf, 0, .01, .05, .1, Inf)
-  tags <- c("0) Not reporting", "1) 0-0.9%", "2) 1-4.9%", 
-            "3) 5-9.9%", "4) >10%")
+  breaks <- c(-Inf, 0, .05, .1, Inf)
+  tags <- c("0) Not reporting", "1) 0-4.9%", 
+            "2) 5-9.9%", "3) >10%")
   a_data$cov_total_booster_cat <- cut(
     a_data$cov_total_booster,
     breaks = breaks,

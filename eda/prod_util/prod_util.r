@@ -42,8 +42,8 @@ analyse_prod_util <- function(a_data, refresh_date) {
     mutate(pu_used_per = 1 - pu_del_rem_prop)
   
   print(" >> Assigning percent utilization categories...")
-  breaks <- c(0, 0.25, 0.5, 0.75, 1)
-  tags <- c("0) <25%", "1) 25-49%", "2) 50-74%", "3) 75-100%")
+  breaks <- c(0, 0.5, 0.75, 1)
+  tags <- c("1) 0-49%", "2) 50-74%", "3) 75-100%")
   a_data$pu_used_per_cat <- cut(a_data$pu_used_per,
                                 breaks = breaks,
                                 include.lowest = TRUE,

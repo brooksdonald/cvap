@@ -1,5 +1,5 @@
 
-run_sov <- function(a_data) {
+run_eda_sov <- function(a_data) {
   source("eda/sov/sov.r")
   print(" > Starting local environment for sov base data fixes module...")
 

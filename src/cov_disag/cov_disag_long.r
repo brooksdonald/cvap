@@ -91,7 +91,9 @@ create_hrg_timeseries <- function(headers, refresh_api) {
   target_hcwold <- target_hcwold %>%
     mutate(adm_date_month = if_else(year(DATE) == 2022, 
                                     as.numeric(month(DATE) + 12),
-                                    as.numeric(month(DATE))))
+                                    if_else(year(DATE) == 2023, 
+                                            as.numeric(month(DATE) + 24),
+                                            as.numeric(month(DATE)))))
   print(" > Done.")
   
   print(" >> Function 'create_hrg_timeseries' done")  

@@ -15,7 +15,9 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
     mutate(month_name = as.Date(paste0(as.character(month_name), '-01'), format = '%Y-%m-%d')) %>%
     mutate(adm_date_month = if_else(year(month_name) == 2022, 
                                     as.numeric(month(month_name) + 12),
-                                    as.numeric(month(month_name)))) %>%
+                                    if_else(year(month_name) == 2023, 
+                                            as.numeric(month(month_name) + 24),
+                                            as.numeric(month(month_name))))) %>%
     mutate(cov_total_fv = adm_fv / a_pop,
            cov_total_a1d = adm_a1d / a_pop,
            cov_total_booster = adm_booster / a_pop)

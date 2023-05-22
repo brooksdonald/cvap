@@ -61,6 +61,7 @@ load_base_adhoc <- function() {
     "a_iso",
     "a_who_region",
     "a_csc_status",
+    "a_ivb_status",
     "ndvp_mid_target",
     "ndvp_mid_deadline",
     "ndvp_mid_rep_rate",

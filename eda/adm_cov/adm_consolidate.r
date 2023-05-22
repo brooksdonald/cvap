@@ -264,9 +264,8 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
 
   # Assign coverage category for current and lw
   print(" >>> Assigning coverage category for current and lw...")
-  breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 0.7, Inf)
-  tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%",
-    "4) 20-40%", "5) 40-70%", "6) 70%+")
+  breaks <- c(0, 0.2, 0.4, 0.7, Inf)
+  tags <- c("1) 0-20%", "2) 20-40%", "3) 40-70%", "4) 70%+")
   a_data$cov_total_fv_cat <- cut(
     a_data$cov_total_fv,
     breaks = breaks,
@@ -275,9 +274,8 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     labels = tags
   )
 
-  breaks <- c(0, 0.01, 0.1, 0.2, 0.4, 0.7, Inf)
-  tags <- c("1) 0-1%", "2) 1-10%", "3) 10-20%",
-    "4) 20-40%", "5) 40-70%", "6) 70%+")
+  breaks <- c(0, 0.2, 0.4, 0.7, Inf)
+  tags <- c("1) 0-20%", "2) 20-40%", "3) 40-70%", "4) 70%+")
   a_data$cov_total_fv_lw_cat <- cut(
     a_data$cov_total_fv_lw,
     breaks = breaks,
@@ -526,16 +524,16 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
 
   a_data$cov_hcw_fv_cat <- cut(
     a_data$cov_hcw_fv,
-    breaks = c(-Inf, 0.1, 0.2, 0.4, 0.7, Inf),
-    labels = c("1) 0-10%", "2) 10-20%", "3) 20-40%", "4) 40-70%", "5) 70%+"),
+    breaks = c(-Inf, 0.2, 0.4, 0.7, Inf),
+    labels = c("1) 0-20%", "2) 20-40%", "3) 40-70%", "4) 70%+"),
     include.lowest = TRUE,
     right = FALSE
   )
 
   a_data$cov_60p_fv_cat <- cut(
     a_data$cov_60p_fv,
-    breaks = c(-Inf, 0.1, 0.2, 0.4, 0.7, Inf),
-    labels = c("1) 0-10%", "2) 10-20%", "3) 20-40%", "4) 40-70%", "5) 70%+"),
+    breaks = c(-Inf, 0.2, 0.4, 0.7, Inf),
+    labels = c("1) 0-20%", "2) 20-40%", "3) 40-70%", "4) 70%+"),
     include.lowest = TRUE,
     right = FALSE
   )
