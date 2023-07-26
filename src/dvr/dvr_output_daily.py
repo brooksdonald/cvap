@@ -1,21 +1,64 @@
+from datetime import date
 import datetime
 from doctest import DocFileSuite
 import pandas as pd
 import os
 
-def import_data():
+def import_data(cleaned_data, refresh_api):
+    # Get Data
+    print(" > Getting ISO mapping...")
+    iso_mapping = pd.read_excel("data/input/static/base_entitydetails.xlsx")
+    iso_mapping.rename(
+        {'NAMEWORKEN': 'country_name', 'CODE': 'iso_code'},
+        axis = 1, 
+        inplace = True)
+    iso_mapping = iso_mapping[['country_name', 'iso_code']]
+    print(" > Done.")
+
+    # get dose administration data for comparison
+    print(" > Getting dose administration data for comparison...")
+    link = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv'
+    folder = "data/input/interim"
+    storage_name = folder + "/" + link.split('/')[-1]
+    if refresh_api | (not os.path.exists(storage_name)):
+        print(" > Downloading data from owid API...")
+        owid = pd.read_csv(link)
+        if not os.path.exists(folder):
+            print(" > Creating a new folder " + folder + "/...")
+            os.makedirs(folder)
+        print(" > Saving API data to " + folder + "...")
+        owid.to_csv(storage_name, index = False)
+    else:
+        print(" > Old API data is used from " + folder + "/...")
+        owid = pd.read_csv(storage_name)
+    print(" > Done.")
+
+    # get primary data
+    print(" > Getting throughput cleaned data...")
+    #who = pd.read_csv('data/input/supply_data/analysis_vx_throughput_data_cleaned.csv')
+    who = cleaned_data
+    print(" > Done.")
 
     # get country characteristics
     print(" > Getting country characteristics...")
+    # cc = pd.read_csv("data/input/static/country_characteristics.csv")
     cc = pd.read_excel("data/input/static/base_population_who.xlsx")
     print(" > Done.")
 
     print(" > Getting country dimensions...")
-    country = pd.read_excel('data/input/static/base_adhoc.xlsx', sheet_name = 'data')
-    country = country[['iso', 'country_name_friendly', 'region_name', 'min_vx_rollout_date']] \
-        .rename(columns={'iso': 'iso_code'})
+    country_dimension = pd.read_csv("data/input/static/country_dimension.csv")
+    country = country_dimension[['iso_code', 'country_name_friendly',
+        'wb_income_group', 'is_amc92', 'affiliation', 'min_vx_rollout_date', 'first_covax_arrival_date',
+        'first_vx_shipment_received_date']]
 
-    return cc, country
+    # Transformation
+    print(" > Owid transformation...")
+    owid1 = owid[['iso_code', 'date', 'total_vaccinations']]
+    owid1.columns = ['iso_code', 'date', 'total_doses_owid']
+    owid1 = pd.DataFrame(owid1)
+    print(" > Done.")
+
+    return who, iso_mapping, cc, country, owid1
 
 
 def flags(who):
@@ -34,7 +77,7 @@ def merge_who_country(who, country):
 def filter_data(df1):
     print(' > Filter data...')
     df1 = df1.loc[~(df1['country_name_friendly'].isna()), :]
-    df1['min_vx_rollout_date'] = pd.to_datetime(df1['min_vx_rollout_date'], format = '%Y-%m-%d')
+    df1['min_vx_rollout_date'] = pd.to_datetime(df1['min_vx_rollout_date'], format = '%d/%m/%Y')
     min_date = df1.groupby('iso_code')['date'].min().reset_index()
     min_date.rename(columns = {'date': 'min_date'}, inplace = True)
     df1 = df1.merge(min_date, on = 'iso_code', how = 'left')
@@ -89,7 +132,7 @@ def interpolate_data(df_inter):
     df_inter['fully_vaccinated_int'] = df_inter['fully_vaccinated']
     df_inter['persons_booster_add_dose_int'] = df_inter['persons_booster_add_dose']
 
-    def interpolate_measures(df):
+    def interpolate_measures(df): # consider moving outside of the function
         df.sort_values(by=['iso_code', 'date'], ascending=True, inplace=True)
         df['total_doses_int'] = \
             df['total_doses_int'].interpolate(method='linear', limit_direction='forward')
@@ -143,48 +186,7 @@ def anti_join(before, after):
     return anti_join
 
 
-def check_last_update(plot_weekly):
-    '''
-    Checks if plots have been exported in the last 7 days.
-    Function also exists in src/dvr/dvr_output_daily.py. Make sure to keep consistent.
-    '''
-    print(" > Check if plots need to be saved...")
-
-    file_path = 'data/cleaning_log/last_time_plots_were_updated.txt'
-    
-    if os.path.isfile(file_path):
-        # File exists, read in its contents
-        with open(file_path, 'r') as f:
-            file_contents = f.read().strip()
-            
-        if file_contents:
-            # File contains a date, check if it's within the last 6 days
-            file_date = datetime.datetime.strptime(file_contents, '%Y-%m-%d')
-        else:
-            # File does not contain a date, set file_date to None
-            file_date = None
-    else:
-        # File does not exist, set file_date to None
-        file_date = None
-    
-    six_days_ago = datetime.datetime.now() - datetime.timedelta(days=6)
-    
-    if file_date and file_date >= six_days_ago and plot_weekly:
-        # Date is within the last 6 days, return False
-        print(" > Plots were last exported on", file_date)
-        print(" > Plots will not be exported to reduce run time.")
-        return False
-    
-    # Create a new file with today's date
-    with open(file_path, 'w') as f:
-        print(" > Plots will be exported to data/cleaning_log. Runtime is somewhat slower.")
-        f.write(datetime.datetime.now().strftime('%Y-%m-%d'))
-        
-    # Return True since we created a new file
-    return True
-
-
-def cleaning_data(df, plot_function, var_to_clean, export_plots):
+def cleaning_data(df, plot_function, var_to_clean):
     '''
     This function checks for logical errors between total doses, at least one dose, and fully vaccinated.
     Priority is given to total doses (which is not edited), then fully vaccinated, then at least one dose.
@@ -211,9 +213,8 @@ def cleaning_data(df, plot_function, var_to_clean, export_plots):
         printing_log(country, country_name, len(fixes.loc[fixes['iso_code'] == country, :]))
         after_clean_fv['to_delete_automized_clean'] = 0
         before_clean_fv['to_delete_automized_clean'] = 0
-        if export_plots:
-            plot_function(after_clean_fv, before_clean_fv, country, fixes,
-                var_to_clean, var_to_clean + '/logical_cleaning')
+        plot_function(after_clean_fv, before_clean_fv, country, fixes,
+            var_to_clean, var_to_clean + '/logical_cleaning')
     fixes = fixes[['iso_code', 'date', var_to_clean]]
     fixes.to_csv('data/cleaning_log/' + var_to_clean + '/logical_cleaning/logged_changes.csv', index = False)
     return df
@@ -228,11 +229,10 @@ def moving_averages_td(df4, days_in_weeks4, days_in_weeks8):
     df5.drop('prev_total', axis = 1, inplace = True)
 
     print(' > Calculating moving averages...')
-    # df5['hours'] = '00.00.00'
-    df5['DateTime'] = df5['date'].astype(str)
-    # .str.cat(df5['hours'], sep = " ") 
-    # df5.drop("hours", axis = 1, inplace = True)
-    df5.DateTime = df5.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H:%M:%S.000%f'))
+    df5['hours'] = '00.00.00'
+    df5['DateTime'] = df5['date'].astype(str).str.cat(df5['hours'], sep = " ") 
+    df5.drop("hours", axis = 1, inplace = True)
+    df5.DateTime = df5.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H.%M.%S'))
     df5.index = df5.DateTime
     df5.sort_index(inplace = True)
 
@@ -283,11 +283,10 @@ def moving_averages_1d(df5, days_in_weeks4, days_in_weeks8):
     df6.drop('prev_total', axis = 1, inplace = True)
 
     print(' > Calculating moving averages...')
-    # df6['hours'] = '00.00.00'
-    df6['DateTime'] = df6['date'].astype(str)
-    # .str.cat(df6['hours'], sep = " ") 
-    # df6.drop("hours", axis = 1, inplace = True)
-    df6.DateTime = df6.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H:%M:%S.000%f'))
+    df6['hours'] = '00.00.00'
+    df6['DateTime'] = df6['date'].astype(str).str.cat(df6['hours'], sep = " ") 
+    df6.drop("hours", axis = 1, inplace = True)
+    df6.DateTime = df6.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H.%M.%S'))
     df6.index = df6.DateTime
     df6.sort_index(inplace = True)
 
@@ -340,11 +339,10 @@ def moving_averages_fv(df6, days_in_weeks4, days_in_weeks8):
     df7.drop('prev_total', axis = 1, inplace = True)
 
     print(' > Calculating moving averages...')
-    # df7['hours'] = '00.00.00'
-    df7['DateTime'] = df7['date'].astype(str)
-    # .str.cat(df7['hours'], sep = " ") 
-    # df7.drop("hours", axis = 1, inplace = True)
-    df7.DateTime = df7.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H:%M:%S.000%f'))
+    df7['hours'] = '00.00.00'
+    df7['DateTime'] = df7['date'].astype(str).str.cat(df7['hours'], sep = " ") 
+    df7.drop("hours", axis = 1, inplace = True)
+    df7.DateTime = df7.DateTime.apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d %H.%M.%S'))
     df7.index = df7.DateTime
     df7.sort_index(inplace = True)
 
@@ -390,12 +388,21 @@ def moving_averages_fv(df6, days_in_weeks4, days_in_weeks8):
     return df8
 
 
-def join_with_cc_and_owid(df8, cc): #, owid1):
+def join_with_cc_and_owid(df8, cc, owid1):
     print(' > merging data with cc and owid1...')
     cc.rename(columns = {'iso': 'iso_code', 'value': 'population', 'name': 'entity_name'}, inplace = True)
     cc['population'] = cc['population'].astype(float)
     df9 = df8.merge(cc, on = 'iso_code', how = 'inner')
     df9['date'] = df9['date'].astype(str)
+
+    print(" > Merge with owid data and interpolate")
+    def interpolate_owid(df):
+        df.sort_values(by=['iso_code', 'date'], ascending=True, inplace=True)
+        df['total_doses_owid'] = df['total_doses_owid'].interpolate(method='linear', limit_direction='forward')
+        return df
+
+    df9 = df9.merge(owid1, on = ['iso_code', 'date'], how = 'left')
+    df9 = df9.groupby('iso_code').apply(interpolate_owid)
     df9['rolling_4_week_avg_td_per100'] = 100 * df9['rolling_4_week_avg_td'] / df9['population'] #data from cc is used. Ambigious reference!
     df9['rolling_8_week_avg_td_per100'] = 100 * df9['rolling_8_week_avg_td'] / df9['population'] 
     df9['max_rolling_4_week_avg_td_per100'] = 100 * df9['max_rolling_4_week_avg_td'] / df9['population'] 
@@ -405,7 +412,7 @@ def join_with_cc_and_owid(df8, cc): #, owid1):
 def identifying_missing_countries(df9, df_flags):
     print(' > Identifying countries that have not reported last week...')
     df_date_week = df9.loc[(df9['is_original_reported'] == 1), ['iso_code', 'date', 'total_doses']]
-    df_date_week['date'] = pd.to_datetime(df_date_week['date'])
+    df_date_week['date'] = pd.to_datetime(df_date_week['date']) #, format = '%Y-%m-%d')
     df_date_week['date_week'] = df_date_week['date'] + pd.to_timedelta(-1, unit = 'D') + \
         pd.to_timedelta( (4 - df_date_week['date'].dt.dayofweek) % 7 , unit = 'D')
     df_date_week.drop_duplicates(inplace = True)
@@ -450,7 +457,7 @@ def adding_flags_for_changes(df10):
 
 def final_variable_selection(df11, who, auto_cleaning):
     print(' > Creating final dataframe...')
-    final_columns = ['iso_code', 'entity_name', 'population', 'date', 'is_original_reported', #'total_doses_owid',
+    final_columns = ['iso_code', 'entity_name', 'population', 'date', 'is_original_reported', 'total_doses_owid',
                 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose', 'daily_rate_td', 
                 'rolling_4_week_avg_td', 'max_rolling_4_week_avg_td', 'med_rolling_4_week_avg_td', 
                 'rolling_4_week_avg_td_lastweek', 'rolling_4_week_avg_td_lastmonth', 'rolling_8_week_avg_td', 
@@ -466,25 +473,24 @@ def final_variable_selection(df11, who, auto_cleaning):
     return df12
 
 
-def main(who, auto_cleaning, plot_function, plot_weekly):
+def main(cleaned_data, refresh_api, auto_cleaning, plot_function):
     days_in_weeks4 = 27
     days_in_weeks8 = 55
 
-    cc, country = import_data()
+    who, iso_mapping, cc, country, owid1 = import_data(cleaned_data, refresh_api)
     df_flags = flags(who)
     df1 = merge_who_country(who, country)
     df1 = filter_data(df1)
     df_inter = exploding_dates(df1)
     df_inter = interpolate_data(df_inter)
     df3 = minimum_rollout_date(df_inter, country)
-    export_plots = check_last_update(plot_weekly)
     if auto_cleaning:
-        df3 = cleaning_data(df3, plot_function, "fully_vaccinated", export_plots)
-        df3 = cleaning_data(df3, plot_function, "at_least_one_dose", export_plots)
+        df3 = cleaning_data(df3, plot_function, "fully_vaccinated")
+        df3 = cleaning_data(df3, plot_function, "at_least_one_dose")
     df5 = moving_averages_td(df3, days_in_weeks4, days_in_weeks8)
     df6 = moving_averages_1d(df5, days_in_weeks4, days_in_weeks8)
     df8 = moving_averages_fv(df6, days_in_weeks4, days_in_weeks8)
-    df9 = join_with_cc_and_owid(df8, cc)
+    df9 = join_with_cc_and_owid(df8, cc, owid1)
     df10 = identifying_missing_countries(df9, df_flags)
     df11 = adding_flags_for_changes(df10)
     output = final_variable_selection(df11, who, auto_cleaning)

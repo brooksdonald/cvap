@@ -1,6 +1,6 @@
 # Product utilization
 
-dose_utilization <- function(a_data, refresh_date) {
+dose_utilization <- function(a_data, date_refresh) {
     ## Calculate remaining doses, absolute and % pop.
     print(" >>> Computing remaining doses, absolute and % pop...")
     a_data <- a_data %>%
@@ -34,7 +34,7 @@ dose_utilization <- function(a_data, refresh_date) {
             NA_real_,
             pu_del_rem / dvr_4wk_td)) %>%
         mutate(pu_del_rem_timeto_date =
-            as.Date(refresh_date + pu_del_rem_timeto))
+            as.Date(date_refresh + pu_del_rem_timeto))
 
     ## Calculate percent of doses received utilized
     print(" >>> Computing percent of doses received utilized...")
@@ -79,7 +79,7 @@ supply_pending <- function(a_data) {
     return(a_data)
 }
 
-course_sufficiency <- function(a_data, refresh_date) {
+course_sufficiency <- function(a_data, date_refresh) {
     # Calculate if courses secured, received, and administered sufficient to reach targets
     print(" >>> Computing if courses received & administered sufficient to reach targets...")
     a_data <- a_data %>%

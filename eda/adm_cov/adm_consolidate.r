@@ -1,74 +1,74 @@
-
-extract_vxrate_details <- function(c_vxrate_latest) {
-  print(" >> Remove duplicative base details from latest vxrate summary...")
-  c_vxrate_latest_red <-
-    select(
-      c_vxrate_latest, -c(
-        "a_continent",
-        "a_who_region",
-        "a_income_group",
-        "a_covax_status",
-        "a_unicef_region",
-        "a_name_short",
-        "a_name_long",
-        "a_who_subregion",
-        "a_who_status",
-        "a_csc_status",
-        "a_ifc_status",
-        "a_gavi_status",
-        "a_continent_sub",
-        "ndvp_mid_target",
-        "ndvp_mid_deadline",
-        "ndvp_mid_rep_rate",
-        "jj_policy",
-        "older_def",
-        "older_source",
-        "a_pop",
-        "a_income_group_vis",
-        "expiry_risk",
-        "ss_target",
-        "ss_deadline",
-        "country_source",
-        "a_pop_hcw",
-        "date_13jan",
-        "a_pop",
-        "desk_officer",
-        "booster_policy",
-        "date",
-        "adm_target_hcw_wpro",
-        "ri_dtp1",
-        "ri_dtp3",
-        "ri_mcv1",
-        "ri_mcv2",
-        "ri_zero_dose"
-      )
-    )
-
-    return(c_vxrate_latest_red)
-}
+# 
+# extract_vxrate_details <- function(adm_dvr_latest) {
+#   print(" >> Remove duplicative base details from latest vxrate summary...")
+#   c_vxrate_latest_red <-
+#     select(
+#       c_vxrate_latest, -c(
+#         "a_continent",
+#         "a_region_who",
+#         "a_income_group",
+#         "a_status_covax",
+#         "a_region_unicef",
+#         "a_name_short",
+#         "a_name_long",
+#         "a_region_sub_who",
+#         "a_status_who",
+#         "a_status_csc",
+#         "a_status_ivb",
+#         "a_status_gavi",
+#         "a_continent_sub",
+#         "pol_jj",
+#         "pol_old",
+#         "pol_old_source",
+#         "a_pop",
+#         "a_income_group_vis",
+#         "ss_target",
+#         "ss_deadline",
+#         "country_source",
+#         "date_13jan",
+#         "adm_tar_hcw_wpro",
+#         "a_pop_hcw",
+#         "a_pop",
+#         "pol_boost",
+#         "ri_dtp1",
+#         "ri_dtp3",
+#         "ri_mcv1",
+#         "ri_mcv2",
+#         "ri_zero_dose",
+#         "a_pop_comorb_increased_prop",
+#         "a_pop_comorb_high_prop",
+#         "a_pop_comorb_high_young_prop",
+#         "a_pop_comorb_high_older_prop",
+#         "min_vx_rollout_date",
+#         "a_income_group_ind"
+#       )
+#     )
+# 
+#     return(c_vxrate_latest_red)
+# }
 
 merge_dataframes <- function(
   entity_characteristics,
-  c_vxrate_latest_red,
-  population_data,
+  adm_dvr_latest,
+  population,
   uptake_gender_data,
-  b_who_dashboard,
-  delivery_courses_doses,
+  who_dashboard,
+  sup_rec,
   b_dp,
-  c_delivery_product,
+  sup_rec_jj,
   b_fin_fund_del_sum,
   population_pin
   ) {
     # Renaming iso columns to a_iso before merge
     df_list <- list(
       entity_characteristics,
-      c_vxrate_latest_red,
-      population_data,
+      adm_dvr_latest,
+      population,
       uptake_gender_data,
-      b_who_dashboard,
-      delivery_courses_doses,
+      who_dashboard,
+      sup_rec,
       b_dp,
-      c_delivery_product,
+      sup_rec_jj,
       b_fin_fund_del_sum,
       population_pin
     )
@@ -80,18 +80,17 @@ merge_dataframes <- function(
   return(as.data.frame(a_data))
 }
 
-transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
+transform_vxrate_merge <- function(a_data, date_refresh) {
   # Set static dates
   print(" >>> Setting static dates")
-  timeto_t70 <- as.numeric(t70_deadline - refresh_date)
-  a_data$a_refresh_date <- refresh_date
+  a_data$a_date_refresh <- date_refresh
 
   a_data <- a_data %>%
     mutate(
       adm_target_hcw = ifelse(
-        is.na(adm_target_hcw_wpro),
+        is.na(adm_tar_hcw_wpro),
         adm_target_hcw,
-        adm_target_hcw_wpro
+        adm_tar_hcw_wpro
       ))
   
   
@@ -107,7 +106,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   # Calculate introduction status
   print(" >>> Computing introduction status...")
   a_data <- a_data %>%
-    mutate(intro_status = if_else(
+    mutate(adm_status_intro = if_else(
       is.na(adm_td) | adm_td == 0,
       "No product introduced",
       "Product introduced"
@@ -115,8 +114,8 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   )
 
   a_data <- a_data %>%
-    mutate(csc_status_numb = if_else(
-      a_csc_status == "Concerted support country",
+    mutate(a_status_csc_numb = if_else(
+      a_status_csc == "Concerted support country",
       1,
       NA_real_))
 
@@ -138,8 +137,7 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     mutate(a_pop_10 = a_pop * 0.1) %>%
     mutate(a_pop_20 = a_pop * 0.2) %>%
     mutate(a_pop_40 = a_pop * 0.4) %>%
-    mutate(a_pop_70 = a_pop * 0.7) %>%
-    mutate(date = as.Date(date))
+    mutate(a_pop_70 = a_pop * 0.7)
   
   # Calculate population proportions
   print(" >>> Computing population proportions...")
@@ -154,14 +152,14 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   # Prepare older population value
   a_data <- a_data %>%
     mutate(a_pop_older = if_else(
-      is.na(older_def), a_pop_60p,
-      if_else(older_def == "45 and older", a_pop_45p,
-      if_else(older_def == "50 and older", a_pop_50p,
-              if_else(older_def == "55 and older", a_pop_55p,
-                      if_else(older_def == "60 and older", a_pop_60p,
-                              if_else(older_def == "65 and older", a_pop_65p,
-                                      if_else(older_def == "70 and older", a_pop_70p,
-                                              if_else(older_def == "75 and older", a_pop_75p,
+      is.na(pol_old), a_pop_60p,
+      if_else(pol_old == "45 and older", a_pop_45p,
+      if_else(pol_old == "50 and older", a_pop_50p,
+              if_else(pol_old == "55 and older", a_pop_55p,
+                      if_else(pol_old == "60 and older", a_pop_60p,
+                              if_else(pol_old == "65 and older", a_pop_65p,
+                                      if_else(pol_old == "70 and older", a_pop_70p,
+                                              if_else(pol_old == "75 and older", a_pop_75p,
                                       a_pop_60p))
               )
       )
@@ -286,12 +284,12 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     labels = tags
   )
 
-  # Calculate linear population coverage projection by 30 June 2022
-  print(" >>> Computing linear population coverage projection by 30 June 2022...")
-  a_data <- a_data %>%
-    mutate(cov_total_fv_atpace_31dec = pmin(
-      1,
-      (adm_fv_homo + (dvr_4wk_fv * timeto_t70)) / a_pop))
+  # # Calculate linear population coverage projection by 30 June 2022
+  # print(" >>> Computing linear population coverage projection by 30 June 2022...")
+  # a_data <- a_data %>%
+  #   mutate(cov_total_fv_atpace_31dec = pmin(
+  #     1,
+  #     (adm_fv_homo + (dvr_4wk_fv * timeto_t70)) / a_pop))
 
 
   # Indicator reporting status for target group-specific uptake data
@@ -631,102 +629,11 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
   
   # Categorize comparison of coverage between HCWs and total for CSC countries
   a_data$cov_total_hcw_com_csc <- gsub("AMC participants", "CSC countries", a_data$cov_total_hcw_com)
-  a_data$cov_total_hcw_com_csc[a_data$a_csc_status != "Concerted support country" ] <- NA  
+  a_data$cov_total_hcw_com_csc[a_data$a_status_csc != "Concerted support country" ] <- NA  
   
   # Categorize comparison of coverage between 60 plus and total for CSC countries
   a_data$cov_total_60p_com_csc <- gsub("AMC participants", "CSC countries", a_data$cov_total_60p_com)
-  a_data$cov_total_60p_com_csc[a_data$a_csc_status != "Concerted support country" ] <- NA  
-  
-  
-  
-  
-  
-  
-  
-  # Assign coverage category for current and lw
-  print(" >>> Assigning coverage category for current and lw...")
-  breaks <- c(0, 0.2, 0.3, Inf)
-  tags <- c("1) Less than 20%", "2) 20-30%", "3) Greater than 30%")
-  a_data$cov_total_fv_cat_ce <- cut(
-    a_data$cov_total_fv,
-    breaks = breaks,
-    include.lowest = TRUE,
-    right = FALSE,
-    labels = tags
-  )
-  
-  a_data <- a_data %>%
-    mutate(direction_forward_ce = if_else(
-      cov_total_fv < .2,
-      "Focus on general population",
-      if_else(adm_booster_homo / a_pop <.05,
-              "Focus on boosters",
-              if_else(cov_total_fv > cov_hcw_fv & cov_total_fv > cov_60p_fv,
-                      "Focus on risk groups",
-                      ""
-              )
-        
-      )))
-
-#     
-#   
-#   cov_total_fv < .2
-#   
-#   cov_hcw_fv < cov_total_fv
-#   
-#   cov_60p_fv < cov_total_fv
-#   
-#   
-#   Create a brief synthetic sentence per country that indicates “direction forward” based on data
-#   If country below 20, focus on general, and political advocacy likely necessary
-#   If general is above HCWs/older adults, focus on risk groups
-#   If country is above 30, but booster is low or 0, focus on boosting
-#   Etc.
-#   
-#   
-# 
-  
-  
-  
-  #   
-  # # Categorize comparison of coverage between HCWs and total
-  # breaks <- c(-Inf, 0, Inf)
-  # tags <- c("CSC countries with complete primary series coverage of healthcare workers lesser than total", "CSC countries with complete primary series coverage of healthcare workers greater than total")
-  # a_data$cov_total_hcw_com_csc <- cut(
-  #   a_data$cov_total_hcw_diff,
-  #   breaks = breaks,
-  #   labels = tags,
-  #   include.lowest = FALSE,
-  #   right = TRUE
-  # )
-  # 
-  # a_data <- a_data %>%
-  #   mutate(
-  #     cov_total_hcw_com_csc = ifelse(
-  #       a_csc_status == "Concerted support country",
-  #       cov_total_hcw_com_csc,
-  #       NA
-  #     ))  
-  # 
-  # # Categorize comparison of coverage between 60 plus and total
-  # breaks <- c(-Inf, 0, Inf)
-  # tags <- c("CSC countries with complete primary series coverage of older adults lesser than total", "CSC countries with complete primary series coverage of older adults greater than total")
-  # a_data$cov_total_60p_com_csc <- cut(
-  #   a_data$cov_total_60p_diff,
-  #   breaks = breaks,
-  #   labels = tags,
-  #   include.lowest = FALSE,
-  #   right = TRUE
-  # )  
-  # 
-  # a_data <- a_data %>%
-  #   mutate(
-  #     cov_total_60p_com_csc = ifelse(
-  #       a_csc_status == "Concerted support country",
-  #       cov_total_60p_com_csc,
-  #       NA
-  #     ))  
-  # 
+  a_data$cov_total_60p_com_csc[a_data$a_status_csc != "Concerted support country" ] <- NA  
 
   breaks <- c(-Inf, -0.25, 0.25, Inf)
   tags <- c("Downward", "Stable", "Upward")
@@ -746,7 +653,6 @@ transform_vxrate_merge <- function(a_data, refresh_date, t70_deadline) {
     mutate(adm_td_adj  = adm_td / a_pop)
 
 
-  datalist <- list("a_data" = a_data,
-    "timeto_t70" = timeto_t70)
+  datalist <- list("a_data" = a_data)
   return(datalist)
 }

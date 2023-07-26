@@ -56,7 +56,6 @@ target_old <- target_old %>%
       is.na(N_VACC_LAST_DOSE) == FALSE & N_VACC_LAST_DOSE != 0,
       "Reporting",
       NA_character_
-<<<<<<< Updated upstream
     ))
 
 # Change field type
@@ -92,13 +91,11 @@ target_hcwold <- full_join(target_hcw, target_old, by = c("ISO_3_CODE" = "ISO_3_
 target_hcwold <- target_hcwold %>%
   mutate(adm_date_month = if_else(year(DATE) == 2022, 
                                   as.numeric(month(DATE) + 12),
-                                  as.numeric(month(DATE))))
+                                  if_else(year(DATE) == 2023, 
+                                          as.numeric(month(DATE) + 24),
+                                          as.numeric(month(DATE)))))
 print(" > Done.")
 return(target_hcwold)
-
-=======
-    )
-    )
   
   print(" >> Formatting date variable...")
   target_old$DATE <-
@@ -145,5 +142,4 @@ return(target_hcwold)
   
   print(" >> Function 'create_hrg_timeseries' done")  
   return(target_hcwold)
->>>>>>> Stashed changes
 }

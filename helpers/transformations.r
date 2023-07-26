@@ -32,7 +32,7 @@ helper_add_char_to_list <- function(l, char = "Y") {
     return(sprintf(paste0(char, "%s"), l))
 }
 
-helper_goal_target_groups <- function(a_data, group, timeto_t70, deadline_suffix) {
+helper_goal_target_groups <- function(a_data, group) {
     a_pop_var <- paste0("a_pop_", group)
     appendix <- if (group == 10 | group == "10") {
         "sep"
@@ -43,38 +43,38 @@ helper_goal_target_groups <- function(a_data, group, timeto_t70, deadline_suffix
             "dec"
         }
     }
-    txx_rate_needed <- paste0("t", group, "_rate_needed", deadline_suffix)
-    a_data <- a_data %>%
-        mutate(!!as.name(paste0("t", group, "_timeto")) := round(if_else(
-            is.infinite(((adm_pv + (((!!as.name(paste0("a_pop_", group)))
-                - adm_pv - adm_fv_homo) * 2)) /
-                dvr_4wk_td)) &
-                ((adm_pv + ((!!as.name(paste0("a_pop_", group))
-                    - adm_pv - adm_fv_homo) * 2)) /
-                dvr_4wk_td > 0),
-            NA_real_,
-            pmax((adm_pv + ((!!as.name(paste0("a_pop_", group)) -
-                    adm_pv - adm_fv_homo) * 2)) /
-                    dvr_4wk_td,
-                0))))
-    a_data <- a_data %>%
-        mutate(
-            !!as.name(paste0("t", group, "_rate_needed", deadline_suffix)) :=
-                pmax(((!!as.name(paste0("a_pop_", group)) -
-                    adm_fv_homo) / timeto_t70) * 2,
-            0))
-    a_data <- a_data %>%
-        mutate(
-            !!as.name(paste0("t", group, "_scaleup", deadline_suffix)) :=
-            if_else(
-                is.infinite(round(
-                    !!as.name(txx_rate_needed) /
-                        dvr_4wk_td,
-                    2)),
-                0,
-                round(!!as.name(txx_rate_needed) /
-                    dvr_4wk_td,
-                    2)))
+    # txx_rate_needed <- paste0("t", group, "_rate_needed", deadline_suffix)
+    # a_data <- a_data %>%
+    #     mutate(!!as.name(paste0("t", group, "_timeto")) := round(if_else(
+    #         is.infinite(((adm_pv + (((!!as.name(paste0("a_pop_", group)))
+    #             - adm_pv - adm_fv_homo) * 2)) /
+    #             dvr_4wk_td)) &
+    #             ((adm_pv + ((!!as.name(paste0("a_pop_", group))
+    #                 - adm_pv - adm_fv_homo) * 2)) /
+    #             dvr_4wk_td > 0),
+    #         NA_real_,
+    #         pmax((adm_pv + ((!!as.name(paste0("a_pop_", group)) -
+    #                 adm_pv - adm_fv_homo) * 2)) /
+    #                 dvr_4wk_td,
+    #             0))))
+    # a_data <- a_data %>%
+    #     mutate(
+    #         !!as.name(paste0("t", group, "_rate_needed", deadline_suffix)) :=
+    #             pmax(((!!as.name(paste0("a_pop_", group)) -
+    #                 adm_fv_homo) / timeto_t70) * 2,
+    #         0))
+    # a_data <- a_data %>%
+    #     mutate(
+    #         !!as.name(paste0("t", group, "_scaleup", deadline_suffix)) :=
+    #         if_else(
+    #             is.infinite(round(
+    #                 !!as.name(txx_rate_needed) /
+    #                     dvr_4wk_td,
+    #                 2)),
+    #             0,
+    #             round(!!as.name(txx_rate_needed) /
+    #                 dvr_4wk_td,
+    #                 2)))
     a_data <- a_data %>%
         mutate(!!as.name(paste0("t", group, "_status")) := if_else(
             !!as.name(paste0("t", group, "_goalmet_", appendix)) == "Yes" |
