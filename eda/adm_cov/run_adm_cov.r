@@ -1,14 +1,14 @@
 # rows 1723 - 1972
 
 run_eda_adm_cov <- function(
-    adm_dvr_latest,
+    c_vxrate_latest,
     entity_characteristics,
     population,
     uptake_gender_data,
     who_dashboard,
     sup_rec,
     b_dp,
-    sup_rec_dose_prod,
+    sup_rec_jj,
     b_fin_fund_del_sum,
     date_refresh,
     target_hcwold,
@@ -24,21 +24,21 @@ run_eda_adm_cov <- function(
     print(" > Starting local environment for vxrate...")
 
     print(" >  Extracting consolidated vxrate summary...")
-    # c_vxrate_latest_red <- extract_vxrate_details(c_vxrate_latest)
+    c_vxrate_latest_red <- extract_vxrate_details(c_vxrate_latest)
     print(" > Done.")
 
     print(" > Merging dataframes...")
     a_data <- merge_dataframes(
-        entity_env$entity_characteristics,
-        admcov_env$adm_dvr_latest,
-        entity_env$population,
-        cov_disag_env$uptake_gender_data,
-        add_data_env$who_dashboard,
-        supply_env$sup_rec,
-        demand_plan_env$b_dp,
-        supply_env$sup_rec_jj,
-        finance_env$b_fin_fund_del_sum,
-        pin_env$population_pin
+       entity_characteristics,
+        c_vxrate_latest_red,
+        population,
+        uptake_gender_data,
+        who_dashboard,
+        sup_rec,
+        b_dp,
+        sup_rec_jj,
+        b_fin_fund_del_sum,
+        population_pin
     )
     print(" > Done.")
 

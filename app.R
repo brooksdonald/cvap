@@ -31,11 +31,13 @@ lapply(lib, library, character.only = TRUE)
 # STATIC VARIABLES
 
 .GlobalEnv$date_refresh <- as.Date("2023-06-22")
+.GlobalEnv$refresh_date <- as.Date("2023-06-22")
 .GlobalEnv$date_del <- as.Date("2023-06-21")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
 .GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
-.GlobalEnv$refresh_timeseries <- FALSE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
+.GlobalEnv$refresh_timeseries <- TRUE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
+.GlobalEnv$refresh_supply_timeseries <- FALSE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
 
 # HELPERS
 
@@ -49,7 +51,7 @@ api_env <- run_api()
 source("src/dvr/run_dvr.r")
 source("src/entity_characteristics/run_entity_characteristics.r")
 source("src/supply/run_supply.r")
-source("src/admcov/run_admcov.r")
+source("src/adm_cov/run_adm_cov.r")
 source("src/cov_disag/run_cov_disag.r")
 source("src/finance/run_finance.r")
 source("src/demand_planning/run_demand_planning.r")
@@ -66,10 +68,12 @@ entity_env <- run_entity()
 supply_env <- run_supply(.GlobalEnv$date_del,
                          .GlobalEnv$date_refresh,
                          .GlobalEnv$refresh_timeseries)
-admcov_env <- run_admcov(
+adm_cov_env <- run_adm_cov(
   entity_env$entity_characteristics,
-  .GlobalEnv$date_refresh,
-  dvr_env$dvr_data)
+  .GlobalEnv$refresh_date,
+  dvr_env$dvr_data,
+  .GlobalEnv$auto_cleaning,
+  .GlobalEnv$refresh_supply_timeseries)
 cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
 finance_env <- run_finance(entity_env$entity_characteristics)
 demand_plan_env <- run_dp()
@@ -91,7 +95,7 @@ source("eda/last_month/run_last_month.r")
 source("eda/export/run_export.r")
 
 eda_adm_cov_env <- run_eda_adm_cov(
-    admcov_env$adm_dvr_latest,
+    adm_cov_env$c_vxrate_latest,
     entity_env$entity_characteristics,
     entity_env$population,
     cov_disag_env$uptake_gender_data,
@@ -102,21 +106,21 @@ eda_adm_cov_env <- run_eda_adm_cov(
     finance_env$b_fin_fund_del_sum,
     .GlobalEnv$date_refresh,
     cov_disag_env$target_hcwold,
-    # admcov_env$combined_three,
+    adm_cov_env$combined_three,
     finance_env$overall_fin_cumul_long,
-    # admcov_env$b_vxrate_pub,
+    adm_cov_env$b_vxrate_pub,
     pin_env$population_pin
 )
 
-supplies_env <- run_eda_supplies(eda_adm_cov_env$a_data, supply_env$supply_received_dose_prod)
+supplies_env <- run_eda_supplies(eda_adm_cov_env$a_data, supply_env$sup_rec_dose_prod)
 prod_util_env <- run_prod_util(
     supplies_env$a_data,
     .GlobalEnv$date_refresh)
 cov_targets_env <- run_cov_targets(
     prod_util_env$a_data,
-    admcov_env$c_vxrate_sept_t10,
-    admcov_env$c_vxrate_dec_t2040,
-    admcov_env$c_vxrate_jun_t70)
+    adm_cov_env$c_vxrate_sept_t10,
+    adm_cov_env$c_vxrate_dec_t2040,
+    adm_cov_env$c_vxrate_jun_t70)
 financing_env <- run_financing(cov_targets_env$a_data)
 rank_bin_env <- run_rank_bin(financing_env$a_data)
 eda_pin_env <- run_eda_pin(rank_bin_env$a_data, pin_env$population_pin)
@@ -135,7 +139,7 @@ consolidate_env <- run_consolidate(
   financing_env$a_data_africa,
   financing_env$a_data_csc,
   financing_env$a_data_ifc,
-  admcov_env$b_vxrate_change_lw,
+  adm_cov_env$b_vxrate_change_lw,
   .GlobalEnv$date_refresh
 )
 
@@ -151,12 +155,12 @@ print(" > Exporting data outputs from pipeline to Excel workbooks...")
 all_df <- list(
     "0_base_data" = eda_sov_env$a_data,
     "0_base_data_lm_change" = last_month_env$base_data_lm_change,
-    "1_absorption_month" = admcov_env$d_absorption,
-    "1_absorption_month_country" = admcov_env$combined,
-    "1_cum_absorb_month_country" = admcov_env$d_absorption_country_new,
+    "1_absorption_month" = adm_cov_env$d_absorption,
+    "1_absorption_month_country" = adm_cov_env$combined,
+    "1_cum_absorb_month_country" = adm_cov_env$d_absorption_country_new,
     "1_stock" = eda_adm_cov_env$timeseries,
-    "1_adm_all_long" = admcov_env$b_vxrate_pub,
-    "1_delivery_doses" = supply_env$supply_received_dose_prod,
+    "1_adm_all_long" = adm_cov_env$b_vxrate_pub,
+    "1_delivery_doses" = supply_env$sup_rec_dose_prod,
     "1_funding_source" = finance_env$b_fin_fund_del_source,
     "8_cov_com_hcw_all" = consolidate_env$e_cov_com_hcw_all,
     "8_cov_com_60p_all" = consolidate_env$e_cov_com_60p_all,

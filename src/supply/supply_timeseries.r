@@ -292,7 +292,7 @@ merge_export_sup_ts <-
     
     print(">> Exporting supply timeseries data to excel...")
     write_xlsx(datalist,
-               "data/input/interim/supply.xlsx")
+               "data/input/interim/supply_new.xlsx")
     
     print(">> Done.")
   }
@@ -300,7 +300,7 @@ merge_export_sup_ts <-
 load_sup_ts_long_xlsx <- function() {
   print(">> Loading supply data (long-form)...")
   sup_ts_long <-
-    data.frame(read_excel("data/input/interim/supply.xlsx",
+    data.frame(read_excel("data/input/interim/supply_new.xlsx",
                           sheet = "long"))
   
   print(">> Done.")
@@ -310,7 +310,7 @@ load_sup_ts_long_xlsx <- function() {
 load_sup_ts_wide_xlsx <- function() {
   print(">> Loading supply data (wide-form)...")
   sup_ts_wide <-
-    data.frame(read_excel("data/input/interim/supply.xlsx",
+    data.frame(read_excel("data/input/interim/supply_new.xlsx",
                           sheet = "wide"))
   
   print(">> Done.")

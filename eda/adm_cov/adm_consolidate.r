@@ -1,55 +1,55 @@
-# 
-# extract_vxrate_details <- function(adm_dvr_latest) {
-#   print(" >> Remove duplicative base details from latest vxrate summary...")
-#   c_vxrate_latest_red <-
-#     select(
-#       c_vxrate_latest, -c(
-#         "a_continent",
-#         "a_region_who",
-#         "a_income_group",
-#         "a_status_covax",
-#         "a_region_unicef",
-#         "a_name_short",
-#         "a_name_long",
-#         "a_region_sub_who",
-#         "a_status_who",
-#         "a_status_csc",
-#         "a_status_ivb",
-#         "a_status_gavi",
-#         "a_continent_sub",
-#         "pol_jj",
-#         "pol_old",
-#         "pol_old_source",
-#         "a_pop",
-#         "a_income_group_vis",
-#         "ss_target",
-#         "ss_deadline",
-#         "country_source",
-#         "date_13jan",
-#         "adm_tar_hcw_wpro",
-#         "a_pop_hcw",
-#         "a_pop",
-#         "pol_boost",
-#         "ri_dtp1",
-#         "ri_dtp3",
-#         "ri_mcv1",
-#         "ri_mcv2",
-#         "ri_zero_dose",
-#         "a_pop_comorb_increased_prop",
-#         "a_pop_comorb_high_prop",
-#         "a_pop_comorb_high_young_prop",
-#         "a_pop_comorb_high_older_prop",
-#         "min_vx_rollout_date",
-#         "a_income_group_ind"
-#       )
-#     )
-# 
-#     return(c_vxrate_latest_red)
-# }
+
+extract_vxrate_details <- function(c_vxrate_latest) {
+  print(" >> Remove duplicative base details from latest vxrate summary...")
+  c_vxrate_latest_red <-
+    select(
+      c_vxrate_latest, -c(
+        "a_continent",
+        "a_region_who",
+        "a_income_group",
+        "a_status_covax",
+        "a_region_unicef",
+        "a_name_short",
+        "a_name_long",
+        "a_region_sub_who",
+        "a_status_who",
+        "a_status_csc",
+        "a_status_ivb",
+        "a_status_gavi",
+        "a_continent_sub",
+        "pol_jj",
+        "pol_old",
+        "pol_old_source",
+        "a_pop",
+        "a_income_group_vis",
+        "ss_target",
+        "ss_deadline",
+        "country_source",
+        "date_13jan.x",
+        "adm_tar_hcw_wpro",
+        "a_pop_hcw",
+        "a_pop",
+        "pol_boost",
+        "ri_dtp1",
+        "ri_dtp3",
+        "ri_mcv1",
+        "ri_mcv2",
+        "ri_zero_dose",
+        "a_pop_comorb_increased_prop",
+        "a_pop_comorb_high_prop",
+        "a_pop_comorb_high_young_prop",
+        "a_pop_comorb_high_older_prop",
+        "min_vx_rollout_date",
+        "a_income_group_ind"
+      )
+    )
+
+    return(c_vxrate_latest_red)
+}
 
 merge_dataframes <- function(
   entity_characteristics,
-  adm_dvr_latest,
+  c_vxrate_latest_red,
   population,
   uptake_gender_data,
   who_dashboard,
@@ -62,7 +62,7 @@ merge_dataframes <- function(
     # Renaming iso columns to a_iso before merge
     df_list <- list(
       entity_characteristics,
-      adm_dvr_latest,
+      c_vxrate_latest_red,
       population,
       uptake_gender_data,
       who_dashboard,
