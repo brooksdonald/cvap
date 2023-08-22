@@ -1,5 +1,4 @@
 load_base_data <- function(refresh_api) {
-    #b_smartsheet <- load_base_smartsheet()
     who_dashboard <- load_who_dashboard(refresh_api)
     datalist <- list("who_dashboard" = who_dashboard)
     return(datalist)

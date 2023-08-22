@@ -49,23 +49,21 @@ api_env <- run_api()
 
 # Extract, transform, load (ETL) ------------------------------------------
 
-source("src/dvr/run_dvr.r")
 source("src/entity_characteristics/run_entity_characteristics.r")
+source("src/dvr/run_dvr.r")
 source("src/supply/run_supply.r")
 source("src/adm_cov/run_adm_cov.r")
 source("src/cov_disag/run_cov_disag.r")
 source("src/finance/run_finance.r")
-source("src/demand_planning/run_demand_planning.r")
 source("src/add_data/run_add_data.r")
-source("src/pin/run_pin.r")
 source("src/last_month/run_last_month.r")
 
+entity_env <- run_entity()
 dvr_env <- run_dvr(
   .GlobalEnv$auto_cleaning,
   api_env$headers,
   .GlobalEnv$refresh_api,
   .GlobalEnv$adm_api)
-entity_env <- run_entity()
 supply_env <- run_supply(.GlobalEnv$date_del,
                          .GlobalEnv$date_refresh,
                          .GlobalEnv$refresh_timeseries)
@@ -77,9 +75,7 @@ adm_cov_env <- run_adm_cov(
   .GlobalEnv$refresh_supply_timeseries)
 cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
 finance_env <- run_finance(entity_env$entity_characteristics)
-demand_plan_env <- run_dp()
 add_data_env <- run_add_data(.GlobalEnv$refresh_api)
-pin_env <- run_pin()
 last_month_env <- run_last_month()
 
 
@@ -103,7 +99,7 @@ eda_adm_cov_env <- run_eda_adm_cov(
     cov_disag_env$uptake_gender_data,
     add_data_env$who_dashboard,
     supply_env$sup_rec,
-    demand_plan_env$b_dp,
+    add_data_env$b_dp,
     supply_env$sup_rec_jj,
     finance_env$b_fin_fund_del_sum,
     .GlobalEnv$date_refresh,
@@ -111,7 +107,7 @@ eda_adm_cov_env <- run_eda_adm_cov(
     adm_cov_env$combined_three,
     finance_env$overall_fin_cumul_long,
     adm_cov_env$b_vxrate_pub,
-    pin_env$population_pin
+    add_data_env$population_pin
 )
 
 supplies_env <- run_eda_supplies(eda_adm_cov_env$a_data, supply_env$sup_rec_dose_prod)
@@ -125,7 +121,7 @@ cov_targets_env <- run_cov_targets(
     adm_cov_env$c_vxrate_jun_t70)
 financing_env <- run_financing(cov_targets_env$a_data)
 rank_bin_env <- run_rank_bin(financing_env$a_data)
-eda_pin_env <- run_eda_pin(rank_bin_env$a_data, pin_env$population_pin)
+eda_pin_env <- run_eda_pin(rank_bin_env$a_data, add_data_env$population_pin)
 eda_sov_env <- run_sov(eda_pin_env$a_data)
 eda_last_month_env <- run_last_month(eda_sov_env$a_data, last_month_env$a_data_lm)
 export_env <- run_export(eda_last_month_env$a_data) 
@@ -140,7 +136,6 @@ consolidate_env <- run_consolidate(
   financing_env$a_data_amc,
   financing_env$a_data_africa,
   financing_env$a_data_csc,
-  financing_env$a_data_ifc,
   adm_cov_env$b_vxrate_change_lw,
   .GlobalEnv$date_refresh
 )
