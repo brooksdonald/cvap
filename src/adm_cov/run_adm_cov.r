@@ -19,7 +19,6 @@ run_adm_cov <- function(entity_characteristics,
         entity_characteristics,
         date_refresh)
     b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate)
-    b_vxrate_amc <- transform_subset_amc(b_vxrate)
     c_vxrate_sept_t10 <- transform_sept21_pop_tgt(b_vxrate)
     c_vxrate_dec_t2040 <- transform_dec21_pop_tgt(b_vxrate)
     c_vxrate_jun_t70 <- transform_jun22_pop_tgt(b_vxrate)

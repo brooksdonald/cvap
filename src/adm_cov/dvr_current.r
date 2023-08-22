@@ -242,42 +242,6 @@ transform_current_vxrate_pub <- function(b_vxrate) {
     return(b_vxrate_pub)
 }
 
-
-transform_subset_amc <- function(b_vxrate) {
-  print(" >> Create clean long form subsets for b_vxrate_amc")
-  b_vxrate_amc <- filter(b_vxrate, a_status_covax == "AMC" | a_iso == "GAB")
-  b_vxrate_amc <-
-    select(
-      b_vxrate_amc,
-      c(
-        "a_iso",
-        "a_name_short",
-        "a_pop",
-        "adm_date",
-        "adm_tot_td",
-        "adm_tot_a1d",
-        "adm_tot_cps",
-        "adm_tot_boost",
-        "dvr_4wk_td",
-        "a_region_who",
-        "a_status_covax",
-        "a_income_group",
-        "a_status_csc",
-        "a_continent_sub"
-      )
-    )
-    b_vxrate_amc <- b_vxrate_amc %>%
-      mutate(dvr_4wk_td_per = dvr_4wk_td / a_pop)
-    
-    b_vxrate_amc <- b_vxrate_amc %>%
-      mutate(cov_total_fv = adm_tot_cps / a_pop) %>%
-      
-      mutate(cov_total_fv_theo = (adm_tot_td / 2) / a_pop)
-
-    print(">> Done.")
-    return(b_vxrate_amc)
-}
-
 ## Create population target deadline tables
 ### Create end of September 2021 table
 
