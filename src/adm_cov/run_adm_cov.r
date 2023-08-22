@@ -1,24 +1,23 @@
-# rows 119 - 596
-
 run_adm_cov <- function(entity_characteristics,
-    refresh_date, dvr_data, refresh_supply_timeseries) {
-    source("src/adm_cov/dvr_current.r")
-    source("src/adm_cov/dvr_prev.r")
-    source("src/adm_cov/supply_timeseries.r")
+    date_refresh, dvr_data, refresh_supply_timeseries) {
+  print("> Loading src/adm_cov module scripts...")  
+  source("src/adm_cov/dvr_current.r")
+  source("src/adm_cov/dvr_prev.r")
+  source("src/adm_cov/supply_timeseries.r")
 
     path_to_timeseries_data <- "data/input/test/"
 
     print(" > Starting local environment for vaccinations")
 
     # receive the current month in "%Y-%m" format
-    current_month <- substr(refresh_date, 1, 7)
+    current_month <- substr(date_refresh, 1, 7)
 
     print(" > Daily current vaccinations")
     b_vxrate <- load_b_vxrate(dvr_data)
     b_vxrate <- transform_current_vxrate(
         b_vxrate,
         entity_characteristics,
-        refresh_date)
+        date_refresh)
     b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate)
     b_vxrate_amc <- transform_subset_amc(b_vxrate)
     c_vxrate_sept_t10 <- transform_sept21_pop_tgt(b_vxrate)

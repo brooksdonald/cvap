@@ -1,13 +1,6 @@
 
 load_lw_data <- function(c_vxrate_lastweek) {
     print(" >> Loading last week dataset...")
-    #b_vxrate_lw_sum <- data.frame(
-     #   read_excel(
-      #      "data/input/base_dvr_lastweek.xlsx",
-       #     sheet = "data_summary"
-      #  )
-    #)
-
     # Last week dataset
     ## Select relevant columns and rename
     print(" >> Selecting last week data...")
@@ -33,12 +26,6 @@ load_lw_data <- function(c_vxrate_lastweek) {
 
 load_lm_data <- function(c_vxrate_lastmonth) {
     print(" >> Loading last month dataset...")
-    #b_vxrate_lm_sum <- data.frame(
-     #   read_excel(
-      #      "data/input/base_dvr_lastmonth.xlsx",
-       #     sheet = "data_summary"
-        #)
-    #)
 
     print(" >> Selecting relevant columns from last month data...")
     b_vxrate_lm_sum <- select(
@@ -68,12 +55,6 @@ load_lm_data <- function(c_vxrate_lastmonth) {
 
 load_l2m_data <- function(c_vxrate_twomonth) {
     print(" >> Loading last two month dataset...")
-    #b_vxrate_2m_sum <- data.frame(
-     #   read_excel(
-      #      "data/input/base_dvr_twomonth.xlsx",
-       #     sheet = "data_summary"
-       # )
-    #)
 
     # Two month dataset
     ## Select relevant columns and rename

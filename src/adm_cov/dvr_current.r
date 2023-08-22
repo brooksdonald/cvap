@@ -1,7 +1,4 @@
-
-# load current daily vxrate
 load_b_vxrate <- function(dvr_data) {
-
   print(" >> Using data from API...")
   b_vxrate <- as.data.frame(dvr_data)
   b_vxrate$date <- as.Date(b_vxrate$date, format = "%Y-%m-%d")
@@ -45,12 +42,13 @@ load_b_vxrate <- function(dvr_data) {
       "adm_tot_cps_adj")
 
   colnames(b_vxrate) <- column_names
+  
+  print(">> Done.")
   return(b_vxrate)
-
 }
 
 transform_current_vxrate <- function(
-  b_vxrate, entity_characteristics, refresh_date) {
+  b_vxrate, entity_characteristics, date_refresh) {
     print(" >> Transforming current vxrate...")
     ## Add entity base data
     b_vxrate <- left_join(b_vxrate, entity_characteristics, by = "a_iso")
@@ -103,8 +101,8 @@ transform_current_vxrate <- function(
     b_vxrate$adm_is_current <- ifelse(
       b_vxrate$adm_latest == "Yes" &
         (
-          b_vxrate$adm_date_week == isoweek(refresh_date)
-          | b_vxrate$adm_date_week == isoweek(refresh_date) - 1
+          b_vxrate$adm_date_week == isoweek(date_refresh)
+          | b_vxrate$adm_date_week == isoweek(date_refresh) - 1
         ),
         "Yes",
         NA
@@ -134,7 +132,7 @@ transform_current_vxrate <- function(
     b_vxrate <- b_vxrate %>%
       group_by(a_iso) %>%
       mutate(adm_last_week = if_else(
-        adm_date == refresh_date - 14, 
+        adm_date == date_refresh - 14, 
         "Yes", 
         "No"
       ))
@@ -143,7 +141,7 @@ transform_current_vxrate <- function(
     b_vxrate <- b_vxrate %>%
       group_by(a_iso) %>%
       mutate(adm_last_month = if_else(
-        adm_date == refresh_date - 35, 
+        adm_date == date_refresh - 35, 
         "Yes", 
         "No"
       ))
@@ -152,7 +150,7 @@ transform_current_vxrate <- function(
     b_vxrate <- b_vxrate %>%
       group_by(a_iso) %>%
       mutate(adm_two_month = if_else(
-        adm_date == refresh_date - 63, 
+        adm_date == date_refresh - 63, 
         "Yes", 
         "No"
       ))
@@ -167,6 +165,8 @@ transform_current_vxrate <- function(
                 & adm_date_maxweek == "Yes", "Yes", "No"
               )
             )
+    
+    print(">> Done.")
     return(b_vxrate)
 }
 
@@ -203,8 +203,8 @@ recreate_df <- function(b_vxrate) {
   print(" >> inner join of the df...")
   recreated_data <- inner_join(b_vxrate_data, stable_dates, by = c("iso_code", "date_13jan"))
   names(recreated_data)[1] <- "a_iso"
-  print(" > Done.")
-
+  
+  print(">> Done.")
   return(recreated_data)
 }
  
@@ -238,6 +238,7 @@ transform_current_vxrate_pub <- function(b_vxrate) {
              cov_total_fv_theo = (adm_tot_td / 2) / a_pop,
              cov_total_a1d = adm_tot_a1d / a_pop)
 
+    print(">> Done.")
     return(b_vxrate_pub)
 }
 
@@ -273,6 +274,7 @@ transform_subset_amc <- function(b_vxrate) {
       
       mutate(cov_total_fv_theo = (adm_tot_td / 2) / a_pop)
 
+    print(">> Done.")
     return(b_vxrate_amc)
 }
 
@@ -301,6 +303,7 @@ transform_sept21_pop_tgt <- function(b_vxrate) {
   
   colnames(c_vxrate_sept_t10) <- c("a_iso","cov_total_fv_30sep", "t10_goalmet_sep")
 
+  print(">> Done.")
   return(c_vxrate_sept_t10)
 }
 
@@ -331,6 +334,7 @@ transform_dec21_pop_tgt <- function(b_vxrate) {
       c("a_iso", "cov_total_fv", "t20_goalmet_dec", "t40_goalmet_dec")) %>%
     rename(cov_total_fv_31dec = cov_total_fv)
 
+  print(">> Done.")
   return(c_vxrate_dec_t2040)
 }
 
@@ -355,6 +359,7 @@ transform_jun22_pop_tgt <- function(b_vxrate) {
     select(c_vxrate_jun, c("a_iso", "cov_total_fv", "t70_goalmet_jun")) %>%
     rename(cov_total_fv_30jun = cov_total_fv)
   
+  print(">> Done.")
   return(c_vxrate_jun_t70)
   
 }
@@ -428,12 +433,13 @@ transform_abspt_by_month <- function(b_vxrate, current_month) {
       adm_tot_boost,
       adm_tot_boost_change))
 
-  ## Note: list of months is automatically generated from "2021-01" to month of refresh_date
+  ## Note: list of months is automatically generated from "2021-01" to month of date_refresh
   c_vxrate_eom$adm_date_month_name <- helper_mapping_months( 
     c_vxrate_eom$adm_date_month,
     current_month
   )
 
+  print(">> Done.")
   return(c_vxrate_eom)
 }
 
@@ -458,7 +464,7 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
       "adm_tot_boost_change"
     )
   )
-  ## Note: list of months is automatically generated from "2021-01" to month of refresh_date
+  ## Note: list of months is automatically generated from "2021-01" to month of date_refresh
   d_absorption_country$adm_date_month_name <- helper_mapping_months(
     d_absorption_country$adm_date_month,
     current_month
@@ -532,6 +538,8 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
   )
   datalist <- list("d_absorb_red" = d_absorb_red,
     "d_absorption_country" = d_absorption_country)
+  
+  print(">> Done.")
   return(datalist)
 }
 
@@ -568,6 +576,8 @@ first_supplies <- function(d_absorb_red, d_absorption_country, overall_long,
                                                                "month_name" = "month_name"))
   combined <- rbind(d_absorption_country, b_supply)
   datalist <- list("combined" = combined, "b_supply_red" = b_supply_red)
+  
+  print(">> Done.")
   return(datalist)
 }
 
@@ -588,12 +598,13 @@ new_absorption_countries <- function(c_vxrate_eom, current_month) {
       "adm_date_month"
     )
 
-  ## Note: list of months is automatically generated from "2021-01" to month of refresh_date
+  ## Note: list of months is automatically generated from "2021-01" to month of date_refresh
     d_absorption_country_new$month_name <- helper_mapping_months(
       d_absorption_country_new$adm_date_month,
       current_month
     )
-
+    
+    print(">> Done.")
     return(d_absorption_country_new)
 }
 
@@ -630,6 +641,8 @@ second_supplies <- function(d_absorption_country_new, combined,
   )
   combined_three <- combined_three %>%
     arrange(desc(month_name), iso)
+  
+  print(">> Done.")
   return(combined_three)
 }
 
@@ -701,7 +714,7 @@ absorption_sum_by_month <- function(c_vxrate_eom, current_month) {
     left_join(., d_absorption_ind, by = "adm_date_month") %>%
     left_join(., d_absorption_who, by = "adm_date_month")
   
-    ## Note: list of months is automatically generated from "2021-01" to month of refresh_date
+    ## Note: list of months is automatically generated from "2021-01" to month of date_refresh
     d_absorption$adm_date_month_name <- helper_mapping_months(
       d_absorption$adm_date_month,
       current_month

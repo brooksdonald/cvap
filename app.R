@@ -31,7 +31,6 @@ lapply(lib, library, character.only = TRUE)
 # STATIC VARIABLES
 
 .GlobalEnv$date_refresh <- as.Date("2023-07-27")
-.GlobalEnv$refresh_date <- as.Date("2023-07-27")
 .GlobalEnv$date_del <- as.Date("2023-07-19")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
@@ -69,7 +68,7 @@ supply_env <- run_supply(.GlobalEnv$date_del,
                          .GlobalEnv$refresh_timeseries)
 adm_cov_env <- run_adm_cov(
   entity_env$entity_characteristics,
-  .GlobalEnv$refresh_date,
+  .GlobalEnv$date_refresh,
   dvr_env$dvr_data,
   .GlobalEnv$refresh_supply_timeseries)
 cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
@@ -165,8 +164,8 @@ all_df <- list(
     "9_values" = consolidate_env$z_values
 )
 
-  # write_xlsx(all_df, paste0("data/output/", format(refresh_date, "%y%m%d"), "_output_powerbi.xlsx"))
-  # write_xlsx(export_env$api, paste0("data/output/", format(refresh_date, "%y%m%d"), "output_api.xlsx"))
+  # write_xlsx(all_df, paste0("data/output/", format(date_refresh, "%y%m%d"), "_output_powerbi.xlsx"))
+  # write_xlsx(export_env$api, paste0("data/output/", format(date_refresh, "%y%m%d"), "output_api.xlsx"))
 write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
