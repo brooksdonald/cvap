@@ -119,7 +119,7 @@ run_adm_cov <- function(entity_characteristics,
     c_vxrate_latest <- merge_with_summary(c_vxrate_latest, b_vxrate_2m_sum) 
 
     print(" > Week of 13 Jan")
-    b_vxrate_13jan <- recreate_df(b_vxrate)
+    b_vxrate_13jan <- recreate_df(b_vxrate, entity_characteristics)
     c_vxrate_latest <- merge_with_summary(c_vxrate_latest, b_vxrate_13jan)
 
     print(" > Done.")

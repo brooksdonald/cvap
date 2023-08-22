@@ -171,38 +171,29 @@ transform_current_vxrate <- function(
 }
 
 # 13jan data re-creation
-recreate_df <- function(b_vxrate) {
+recreate_df <- function(b_vxrate, entity_characteristics) {
   print(" >> Select columns required to recreate 13jan data from b_vxrate...")
   b_vxrate_data <- b_vxrate %>%
     select(a_iso, adm_date, adm_tot_td, adm_tot_a1d, adm_tot_cps, adm_tot_boost)
   print(" > Done.")
 
   print(" >> Rename b_vxrate_data columns...")
-  colnames(b_vxrate_data) <- c("iso_code", "date_13jan", "adm_tot_td_13jan", "adm_tot_a1d_13jan", "adm_tot_cps_13jan", "adm_tot_boost_13jan")
+  colnames(b_vxrate_data) <- c("a_iso", "date_13jan", "adm_tot_td_13jan", "adm_tot_a1d_13jan", "adm_tot_cps_13jan", "adm_tot_boost_13jan")
   print(" > Done.")
 
   print(" >> Change date format")
   b_vxrate_data$date_13jan <- as.Date(b_vxrate_data$date_13jan)
   print(" > Done.")
 
-  print(" >> Merge b_vxrate_data and 13 Jan dates data...")
-  stable_dates <- data.frame(
-    read_excel(
-      "data/input/static/base_adhoc.xlsx",
-      sheet = "data"
-    )
-  )
   print(" >> Selecting iso and date columns...")
-  stable_dates <- stable_dates %>%
-    select(iso, date_13jan)
+  stable_dates <- entity_characteristics %>%
+    select(a_iso, date_13jan)
   print(" >> Change date column to date formart...")
   stable_dates$date_13jan <- as.Date(stable_dates$date_13jan)
-  names(stable_dates)[1] <- "iso_code"
   print(" > Done.")
 
   print(" >> inner join of the df...")
-  recreated_data <- inner_join(b_vxrate_data, stable_dates, by = c("iso_code", "date_13jan"))
-  names(recreated_data)[1] <- "a_iso"
+  recreated_data <- inner_join(b_vxrate_data, stable_dates, by = c("a_iso", "date_13jan"))
   
   print(">> Done.")
   return(recreated_data)
