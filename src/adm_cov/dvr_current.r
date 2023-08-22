@@ -34,10 +34,10 @@ load_b_vxrate <- function(dvr_data, auto_cleaning) {
   column_names <- c(
       "a_iso",
       "adm_date",
-      "adm_td",
-      "adm_a1d",
-      "adm_fv",
-      "adm_booster",
+      "adm_tot_td",
+      "adm_tot_a1d",
+      "adm_tot_cps",
+      "adm_tot_boost",
       "dvr_4wk_td",
       "dvr_4wk_fv",
       "dvr_4wk_td_max",
@@ -46,7 +46,7 @@ load_b_vxrate <- function(dvr_data, auto_cleaning) {
     )
   if (auto_cleaning) {
     column_names <- append(column_names,
-      c("adm_a1d_adj", "adm_fv_adj"))
+      c("adm_tot_a1d_adj", "adm_tot_cps_adj"))
   }
   colnames(b_vxrate) <- column_names
 
@@ -180,11 +180,11 @@ transform_current_vxrate <- function(
 recreate_df <- function(b_vxrate) {
   print(" >> Select columns required to recreate 13jan data from b_vxrate...")
   b_vxrate_data <- b_vxrate %>%
-    select(a_iso, adm_date, adm_td, adm_a1d, adm_fv, adm_booster)
+    select(a_iso, adm_date, adm_tot_td, adm_tot_a1d, adm_tot_cps, adm_tot_boost)
   print(" > Done.")
 
   print(" >> Rename b_vxrate_data columns...")
-  colnames(b_vxrate_data) <- c("iso_code", "date_13jan", "adm_td_13jan", "adm_a1d_13jan", "adm_fv_13jan", "adm_booster_13jan")
+  colnames(b_vxrate_data) <- c("iso_code", "date_13jan", "adm_tot_td_13jan", "adm_tot_a1d_13jan", "adm_tot_cps_13jan", "adm_tot_boost_13jan")
   print(" > Done.")
 
   print(" >> Change date format")
@@ -222,10 +222,10 @@ transform_current_vxrate_pub <- function(b_vxrate, auto_cleaning) {
     "a_name_short",
     "a_pop",
     "adm_date",
-    "adm_td",
-    "adm_a1d",
-    "adm_fv",
-    "adm_booster",
+    "adm_tot_td",
+    "adm_tot_a1d",
+    "adm_tot_cps",
+    "adm_tot_boost",
     "dvr_4wk_td",
     "a_region_who",
     "a_status_covax",
@@ -236,16 +236,16 @@ transform_current_vxrate_pub <- function(b_vxrate, auto_cleaning) {
   )
   if (auto_cleaning) {
     columns <- append(columns,
-      c("adm_a1d_adj", "adm_fv_adj"))
+      c("adm_tot_a1d_adj", "adm_tot_cps_adj"))
   }
 
     ### Calculate population coverage in long form datasets
     b_vxrate_pub <- b_vxrate %>%
       select(columns) %>%
       mutate(dvr_4wk_td_per = dvr_4wk_td / a_pop,
-             cov_total_fv = adm_fv / a_pop,
-             cov_total_fv_theo = (adm_td / 2) / a_pop,
-             cov_total_a1d = adm_a1d / a_pop)
+             cov_total_fv = adm_tot_cps / a_pop,
+             cov_total_fv_theo = (adm_tot_td / 2) / a_pop,
+             cov_total_a1d = adm_tot_a1d / a_pop)
 
     return(b_vxrate_pub)
 }
@@ -262,10 +262,10 @@ transform_subset_amc <- function(b_vxrate) {
         "a_name_short",
         "a_pop",
         "adm_date",
-        "adm_td",
-        "adm_a1d",
-        "adm_fv",
-        "adm_booster",
+        "adm_tot_td",
+        "adm_tot_a1d",
+        "adm_tot_cps",
+        "adm_tot_boost",
         "dvr_4wk_td",
         "a_region_who",
         "a_status_covax",
@@ -278,9 +278,9 @@ transform_subset_amc <- function(b_vxrate) {
       mutate(dvr_4wk_td_per = dvr_4wk_td / a_pop)
     
     b_vxrate_amc <- b_vxrate_amc %>%
-      mutate(cov_total_fv = adm_fv / a_pop) %>%
+      mutate(cov_total_fv = adm_tot_cps / a_pop) %>%
       
-      mutate(cov_total_fv_theo = (adm_td / 2) / a_pop)
+      mutate(cov_total_fv_theo = (adm_tot_td / 2) / a_pop)
 
     return(b_vxrate_amc)
 }
@@ -387,23 +387,23 @@ transform_abspt_by_month <- function(b_vxrate, current_month) {
         "a_income_group",
         "a_status_csc",
         "adm_date_month",
-        "adm_td",
-        "adm_a1d",
-        "adm_fv",
-        "adm_booster"
+        "adm_tot_td",
+        "adm_tot_a1d",
+        "adm_tot_cps",
+        "adm_tot_boost"
         )
     )
 
   ### Create temporary previous month data frame to allow calculation
   z_vxrate_eom_temp <- 
-    select(c_vxrate_eom, c("a_iso", "adm_date_month", "adm_td", 
-                           "adm_a1d","adm_fv", "adm_booster"))
+    select(c_vxrate_eom, c("a_iso", "adm_date_month", "adm_tot_td", 
+                           "adm_tot_a1d","adm_tot_cps", "adm_tot_boost"))
   
   z_vxrate_eom_temp <- z_vxrate_eom_temp %>%
     mutate(adm_date_month = adm_date_month + 1)
     colnames(z_vxrate_eom_temp) <-
-      c("a_iso", "adm_date_month", "adm_td_lm", "adm_a1d_lm","adm_fv_lm",
-        "adm_booster_lm")
+      c("a_iso", "adm_date_month", "adm_tot_td_lm", "adm_tot_a1d_lm","adm_tot_cps_lm",
+        "adm_tot_boost_lm")
 
   ### Calculate change by month
   c_vxrate_eom <- 
@@ -414,28 +414,28 @@ transform_abspt_by_month <- function(b_vxrate, current_month) {
     )
 
   c_vxrate_eom <- c_vxrate_eom %>%
-    mutate(adm_td_absorbed = adm_td - adm_td_lm,
-           adm_a1d_change = adm_a1d - adm_a1d_lm,
-           adm_fv_change = adm_fv - adm_fv_lm,
-           adm_booster_change = adm_booster - adm_booster_lm)
+    mutate(adm_tot_td_absorbed = adm_tot_td - adm_tot_td_lm,
+           adm_tot_a1d_change = adm_tot_a1d - adm_tot_a1d_lm,
+           adm_tot_cps_change = adm_tot_cps - adm_tot_cps_lm,
+           adm_tot_boost_change = adm_tot_boost - adm_tot_boost_lm)
 
   c_vxrate_eom <- c_vxrate_eom %>%
-    mutate(adm_td_absorbed = if_else(
-      is.na(adm_td_absorbed),
-      adm_td,
-      adm_td_absorbed)) %>%
-    mutate(adm_a1d_change = if_else(
-      is.na(adm_a1d_change),
-      adm_a1d,
-      adm_a1d_change)) %>%
-    mutate(adm_fv_change = if_else(
-      is.na(adm_fv_change),
-      adm_fv,
-      adm_fv_change)) %>%
-    mutate(adm_booster_change = if_else(
-      is.na(adm_booster_change),
-      adm_booster,
-      adm_booster_change))
+    mutate(adm_tot_td_absorbed = if_else(
+      is.na(adm_tot_td_absorbed),
+      adm_tot_td,
+      adm_tot_td_absorbed)) %>%
+    mutate(adm_tot_a1d_change = if_else(
+      is.na(adm_tot_a1d_change),
+      adm_tot_a1d,
+      adm_tot_a1d_change)) %>%
+    mutate(adm_tot_cps_change = if_else(
+      is.na(adm_tot_cps_change),
+      adm_tot_cps,
+      adm_tot_cps_change)) %>%
+    mutate(adm_tot_boost_change = if_else(
+      is.na(adm_tot_boost_change),
+      adm_tot_boost,
+      adm_tot_boost_change))
 
   ## Note: list of months is automatically generated from "2021-01" to month of refresh_date
   c_vxrate_eom$adm_date_month_name <- helper_mapping_months( 
@@ -456,15 +456,15 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
       "a_iso",
       "a_status_covax",
       "a_status_csc",
-      "adm_td",
+      "adm_tot_td",
       "adm_date_month",
-      "adm_td_absorbed",
-      "adm_fv",
-      "adm_fv_change",
-      "adm_a1d",
-      "adm_a1d_change",
-      "adm_booster",
-      "adm_booster_change"
+      "adm_tot_td_absorbed",
+      "adm_tot_cps",
+      "adm_tot_cps_change",
+      "adm_tot_a1d",
+      "adm_tot_a1d_change",
+      "adm_tot_boost",
+      "adm_tot_boost_change"
     )
   )
   ## Note: list of months is automatically generated from "2021-01" to month of refresh_date
@@ -480,15 +480,15 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
       "a_iso",
       "a_status_covax",
       "a_status_csc",
-      "adm_td",
-      "adm_td_absorbed",
+      "adm_tot_td",
+      "adm_tot_td_absorbed",
       "adm_date_month_name",
-      "adm_fv",
-      "adm_fv_change",
-      "adm_a1d",
-      "adm_a1d_change",
-      "adm_booster",
-      "adm_booster_change"
+      "adm_tot_cps",
+      "adm_tot_cps_change",
+      "adm_tot_a1d",
+      "adm_tot_a1d_change",
+      "adm_tot_boost",
+      "adm_tot_boost_change"
     )
   )
   print(" >> Renaming columns...")
@@ -496,15 +496,15 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
     "iso",
     "a_status_covax",
     "a_status_csc",
-    "adm_td",
+    "adm_tot_td",
     "value",
     "month_name",
-    "adm_fv",
-    "adm_fv_change",
-    "adm_a1d",
-    "adm_a1d_change",
-    "adm_booster",
-    "adm_booster_change"
+    "adm_tot_cps",
+    "adm_tot_cps_change",
+    "adm_tot_a1d",
+    "adm_tot_a1d_change",
+    "adm_tot_boost",
+    "adm_tot_boost_change"
   )
   d_absorption_country$a_amc_status <- NA
   d_absorption_country$a_amc_status[d_absorption_country$a_status_covax == "AMC" & d_absorption_country$iso != "IND"] <- "AMC91"  
@@ -517,13 +517,13 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
       "iso",
       "month_name",
       "value",
-      "adm_td",
-      "adm_fv",
-      "adm_fv_change",
-      "adm_a1d",
-      "adm_a1d_change",
-      "adm_booster",
-      "adm_booster_change"
+      "adm_tot_td",
+      "adm_tot_cps",
+      "adm_tot_cps_change",
+      "adm_tot_a1d",
+      "adm_tot_a1d_change",
+      "adm_tot_boost",
+      "adm_tot_boost_change"
     )
   )
   print(" >> Renaming columns for d_absorb_red...")
@@ -531,13 +531,13 @@ absorption_per_country <- function(c_vxrate_eom, current_month) {
     "iso",
     "month_name",
     "absorbed",
-    "adm_td",
-    "adm_fv",
-    "adm_fv_change",
-    "adm_a1d",
-    "adm_a1d_change",
-    "adm_booster",
-    "adm_booster_change"
+    "adm_tot_td",
+    "adm_tot_cps",
+    "adm_tot_cps_change",
+    "adm_tot_a1d",
+    "adm_tot_a1d_change",
+    "adm_tot_boost",
+    "adm_tot_boost_change"
   )
   datalist <- list("d_absorb_red" = d_absorb_red,
     "d_absorption_country" = d_absorption_country)
@@ -586,7 +586,7 @@ new_absorption_countries <- function(c_vxrate_eom, current_month) {
       c_vxrate_eom,
       c(
         "a_iso",
-        "adm_td",
+        "adm_tot_td",
         "adm_date_month"
       )
     )
@@ -650,7 +650,7 @@ absorption_sum_by_month <- function(c_vxrate_eom, current_month) {
     suffix <- substr(deparse(substitute(c_vxrate)), 14, 30)
     return(c_vxrate %>%
       group_by(adm_date_month) %>%
-      summarize(!!as.name(paste0("absorption_", suffix)) := sum(adm_td_absorbed))
+      summarize(!!as.name(paste0("absorption_", suffix)) := sum(adm_tot_td_absorbed))
     )
   }
 
@@ -689,7 +689,7 @@ absorption_sum_by_month <- function(c_vxrate_eom, current_month) {
       filter(c_vxrate_eom, a_region_who == region_appendix) %>%
         group_by(adm_date_month) %>%
         summarize("absorption_{tolower(region_appendix)}" :=
-          sum(adm_td_absorbed)
+          sum(adm_tot_td_absorbed)
         )
     )
   }

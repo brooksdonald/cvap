@@ -7,7 +7,7 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
       a_iso,
       a_pop_older,
       adm_target_hcw,
-      adm_td_adj
+      adm_tot_td_adj
     )
   
   print(" > Adding month date...")
@@ -23,9 +23,9 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
                                             as.numeric(month(month_name) + 24),
                                             NA_real_
                                             )))) %>%
-    mutate(cov_total_fv = adm_fv / a_pop,
-           cov_total_a1d = adm_a1d / a_pop,
-           cov_total_booster = adm_booster / a_pop)
+    mutate(cov_total_fv = adm_tot_cps / a_pop,
+           cov_total_a1d = adm_tot_a1d / a_pop,
+           cov_total_booster = adm_tot_boost / a_pop)
 
   print(" > Join dataframes...")
   # Merge finance timeseries data with HCW population data frame
@@ -119,14 +119,14 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
       received,
       supply,
       absorbed,
-      adm_td,
-      adm_td_adj,
-      adm_fv,
-      adm_fv_change,
-      adm_a1d,
-      adm_a1d_change,
-      adm_booster,
-      adm_booster_change,
+      adm_tot_td,
+      adm_tot_td_adj,
+      adm_tot_cps,
+      adm_tot_cps_change,
+      adm_tot_a1d,
+      adm_tot_a1d_change,
+      adm_tot_boost,
+      adm_tot_boost_change,
       est_stock,
       a_name_short,
       a_region_who,
@@ -162,7 +162,7 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
   timeseries <- timeseries %>%
     group_by(iso) %>%
     arrange(month_name) %>%
-    fill(c("adm_fv",
+    fill(c("adm_tot_cps",
            "cov_total_fv",
            "cov_total_a1d",
            "cov_total_booster",

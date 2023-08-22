@@ -59,10 +59,10 @@ target_group_seventy <- function(a_data, c_vxrate_jun_t70) {
 booster_doses <- function(a_data) {
   # Booster and additional doses
   a_data <- a_data %>%
-    mutate(cov_total_booster = adm_booster / a_pop,
-           adm_status_boost = if_else(adm_booster > 0 | pol_boost == "Yes",
+    mutate(cov_total_booster = adm_tot_boost / a_pop,
+           adm_status_boost = if_else(adm_tot_boost > 0 | pol_boost == "Yes",
                                     "Yes", 
-                                    if_else(is.na(adm_booster) & pol_boost == "No",
+                                    if_else(is.na(adm_tot_boost) & pol_boost == "No",
                                             "No", "No")))
 
   breaks <- c(-Inf, 0, .01, .05, .1, Inf)

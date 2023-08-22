@@ -37,7 +37,7 @@ course_progress <- function(a_data, entity_characteristics, date_refresh) {
     mutate(ndvp_rem =
         pmax(ndvp_target - cov_total_fv, 0)) %>%
     mutate(ndvp_peratpace = 
-        ((adm_fv_homo + (dvr_4wk_fv * 
+        ((adm_tot_cps_homo + (dvr_4wk_fv * 
             as.numeric(as.Date(ndvp_deadline) - date_refresh)
         )) / a_pop)) %>%
     mutate(ndvp_pertogo = 
@@ -47,9 +47,9 @@ course_progress <- function(a_data, entity_characteristics, date_refresh) {
         "Yes",
         "No")) %>%
     mutate(ndvp_timeto = round(if_else(is.infinite(
-        ((adm_pv + ((a_pop_ndvp - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td)),
+        ((adm_pv + ((a_pop_ndvp - adm_pv - adm_tot_cps_homo) * 2)) / dvr_4wk_td)),
         NA_real_,
-        pmax((adm_pv + ((a_pop_ndvp - adm_pv - adm_fv_homo) * 2)) / dvr_4wk_td,
+        pmax((adm_pv + ((a_pop_ndvp - adm_pv - adm_tot_cps_homo) * 2)) / dvr_4wk_td,
             0)))) %>%
     mutate(ndvp_ontrack = if_else(
         ndvp_peratpace >= ndvp_target & cov_total_fv <= ndvp_target,

@@ -46,7 +46,8 @@ source("helpers/transformations.r")
 source("helpers/api.r")
 api_env <- run_api()
 
-# ETL
+
+# Extract, transform, load (ETL) ------------------------------------------
 
 source("src/dvr/run_dvr.r")
 source("src/entity_characteristics/run_entity_characteristics.r")
@@ -81,7 +82,8 @@ add_data_env <- run_add_data(.GlobalEnv$refresh_api)
 pin_env <- run_pin()
 last_month_env <- run_last_month()
 
-# EDA
+
+# Exploratory data analysis (EDA) -----------------------------------------
 
 source("eda/adm_cov/run_adm_cov.r")
 source("eda/supply/run_supply.r")
@@ -129,7 +131,7 @@ eda_last_month_env <- run_last_month(eda_sov_env$a_data, last_month_env$a_data_l
 export_env <- run_export(eda_last_month_env$a_data) 
 
 
-# CONSOLIDATE
+# Consolidate -------------------------------------------------------------
 
 source("consolidate/run_consolidate.r")
 
@@ -169,8 +171,8 @@ all_df <- list(
     "9_values" = consolidate_env$z_values
 )
 
-  write_xlsx(all_df, paste0("data/output/", format(refresh_date, "%y%m%d"), "_output_powerbi.xlsx"))
-  write_xlsx(export_env$api, paste0("data/output/", format(refresh_date, "%y%m%d"), "output_api.xlsx"))
-  write_xlsx(all_df, "data/output/output_master.xlsx")
+  # write_xlsx(all_df, paste0("data/output/", format(refresh_date, "%y%m%d"), "_output_powerbi.xlsx"))
+  # write_xlsx(export_env$api, paste0("data/output/", format(refresh_date, "%y%m%d"), "output_api.xlsx"))
+write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
