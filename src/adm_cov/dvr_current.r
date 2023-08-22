@@ -1,6 +1,6 @@
 
 # load current daily vxrate
-load_b_vxrate <- function(dvr_data, auto_cleaning) {
+load_b_vxrate <- function(dvr_data) {
 
   print(" >> Using data from API...")
   b_vxrate <- as.data.frame(dvr_data)
@@ -18,12 +18,10 @@ load_b_vxrate <- function(dvr_data, auto_cleaning) {
     "rolling_4_week_avg_fv",
     "max_rolling_4_week_avg_td",
     "rolling_4_week_avg_td_lastmonth",
-    "no_change_from_previous"
-  )
-  if (auto_cleaning) {
-    columns <- append(columns,
-      c("at_least_one_dose_adj", "fully_vaccinated_adj"))
-  }
+    "no_change_from_previous",
+    "at_least_one_dose_adj", 
+    "fully_vaccinated_adj")
+  
   b_vxrate <-
     select(
       b_vxrate,
@@ -42,15 +40,11 @@ load_b_vxrate <- function(dvr_data, auto_cleaning) {
       "dvr_4wk_fv",
       "dvr_4wk_td_max",
       "dvr_4wk_td_lm",
-      "note_nochange"
-    )
-  if (auto_cleaning) {
-    column_names <- append(column_names,
-      c("adm_tot_a1d_adj", "adm_tot_cps_adj"))
-  }
+      "note_nochange",
+      "adm_tot_a1d_adj", 
+      "adm_tot_cps_adj")
+
   colnames(b_vxrate) <- column_names
-
-
   return(b_vxrate)
 
 }
@@ -215,7 +209,7 @@ recreate_df <- function(b_vxrate) {
 }
  
 ## Create clean long form subsets and select relevant columns
-transform_current_vxrate_pub <- function(b_vxrate, auto_cleaning) {
+transform_current_vxrate_pub <- function(b_vxrate) {
   print(" >> Create clean long form subsets for b_vxrate_pub")
   columns <- c(
     "a_iso",
@@ -232,12 +226,9 @@ transform_current_vxrate_pub <- function(b_vxrate, auto_cleaning) {
     "a_income_group",
     "a_status_csc",
     "a_continent_sub",
-    "a_status_who"
-  )
-  if (auto_cleaning) {
-    columns <- append(columns,
-      c("adm_tot_a1d_adj", "adm_tot_cps_adj"))
-  }
+    "a_status_who",
+    "adm_tot_a1d_adj", 
+    "adm_tot_cps_adj")
 
     ### Calculate population coverage in long form datasets
     b_vxrate_pub <- b_vxrate %>%

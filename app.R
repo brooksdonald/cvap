@@ -71,7 +71,6 @@ adm_cov_env <- run_adm_cov(
   entity_env$entity_characteristics,
   .GlobalEnv$refresh_date,
   dvr_env$dvr_data,
-  .GlobalEnv$auto_cleaning,
   .GlobalEnv$refresh_supply_timeseries)
 cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
 finance_env <- run_finance(entity_env$entity_characteristics)

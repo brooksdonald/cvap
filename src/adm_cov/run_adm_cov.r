@@ -1,7 +1,7 @@
 # rows 119 - 596
 
 run_adm_cov <- function(entity_characteristics,
-    refresh_date, dvr_data, auto_cleaning, refresh_supply_timeseries) {
+    refresh_date, dvr_data, refresh_supply_timeseries) {
     source("src/adm_cov/dvr_current.r")
     source("src/adm_cov/dvr_prev.r")
     source("src/adm_cov/supply_timeseries.r")
@@ -14,12 +14,12 @@ run_adm_cov <- function(entity_characteristics,
     current_month <- substr(refresh_date, 1, 7)
 
     print(" > Daily current vaccinations")
-    b_vxrate <- load_b_vxrate(dvr_data, auto_cleaning)
+    b_vxrate <- load_b_vxrate(dvr_data)
     b_vxrate <- transform_current_vxrate(
         b_vxrate,
         entity_characteristics,
         refresh_date)
-    b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate, auto_cleaning)
+    b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate)
     b_vxrate_amc <- transform_subset_amc(b_vxrate)
     c_vxrate_sept_t10 <- transform_sept21_pop_tgt(b_vxrate)
     c_vxrate_dec_t2040 <- transform_dec21_pop_tgt(b_vxrate)
