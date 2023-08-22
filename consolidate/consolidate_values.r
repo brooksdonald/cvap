@@ -1,6 +1,6 @@
 
 values_table <- function(a_data, a_data_amc, a_data_africa,
-                         a_data_csc, a_data_ifc, refresh_date) {
+                         a_data_csc, a_data_ifc, date_refresh) {
   z_values <- data.frame(c("Text"))
 
   z_values$pop_amc <- sum(a_data_amc$a_pop, na.rm = TRUE)
@@ -14,7 +14,7 @@ values_table <- function(a_data, a_data_amc, a_data_africa,
   z_values$pop_amc_40 <- z_values$pop_amc * 0.4
   z_values$pop_amc_70 <- z_values$pop_amc * 0.7
 
-  z_values$refresh_date_value <- refresh_date
+  z_values$refresh_date_value <- date_refresh
   
   print(" >> Function 'values_table' done")
   return(z_values)

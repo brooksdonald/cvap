@@ -1,7 +1,7 @@
 # rows 2698 - 3280
 
 run_consolidate <- function(a_data, a_data_amc, a_data_africa,
-    a_data_csc, a_data_ifc, b_vxrate_change_lw, refresh_date) {
+    a_data_csc, a_data_ifc, b_vxrate_change_lw, date_refresh) {
     source("consolidate/consolidate_change.r")
     source("consolidate/consolidate_covtar.r")
     source("consolidate/consolidate_values.r")
@@ -36,7 +36,7 @@ run_consolidate <- function(a_data, a_data_amc, a_data_africa,
     
     print(" > Creating values table...")
     z_values <- values_table(a_data, a_data_amc, a_data_africa,
-        a_data_csc, a_data_ifc, refresh_date)
+        a_data_csc, a_data_ifc, date_refresh)
     print(" > Done.")
 
     print(" > Change count tables, daily vxrate % change category...")
