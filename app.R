@@ -169,8 +169,8 @@ all_df <- list(
     "9_values" = consolidate_env$z_values
 )
 
-  write_xlsx(all_df, "data/output/230727_output_powerbi.xlsx")
-  write_xlsx(export_env$api, "data/output/230727_output_api.xlsx")
+  write_xlsx(all_df, paste0("data/output/", format(refresh_date, "%y%m%d"), "_output_powerbi.xlsx"))
+  write_xlsx(export_env$api, paste0("data/output/", format(refresh_date, "%y%m%d"), "output_api.xlsx"))
   write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")
