@@ -79,7 +79,7 @@ transform_last_month_data <- function(base_data_lm) {
       "t10_status",
       "t40_status",
       "t70_status",
-      "booster_status",
+      "adm_status_boost",
       "adm_fv",
       "adm_fv_hcw",
       "adm_fv_60p"

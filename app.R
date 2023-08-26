@@ -30,13 +30,13 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$date_refresh <- as.Date("2023-07-27")
-.GlobalEnv$date_del <- as.Date("2023-07-19")
+.GlobalEnv$date_refresh <- as.Date("2023-08-25")
+.GlobalEnv$date_del <- as.Date("2023-08-11")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
-.GlobalEnv$refresh_api <- FALSE # set to FALSE to use last API call
-.GlobalEnv$refresh_timeseries <- FALSE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
-.GlobalEnv$refresh_supply_timeseries <- FALSE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
+.GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
+.GlobalEnv$refresh_timeseries <- TRUE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
+.GlobalEnv$refresh_supply_timeseries <- TRUE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
 
 # HELPERS
 
@@ -142,7 +142,7 @@ source("consolidate/last_month/run_last_month.r")
 source("consolidate/funding_tracker/run_funding_tracker.r")
 # 
  last_month_env <- run_last_month()
- funding_tracker_env <- run_funding_tracker()
+ # funding_tracker_env <- run_funding_tracker()
 
 # EXPORT
 
@@ -164,8 +164,8 @@ all_df <- list(
     "9_values" = consolidate_env$z_values
 )
 
-  # write_xlsx(all_df, paste0("data/output/", format(date_refresh, "%y%m%d"), "_output_powerbi.xlsx"))
-  # write_xlsx(export_env$api, paste0("data/output/", format(date_refresh, "%y%m%d"), "output_api.xlsx"))
+write_xlsx(all_df, paste0("data/output/", format(date_refresh, "%y%m%d"), "_output_powerbi.xlsx"))
+write_xlsx(export_env$api, paste0("data/output/", format(date_refresh, "%y%m%d"), "output_api.xlsx"))
 write_xlsx(all_df, "data/output/output_master.xlsx")
 
 print(" > Output exported to Excel successfully!")

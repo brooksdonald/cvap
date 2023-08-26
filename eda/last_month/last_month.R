@@ -45,8 +45,8 @@ transform_last_month <- function(a_data, a_data_lm) {
     a_data_lm,
     c(
       "a_iso",
-      "a_who_status",
-      "intro_status",
+      "a_status_who",
+      "adm_status_intro",
       "adm_a1d_homo",
       "adm_fv_homo",
       "adm_booster",
@@ -72,7 +72,7 @@ transform_last_month <- function(a_data, a_data_lm) {
       "t10_status",
       "t40_status",
       "t70_status",
-      "booster_status",
+      "adm_status_boost",
       "adm_fv",
       "adm_fv_hcw",
       "adm_fv_60p"
@@ -82,7 +82,7 @@ transform_last_month <- function(a_data, a_data_lm) {
   print(" >> Renaming columns...")
   colnames(a_data_lm) <- c(
     "a_iso",
-    "a_who_status_lm",
+    "a_status_who_lm",
     "adm_status_intro_lm",
     "adm_a1d_homo_lm",
     "adm_tot_cps_homo_lm",
