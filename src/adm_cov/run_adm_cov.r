@@ -1,27 +1,24 @@
-# rows 119 - 596
-
 run_adm_cov <- function(entity_characteristics,
-    refresh_date, dvr_data, auto_cleaning, refresh_supply_timeseries) {
-    source("src/adm_cov/dvr_current.r")
-    source("src/adm_cov/dvr_prev.r")
-    source("src/adm_cov/supply_timeseries.r")
-    source("src/adm_cov/finance_timeseries.r")
+    date_refresh, dvr_data, refresh_supply_timeseries) {
+  print("> Loading src/adm_cov module scripts...")  
+  source("src/adm_cov/dvr_current.r")
+  source("src/adm_cov/dvr_prev.r")
+  source("src/adm_cov/supply_timeseries.r")
 
     path_to_timeseries_data <- "data/input/test/"
 
     print(" > Starting local environment for vaccinations")
 
     # receive the current month in "%Y-%m" format
-    current_month <- substr(refresh_date, 1, 7)
+    current_month <- substr(date_refresh, 1, 7)
 
     print(" > Daily current vaccinations")
-    b_vxrate <- load_b_vxrate(dvr_data, auto_cleaning)
+    b_vxrate <- load_b_vxrate(dvr_data)
     b_vxrate <- transform_current_vxrate(
         b_vxrate,
         entity_characteristics,
-        refresh_date)
-    b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate, auto_cleaning)
-    b_vxrate_amc <- transform_subset_amc(b_vxrate)
+        date_refresh)
+    b_vxrate_pub <- transform_current_vxrate_pub(b_vxrate)
     c_vxrate_sept_t10 <- transform_sept21_pop_tgt(b_vxrate)
     c_vxrate_dec_t2040 <- transform_dec21_pop_tgt(b_vxrate)
     c_vxrate_jun_t70 <- transform_jun22_pop_tgt(b_vxrate)
@@ -104,11 +101,6 @@ run_adm_cov <- function(entity_characteristics,
     )
     print(" > Done.")
 
-    print(" > Producing finance timeseries data...")
-    overall_fin_cumul_long <- import_finance_data()
-    # overall_fin_long <- transform_fin_data(overall_fin_cumul_long) # Uncomment to include net per month
-    print(" > Done.")
-
     print(" > Last week, last month, vaccinations and recreated 13jan data")
     print(" > Last week's data")
     b_vxrate_lw_sum <- load_lw_data(c_vxrate_lastweek)
@@ -127,7 +119,7 @@ run_adm_cov <- function(entity_characteristics,
     c_vxrate_latest <- merge_with_summary(c_vxrate_latest, b_vxrate_2m_sum) 
 
     print(" > Week of 13 Jan")
-    b_vxrate_13jan <- recreate_df(b_vxrate)
+    b_vxrate_13jan <- recreate_df(b_vxrate, entity_characteristics)
     c_vxrate_latest <- merge_with_summary(c_vxrate_latest, b_vxrate_13jan)
 
     print(" > Done.")

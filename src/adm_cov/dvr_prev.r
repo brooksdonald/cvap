@@ -1,13 +1,6 @@
 
 load_lw_data <- function(c_vxrate_lastweek) {
     print(" >> Loading last week dataset...")
-    #b_vxrate_lw_sum <- data.frame(
-     #   read_excel(
-      #      "data/input/base_dvr_lastweek.xlsx",
-       #     sheet = "data_summary"
-      #  )
-    #)
-
     # Last week dataset
     ## Select relevant columns and rename
     print(" >> Selecting last week data...")
@@ -17,7 +10,7 @@ load_lw_data <- function(c_vxrate_lastweek) {
             "a_iso",
             "dvr_4wk_td",
             "dvr_4wk_td_lm",
-            "adm_fv"
+            "adm_tot_cps"
         )
     )
     print(" >> Renaming last week dataset columns...")
@@ -25,7 +18,7 @@ load_lw_data <- function(c_vxrate_lastweek) {
         "a_iso",
         "dvr_4wk_td_lw",
         "dvr_4wk_td_lw_lm",
-        "adm_fv_lw"
+        "adm_tot_cps_lw"
     )
 
   return(b_vxrate_lw_sum)
@@ -33,22 +26,16 @@ load_lw_data <- function(c_vxrate_lastweek) {
 
 load_lm_data <- function(c_vxrate_lastmonth) {
     print(" >> Loading last month dataset...")
-    #b_vxrate_lm_sum <- data.frame(
-     #   read_excel(
-      #      "data/input/base_dvr_lastmonth.xlsx",
-       #     sheet = "data_summary"
-        #)
-    #)
 
     print(" >> Selecting relevant columns from last month data...")
     b_vxrate_lm_sum <- select(
       c_vxrate_lastmonth,
         c(
             "a_iso",
-            "adm_td",
-            "adm_fv",
-            "adm_a1d",
-            "adm_booster"
+            "adm_tot_td",
+            "adm_tot_cps",
+            "adm_tot_a1d",
+            "adm_tot_boost"
         )
     )
 
@@ -56,10 +43,10 @@ load_lm_data <- function(c_vxrate_lastmonth) {
     colnames(b_vxrate_lm_sum) <-
     c(
         "a_iso",
-        "adm_td_lm",
-        "adm_fv_lm",
-        "adm_a1d_lm",
-        "adm_booster_lm"
+        "adm_tot_td_lm",
+        "adm_tot_cps_lm",
+        "adm_tot_a1d_lm",
+        "adm_tot_boost_lm"
     )
 
     return(b_vxrate_lm_sum) 
@@ -68,12 +55,6 @@ load_lm_data <- function(c_vxrate_lastmonth) {
 
 load_l2m_data <- function(c_vxrate_twomonth) {
     print(" >> Loading last two month dataset...")
-    #b_vxrate_2m_sum <- data.frame(
-     #   read_excel(
-      #      "data/input/base_dvr_twomonth.xlsx",
-       #     sheet = "data_summary"
-       # )
-    #)
 
     # Two month dataset
     ## Select relevant columns and rename
@@ -82,18 +63,18 @@ load_l2m_data <- function(c_vxrate_twomonth) {
         c_vxrate_twomonth,
         c(
             "a_iso",
-            "adm_td",
-            "adm_fv",
-            "adm_a1d"
+            "adm_tot_td",
+            "adm_tot_cps",
+            "adm_tot_a1d"
         )
     )
 
     print(" >> Renaming columns...")
     colnames(b_vxrate_2m_sum) <- c(
         "a_iso",
-        "adm_td_2m",
-        "adm_fv_2m",
-        "adm_a1d_2m"
+        "adm_tot_td_2m",
+        "adm_tot_cps_2m",
+        "adm_tot_a1d_2m"
     )
 
     return(b_vxrate_2m_sum)
@@ -128,7 +109,7 @@ transform_lw_data <- function(b_vxrate_lw_sum, c_vxrate_latest) {
         )
 
     ## Select relevant columns for coverage category count change table
-    b_vxrate_cov <- select(b_vxrate_lw_sum, "a_iso", "adm_fv_lw")
+    b_vxrate_cov <- select(b_vxrate_lw_sum, "a_iso", "adm_tot_cps_lw")
 
     c_vxrate_latest <- merge_with_summary(c_vxrate_latest, b_vxrate_cov)
     datalist <- list("c_vxrate_latest" = c_vxrate_latest,

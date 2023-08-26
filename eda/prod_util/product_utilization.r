@@ -1,6 +1,6 @@
 # Product utilization
 
-dose_utilization <- function(a_data, refresh_date) {
+dose_utilization <- function(a_data, date_refresh) {
     ## Calculate remaining doses, absolute and % pop.
     print(" >>> Computing remaining doses, absolute and % pop...")
     a_data <- a_data %>%
@@ -8,21 +8,21 @@ dose_utilization <- function(a_data, refresh_date) {
             (if_else(
                 is.na(del_dose_total) | del_dose_total == 0,
                 NA_real_,
-                ((del_dose_total * 0.9) - adm_td))),
+                ((del_dose_total * 0.9) - adm_tot_td))),
             0)) %>%
 
         mutate(pu_del_rem_wast = pmax(
             (if_else(
                 is.na(del_dose_total) | del_dose_total == 0,
                 NA_real_,
-                (del_dose_total - adm_td))),
+                (del_dose_total - adm_tot_td))),
             0)) %>%
 
         mutate(pu_del_rem_wast_lm = pmax(
             (if_else(
                 is.na(del_dose_total_lm) | del_dose_total_lm == 0,
                 NA_real_,
-                (del_dose_total_lm - adm_td_lm))),
+                (del_dose_total_lm - adm_tot_td_lm))),
             0)) %>%
 
         mutate(del_dose_wast_per = del_dose_wast / a_pop) %>%
@@ -34,7 +34,7 @@ dose_utilization <- function(a_data, refresh_date) {
             NA_real_,
             pu_del_rem / dvr_4wk_td)) %>%
         mutate(pu_del_rem_timeto_date =
-            as.Date(refresh_date + pu_del_rem_timeto))
+            as.Date(date_refresh + pu_del_rem_timeto))
 
     ## Calculate percent of doses received utilized
     print(" >>> Computing percent of doses received utilized...")
@@ -69,17 +69,17 @@ supply_pending <- function(a_data) {
     # Calculate supply secured not yet delivered, supply received not yet administered
     print(" >>> Computing supply secured not yet delivered, supply received not yet administered...")
     a_data <- a_data %>%
-    mutate(rem_cour_del = pmax(del_cour_total - del_cour_wast - adm_fv_homo -
-        (((adm_a1d_homo - adm_fv_homo) + adm_booster)  * 0.5), 0)) %>%
-    mutate(rem_cour_del_wast = pmax(del_cour_total - adm_fv_homo -
-        (((adm_a1d_homo - adm_fv_homo) + adm_booster)  * 0.5), 0)) %>%
+    mutate(rem_cour_del = pmax(del_cour_total - del_cour_wast - adm_tot_cps_homo -
+        (((adm_tot_a1d_homo - adm_tot_cps_homo) + adm_tot_boost)  * 0.5), 0)) %>%
+    mutate(rem_cour_del_wast = pmax(del_cour_total - adm_tot_cps_homo -
+        (((adm_tot_a1d_homo - adm_tot_cps_homo) + adm_tot_boost)  * 0.5), 0)) %>%
     mutate(rem_cour_del_per = rem_cour_del / a_pop) %>%
     mutate(rem_cour_del_wast_per = rem_cour_del_wast / a_pop) %>%
     mutate(rem_cour_del_prop = rem_cour_del / del_cour_total)
     return(a_data)
 }
 
-course_sufficiency <- function(a_data, refresh_date) {
+course_sufficiency <- function(a_data, date_refresh) {
     # Calculate if courses secured, received, and administered sufficient to reach targets
     print(" >>> Computing if courses received & administered sufficient to reach targets...")
     a_data <- a_data %>%
@@ -103,15 +103,15 @@ course_sufficiency <- function(a_data, refresh_date) {
         mutate(t20_cour_need_del =
             round(pmax(t20_cour_req - del_cour_total, 0))) %>%
         mutate(t20_cour_need_adm =
-            round(pmax(t20_cour_req - adm_fv_homo, 0))) %>%
+            round(pmax(t20_cour_req - adm_tot_cps_homo, 0))) %>%
         mutate(t40_cour_need_del =
             round(pmax(t40_cour_req - del_cour_total, 0))) %>%
         mutate(t40_cour_need_adm =
-            round(pmax(t40_cour_req - adm_fv_homo, 0))) %>%
+            round(pmax(t40_cour_req - adm_tot_cps_homo, 0))) %>%
         mutate(t70_cour_need_del =
             round(pmax(t70_cour_req - del_cour_total, 0))) %>%
         mutate(t70_cour_need_adm =
-            round(pmax(t70_cour_req - adm_fv_homo, 0)))
+            round(pmax(t70_cour_req - adm_tot_cps_homo, 0)))
     
     return(a_data)
 }

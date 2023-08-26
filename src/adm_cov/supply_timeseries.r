@@ -227,18 +227,18 @@ transform_monthly_supply_received <- function(overall_cumul_long) {
 
 load_administration <- function(d_absorption_country_new, entity_characteristics) {
 
-  # Merge base details with adminstration data
+  # Merge base details with administration data
   print(" >> Loading administration data...")
   admin_red <- entity_characteristics %>%
     select(
       c(
         "a_iso",
-        "a_covax_status",
-        "a_csc_status"
+        "a_status_covax",
+        "a_status_csc"
       )) %>%
     rename(iso = a_iso) %>%
     right_join(d_absorption_country_new, by = "iso") %>%
-    select(iso, a_csc_status, a_covax_status, absorbed, month_name) %>%
+    select(iso, a_status_csc, a_status_covax, absorbed, month_name) %>%
     rename(value = absorbed)
 
   return(admin_red)

@@ -32,7 +32,7 @@ helper_add_char_to_list <- function(l, char = "Y") {
     return(sprintf(paste0(char, "%s"), l))
 }
 
-helper_goal_target_groups <- function(a_data, group, timeto_t70, deadline_suffix) {
+helper_goal_target_groups <- function(a_data, group) {
     a_pop_var <- paste0("a_pop_", group)
     appendix <- if (group == 10 | group == "10") {
         "sep"
@@ -43,43 +43,43 @@ helper_goal_target_groups <- function(a_data, group, timeto_t70, deadline_suffix
             "dec"
         }
     }
-    txx_rate_needed <- paste0("t", group, "_rate_needed", deadline_suffix)
-    a_data <- a_data %>%
-        mutate(!!as.name(paste0("t", group, "_timeto")) := round(if_else(
-            is.infinite(((adm_pv + (((!!as.name(paste0("a_pop_", group)))
-                - adm_pv - adm_fv_homo) * 2)) /
-                dvr_4wk_td)) &
-                ((adm_pv + ((!!as.name(paste0("a_pop_", group))
-                    - adm_pv - adm_fv_homo) * 2)) /
-                dvr_4wk_td > 0),
-            NA_real_,
-            pmax((adm_pv + ((!!as.name(paste0("a_pop_", group)) -
-                    adm_pv - adm_fv_homo) * 2)) /
-                    dvr_4wk_td,
-                0))))
-    a_data <- a_data %>%
-        mutate(
-            !!as.name(paste0("t", group, "_rate_needed", deadline_suffix)) :=
-                pmax(((!!as.name(paste0("a_pop_", group)) -
-                    adm_fv_homo) / timeto_t70) * 2,
-            0))
-    a_data <- a_data %>%
-        mutate(
-            !!as.name(paste0("t", group, "_scaleup", deadline_suffix)) :=
-            if_else(
-                is.infinite(round(
-                    !!as.name(txx_rate_needed) /
-                        dvr_4wk_td,
-                    2)),
-                0,
-                round(!!as.name(txx_rate_needed) /
-                    dvr_4wk_td,
-                    2)))
+    # txx_rate_needed <- paste0("t", group, "_rate_needed", deadline_suffix)
+    # a_data <- a_data %>%
+    #     mutate(!!as.name(paste0("t", group, "_timeto")) := round(if_else(
+    #         is.infinite(((adm_pv + (((!!as.name(paste0("a_pop_", group)))
+    #             - adm_pv - adm_fv_homo) * 2)) /
+    #             dvr_4wk_td)) &
+    #             ((adm_pv + ((!!as.name(paste0("a_pop_", group))
+    #                 - adm_pv - adm_fv_homo) * 2)) /
+    #             dvr_4wk_td > 0),
+    #         NA_real_,
+    #         pmax((adm_pv + ((!!as.name(paste0("a_pop_", group)) -
+    #                 adm_pv - adm_fv_homo) * 2)) /
+    #                 dvr_4wk_td,
+    #             0))))
+    # a_data <- a_data %>%
+    #     mutate(
+    #         !!as.name(paste0("t", group, "_rate_needed", deadline_suffix)) :=
+    #             pmax(((!!as.name(paste0("a_pop_", group)) -
+    #                 adm_fv_homo) / timeto_t70) * 2,
+    #         0))
+    # a_data <- a_data %>%
+    #     mutate(
+    #         !!as.name(paste0("t", group, "_scaleup", deadline_suffix)) :=
+    #         if_else(
+    #             is.infinite(round(
+    #                 !!as.name(txx_rate_needed) /
+    #                     dvr_4wk_td,
+    #                 2)),
+    #             0,
+    #             round(!!as.name(txx_rate_needed) /
+    #                 dvr_4wk_td,
+    #                 2)))
     a_data <- a_data %>%
         mutate(!!as.name(paste0("t", group, "_status")) := if_else(
             !!as.name(paste0("t", group, "_goalmet_", appendix)) == "Yes" |
                 is.na(!!as.name(paste0("t", group, "_goalmet_", appendix))) &
-                adm_td > 0,
+                adm_tot_td > 0,
             "1) Goal met by deadline",
             if_else(
                 !!as.name(paste0("t", group, "_goalmet_after")) == "Yes",
@@ -119,18 +119,18 @@ helper_calculate_cov_total_fv <- function(data) {
     data <- data %>%
     mutate(
         cov_total_fv = if_else(
-        adm_a1d == 0 & adm_fv == 0 & adm_booster == 0,
-            (adm_td / 2) / a_pop,
+        adm_tot_a1d == 0 & adm_tot_cps == 0 & adm_tot_boost == 0,
+            (adm_tot_td / 2) / a_pop,
             if_else(
-                adm_a1d == 0 & adm_fv == 0 & adm_booster != 0,
-                ((adm_td - adm_booster) / 2) / a_pop,
+                adm_tot_a1d == 0 & adm_tot_cps == 0 & adm_tot_boost != 0,
+                ((adm_tot_td - adm_tot_boost) / 2) / a_pop,
                 if_else(
-                    adm_a1d != 0 & adm_fv == 0 & adm_booster == 0,
-                    (adm_td - adm_a1d) / a_pop,
+                    adm_tot_a1d != 0 & adm_tot_cps == 0 & adm_tot_boost == 0,
+                    (adm_tot_td - adm_tot_a1d) / a_pop,
                     if_else(
-                        adm_a1d != 0 & adm_fv == 0 & adm_booster != 0,
-                        (adm_td - adm_a1d - adm_booster) / a_pop,
-                        adm_fv / a_pop
+                        adm_tot_a1d != 0 & adm_tot_cps == 0 & adm_tot_boost != 0,
+                        (adm_tot_td - adm_tot_a1d - adm_tot_boost) / a_pop,
+                        adm_tot_cps / a_pop
                 )
             )
             )
@@ -142,15 +142,15 @@ helper_calculate_cov_total_fv <- function(data) {
 helper_check_for_duplicates <- function(data) {
     data <- data %>%
         group_by(a_iso, target_group) %>%
-        mutate(max_n_vacc = max(adm_fv, na.rm = T)) %>%
+        mutate(max_n_vacc = max(adm_cps, na.rm = T)) %>%
         arrange(a_iso, data, target_group) %>%
-        filter(adm_fv == max_n_vacc | is.na(adm_fv)) %>%
+        filter(adm_cps == max_n_vacc | is.na(adm_cps)) %>%
         distinct(a_iso, target_group, .keep_all = TRUE) %>%
         mutate(max_n_vacc = if_else(
             max_n_vacc == -Inf,
             NA_real_,
             max_n_vacc)) %>%
-        mutate(adm_fv = max_n_vacc) %>%
+        mutate(adm_cps = max_n_vacc) %>%
         select(-max_n_vacc)
     return(data)
 }

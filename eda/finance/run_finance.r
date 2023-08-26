@@ -18,16 +18,8 @@ run_financing <- function(a_data) {
   a_data_csc <- covdp_csc_status(a_data)
   print(" > Done.")
   
-  print(" > Filtering CoVDP IFC status ...")
-  a_data_ifc <- covdp_ifc_status(a_data)
-  print(" > Done.")
-  
   print(" > Filtering African continent...")
   a_data_africa <- africa_continent(a_data)
-  print(" > Done.")
-  
-  print(" > Filtering for API view...")
-  api <- api_export_table(a_data)
   print(" > Done.")
 
   return(environment())

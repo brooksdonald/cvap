@@ -17,10 +17,10 @@ transform_last_month_data <- function(base_data_lm) {
     base_data_current,
     c(
       "a_iso",
-      "adm_a1d_homo",
-      "adm_fv_homo",
-      "adm_booster_homo",
-      "adm_td",
+      "adm_tot_a1d_homo",
+      "adm_tot_cps_homo",
+      "adm_tot_boost_homo",
+      "adm_tot_td",
       "cov_total_fv",
       "cov_total_a1d",
       "adm_fv_hcw_repstat",
@@ -42,10 +42,10 @@ transform_last_month_data <- function(base_data_lm) {
       "t10_status",
       "t40_status",
       "t70_status",
-      "booster_status",
-      "adm_fv",
-      "adm_fv_hcw",
-      "adm_fv_60p"
+      "adm_status_boost",
+      "adm_tot_cps",
+      "adm_cps_hcw",
+      "adm_cps_60p"
     )
   )
   
@@ -79,7 +79,7 @@ transform_last_month_data <- function(base_data_lm) {
       "t10_status",
       "t40_status",
       "t70_status",
-      "booster_status",
+      "adm_status_boost",
       "adm_fv",
       "adm_fv_hcw",
       "adm_fv_60p"
@@ -113,7 +113,7 @@ transform_last_month_data <- function(base_data_lm) {
     "t10_status_lm",
     "t40_status_lm",
     "t70_status_lm",
-    "booster_status_lm",
+    "adm_status_boost",
     "adm_fv_lm",
     "adm_fv_hcw_lm",
     "adm_fv_60p_lm"

@@ -9,8 +9,8 @@ vxrate_change_cat <- function(a_data, b_vxrate_change_lw) {
         c(
             "a_iso",
             "dvr_4wk_td_change_lm_per_cat",
-            "a_covax_status",
-            "intro_status",
+            "a_status_covax",
+            "adm_status_intro",
             "a_continent"
         )
     )
@@ -18,12 +18,12 @@ vxrate_change_cat <- function(a_data, b_vxrate_change_lw) {
     f_dvr_change_count_af <- filter(
         f_dvr_change_count,
         a_continent == "Africa" &
-        intro_status == "Product introduced"
+        adm_status_intro == "Product introduced"
     )
     f_dvr_change_count <- filter(
         f_dvr_change_count,
-        a_covax_status == "AMC" &
-        intro_status == "Product introduced"
+        a_status_covax == "AMC" &
+        adm_status_intro == "Product introduced"
     )
     f_dvr_change_count <-
         select(
@@ -104,8 +104,8 @@ cov_cat_change <- function(a_data) {
     f_cov_change_count <-
     filter(
         a_data,
-        a_covax_status == "AMC" &
-        intro_status == "Product introduced"
+        a_status_covax == "AMC" &
+        adm_status_intro == "Product introduced"
     )
 
     f_cov_change_count <- select(
@@ -145,7 +145,7 @@ cov_cat_af <- function(a_data) {
     filter(
         a_data,
         a_continent == "Africa" &
-        intro_status == "Product introduced"
+        adm_status_intro == "Product introduced"
     )
     f_cov_change_count_af <-
     select(

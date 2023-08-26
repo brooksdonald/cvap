@@ -7,18 +7,25 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
       a_iso,
       a_pop_older,
       adm_target_hcw,
-      adm_td_adj
+      adm_tot_td_adj
     )
+  
   print(" > Adding month date...")
+  
   # Prepare combined time series
   combined_three <- combined_three %>%
     mutate(month_name = as.Date(paste0(as.character(month_name), '-01'), format = '%Y-%m-%d')) %>%
-    mutate(adm_date_month = if_else(year(month_name) == 2022, 
-                                    as.numeric(month(month_name) + 12),
-                                    as.numeric(month(month_name)))) %>%
-    mutate(cov_total_fv = adm_fv / a_pop,
-           cov_total_a1d = adm_a1d / a_pop,
-           cov_total_booster = adm_booster / a_pop)
+    mutate(adm_date_month = if_else(year(month_name) == 2021, 
+                                    as.numeric(month(month_name)),
+                                    if_else(year(month_name) == 2022,
+                                    as.numeric(month(month_name)) + 12,
+                                    if_else(year(month_name) == 2023,
+                                            as.numeric(month(month_name) + 24),
+                                            NA_real_
+                                            )))) %>%
+    mutate(cov_total_fv = adm_tot_cps / a_pop,
+           cov_total_a1d = adm_tot_a1d / a_pop,
+           cov_total_booster = adm_tot_boost / a_pop)
 
   print(" > Join dataframes...")
   # Merge finance timeseries data with HCW population data frame
@@ -101,7 +108,7 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
            cov_old_fv = pmin(adm_fv_old_cap / a_pop_older, 1),
            cov_old_booster = pmin(adm_booster_old_cap / a_pop_older, 1))
 
-  # Calculate per capita funing amount
+  # Calculate per capita funding amount
   timeseries <- timeseries %>%
     mutate(Funds_per_capita = Funding.Amount / a_pop)
 
@@ -112,20 +119,21 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
       received,
       supply,
       absorbed,
-      adm_td,
-      adm_td_adj,
-      adm_fv,
-      adm_fv_change,
-      adm_a1d,
-      adm_a1d_change,
-      adm_booster,
-      adm_booster_change,
+      adm_tot_td,
+      adm_tot_td_adj,
+      adm_tot_cps,
+      adm_tot_cps_change,
+      adm_tot_a1d,
+      adm_tot_a1d_change,
+      adm_tot_boost,
+      adm_tot_boost_change,
       est_stock,
       a_name_short,
-      a_who_region,
+      a_region_who,
       a_income_group,
-      a_covax_status,
-      a_csc_status,
+      a_status_covax,
+      a_status_csc,
+      a_status_who,
       a_pop,
       cov_total_fv,
       cov_total_a1d,
@@ -140,6 +148,7 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
       adm_booster_old_cap,
       adm_hcw_a1d,
       adm_hcw_fv,
+      adm_booster_hcw_cap,
       cov_hcw_a1d,
       cov_hcw_fv,
       cov_hcw_booster,
@@ -153,7 +162,7 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
   timeseries <- timeseries %>%
     group_by(iso) %>%
     arrange(month_name) %>%
-    fill(c("adm_fv",
+    fill(c("adm_tot_cps",
            "cov_total_fv",
            "cov_total_a1d",
            "cov_total_booster",
@@ -168,6 +177,7 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
            "adm_booster_old_cap",
            "adm_hcw_a1d",
            "adm_hcw_fv",
+           "adm_booster_hcw_cap",
            "cov_old_a1d",
            "cov_old_fv",
            "cov_old_booster"))

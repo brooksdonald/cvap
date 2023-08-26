@@ -29,7 +29,7 @@ merge_a_data_details <- function(a_data) {
   return(a_data)
 }
 
-merge_supply_received_by_product <- function(a_data, supply_received_by_product) {
+merge_supply_received_by_product <- function(a_data, supply_received_dose_prod) {
   a_data_temp <-
     select(a_data,
       c("a_iso",
@@ -46,9 +46,9 @@ merge_supply_received_by_product <- function(a_data, supply_received_by_product)
                            "2) LMIC excl. India & Indonesia"),
                     a_income_group_vis))
            
-  supply_received_by_product<-merge(x=supply_received_by_product,y=a_data_temp, by="a_iso",all.x=TRUE)
+  supply_received_dose_prod<-merge(x=supply_received_dose_prod,y=a_data_temp, by="a_iso",all.x=TRUE)
   
- return(supply_received_by_product) 
+ return(supply_received_dose_prod) 
 }
   
   

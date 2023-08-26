@@ -3,15 +3,14 @@
 run_eda_adm_cov <- function(
     c_vxrate_latest,
     entity_characteristics,
-    population_data,
+    population,
     uptake_gender_data,
-    b_who_dashboard,
-    delivery_courses_doses,
+    who_dashboard,
+    sup_rec,
     b_dp,
-    c_delivery_product,
+    sup_rec_jj,
     b_fin_fund_del_sum,
-    refresh_date,
-    t70_deadline,
+    date_refresh,
     target_hcwold,
     combined_three,
     overall_fin_cumul_long,
@@ -30,23 +29,22 @@ run_eda_adm_cov <- function(
 
     print(" > Merging dataframes...")
     a_data <- merge_dataframes(
-        entity_characteristics,
+       entity_characteristics,
         c_vxrate_latest_red,
-        population_data,
+        population,
         uptake_gender_data,
-        b_who_dashboard,
-        delivery_courses_doses,
+        who_dashboard,
+        sup_rec,
         b_dp,
-        c_delivery_product,
+        sup_rec_jj,
         b_fin_fund_del_sum,
         population_pin
     )
     print(" > Done.")
 
     print(" > Calculating merged data")
-    datalist <- transform_vxrate_merge(a_data, refresh_date, t70_deadline)
+    datalist <- transform_vxrate_merge(a_data, date_refresh)
     a_data <- datalist$a_data
-    timeto_t70 <- datalist$timeto_t70
     print(" > Done.")
     
     timeseries <- merge_timeseries(a_data, combined_three, target_hcwold, overall_fin_cumul_long)
