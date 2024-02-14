@@ -1,7 +1,7 @@
-# COVID-19 Vaccine Delivery Partnership (CoVDP) Core Analysis Pipeline (CCAP)
+# COVID-19 Vaccination Analysis Pipeline (CVAP)
 
 ## Description 
-The COVID-19 Vaccine Delivery Partnership (CoVDP) Core Analysis Pipeline (CCAP) is a modular analytical pipeline designed to consolidate, analyze, and disseminate COVID-19 vaccine implementation data across all countries, areas, and territories for use by the global community.  It is produced and maintained by the CoVDP Data, Analytics, and Monitoring (DAM) team and is hosted on GitHub.
+The COVID-19 Vaccination Analysis Pipeline (CVAP) is a modular analytical pipeline designed to consolidate, analyze, and disseminate COVID-19 vaccine implementation data across all countries, areas, and territories for use by the global community.  It is produced and maintained by the CoVDP Data, Analytics, and Monitoring (DAM) team and is hosted on GitHub.
 
 ## History
 Since the beginning of the COVID-19 vaccine rollout, up to date COVID-19 vaccine implementation data have been needed to inform operational and policy decision-making at all levels.  Under the COVAX Country Readiness & Delivery (CRD) workstream, a PowerBI-based precursor to the current CCAP was developed to routinely centralize, homogenize, and overlay various data from along the vaccine introduction ‘value chain’.  Needing additional flexibility and greater security, the precursor solution was translated into an R-based analytical pipeline, now known as the CCAP, in December 2021. 
