@@ -186,7 +186,7 @@ def anti_join(before, after):
     return anti_join
 
 
-def cleaning_data(df, plot_function, var_to_clean):
+def cleaning_data(df, var_to_clean): # plot_function, 
     '''
     This function checks for logical errors between total doses, at least one dose, and fully vaccinated.
     Priority is given to total doses (which is not edited), then fully vaccinated, then at least one dose.
@@ -213,8 +213,8 @@ def cleaning_data(df, plot_function, var_to_clean):
         printing_log(country, country_name, len(fixes.loc[fixes['iso_code'] == country, :]))
         after_clean_fv['to_delete_automized_clean'] = 0
         before_clean_fv['to_delete_automized_clean'] = 0
-        plot_function(after_clean_fv, before_clean_fv, country, fixes,
-            var_to_clean, var_to_clean + '/logical_cleaning')
+        # plot_function(after_clean_fv, before_clean_fv, country, fixes,
+        #     var_to_clean, var_to_clean + '/logical_cleaning')
     fixes = fixes[['iso_code', 'date', var_to_clean]]
     fixes.to_csv('data/cleaning_log/' + var_to_clean + '/logical_cleaning/logged_changes.csv', index = False)
     return df
@@ -473,7 +473,7 @@ def final_variable_selection(df11, who, auto_cleaning):
     return df12
 
 
-def main(cleaned_data, refresh_api, auto_cleaning, plot_function):
+def main(cleaned_data, refresh_api, auto_cleaning)# , plot_function):
     days_in_weeks4 = 27
     days_in_weeks8 = 55
 
@@ -485,8 +485,8 @@ def main(cleaned_data, refresh_api, auto_cleaning, plot_function):
     df_inter = interpolate_data(df_inter)
     df3 = minimum_rollout_date(df_inter, country)
     if auto_cleaning:
-        df3 = cleaning_data(df3, plot_function, "fully_vaccinated")
-        df3 = cleaning_data(df3, plot_function, "at_least_one_dose")
+        df3 = cleaning_data(df3, "fully_vaccinated") # plot_function, 
+        df3 = cleaning_data(df3, "at_least_one_dose") # plot_function,
     df5 = moving_averages_td(df3, days_in_weeks4, days_in_weeks8)
     df6 = moving_averages_1d(df5, days_in_weeks4, days_in_weeks8)
     df8 = moving_averages_fv(df6, days_in_weeks4, days_in_weeks8)
