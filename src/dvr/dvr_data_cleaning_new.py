@@ -2,7 +2,6 @@ from pickle import TRUE
 import pandas as pd
 import numpy as np
 import datetime
-import sys
 import os
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
@@ -210,7 +209,6 @@ def row_check(country_data, row, df, log, var_to_clean_iloc):
         b. If false, do not delete observation.
     """
     ## check previous
-    # sys.setrecursionlimit(50000)
     if len(country_data) > row:
         country_data, df, log = row_check(country_data, row + 1, df, log, var_to_clean_iloc)
     else:

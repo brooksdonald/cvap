@@ -473,7 +473,7 @@ def final_variable_selection(df11, who, auto_cleaning):
     return df12
 
 
-def main(cleaned_data, refresh_api, auto_cleaning)# , plot_function):
+def main(cleaned_data, refresh_api, auto_cleaning):
     days_in_weeks4 = 27
     days_in_weeks8 = 55
 

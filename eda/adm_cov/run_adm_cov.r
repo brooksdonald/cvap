@@ -9,7 +9,7 @@ run_eda_adm_cov <- function(
     sup_rec,
     b_dp,
     sup_rec_jj,
-    b_fin_fund_del_sum,
+    fin_del_sum,
     date_refresh,
     target_hcwold,
     combined_three,
@@ -37,7 +37,7 @@ run_eda_adm_cov <- function(
         sup_rec,
         b_dp,
         sup_rec_jj,
-        b_fin_fund_del_sum,
+       fin_del_sum,
         population_pin
     )
     print(" > Done.")

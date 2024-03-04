@@ -13,8 +13,7 @@ import os
 def get_data(refresh_api):
 
   print(" > Defining URLs for API calls...")
-  urls = ['https://frontdoor-l4uikgap6gz3m.azurefd.net/NCOV/VAC_REP_COUNTS',
-    'https://frontdoor-l4uikgap6gz3m.azurefd.net/NCOV/VAC_REP_COUNTS_EUR']
+  urls = ['https://xmart-api-public.who.int/WIISE/COV_UPTAKE_WEEKLY']
   print(" > Done.")
   folder = "data/input/interim"
 
@@ -34,8 +33,8 @@ def get_data(refresh_api):
         data_json = json.loads(e.read())
       df1 = pd.DataFrame(data_json["value"])
       df1.astype(str)
-      df1 = df1[['COUNTRY_FK', 'AS_OF_DATE', 'DOSES_ADMINISTERED', 'PERSONS_VACCINATED_ONE_PLUS_DOSE', 'PERSONS_VACCINATED_FULL', 'PERSONS_BOOSTER_ADD_DOSE', 'SOURCE']]
-      df1 = df1[df1['COUNTRY_FK']!='None']
+      df1 = df1[['COUNTRY_NAME', 'DATE', 'DOSES_ADMINISTERED', 'PERSONS_VACCINATED_ONE_PLUS_DOSE', 'PERSONS_VACCINATED_COMPLETE', 'PERSONS_VACCINATED_BOOSTER_ADD_DOSE', 'SOURCE']]
+      df1 = df1[df1['COUNTRY_NAME']!='None']
       df1.columns = ['entity', 'date', 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose', 'source']
       df1['country_name'] = df1['entity'].str.title()
       df1 = pd.DataFrame(df1).drop_duplicates()

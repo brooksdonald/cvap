@@ -1,47 +1,40 @@
 load_b_vxrate <- function(dvr_data) {
-  print(" >> Using data from API...")
+  print(">> Converting dvr_data to dataframe & correcting date formats...")
   b_vxrate <- as.data.frame(dvr_data)
   b_vxrate$date <- as.Date(b_vxrate$date, format = "%Y-%m-%d")
 
-  print(" >> Selecting relevant current daily vaccination rate columns...")
-  columns <- c(
-    "iso_code",
-    "date",
-    "total_doses",
-    "at_least_one_dose",
-    "fully_vaccinated",
-    "persons_booster_add_dose",
-    "rolling_4_week_avg_td",
-    "rolling_4_week_avg_fv",
-    "max_rolling_4_week_avg_td",
-    "rolling_4_week_avg_td_lastmonth",
-    "no_change_from_previous",
-    "at_least_one_dose_adj", 
-    "fully_vaccinated_adj")
-  
-  b_vxrate <-
+  print(">> Selecting & renaming relevant current daily vaccination rate data...")
+  b_vxrate <- b_vxrate %>%
     select(
-      b_vxrate,
-      columns
+      iso_code,
+      date,
+      total_doses,
+      at_least_one_dose,
+      fully_vaccinated,
+      persons_booster_add_dose,
+      rolling_4_week_avg_td,
+      rolling_4_week_avg_fv,
+      max_rolling_4_week_avg_td,
+      rolling_4_week_avg_td_lastmonth,
+      no_change_from_previous,
+      at_least_one_dose_adj,
+      fully_vaccinated_adj
+    ) %>%
+    rename(
+      a_iso = iso_code,
+      adm_date = date,
+      adm_tot_td = total_doses,
+      adm_tot_a1d = at_least_one_dose,
+      adm_tot_cps = fully_vaccinated,
+      adm_tot_boost = persons_booster_add_dose,
+      dvr_4wk_td = rolling_4_week_avg_td,
+      dvr_4wk_fv = rolling_4_week_avg_fv,
+      dvr_4wk_td_max = max_rolling_4_week_avg_td,
+      dvr_4wk_td_lm = rolling_4_week_avg_td_lastmonth,
+      note_nochange = no_change_from_previous,
+      adm_tot_a1d_adj = at_least_one_dose_adj,
+      adm_tot_cps_adj = fully_vaccinated_adj
     )
-
-  print(" >> Renaming current daily vaccination rate columns...")
-  column_names <- c(
-      "a_iso",
-      "adm_date",
-      "adm_tot_td",
-      "adm_tot_a1d",
-      "adm_tot_cps",
-      "adm_tot_boost",
-      "dvr_4wk_td",
-      "dvr_4wk_fv",
-      "dvr_4wk_td_max",
-      "dvr_4wk_td_lm",
-      "note_nochange",
-      "adm_tot_a1d_adj", 
-      "adm_tot_cps_adj")
-
-  colnames(b_vxrate) <- column_names
   
   print(">> Done.")
   return(b_vxrate)
@@ -170,29 +163,35 @@ transform_current_vxrate <- function(
     return(b_vxrate)
 }
 
-# 13jan data re-creation
 recreate_df <- function(b_vxrate, entity_characteristics) {
-  print(" >> Select columns required to recreate 13jan data from b_vxrate...")
+  print(">> Selecting & renaming columns required to recreate 13jan data...")
   b_vxrate_data <- b_vxrate %>%
-    select(a_iso, adm_date, adm_tot_td, adm_tot_a1d, adm_tot_cps, adm_tot_boost)
-  print(" > Done.")
+    select(a_iso,
+           adm_date,
+           adm_tot_td,
+           adm_tot_a1d,
+           adm_tot_cps,
+           adm_tot_boost) %>%
+    rename(
+      a_iso = a_iso, 
+      date_13jan = adm_date, 
+      adm_tot_td_13jan = adm_tot_td, 
+      adm_tot_a1d_13jan = adm_tot_a1d, 
+      adm_tot_cps_13jan = adm_tot_cps, 
+      adm_tot_boost_13jan = adm_tot_boost
+    )
 
-  print(" >> Rename b_vxrate_data columns...")
-  colnames(b_vxrate_data) <- c("a_iso", "date_13jan", "adm_tot_td_13jan", "adm_tot_a1d_13jan", "adm_tot_cps_13jan", "adm_tot_boost_13jan")
-  print(" > Done.")
-
-  print(" >> Change date format")
+  print(">> Changing date format...")
   b_vxrate_data$date_13jan <- as.Date(b_vxrate_data$date_13jan)
-  print(" > Done.")
 
-  print(" >> Selecting iso and date columns...")
+  print(">> Selecting iso and date columns from entity detail data...")
   stable_dates <- entity_characteristics %>%
     select(a_iso, date_13jan)
-  print(" >> Change date column to date formart...")
+  
+  print(">> Changing date format...")
   stable_dates$date_13jan <- as.Date(stable_dates$date_13jan)
-  print(" > Done.")
 
-  print(" >> inner join of the df...")
+  print(">> Joining 13 jan dates to time series frame...")
   recreated_data <- inner_join(b_vxrate_data, stable_dates, by = c("a_iso", "date_13jan"))
   
   print(">> Done.")
@@ -225,9 +224,9 @@ transform_current_vxrate_pub <- function(b_vxrate) {
     b_vxrate_pub <- b_vxrate %>%
       select(columns) %>%
       mutate(dvr_4wk_td_per = dvr_4wk_td / a_pop,
-             cov_total_fv = adm_tot_cps / a_pop,
-             cov_total_fv_theo = (adm_tot_td / 2) / a_pop,
-             cov_total_a1d = adm_tot_a1d / a_pop)
+             cov_tot_cps = adm_tot_cps / a_pop,
+             cov_tot_cps_theo = (adm_tot_td / 2) / a_pop,
+             cov_tot_a1d = adm_tot_a1d / a_pop)
 
     print(">> Done.")
     return(b_vxrate_pub)
@@ -681,10 +680,9 @@ absorption_sum_by_month <- function(c_vxrate_eom, current_month) {
 
 latest_sum_table <- function(b_vxrate, c_vxrate_latest) {
   print(" >> Create latest value summary table...")
-  c_vxrate_latest <- filter(b_vxrate, adm_latest == "Yes")
-
-  ### Remove is_latest column
-  c_vxrate_latest <- select(c_vxrate_latest, -c("adm_latest"))
+  c_vxrate_latest <- b_vxrate %>%
+    filter(adm_date <= as.Date("2023-12-31")) %>%
+    filter(adm_date == max(adm_date))
 
   return(c_vxrate_latest)
 

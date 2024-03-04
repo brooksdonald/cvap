@@ -5,7 +5,8 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
   a_data_temp_ts <- a_data %>%
     select(
       a_iso,
-      a_pop_older,
+      a_pop_old,
+      date_intro,
       adm_target_hcw,
       adm_tot_td_adj
     )
@@ -94,19 +95,19 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
   
   # Calculate administration figures capped by older adult population
   timeseries <- timeseries %>%
-    mutate(adm_a1d_old_cap = pmin(N_VACC_DOSE1_old, a_pop_older),
-           adm_fv_old_cap = pmin(N_VACC_LAST_DOSE_old, a_pop_older),
-           adm_booster_old_cap = pmin(N_VACC_BOOSTER_DOSE_old, a_pop_older))
+    mutate(adm_a1d_old_cap = pmin(N_VACC_DOSE1_old, a_pop_old),
+           adm_fv_old_cap = pmin(N_VACC_LAST_DOSE_old, a_pop_old),
+           adm_booster_old_cap = pmin(N_VACC_BOOSTER_DOSE_old, a_pop_old))
   
   # Calculate older adult coverage
   timeseries <- timeseries %>%
-    mutate(a_pop_older = as.numeric(a_pop_older),
+    mutate(a_pop_old = as.numeric(a_pop_old),
            adm_a1d_old_cap = as.numeric(adm_a1d_old_cap),
            adm_fv_old_cap = as.numeric(adm_fv_old_cap),
            adm_booster_old_cap = as.numeric(adm_booster_old_cap),
-           cov_old_a1d = pmin(adm_a1d_old_cap / a_pop_older, 1),
-           cov_old_fv = pmin(adm_fv_old_cap / a_pop_older, 1),
-           cov_old_booster = pmin(adm_booster_old_cap / a_pop_older, 1))
+           cov_old_a1d = pmin(adm_a1d_old_cap / a_pop_old, 1),
+           cov_old_fv = pmin(adm_fv_old_cap / a_pop_old, 1),
+           cov_old_booster = pmin(adm_booster_old_cap / a_pop_old, 1))
 
   # Calculate per capita funding amount
   timeseries <- timeseries %>%
@@ -135,11 +136,12 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
       a_status_csc,
       a_status_who,
       a_pop,
+      date_intro,
       cov_total_fv,
       cov_total_a1d,
       cov_total_booster,
       a_pop_hcw,
-      a_pop_older,
+      a_pop_old,
       N_VACC_DOSE1,
       N_VACC_LAST_DOSE,
       N_VACC_BOOSTER_DOSE,
@@ -162,7 +164,9 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
   timeseries <- timeseries %>%
     group_by(iso) %>%
     arrange(month_name) %>%
-    fill(c("adm_tot_cps",
+    fill(c("adm_tot_td",
+           "adm_tot_a1d",
+           "adm_tot_cps",
            "cov_total_fv",
            "cov_total_a1d",
            "cov_total_booster",

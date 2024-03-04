@@ -80,8 +80,8 @@ api_export_table <- function(a_data) {
       "ndvp_target",
       "ndvp_deadline",
       "ndvp_status",
-      "fund_total",
-      "fund_percapita",
+      "fin_tot",
+      "fin_percapita",
       "a_date_refresh"
     )
   )
@@ -154,15 +154,74 @@ api_export_table <- function(a_data) {
     "t70_cour_req",
     "t70_cour_need_del",
     "t70_cour_need_adm",
-    "ndvp_target",
-    "ndvp_deadline",
-    "ndvp_status",
-    "fund_total",
-    "fund_percapita",
+    "ct_target",
+    "ct_deadline",
+    "ct_status",
+    "fin_tot",
+    "fin_percapita",
     "refresh_date"
   )
   
   api$is_current <- TRUE
   
   return(api)
+}
+
+dashboard_export_table <- function(a_data) {
+  
+  dashboard <- a_data %>%
+    ungroup() %>%
+    filter(a_status_who == "Member State" |
+             a_status_who == "Special" |
+             a_status_who == "Territory or Area"
+           )
+  
+  dashboard <- dashboard %>%
+    select(a_iso,
+           adm_date,
+           adm_tot_td,
+           adm_tot_a1d,
+           adm_tot_cps_homo,
+           adm_tot_boost,
+           adm_tot_td_per,
+           cov_total_a1d,
+           cov_total_fv,
+           cov_total_booster,
+           date_intro
+    ) %>%
+    mutate(adm_tot_td_per = adm_tot_td_per * 100,
+           cov_total_a1d = cov_total_a1d * 100,
+           cov_total_fv = cov_total_fv * 100,
+           cov_total_booster = cov_total_booster * 100,
+           adm_date_year = year(adm_date),
+           adm_date_week = if_else(isoweek(adm_date) < 10, paste0("0", isoweek(adm_date)), as.character(isoweek(adm_date))),
+           adm_date_epi = as.character(paste(paste0(adm_date_year, "-W", adm_date_week), "7", sep = "-")))
+  
+  temp <- dashboard %>%
+    filter(is.na(adm_date) == FALSE) %>%
+    mutate(adm_date_new = ISOweek2date(adm_date_epi)) %>%
+    select(a_iso,
+           adm_date_new)
+  
+  dashboard <- left_join(dashboard, temp, by = "a_iso") %>%
+    select(-adm_date_year,
+           -adm_date_week,
+           -adm_date_epi,
+           -adm_date)
+
+  colnames(dashboard) <- c(
+    "COUNTRY",
+    "DOSES_ADMINISTERED",
+    "PERSONS_VACCINATED_ONE_PLUS_DOSE",
+    "PERSONS_VACCINATED_COMPLETE",
+    "PERSONS_VACCINATED_BOOSTER_ADD_DOSE",
+    "DOSES_ADMINISTERED_PER100",
+    "PERSONS_VACCINATED_ONE_PLUS_DOSE_PER",
+    "PERSONS_VACCINATED_COMPLETE_PER",
+    "PERSONS_VACCINATED_BOOSTER_ADD_DOSE_PER",
+    "INTRO_DATE_FIRST",
+    "DATE"
+  )
+  
+  return(dashboard)
 }

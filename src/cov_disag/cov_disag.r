@@ -28,43 +28,37 @@ transform_population_uptake <- function(uptake_gender, uptake_groups) {
 }
 
 load_pop_target_gender <- function(headers, refresh_api) {
-    print(" >> Loading COV Uptake gender data...")
-  
+    print(">> Loading gender-disaggregated uptake data...")
     uptake_gender <- helper_wiise_api(
-        "https://frontdoor-l4uikgap6gz3m.azurefd.net/WIISE/V_COV_UPTAKE_GENDER_LAST_MONTH_LONG",
+        "https://xmart-api-public.who.int/WIISE/V_COV_UPTAKE_GENDER_LAST_MONTH_LONG",
         headers = FALSE, refresh_api)
-    # Reduce columns & rename
-    print(" >> Selecting uptake gender data...")
-    uptake_gender <-
-        select(
-            uptake_gender,
-            c(
-                "ISO_3_CODE",
-                "DATE",
-                "GENDER",
-                "N_VACC_DOSE1",
-                "N_VACC_LAST_DOSE",
-                "N_VACC_BOOSTER_DOSE"
-            )
-        )
 
-    print(" >> Renaming Columns...")
-    colnames(uptake_gender) <- c(
-        "a_iso",
-        "date",
-        "gender",
-        "adm_a1d",
-        "adm_cps",
-        "adm_boost"
-    )
-
+    print(">> Selecting & renaming relevant gender-dsaggregated uptake data...")
+    uptake_gender <- uptake_gender %>%
+        select(ISO_3_CODE,
+               DATE,
+               GENDER,
+               N_VACC_DOSE1,
+               N_VACC_LAST_DOSE,
+               N_VACC_BOOSTER_DOSE
+            ) %>%
+      rename(
+        "a_iso"= ISO_3_CODE,
+        "date" = DATE,
+        "gender" = GENDER,
+        "adm_a1d" = N_VACC_DOSE1,
+        "adm_cps" = N_VACC_LAST_DOSE,
+        "adm_boost" = N_VACC_BOOSTER_DOSE
+      )
+    
+    print(">>  Done.")
     return(uptake_gender)
 }
 
 load_pop_target_groups <- function(headers, refresh_api) {
     print(" >> Loading COV Uptake target group data...")
     uptake_target_group <- helper_wiise_api(
-        "https://frontdoor-l4uikgap6gz3m.azurefd.net/WIISE/V_COV_UPTAKE_TARGETGROUP_LAST_MONTH_LONG",
+        "https://xmart-api-public.who.int/WIISE/V_COV_UPTAKE_TARGETGROUP_LAST_MONTH_LONG",
         headers = FALSE, refresh_api)
     # Reduce columns & rename
     print(" >> Reducing columns and renaming them...")

@@ -4,7 +4,7 @@ run_dvr <- function(adm_api, auto_cleaning, headers, refresh_api) {
     print(" > Checking if all Python libraries are available...")
     python_packages <- c("datetime", "io", "json", "matplotlib", "numpy", 
                          "openpyxl", "os", "pandas", "pickle", "seaborn", 
-                         "urllib", "warnings")
+                         "urllib", "warnings", "sys")
     
     for (module in python_packages) {
       if (!py_module_available(module)) {
