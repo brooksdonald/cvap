@@ -56,7 +56,7 @@ merge_dataframes <- function(
   sup_rec,
   b_dp,
   sup_rec_jj,
-  b_fin_fund_del_sum,
+  fin_del_sum,
   population_pin
   ) {
     # Renaming iso columns to a_iso before merge
@@ -69,7 +69,7 @@ merge_dataframes <- function(
       sup_rec,
       b_dp,
       sup_rec_jj,
-      b_fin_fund_del_sum,
+      fin_del_sum,
       population_pin
     )
     # Merge details
@@ -113,12 +113,6 @@ transform_vxrate_merge <- function(a_data, date_refresh) {
     )
   )
 
-  a_data <- a_data %>%
-    mutate(a_status_csc_numb = if_else(
-      a_status_csc == "Concerted support country",
-      1,
-      NA_real_))
-
   # Assign population size category
   breaks <- c(0, 1000000, 10000000, 100000000,
     max(a_data$a_pop, na.rm = TRUE) + 1)
@@ -131,39 +125,33 @@ transform_vxrate_merge <- function(a_data, date_refresh) {
     labels = tags
   )
 
-  # Calculate population percentages
-  print(" >>> Computing population percentages...")
+  print(">>> Calculating total population percentages and proportions...")
   a_data <- a_data %>%
-    mutate(a_pop_10 = a_pop * 0.1) %>%
-    mutate(a_pop_20 = a_pop * 0.2) %>%
-    mutate(a_pop_40 = a_pop * 0.4) %>%
-    mutate(a_pop_70 = a_pop * 0.7)
+    mutate(a_pop_10 = a_pop * 0.1,
+           a_pop_20 = a_pop * 0.2,
+           a_pop_40 = a_pop * 0.4,
+           a_pop_70 = a_pop * 0.7,
+           a_pop_18p_prop = a_pop_18p / a_pop_2021,
+           a_pop_18u_prop = a_pop_18u / a_pop_2021,
+           a_pop_hcw_prop = a_pop_hcw / a_pop_2021,
+           a_pop_60p_prop = a_pop_60p / a_pop_2021,
+           a_pop_12p_prop = a_pop_12p / a_pop_2021,
+           a_pop_12u_prop = a_pop_12u / a_pop_2021)
   
-  # Calculate population proportions
-  print(" >>> Computing population proportions...")
+  print(">>> Assinging older adult population based on policy...")
   a_data <- a_data %>%
-    mutate(a_pop_18p_prop = a_pop_18p / a_pop_2021) %>%
-    mutate(a_pop_18u_prop = a_pop_18u / a_pop_2021) %>%
-    mutate(a_pop_hcw_prop = a_pop_hcw / a_pop_2021) %>%
-    mutate(a_pop_60p_prop = a_pop_60p / a_pop_2021) %>%
-    mutate(a_pop_12p_prop = a_pop_12p / a_pop_2021) %>%
-    mutate(a_pop_12u_prop = a_pop_12u / a_pop_2021)
-  
-  # Prepare older population value
-  a_data <- a_data %>%
-    mutate(a_pop_older = if_else(
-      is.na(pol_old), a_pop_60p,
-      if_else(pol_old == "45 and older", a_pop_45p,
-      if_else(pol_old == "50 and older", a_pop_50p,
-              if_else(pol_old == "55 and older", a_pop_55p,
-                      if_else(pol_old == "60 and older", a_pop_60p,
-                              if_else(pol_old == "65 and older", a_pop_65p,
-                                      if_else(pol_old == "70 and older", a_pop_70p,
-                                              if_else(pol_old == "75 and older", a_pop_75p,
-                                      a_pop_60p))
-              )
+    mutate(
+      a_pop_old = case_when(
+        pol_old == "45 and older" ~ a_pop_45p,
+        pol_old == "50 and older" ~ a_pop_50p,
+        pol_old == "55 and older" ~ a_pop_55p,
+        pol_old == "60 and older" ~ a_pop_60p,
+        pol_old == "65 and older" ~ a_pop_65p,
+        pol_old == "70 and older" ~ a_pop_70p,
+        pol_old == "75 and older" ~ a_pop_75p,
+        TRUE ~ a_pop_60p
       )
-    )))))
+    )
 
   # Calculate theoretical fully vaccinated for non-reporters for current, lm, and 2m
   print(" >>> Computing theoretically fully vaxxed for non reporters...")
@@ -450,21 +438,21 @@ transform_vxrate_merge <- function(a_data, date_refresh) {
 
   # Calculating older adults coverage groups
   a_data <- a_data %>%
-    mutate(adm_fv_60p_homo = pmin(a_pop_older, adm_cps_60p),
-           adm_a1d_60p_homo = if_else(pmin(a_pop_older, adm_a1d_60p) < adm_fv_60p_homo,
+    mutate(adm_fv_60p_homo = pmin(a_pop_old, adm_cps_60p),
+           adm_a1d_60p_homo = if_else(pmin(a_pop_old, adm_a1d_60p) < adm_fv_60p_homo,
                                       adm_fv_60p_homo,
-                                      pmin(a_pop_older, adm_a1d_60p)),
-           adm_booster_60p_homo = pmin(adm_boost_60p, a_pop_older)) %>%
+                                      pmin(a_pop_old, adm_a1d_60p)),
+           adm_booster_60p_homo = pmin(adm_boost_60p, a_pop_old)) %>%
     mutate(cov_60p_a1d = pmin(
-      adm_a1d_60p_homo / a_pop_older, 1)) %>%
+      adm_a1d_60p_homo / a_pop_old, 1)) %>%
     mutate(cov_60p_a1d_adjust = if_else(
       adm_a1d_60p <= adm_cps_60p,
       NA_real_,
       cov_60p_a1d)) %>%
     mutate(cov_60p_fv = pmin(
-      adm_fv_60p_homo / a_pop_older, 1)) %>%
+      adm_fv_60p_homo / a_pop_old, 1)) %>%
     mutate(cov_60p_booster = pmin(
-      1, adm_booster_60p_homo / a_pop_older)) %>%
+      1, adm_booster_60p_homo / a_pop_old)) %>%
     mutate(adm_booster_60p_status = if_else(
       is.na(adm_cps_60p) | adm_cps_60p == 0,
       "3) Not reporting on 60+ uptake",

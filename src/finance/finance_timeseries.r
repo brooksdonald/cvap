@@ -1,16 +1,3 @@
-path <- "data/input/test/"
-
-library("tidyverse")
-library("openxlsx")
-library("readxl")
-library("writexl")
-library("countrycode")
-library("lubridate")
-library("data.table")
-
-source("helpers/joins.r")
-source("helpers/transformations.r")
-
 import_finance_data <- function() {
     folder <- "data/input/test/"
     sheet_name <- "Data Structure"
@@ -101,19 +88,10 @@ import_finance_data <- function() {
     return(overall_cumul_long)
 }
 
-
-
-# Uncomment section below to get net per month.
-# overall_fin_cumul_long <- import_finance_data()
-# transform_fin_data <- function(overall_fin_cumul_long) {
-#     print(" >> Transforming finacial data...")
-#     overall_fin_long <- overall_fin_cumul_long %>%
-#         arrange(month_name) %>%
-#         mutate(Net_per_month = Funding.Amount - lag(Funding.Amount))
-#     return(overall_fin_long)
-# }
-# overall_fin_long <- transform_fin_data(overall_fin_cumul_long)
-# View(transform_fin_data(overall_cumul_long))
-
-# write_xlsx(overall_long, "data/output/finance_ts_v2.xlsx")
-# View(overall_long)
+transform_fin_data <- function(overall_fin_cumul_long) {
+    print(" >> Transforming finacial data...")
+    overall_fin_long <- overall_fin_cumul_long %>%
+        arrange(month_name) %>%
+        mutate(Net_per_month = Funding.Amount - lag(Funding.Amount))
+    return(overall_fin_long)
+}

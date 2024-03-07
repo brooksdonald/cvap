@@ -19,10 +19,12 @@ lib <- c("tidyverse",
          "bit64",
          "httr",
          "jsonlite",
+         "readr",
          "AzureAuth",
          "dotenv",
          "reticulate",
-         "ggrepel")
+         "ggrepel",
+         "ISOweek")
     
 lib_na <- lib[!(lib %in% installed.packages()[, "Package"])]
 if (length(lib_na)) install.packages(lib_na)
@@ -30,12 +32,13 @@ lapply(lib, library, character.only = TRUE)
 
 # STATIC VARIABLES
 
-.GlobalEnv$date_refresh <- as.Date("2023-08-25")
-.GlobalEnv$date_del <- as.Date("2023-08-11")
+.GlobalEnv$date_refresh <- as.Date("2023-12-31")
+.GlobalEnv$date_del <- as.Date("2023-11-20")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
 .GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
 .GlobalEnv$refresh_timeseries <- TRUE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
+.GlobalEnv$refresh_finance_timeseries <- TRUE
 .GlobalEnv$refresh_supply_timeseries <- TRUE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
 
 # HELPERS
@@ -55,14 +58,14 @@ source("src/adm_cov/run_adm_cov.r")
 source("src/cov_disag/run_cov_disag.r")
 source("src/finance/run_finance.r")
 source("src/add_data/run_add_data.r")
-source("src/last_month/run_last_month.r")
+# source("src/last_month/run_last_month.r")
 
 entity_env <- run_entity()
 dvr_env <- run_dvr(
+  .GlobalEnv$adm_api,
   .GlobalEnv$auto_cleaning,
   api_env$headers,
-  .GlobalEnv$refresh_api,
-  .GlobalEnv$adm_api)
+  .GlobalEnv$refresh_api)
 supply_env <- run_supply(.GlobalEnv$date_del,
                          .GlobalEnv$date_refresh,
                          .GlobalEnv$refresh_timeseries)
@@ -74,7 +77,7 @@ adm_cov_env <- run_adm_cov(
 cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
 finance_env <- run_finance(entity_env$entity_characteristics)
 add_data_env <- run_add_data(.GlobalEnv$refresh_api)
-last_month_env <- run_last_month()
+# last_month_env <- run_last_month()
 
 
 # Exploratory data analysis (EDA) -----------------------------------------
@@ -86,12 +89,10 @@ source("eda/cov_targets/run_cov_targets.r")
 source("eda/finance/run_finance.r")
 source("eda/rank_bin/run_rank_bin.r")
 source("eda/pin/run_pin.r")
-source("eda/sov/run_sov.r")
-source("eda/last_month/run_last_month.r")
 source("eda/export/run_export.r")
 
 eda_adm_cov_env <- run_eda_adm_cov(
-    adm_cov_env$c_vxrate_latest,
+    adm_cov_env$c_vxrate_latest, 
     entity_env$entity_characteristics,
     entity_env$population,
     cov_disag_env$uptake_gender_data,
@@ -99,7 +100,7 @@ eda_adm_cov_env <- run_eda_adm_cov(
     supply_env$sup_rec,
     add_data_env$b_dp,
     supply_env$sup_rec_jj,
-    finance_env$b_fin_fund_del_sum,
+    finance_env$fin_del_sum,
     .GlobalEnv$date_refresh,
     cov_disag_env$target_hcwold,
     adm_cov_env$combined_three,
@@ -120,9 +121,9 @@ cov_targets_env <- run_cov_targets(
 financing_env <- run_financing(cov_targets_env$a_data)
 rank_bin_env <- run_rank_bin(financing_env$a_data)
 eda_pin_env <- run_eda_pin(rank_bin_env$a_data, add_data_env$population_pin)
-eda_sov_env <- run_sov(eda_pin_env$a_data)
-eda_last_month_env <- run_last_month(eda_sov_env$a_data, last_month_env$a_data_lm)
-export_env <- run_export(eda_last_month_env$a_data) 
+export_env <- run_export(eda_pin_env$a_data) 
+
+# view(export_env$dashboard)
 
 
 # Consolidate -------------------------------------------------------------
@@ -140,23 +141,21 @@ consolidate_env <- run_consolidate(
 
 source("consolidate/last_month/run_last_month.r")
 source("consolidate/funding_tracker/run_funding_tracker.r")
-# 
- last_month_env <- run_last_month()
+# last_month_env <- run_last_month()
  # funding_tracker_env <- run_funding_tracker()
 
 # EXPORT
 
 print(" > Exporting data outputs from pipeline to Excel workbooks...")
 all_df <- list(
-    "0_base_data" = eda_sov_env$a_data,
-    "0_base_data_lm_change" = last_month_env$base_data_lm_change,
+    "0_base_data" = eda_pin_env$a_data,
     "1_absorption_month" = adm_cov_env$d_absorption,
     "1_absorption_month_country" = adm_cov_env$combined,
     "1_cum_absorb_month_country" = adm_cov_env$d_absorption_country_new,
     "1_stock" = eda_adm_cov_env$timeseries,
     "1_adm_all_long" = adm_cov_env$b_vxrate_pub,
     "1_delivery_doses" = supply_env$sup_rec_dose_prod,
-    "1_funding_source" = finance_env$b_fin_fund_del_source,
+    "1_funding_source" = finance_env$fin_del_sum_source,
     "8_cov_com_hcw_all" = consolidate_env$e_cov_com_hcw_all,
     "8_cov_com_60p_all" = consolidate_env$e_cov_com_60p_all,
     "8_cov_com_hcw_csc" = consolidate_env$e_cov_com_hcw_csc,
@@ -164,8 +163,10 @@ all_df <- list(
     "9_values" = consolidate_env$z_values
 )
 
-write_xlsx(all_df, paste0("data/output/", format(date_refresh, "%y%m%d"), "_output_powerbi.xlsx"))
-write_xlsx(export_env$api, paste0("data/output/", format(date_refresh, "%y%m%d"), "output_api.xlsx"))
+# write_xlsx(all_df, paste0("data/output/", format(date_refresh, "%y%m%d"), "_output_powerbi.xlsx"))
+# write_xlsx(export_env$api, paste0("data/output/", format(date_refresh, "%y%m%d"), "output_api.xlsx"))
 write_xlsx(all_df, "data/output/output_master.xlsx")
+# # write_xlsx(export_env$dashboard, paste0("data/output/", format(date_refresh, "%y%m%d"), "_output_dashboard.xlsx"))
 
 print(" > Output exported to Excel successfully!")
+

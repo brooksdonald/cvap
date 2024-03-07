@@ -1,250 +1,141 @@
-# Load finance data
-
 load_finance_data <- function() {
-    print(" >> Loading financing data...")
-    base_fin <- data.frame(
-        read_excel("data/input/base_financing.xlsx",
-        sheet = "Data Structure"
-        )
+  print(">> Loading financing data...")
+  raw_fin <- data.frame(read_excel("data/input/base_financing.xlsx",
+                                   sheet = "Data Structure"))
+  
+  print(">> Selecting & renaming relevant financing data...")
+  base_fin <- raw_fin %>%
+    select(
+      ISO.Code,
+      Recipient.Type,
+      Information.Type,
+      Allocation.Type,
+      Funding.Amount,
+      Funding.Source.Type.2,
+      Funding.Source,
+      Double.Counting,
+      Commitments,
+      Disbursements,
+      FA
+    ) %>%
+    rename(
+      a_iso = ISO.Code,
+      recipient = Recipient.Type,
+      information_type = Information.Type,
+      allocation_type = Allocation.Type,
+      fin_tot = Funding.Amount,
+      fin_source_type = Funding.Source.Type.2,
+      fin_source = Funding.Source,
+      double_count = Double.Counting,
+      fin_committed = Commitments,
+      fin_disbursed = Disbursements,
+      fin_add = FA
     )
-    print(" >> Select relevant columns from base_fin & renaming...")
-    b_fin_funding <- select(
-        base_fin,
-        c(
-            "ISO.Code",
-            "Recipient.Type",
-            "Information.Type",
-            "Allocation.Type",
-            "Funding.Amount",
-            "Funding.Source.Type.2",
-            "Funding.Source",
-            "Double.Counting",
-            "Commitments",
-            "Disbursements",
-            "FA"
-        )
-    )
-    colnames(b_fin_funding) <- c(
-        "a_iso",
-        "recipient",
-        "information_type",
-        "allocation_type",
-        "fund_total",
-        "funding_source",
-        "funder",
-        "double_count",
-        "fund_committed",
-        "fund_disbursed",
-        "fund_add"
-    )
-    return(b_fin_funding)
+  
+  print(">> Done.")
+  return(base_fin)
 }
 
-transform_finance_data <- function(b_fin_funding, entity_characteristics) {
-    b_fin_funding <- filter(b_fin_funding, recipient == "Country")
-    b_fin_funding <- filter(b_fin_funding, information_type == "Funding Information")
-    b_fin_funding <- filter(b_fin_funding, double_count == "Keep")
-
-    b_fin_fund_del <- filter(
-        b_fin_funding,
+transform_finance_data <-
+  function(base_fin, entity_characteristics) {
+    print(">> Filtering financing data for country- & delivery-related data...")
+    fin_del <- base_fin %>%
+      filter(
+        recipient == "Country",
+        information_type == "Funding Information",
+        double_count == "Keep",
         allocation_type == "Vaccine Delivery" &
-        is.na(fund_total) == FALSE
-        & fund_total != 0
+          is.na(fin_tot) == FALSE
+        & fin_tot != 0
+      )
+    
+    print(">> Applying short-form donor names...")
+    fin_del$fin_source <- helper_replace_values_with_map(
+      data = fin_del$fin_source,
+      values = c(
+        "Japan - Ministry of Foreign Affairs",
+        "UNICEF (Thematic/Flexible Funding) HAC)",
+        "Inter-American Development Bank",
+        "Germany - Federal Foreign Office (AA)",
+        "Government of France - Gavi",
+        "Government of Ireland",
+        "Asian Development Bank",
+        "Bill and Melinda Gates Foundation",
+        "Mastercard Foundation"
+      ),
+      map = c(
+        "Japan MoFA",
+        "UNICEF HAC",
+        "IADB",
+        "Germany FFO",
+        "France - Gavi",
+        "Ireland",
+        "ADB",
+        "BMGF",
+        "MCF"
+      ),
+      drop_rest = FALSE
     )
-
-    b_fin_fund_del <- b_fin_fund_del %>%
-    mutate(funding_source = if_else(
-        funding_source == "Foundations/Private",
-        "Foundations / private",
-        funding_source
-        )
-    )
-    b_fin_fund_del$funder <- helper_replace_values_with_map(
-        data = b_fin_fund_del$funder,
-        values = c(
-            "Japan - Ministry of Foreign Affairs",
-            "UNICEF (Thematic/Flexible Funding) HAC)",
-            "Inter-American Development Bank",
-            "Germany - Federal Foreign Office (AA)",
-            "Governm ent of France - Gavi",
-            "Government of Ireland",
-            "Asian Development Bank",
-            "Bill and Melinda Gates Foundation"
-        ),
-        map = c(
-            "Japan MoFA",
-            "UNICEF HAC",
-            "IADB",
-            "Germany FFO",
-            "France - Gavi",
-            "Ireland",
-            "ADB",
-            "BMGF"
-        ),
-        drop_rest = FALSE
-    )
-    b_fin_fund_del_sum <- b_fin_fund_del %>%
-    group_by(a_iso) %>%
-    summarize_at("fund_total", sum, na.rm = TRUE) %>%
-    mutate_if(is.numeric, round)
-
-    b_fin_fund_del_source <- b_fin_fund_del %>%
-    group_by(a_iso, funding_source, funder) %>%
-    summarize_at(c("fund_total","fund_disbursed","fund_committed"),
-      sum,
-      na.rm = TRUE) %>%
-    mutate_if(is.numeric, round)
     
-    b_fin_fund_del_source <- b_fin_fund_del_source %>%
-      mutate(fund_comitted_per = fund_committed / fund_total) %>%
-      mutate(fund_disbursed_per = fund_disbursed / fund_total)
+    print(">> Summarizing financing data by country...")
+    fin_del_sum <- fin_del %>%
+      group_by(a_iso) %>%
+      summarize_at("fin_tot", sum, na.rm = TRUE) %>%
+      mutate_if(is.numeric, round) %>%
+      ungroup()
     
-    b_fin_fund_del_long <- b_fin_fund_del %>%
-    group_by(a_iso, funding_source, funder) %>%
-    summarize_at("fund_committed", sum, na.rm = TRUE) %>%
-    mutate_if(is.numeric, round)
+    print(">> Summarizing financing data by country and by funder...")
+    fin_del_sum_source <- fin_del %>%
+      group_by(a_iso, fin_source_type, fin_source) %>%
+      summarize_at(c("fin_tot", "fin_disbursed", "fin_committed"),
+                   sum,
+                   na.rm = TRUE) %>%
+      mutate_if(is.numeric, round) %>%
+      mutate(
+        fund_comitted_per = fin_committed / fin_tot,
+        fin_disbursed_per = fin_disbursed / fin_tot
+      ) %>%
+      ungroup()
     
-    b_fin_fund_del_long$type <- "Committed"
-    b_fin_fund_del_long <- b_fin_fund_del_long %>%
-      mutate(value = fund_committed)
-    b_fin_fund_del_long <- select(b_fin_fund_del_long, -c("fund_committed"))
+    print(">> Preparing long-form summarized financing data by country and by funder...")
+    fin_del_sum_long <- fin_del_sum_source %>%
+      select(a_iso,
+             fin_source_type,
+             fin_source,
+             fin_committed,
+             fin_disbursed) %>%
+      gather(key = "type",
+             value = "value",
+             -c("a_iso",
+                "fin_source_type",
+                "fin_source")) %>%
+      mutate(type = case_when(
+        type == "fin_committed" ~ "Committed",
+        type == "fin_disbursed" ~ "Disbursed"
+      ))
     
-    b_fin_fund_del_long_temp <- b_fin_fund_del %>%
-      group_by(a_iso, funding_source, funder) %>%
-      summarize_at("fund_disbursed", sum, na.rm = TRUE) %>%
-      mutate_if(is.numeric, round)
-    
-    b_fin_fund_del_long_temp$type <- "Disbursed"
-    b_fin_fund_del_long_temp <- b_fin_fund_del_long_temp %>%
-      mutate(value = fund_disbursed)
-    b_fin_fund_del_long_temp <- select(b_fin_fund_del_long_temp, -c("fund_disbursed"))
-    
-    b_fin_fund_del_long <- bind_rows(b_fin_fund_del_long, b_fin_fund_del_long_temp)
-    
+    print(">> Filtering entity details data...")
     entity_characteristics <- entity_characteristics %>%
       select(-c("ss_deadline",
-                "date_13jan"
-             ))
-  
-    b_fin_fund_del_long <- left_join(
-      b_fin_fund_del_long,
-      entity_characteristics,
-      by = "a_iso"
-    )
-    b_fin_fund_del_source <- left_join(
-        b_fin_fund_del_source,
-        entity_characteristics,
-        by = "a_iso"
-    )
-    datalist <- list("b_fin_fund_del_source" = b_fin_fund_del_source,
-      "b_fin_fund_del_sum" = b_fin_fund_del_sum,
-      "b_fin_fund_del_long" = b_fin_fund_del_long)
+                "date_13jan"))
+    
+    print(">> Merging financing data frames with entity details data...")
+    fin_del_sum_long <- left_join(fin_del_sum_long,
+                                  entity_characteristics,
+                                  by = "a_iso")
+    
+    fin_del_sum_source <- left_join(fin_del_sum_source,
+                                    entity_characteristics,
+                                    by = "a_iso")
+    
+    print(">> Preparing financing datalist...")
+    datalist <-
+      list(
+        "fin_del_sum" = fin_del_sum,
+        "fin_del_sum_source" = fin_del_sum_source,
+        "fin_del_sum_long" = fin_del_sum_long
+      )
+    
+    print(">> Done.")
     return(datalist)
-}
-
-load_finance_urgent_data <- function() {
-  print(" >> Loading CoVDP urgent financing data...")
-  base_fin_urg <- data.frame(
-    read_excel("data/input/base_financing_urgent.xlsx",
-               sheet = "Funding tracker"
-    )
-  )
-  print(" >> Select relevant columns from base_fin_urg & renaming...")
-  base_fin_urg_fun <- select(
-    base_fin_urg,
-    c(
-      "ISO.Code",
-      "Amount.to.be.funded",
-      "Funds.disbursed..yes...no.",
-      "Source.of.funding.identified..Details.",
-      "Details.on.the.request",
-      "Status",
-      "Sources.of.funding.identified..yes...no...Identified.as.not.urgent.",
-      "Estimated.utilization.rate"
-    )
-  )
-  colnames(base_fin_urg_fun) <- c(
-    "a_iso",
-    "fund_urg_dis_total",
-    "fund_urg_status",
-    "fund_urg_source",
-    "fund_urg_details",
-    "fund_urg_source_overall",
-    "fund_urg_status_req",
-    "fund_urg_util"
-  )
-  return(base_fin_urg_fun)
-}
-
-transform_fund_urgent_data <- function(base_fin_urg_fun, entity_characteristics) {
-  base_fin_urg_fun <- filter(base_fin_urg_fun, fund_urg_status == "yes")
-  
-  base_fin_urg_fun$fund_urg_dis_total <- as.numeric(base_fin_urg_fun$fund_urg_dis_total)
-  
-  base_fin_urg_fun_long <- base_fin_urg_fun
-  
-  base_fin_urg_fun_long <- left_join(
-    base_fin_urg_fun_long,
-    entity_characteristics,
-    by = "a_iso"
-  )
-
-  base_fin_urg_fun_sum <- base_fin_urg_fun %>%
-    group_by(a_iso, fund_urg_source, fund_urg_util) %>%
-    summarize_at("fund_urg_dis_total", sum, na.rm = TRUE)
-
-  base_fin_urg_fun_sum <- left_join(
-    base_fin_urg_fun_sum,
-    entity_characteristics,
-    by = "a_iso"
-  )
-  datalist <- list("base_fin_urg_fun_long" = base_fin_urg_fun_long,
-    "base_fin_urg_fun_sum" = base_fin_urg_fun_sum)
-  return(datalist)
-}
-
-
-load_finance_cds_data <- function(entity_characteristics) {
-  print(" >> Loading Gavi CDS financing data...")
-  base_fin_cds <- data.frame(
-    read_excel("data/input/base_financing_cds.xlsx",
-               sheet = "Gavi CDS "
-    )
-  )
-  print(" >> Select relevant columns from base_fin_cds & renaming...")
-  base_fin_cds_red <- select(
-    base_fin_cds,
-    c(
-      "ISO",
-      "Comment",
-      "Date.of.First.Disbursement",
-      "Amount.approved",
-      "Amount.disbursed",
-      "Funding.type"
-    )
-  )
-  colnames(base_fin_cds_red) <- c(
-    "a_iso",
-    "fund_cds_details",
-    "fund_cds_date",
-    "fund_cds_amount_approved",
-    "fund_cds_amount_disbursed",
-    "fund_cds_type"
-  )
-  base_fin_cds_red$fund_cds_date <- as.numeric(base_fin_cds_red$fund_cds_date)
-  base_fin_cds_red$fund_cds_date <- as.Date(base_fin_cds_red$fund_cds_date, origin="1899-12-30")
-  base_fin_cds_red$fund_cds_date <- as.character(base_fin_cds_red$fund_cds_date)
-  
-  base_fin_cds_red <- left_join(
-    base_fin_cds_red,
-    entity_characteristics,
-    by = "a_iso"
-  )
-  
-  base_fin_cds_red <- base_fin_cds_red %>%
-    mutate(fund_cds_date = if_else(
-      is.na(fund_cds_date) & is.na(fund_cds_details) == FALSE,
-      "Pending",
-      fund_cds_date))
-  return(base_fin_cds_red)
-}
+  }
