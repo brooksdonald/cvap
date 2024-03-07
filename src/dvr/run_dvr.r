@@ -1,5 +1,5 @@
 
-run_dvr <- function(adm_api, auto_cleaning, headers, refresh_api) {
+run_dvr <- function(auto_cleaning, headers, refresh_api) {
     print("> Checking if all Python libraries are available...")
     python_packages <- c("datetime", "io", "json", "matplotlib", "numpy", 
                          "openpyxl", "os", "pandas", "pickle", "seaborn", 
