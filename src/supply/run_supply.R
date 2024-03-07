@@ -1,6 +1,4 @@
-run_supply <- function(date_del,
-                       date_refresh,
-                       refresh_timeseries) {
+run_supply <- function(date_del, date_refresh, refresh_timeseries) {
   print("> Loading src/supply module scripts...")
   source("src/supply/supply_received.r")
   source("src/supply/supply_timeseries.r")

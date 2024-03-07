@@ -4,18 +4,8 @@ from doctest import DocFileSuite
 import pandas as pd
 import os
 
-def import_data(cleaned_data, refresh_api):
-    # Get Data
-    print(" > Getting ISO mapping...")
-    iso_mapping = pd.read_excel("data/input/static/base_entitydetails.xlsx")
-    iso_mapping.rename(
-        {'NAMEWORKEN': 'country_name', 'CODE': 'iso_code'},
-        axis = 1, 
-        inplace = True)
-    iso_mapping = iso_mapping[['country_name', 'iso_code']]
-    print(" > Done.")
 
-    # get dose administration data for comparison
+def import_data(cleaned_data, refresh_api):
     print(" > Getting dose administration data for comparison...")
     link = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv'
     folder = "data/input/interim"
@@ -27,21 +17,17 @@ def import_data(cleaned_data, refresh_api):
             print(" > Creating a new folder " + folder + "/...")
             os.makedirs(folder)
         print(" > Saving API data to " + folder + "...")
-        owid.to_csv(storage_name, index = False)
+        owid.to_csv(storage_name, index=False)
     else:
         print(" > Old API data is used from " + folder + "/...")
         owid = pd.read_csv(storage_name)
     print(" > Done.")
 
-    # get primary data
     print(" > Getting throughput cleaned data...")
-    #who = pd.read_csv('data/input/supply_data/analysis_vx_throughput_data_cleaned.csv')
     who = cleaned_data
     print(" > Done.")
 
-    # get country characteristics
     print(" > Getting country characteristics...")
-    # cc = pd.read_csv("data/input/static/country_characteristics.csv")
     cc = pd.read_excel("data/input/static/base_population_who.xlsx")
     print(" > Done.")
 
@@ -51,14 +37,13 @@ def import_data(cleaned_data, refresh_api):
         'wb_income_group', 'is_amc92', 'affiliation', 'min_vx_rollout_date', 'first_covax_arrival_date',
         'first_vx_shipment_received_date']]
 
-    # Transformation
     print(" > Owid transformation...")
     owid1 = owid[['iso_code', 'date', 'total_vaccinations']]
     owid1.columns = ['iso_code', 'date', 'total_doses_owid']
     owid1 = pd.DataFrame(owid1)
     print(" > Done.")
 
-    return who, iso_mapping, cc, country, owid1
+    return who, cc, country, owid1
 
 
 def flags(who):
@@ -468,7 +453,7 @@ def final_variable_selection(df11, who, auto_cleaning):
         final_columns += ['at_least_one_dose_adj', 'fully_vaccinated_adj']
     df12 = df11[final_columns]
 
-    df12 = df12.merge(who[['iso_code', 'date_accessed']].drop_duplicates(), on = 'iso_code', how = 'left')
+    # df12 = df12.merge(who[['iso_code'].drop_duplicates(), on = 'iso_code', how = 'left')
     df12.sort_values(by = ['iso_code', 'date'], ascending=True, inplace = True)
     return df12
 
@@ -477,7 +462,7 @@ def main(cleaned_data, refresh_api, auto_cleaning):
     days_in_weeks4 = 27
     days_in_weeks8 = 55
 
-    who, iso_mapping, cc, country, owid1 = import_data(cleaned_data, refresh_api)
+    who, cc, country, owid1 = import_data(cleaned_data, refresh_api)
     df_flags = flags(who)
     df1 = merge_who_country(who, country)
     df1 = filter_data(df1)
@@ -485,8 +470,8 @@ def main(cleaned_data, refresh_api, auto_cleaning):
     df_inter = interpolate_data(df_inter)
     df3 = minimum_rollout_date(df_inter, country)
     if auto_cleaning:
-        df3 = cleaning_data(df3, "fully_vaccinated") # plot_function, 
-        df3 = cleaning_data(df3, "at_least_one_dose") # plot_function,
+        df3 = cleaning_data(df3, "fully_vaccinated")
+        df3 = cleaning_data(df3, "at_least_one_dose")
     df5 = moving_averages_td(df3, days_in_weeks4, days_in_weeks8)
     df6 = moving_averages_1d(df5, days_in_weeks4, days_in_weeks8)
     df8 = moving_averages_fv(df6, days_in_weeks4, days_in_weeks8)
