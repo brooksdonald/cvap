@@ -1,6 +1,6 @@
 
 # SET WD
-setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/covid19_vaccination_analysis") #Donald
+setwd("C:/Users/brooksd/Documents/GitHub/cvap") #Donald
 
 # CLEAR ENVIRONMENT
 rm(list = ls())
@@ -62,7 +62,6 @@ source("src/add_data/run_add_data.r")
 
 entity_env <- run_entity()
 dvr_env <- run_dvr(
-  .GlobalEnv$adm_api,
   .GlobalEnv$auto_cleaning,
   api_env$headers,
   .GlobalEnv$refresh_api)
@@ -108,7 +107,6 @@ eda_adm_cov_env <- run_eda_adm_cov(
     adm_cov_env$b_vxrate_pub,
     add_data_env$population_pin
 )
-
 supplies_env <- run_eda_supplies(eda_adm_cov_env$a_data, supply_env$sup_rec_dose_prod)
 prod_util_env <- run_prod_util(
     supplies_env$a_data,

@@ -112,6 +112,13 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
   # Calculate per capita funding amount
   timeseries <- timeseries %>%
     mutate(Funds_per_capita = Funding.Amount / a_pop)
+  
+  # Ensure current month is included
+  months <- data.frame(NA) %>%
+    rename(
+      month_name = NA.
+    )
+  months$month_name <- as.Date("2023-12-01")
 
   timeseries <- timeseries %>%
     select(
@@ -161,12 +168,32 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
       Funds_per_capita
     )
   
+  desired_date <- as.Date("2023-12-01")
+  
+  missing_entries <- timeseries %>%
+    group_by(iso) %>%
+    summarise(needs_row = !any(month_name == desired_date)) %>%
+    filter(needs_row) %>%
+    mutate(month_name = desired_date, value = NA) %>%
+    select(-needs_row)
+
+  timeseries <- bind_rows(timeseries, missing_entries)
+  
   timeseries <- timeseries %>%
     group_by(iso) %>%
     arrange(month_name) %>%
-    fill(c("adm_tot_td",
+    fill(c("a_region_who",
+           "a_income_group",
+           "a_status_covax",
+           "a_status_who",
+           "a_pop",
+           "a_pop_hcw",
+           "a_pop_old",
+           "date_intro",
+           "adm_tot_td",
            "adm_tot_a1d",
            "adm_tot_cps",
+           "adm_tot_boost",
            "cov_total_fv",
            "cov_total_a1d",
            "cov_total_booster",
