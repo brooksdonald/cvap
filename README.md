@@ -4,18 +4,18 @@
 The COVID-19 Vaccination Analysis Pipeline (CVAP) is a modular analytical pipeline designed to consolidate, analyze, and disseminate COVID-19 vaccine implementation data across all countries, areas, and territories for use by the global community.  It is produced and maintained by the CoVDP Data, Analytics, and Monitoring (DAM) team and is hosted on GitHub.
 
 ## History
-Since the beginning of the COVID-19 vaccine rollout, up to date COVID-19 vaccine implementation data have been needed to inform operational and policy decision-making at all levels.  Under the COVAX Country Readiness & Delivery (CRD) workstream, a PowerBI-based precursor to the current CCAP was developed to routinely centralize, homogenize, and overlay various data from along the vaccine introduction ‘value chain’.  Needing additional flexibility and greater security, the precursor solution was translated into an R-based analytical pipeline, now known as the CCAP, in December 2021. 
+Since the beginning of the COVID-19 vaccine rollout, up to date COVID-19 vaccine implementation data have been needed to inform operational and policy decision-making at all levels.  Under the COVAX Country Readiness & Delivery (CRD) workstream, a PowerBI-based precursor to the current CVAP was developed to routinely centralize, homogenize, and overlay various data from along the vaccine introduction ‘value chain’.  Needing additional flexibility and greater security, the precursor solution was translated into an R-based analytical pipeline, now known as the CCAP, in December 2021. 
 
-The CCAP was first committed to GitHub end of January 2022.  The original pipeline was a monolith application, incorporating data relating to daily vaccination rate, coverage, and supply secured & received.  Soon after the first commit, the CCAP was thematically expanded to include analysis of coverage in high & highest risks groups and allocated external financing for vaccine delivery. 
+The CVAP was first committed to GitHub end of January 2022.  The original pipeline was a monolith application, incorporating data relating to daily vaccination rate, coverage, and supply secured & received.  Soon after the first commit, the CCAP was thematically expanded to include analysis of coverage in high & highest risks groups and allocated external financing for vaccine delivery. 
 
-Over the course of the first quarter of 2022, the CCAP was transitioned from a monolith pipeline to a modular pipeline, sectioned according to thematic data divisions, orchestrated by a central run script. This transition permitted for greater pipeline stability, as each module could be debugged, deployed, and managed independently of the rest, and greater flexibility, allowing facile introduction of new functionalities. 
+Over the course of the first quarter of 2022, the CVAP was transitioned from a monolith pipeline to a modular pipeline, sectioned according to thematic data divisions, orchestrated by a central run script. This transition permitted for greater pipeline stability, as each module could be debugged, deployed, and managed independently of the rest, and greater flexibility, allowing facile introduction of new functionalities. 
 
 Following adoption of the new modular architecture, inputs to the pipeline were automated to the greatest extent possible, privileging API data connections over local data file ingestion.  Further, additional pieces of key data analysis, notably cleaning of ingested administration data and direct calculation of daily vaccination rates, were reappropriated from collaborating partners to enable greater quality control and to shorten debugging timelines. 
 
-Through the above development, the CCAP has become a main pillar of the global data system for the consolidation, analysis, and dissemination of COVID-19 vaccination data.  Data produced by the CCAP flow throughout WHO, UNICEF, Gavi, and other partners and inform decisions ranging from vaccine dose allocations and vaccine demand planning to the assignment of technical assistance and financing.  Data produced by the CCAP are made publicly available via the CoVDP’s [Information Hub](https://infohub.crd.co). 
+Through the above development, the CVAP has become a main pillar of the global data system for the consolidation, analysis, and dissemination of COVID-19 vaccination data.  Data produced by the CCAP flow throughout WHO, UNICEF, Gavi, and other partners and inform decisions ranging from vaccine dose allocations and vaccine demand planning to the assignment of technical assistance and financing.  Data produced by the CVAP are made publicly available via the CoVDP’s [Information Hub](https://infohub.crd.co). 
 
 ## Environment and access 
-The CCAP is written in R, with the exception of one module (dvr), which is written in Python. It is hosted in a private GitHub repository. 
+The CVAP is written in R, with the exception of one module (dvr), which is written in Python. It is hosted in a private GitHub repository. 
 
 ### Prerequisites 
 1. Ensure R is installed on your machine. If not installed, download the software [here](https://cran.r-project.org/). 
@@ -23,7 +23,7 @@ The CCAP is written in R, with the exception of one module (dvr), which is writt
     1.  The R extension will be needed to run R in VS Code; get it [here](https://code.visualstudio.com/docs/languages/r#:~:text=The%20R%20extension%20for%20Visual%20Studio%20Code%20supports,managing%20packages%20and%20working%20with%20R%20Markdown%20documents).
 
 ### Repository access  
-To access the CCAP GitHub repository, contact Donald Brooks (brooksd@who.int). 
+To access the CVAP GitHub repository, contact Donald BROOKS (brooksd@who.int). 
 
 ## Architecture overview
 <!-- ### Architecture breakdown
