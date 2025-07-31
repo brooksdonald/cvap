@@ -18,13 +18,6 @@ dose_utilization <- function(a_data, date_refresh) {
                 (del_dose_total - adm_tot_td))),
             0)) %>%
 
-        mutate(pu_del_rem_wast_lm = pmax(
-            (if_else(
-                is.na(del_dose_total_lm) | del_dose_total_lm == 0,
-                NA_real_,
-                (del_dose_total_lm - adm_tot_td_lm))),
-            0)) %>%
-
         mutate(del_dose_wast_per = del_dose_wast / a_pop) %>%
         mutate(del_dose_total_per = del_dose_total / a_pop) %>%
         mutate(pu_del_rem_per = pu_del_rem / a_pop) %>%

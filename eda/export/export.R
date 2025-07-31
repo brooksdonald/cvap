@@ -62,7 +62,6 @@ api_export_table <- function(a_data) {
       "cov_total_a1d",
       "cov_total_fv",
       "cov_total_booster",
-      "cov_total_fv_less_1m",
       "cov_total_fem_fv",
       "cov_total_male_fv",
       "cov_hcw_fv",

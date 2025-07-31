@@ -169,26 +169,26 @@ transform_vxrate_merge <- function(a_data, date_refresh) {
             adm_tot_a1d != 0 & adm_tot_cps == 0 & adm_tot_boost != 0,
             adm_tot_td - adm_tot_a1d - adm_tot_boost,
             adm_tot_cps))))) %>%
-  mutate(adm_tot_cps_lm_homo = if_else(
-    adm_tot_a1d_lm == 0 & adm_tot_cps_lm == 0 & adm_tot_boost_lm == 0,
-    adm_tot_td_lm / 2,
-    if_else(
-      adm_tot_a1d_lm == 0 & adm_tot_cps_lm == 0 & adm_tot_boost_lm != 0,
-      (adm_tot_td_lm - adm_tot_boost_lm)/ 2,
-      if_else(
-        adm_tot_a1d_lm != 0 & adm_tot_cps_lm == 0 & adm_tot_boost_lm == 0,
-        adm_tot_td_lm - adm_tot_a1d_lm,
-        if_else(
-          adm_tot_a1d_lm != 0 & adm_tot_cps_lm == 0 & adm_tot_boost_lm != 0,
-          adm_tot_td_lm - adm_tot_a1d_lm - adm_tot_boost_lm,
-          adm_tot_cps_lm))))) %>%
-  mutate(adm_tot_cps_2m_homo = if_else(
-    adm_tot_a1d_2m == 0 & adm_tot_cps_2m == 0,
-    adm_tot_td_2m / 2,
-    if_else(
-      adm_tot_a1d_2m != 0 & adm_tot_cps_2m == 0,
-      adm_tot_td_2m - adm_tot_a1d_2m,
-      adm_tot_cps_2m))) %>%
+  # mutate(adm_tot_cps_lm_homo = if_else(
+  #   adm_tot_a1d_lm == 0 & adm_tot_cps_lm == 0 & adm_tot_boost_lm == 0,
+  #   adm_tot_td_lm / 2,
+  #   if_else(
+  #     adm_tot_a1d_lm == 0 & adm_tot_cps_lm == 0 & adm_tot_boost_lm != 0,
+  #     (adm_tot_td_lm - adm_tot_boost_lm)/ 2,
+  #     if_else(
+  #       adm_tot_a1d_lm != 0 & adm_tot_cps_lm == 0 & adm_tot_boost_lm == 0,
+  #       adm_tot_td_lm - adm_tot_a1d_lm,
+  #       if_else(
+  #         adm_tot_a1d_lm != 0 & adm_tot_cps_lm == 0 & adm_tot_boost_lm != 0,
+  #         adm_tot_td_lm - adm_tot_a1d_lm - adm_tot_boost_lm,
+  #         adm_tot_cps_lm))))) %>%
+  # mutate(adm_tot_cps_2m_homo = if_else(
+  #   adm_tot_a1d_2m == 0 & adm_tot_cps_2m == 0,
+  #   adm_tot_td_2m / 2,
+  #   if_else(
+  #     adm_tot_a1d_2m != 0 & adm_tot_cps_2m == 0,
+  #     adm_tot_td_2m - adm_tot_a1d_2m,
+  #     adm_tot_cps_2m))) %>%
   mutate(adm_tot_cps_13jan_homo = if_else(
       adm_tot_a1d_13jan == 0 & adm_tot_cps_13jan == 0 & adm_tot_boost_13jan == 0,
       adm_tot_td_13jan / 2,
@@ -212,12 +212,12 @@ transform_vxrate_merge <- function(a_data, date_refresh) {
   
   # Calculate td and fv change from lm and 2m
   print(" >>> Computing td and fv change from lm and 2m...")
-  a_data <- a_data %>%
-    mutate(adm_tot_td_less_1m = adm_tot_td - adm_tot_td_lm) %>%
-    mutate(adm_tot_td_1m_2m = adm_tot_td_lm - adm_tot_td_2m) %>%
-    mutate(adm_tot_td_1m_13jan = adm_tot_td_lm - adm_tot_td_13jan) %>%
-    mutate(adm_tot_cps_less_1m = adm_tot_cps_homo - adm_tot_cps_lm_homo) %>%
-    mutate(adm_tot_cps_1m_2m = adm_tot_cps_lm_homo - adm_tot_cps_2m_homo)
+  # a_data <- a_data %>%
+  #   mutate(adm_tot_td_less_1m = adm_tot_td - adm_tot_td_lm) %>%
+  #   mutate(adm_tot_td_1m_2m = adm_tot_td_lm - adm_tot_td_2m) %>%
+  #   mutate(adm_tot_td_1m_13jan = adm_tot_td_lm - adm_tot_td_13jan) %>%
+  #   mutate(adm_tot_cps_less_1m = adm_tot_cps_homo - adm_tot_cps_lm_homo) %>%
+  #   mutate(adm_tot_cps_1m_2m = adm_tot_cps_lm_homo - adm_tot_cps_2m_homo)
 
   # Calculate adm_tot_a1d and adm_tot_cps coverage for current, lm, and 2m, including change
   print(" >>> Computing adm_tot_a1d and adm_tot_cps coverage...")
@@ -230,15 +230,15 @@ transform_vxrate_merge <- function(a_data, date_refresh) {
     mutate(cov_total_a1d_13jan = adm_tot_a1d_13jan / a_pop) %>%
     mutate(cov_total_fv = pmin(1, adm_tot_cps_homo / a_pop)) %>%
     mutate(cov_total_fv_theo = (adm_tot_td / 2) / a_pop) %>%
-    mutate(cov_total_fv_lw = adm_tot_cps_lw / a_pop) %>%
+    # mutate(cov_total_fv_lw = adm_tot_cps_lw / a_pop) %>%
     mutate(cov_total_fv_13jan = adm_tot_cps_13jan_homo / a_pop) %>%
-    mutate(cov_total_fv_lm = pmin(1, adm_tot_cps_lm_homo / a_pop)) %>%
-    mutate(cov_total_fv_2m = pmin(1, adm_tot_cps_2m_homo / a_pop)) %>%
-    mutate(cov_total_fv_less_1m = pmax(0, cov_total_fv - cov_total_fv_lm))  %>%
-    mutate(cov_total_fv_1m_2m = pmax(0, cov_total_fv_lm - cov_total_fv_2m)) %>%
-    mutate(cov_total_fv_cur_13jan = pmax(0, cov_total_fv - cov_total_fv_13jan)) %>%
-    mutate(cov_total_fv_less_1m_prop = cov_total_fv_less_1m / cov_total_fv) %>%
-    mutate(cov_total_fv_1m_13jan = pmax(cov_total_fv_lm - cov_total_fv_13jan, 0))
+    # mutate(cov_total_fv_lm = pmin(1, adm_tot_cps_lm_homo / a_pop)) %>%
+    # mutate(cov_total_fv_2m = pmin(1, adm_tot_cps_2m_homo / a_pop)) %>%
+    # mutate(cov_total_fv_less_1m = pmax(0, cov_total_fv - cov_total_fv_lm))  %>%
+    # mutate(cov_total_fv_1m_2m = pmax(0, cov_total_fv_lm - cov_total_fv_2m)) %>%
+    mutate(cov_total_fv_cur_13jan = pmax(0, cov_total_fv - cov_total_fv_13jan))
+    # mutate(cov_total_fv_less_1m_prop = cov_total_fv_less_1m / cov_total_fv) %>%
+    # mutate(cov_total_fv_1m_13jan = pmax(cov_total_fv_lm - cov_total_fv_13jan, 0))
   
   # Correct GRL and SJM
   a_data$cov_total_fv[a_data$a_iso == "GRL"] <-
@@ -261,16 +261,16 @@ transform_vxrate_merge <- function(a_data, date_refresh) {
     labels = tags
   )
 
-  breaks <- c(0, 0.1, 0.2, 0.4, 0.7, Inf)
-  tags <- c("1) 0-10%", "2) 10-20%",
-    "3) 20-40%", "4) 40-70%", "5) 70%+")
-  a_data$cov_total_fv_lw_cat <- cut(
-    a_data$cov_total_fv_lw,
-    breaks = breaks,
-    include.lowest = TRUE,
-    right = FALSE,
-    labels = tags
-  )
+  # breaks <- c(0, 0.1, 0.2, 0.4, 0.7, Inf)
+  # tags <- c("1) 0-10%", "2) 10-20%",
+  #   "3) 20-40%", "4) 40-70%", "5) 70%+")
+  # a_data$cov_total_fv_lw_cat <- cut(
+  #   a_data$cov_total_fv_lw,
+  #   breaks = breaks,
+  #   include.lowest = TRUE,
+  #   right = FALSE,
+  #   labels = tags
+  # )
 
   # # Calculate linear population coverage projection by 30 June 2022
   # print(" >>> Computing linear population coverage projection by 30 June 2022...")

@@ -15,24 +15,24 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
   
   # Prepare combined time series
   combined_three <- combined_three %>%
-    mutate(month_name = as.Date(paste0(as.character(month_name), '-01'), format = '%Y-%m-%d')) %>%
-    mutate(adm_date_month = if_else(year(month_name) == 2021, 
-                                    as.numeric(month(month_name)),
-                                    if_else(year(month_name) == 2022,
-                                    as.numeric(month(month_name)) + 12,
-                                    if_else(year(month_name) == 2023,
-                                            as.numeric(month(month_name) + 24),
-                                            NA_real_
-                                            )))) %>%
+    mutate(month_name = as.Date(paste0(as.character(adm_date_month_name), '-01'), format = '%Y-%m-%d')) %>%
+    # mutate(adm_date_month = if_else(year(month_name) == 2021, 
+    #                                 as.numeric(month(month_name)),
+    #                                 if_else(year(month_name) == 2022,
+    #                                 as.numeric(month(month_name)) + 12,
+    #                                 if_else(year(month_name) == 2023,
+    #                                         as.numeric(month(month_name) + 24),
+    #                                         NA_real_
+    #                                         )))) %>%
     mutate(cov_total_fv = adm_tot_cps / a_pop,
            cov_total_a1d = adm_tot_a1d / a_pop,
            cov_total_booster = adm_tot_boost / a_pop)
 
   print(" > Join dataframes...")
   # Merge finance timeseries data with HCW population data frame
-  timeseries <- left_join(combined_three, a_data_temp_ts, by = c("iso" = "a_iso"), copy = TRUE) %>%
-    left_join(., target_hcwold, by = c("iso" = "ISO_3_CODE", "adm_date_month" = "adm_date_month"), copy = TRUE) %>%
-    left_join(., overall_fin_cumul_long, by = c("iso" = "ISO.Code", "month_name"), copy = TRUE)
+  timeseries <- left_join(combined_three, a_data_temp_ts, by = c("a_iso" = "a_iso"), copy = TRUE) %>%
+    left_join(., target_hcwold, by = c("a_iso" = "ISO_3_CODE", "adm_date_month" = "adm_date_month"), copy = TRUE) %>%
+    left_join(., overall_fin_cumul_long, by = c("a_iso" = "ISO.Code", "month_name"), copy = TRUE)
 
   print(" > Calculating HCW specific fields...")
   # Calculate HCW flag & diff
@@ -122,21 +122,21 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
 
   timeseries <- timeseries %>%
     select(
-      iso,
+      a_iso,
       month_name,
-      received,
-      supply,
-      absorbed,
+      rec_add,
+      rec_cumul,
+      # value,
       adm_tot_td,
       adm_tot_td_adj,
       adm_tot_cps,
-      adm_tot_cps_change,
+      adm_tot_cps_add,
       adm_tot_a1d,
-      adm_tot_a1d_change,
+      adm_tot_a1d_add,
       adm_tot_boost,
-      adm_tot_boost_change,
-      est_stock,
-      a_name_short,
+      adm_tot_boost_add,
+      # est_stock,
+      # a_name_short,
       a_region_who,
       a_income_group,
       a_status_covax,
@@ -171,7 +171,7 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
   desired_date <- as.Date("2023-12-01")
   
   missing_entries <- timeseries %>%
-    group_by(iso) %>%
+    group_by(a_iso) %>%
     summarise(needs_row = !any(month_name == desired_date)) %>%
     filter(needs_row) %>%
     mutate(month_name = desired_date, value = NA) %>%
@@ -180,7 +180,7 @@ merge_timeseries <- function(a_data, combined_three, target_hcwold, overall_fin_
   timeseries <- bind_rows(timeseries, missing_entries)
   
   timeseries <- timeseries %>%
-    group_by(iso) %>%
+    group_by(a_iso) %>%
     arrange(month_name) %>%
     fill(c("a_region_who",
            "a_income_group",

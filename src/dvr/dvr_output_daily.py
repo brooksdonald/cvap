@@ -6,54 +6,32 @@ import os
 
 
 def import_data(cleaned_data, refresh_api):
-    print(" > Getting dose administration data for comparison...")
-    link = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv'
-    folder = "data/input/interim"
-    storage_name = folder + "/" + link.split('/')[-1]
-    if refresh_api | (not os.path.exists(storage_name)):
-        print(" > Downloading data from owid API...")
-        owid = pd.read_csv(link)
-        if not os.path.exists(folder):
-            print(" > Creating a new folder " + folder + "/...")
-            os.makedirs(folder)
-        print(" > Saving API data to " + folder + "...")
-        owid.to_csv(storage_name, index=False)
-    else:
-        print(" > Old API data is used from " + folder + "/...")
-        owid = pd.read_csv(storage_name)
-    print(" > Done.")
-
-    print(" > Getting throughput cleaned data...")
+    print("> Getting throughput cleaned data...")
     who = cleaned_data
-    print(" > Done.")
+    print("> Done.")
 
-    print(" > Getting country characteristics...")
+    print("> Getting country characteristics...")
     cc = pd.read_excel("data/input/static/base_population_who.xlsx")
-    print(" > Done.")
+    print("> Done.")
 
-    print(" > Getting country dimensions...")
+    print("> Getting country dimensions...")
     country_dimension = pd.read_csv("data/input/static/country_dimension.csv")
     country = country_dimension[['iso_code', 'country_name_friendly',
         'wb_income_group', 'is_amc92', 'affiliation', 'min_vx_rollout_date', 'first_covax_arrival_date',
         'first_vx_shipment_received_date']]
-
-    print(" > Owid transformation...")
-    owid1 = owid[['iso_code', 'date', 'total_vaccinations']]
-    owid1.columns = ['iso_code', 'date', 'total_doses_owid']
-    owid1 = pd.DataFrame(owid1)
-    print(" > Done.")
-
-    return who, cc, country, owid1
+        
+    print("> Done.")
+    return who, cc, country
 
 
 def flags(who):
-    print(" > Selecting columns from who dataframe...")
+    print("> Selecting columns from who dataframe...")
     df_flags = who[['iso_code', 'date', 'is_latest_week_reported']]
     return df_flags
 
 
 def merge_who_country(who, country):
-    print(" > Grouping and sorting who df...")
+    print("> Grouping and sorting who df...")
     who['date'] = pd.to_datetime(who['date'], format = '%Y-%m-%d')
     df1 = who.merge(country, on = 'iso_code', how = 'left')
     return df1
@@ -130,6 +108,7 @@ def interpolate_data(df_inter):
         return df
 
     df_inter = df_inter.groupby('iso_code').apply(interpolate_measures)
+    df_inter = df_inter.reset_index(drop=True)
     df_inter.index.names = ['index']
     df_inter.reset_index().drop(['index'], axis = 1, inplace = True)
     return df_inter
@@ -373,21 +352,13 @@ def moving_averages_fv(df6, days_in_weeks4, days_in_weeks8):
     return df8
 
 
-def join_with_cc_and_owid(df8, cc, owid1):
-    print(' > merging data with cc and owid1...')
+def join_with_cc_and_owid(df8, cc):
+    print('> Merging data with cc ...')
     cc.rename(columns = {'iso': 'iso_code', 'value': 'population', 'name': 'entity_name'}, inplace = True)
     cc['population'] = cc['population'].astype(float)
     df9 = df8.merge(cc, on = 'iso_code', how = 'inner')
     df9['date'] = df9['date'].astype(str)
 
-    print(" > Merge with owid data and interpolate")
-    def interpolate_owid(df):
-        df.sort_values(by=['iso_code', 'date'], ascending=True, inplace=True)
-        df['total_doses_owid'] = df['total_doses_owid'].interpolate(method='linear', limit_direction='forward')
-        return df
-
-    df9 = df9.merge(owid1, on = ['iso_code', 'date'], how = 'left')
-    df9 = df9.groupby('iso_code').apply(interpolate_owid)
     df9['rolling_4_week_avg_td_per100'] = 100 * df9['rolling_4_week_avg_td'] / df9['population'] #data from cc is used. Ambigious reference!
     df9['rolling_8_week_avg_td_per100'] = 100 * df9['rolling_8_week_avg_td'] / df9['population'] 
     df9['max_rolling_4_week_avg_td_per100'] = 100 * df9['max_rolling_4_week_avg_td'] / df9['population'] 
@@ -442,7 +413,7 @@ def adding_flags_for_changes(df10):
 
 def final_variable_selection(df11, who, auto_cleaning):
     print(' > Creating final dataframe...')
-    final_columns = ['iso_code', 'entity_name', 'population', 'date', 'is_original_reported', 'total_doses_owid',
+    final_columns = ['iso_code', 'entity_name', 'population', 'date', 'is_original_reported',
                 'total_doses', 'at_least_one_dose', 'fully_vaccinated', 'persons_booster_add_dose', 'daily_rate_td', 
                 'rolling_4_week_avg_td', 'max_rolling_4_week_avg_td', 'med_rolling_4_week_avg_td', 
                 'rolling_4_week_avg_td_lastweek', 'rolling_4_week_avg_td_lastmonth', 'rolling_8_week_avg_td', 
@@ -462,7 +433,7 @@ def main(cleaned_data, refresh_api, auto_cleaning):
     days_in_weeks4 = 27
     days_in_weeks8 = 55
 
-    who, cc, country, owid1 = import_data(cleaned_data, refresh_api)
+    who, cc, country = import_data(cleaned_data, refresh_api)
     df_flags = flags(who)
     df1 = merge_who_country(who, country)
     df1 = filter_data(df1)
@@ -475,7 +446,7 @@ def main(cleaned_data, refresh_api, auto_cleaning):
     df5 = moving_averages_td(df3, days_in_weeks4, days_in_weeks8)
     df6 = moving_averages_1d(df5, days_in_weeks4, days_in_weeks8)
     df8 = moving_averages_fv(df6, days_in_weeks4, days_in_weeks8)
-    df9 = join_with_cc_and_owid(df8, cc, owid1)
+    df9 = join_with_cc_and_owid(df8, cc)
     df10 = identifying_missing_countries(df9, df_flags)
     df11 = adding_flags_for_changes(df10)
     output = final_variable_selection(df11, who, auto_cleaning)

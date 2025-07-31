@@ -257,6 +257,10 @@ transform_sup_sec <- function(sup_sec_ts) {
   return(sup_sec_ts_add)
 }
 
+merge_sup_rec <- function(sup_rec_ts, sup_rec_ts_add){
+  sup_rec_ts_join <- left_join(sup_rec_td, sup_rec_ts_add, by = c(""))
+}
+
 merge_export_sup_ts <-
   function(sup_sec_ts,
            sup_sec_ts_add,
@@ -295,6 +299,7 @@ merge_export_sup_ts <-
                "data/input/interim/supply_new.xlsx")
     
     print(">> Done.")
+    return(datalist)
   }
 
 load_sup_ts_long_xlsx <- function() {

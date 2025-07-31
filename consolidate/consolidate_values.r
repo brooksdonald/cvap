@@ -1,11 +1,11 @@
 
-values_table <- function(a_data, a_data_amc, a_data_africa,
+values_table <- function(a_data_amc,
                          a_data_csc, date_refresh) {
   z_values <- data.frame(c("Text"))
 
   z_values$pop_amc <- sum(a_data_amc$a_pop, na.rm = TRUE)
   z_values$pop_amc_hcw <- sum(a_data_amc$a_pop_hcw, na.rm = TRUE)
-  z_values$pop_africa <- sum(a_data_africa$a_pop, na.rm = TRUE)
+  # z_values$pop_africa <- sum(a_data_africa$a_pop, na.rm = TRUE)
   z_values$pop_csc <- sum(a_data_csc$a_pop, na.rm = TRUE)
 
   z_values$pop_amc_10 <- z_values$pop_amc * 0.1

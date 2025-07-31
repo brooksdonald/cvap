@@ -1,6 +1,6 @@
 
 # SET WD
-setwd("C:/Users/brooksd/Documents/GitHub/cvap") #Donald
+setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/cvap") #Donald
 
 # CLEAR ENVIRONMENT
 rm(list = ls())
@@ -36,17 +36,17 @@ lapply(lib, library, character.only = TRUE)
 .GlobalEnv$date_del <- as.Date("2023-11-20")
 .GlobalEnv$auto_cleaning <- TRUE # set to FALSE for no automised cleaning
 .GlobalEnv$adm_api <- TRUE # DO NOT TOUCH. Set to FALSE to use base_dvr_current.xlsx
-.GlobalEnv$refresh_api <- TRUE # set to FALSE to use last API call
-.GlobalEnv$refresh_timeseries <- TRUE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
-.GlobalEnv$refresh_finance_timeseries <- TRUE
-.GlobalEnv$refresh_supply_timeseries <- TRUE # FALSE reads ../static/supply.xlsx Unless stated otherwise by Donald 
+.GlobalEnv$refresh_api <- FALSE # set to FALSE to use last API call
+.GlobalEnv$refresh_timeseries <- TRUE 
+.GlobalEnv$refresh_finance_timeseries <- FALSE
+.GlobalEnv$refresh_supply_timeseries <- FALSE 
 
 # HELPERS
 
 source("helpers/joins.r")
 source("helpers/transformations.r")
 source("helpers/api.r")
-api_env <- run_api()
+# api_env <- run_api()
 
 
 # Extract, transform, load (ETL) ------------------------------------------
@@ -59,7 +59,8 @@ source("src/cov_disag/run_cov_disag.r")
 source("src/finance/run_finance.r")
 source("src/add_data/run_add_data.r")
 # source("src/last_month/run_last_month.r")
-
+# entity_characteristics <- run_entity$entity_characteristics
+# dvr_data <- dvr_env$dvr_data
 entity_env <- run_entity()
 dvr_env <- run_dvr(
   .GlobalEnv$auto_cleaning,
@@ -72,7 +73,7 @@ adm_cov_env <- run_adm_cov(
   entity_env$entity_characteristics,
   .GlobalEnv$date_refresh,
   dvr_env$dvr_data,
-  .GlobalEnv$refresh_supply_timeseries)
+  supply_env$sup_ts_wide)
 cov_disag_env <- run_cov_disag(api_env$headers, .GlobalEnv$refresh_api)
 finance_env <- run_finance(entity_env$entity_characteristics)
 add_data_env <- run_add_data(.GlobalEnv$refresh_api)
@@ -89,7 +90,7 @@ source("eda/finance/run_finance.r")
 source("eda/rank_bin/run_rank_bin.r")
 source("eda/pin/run_pin.r")
 source("eda/export/run_export.r")
-
+test <- adm_cov_env$combined_three
 eda_adm_cov_env <- run_eda_adm_cov(
     adm_cov_env$c_vxrate_latest, 
     entity_env$entity_characteristics,
@@ -104,7 +105,7 @@ eda_adm_cov_env <- run_eda_adm_cov(
     cov_disag_env$target_hcwold,
     adm_cov_env$combined_three,
     finance_env$overall_fin_cumul_long,
-    adm_cov_env$b_vxrate_pub,
+    adm_cov_env$adm_tot_ts_daily,
     add_data_env$population_pin
 )
 supplies_env <- run_eda_supplies(eda_adm_cov_env$a_data, supply_env$sup_rec_dose_prod)
@@ -113,15 +114,14 @@ prod_util_env <- run_prod_util(
     .GlobalEnv$date_refresh)
 cov_targets_env <- run_cov_targets(
     prod_util_env$a_data,
-    adm_cov_env$c_vxrate_sept_t10,
-    adm_cov_env$c_vxrate_dec_t2040,
-    adm_cov_env$c_vxrate_jun_t70)
+    adm_cov_env$adm_tot_sep21,
+    adm_cov_env$adm_tot_dec21,
+    adm_cov_env$adm_tot_jun22)
 financing_env <- run_financing(cov_targets_env$a_data)
 rank_bin_env <- run_rank_bin(financing_env$a_data)
 eda_pin_env <- run_eda_pin(rank_bin_env$a_data, add_data_env$population_pin)
 export_env <- run_export(eda_pin_env$a_data) 
-
-# view(export_env$dashboard)
+test2 <- financing_env$a_data_amc
 
 
 # Consolidate -------------------------------------------------------------
@@ -131,16 +131,9 @@ source("consolidate/run_consolidate.r")
 consolidate_env <- run_consolidate(
   financing_env$a_data,
   financing_env$a_data_amc,
-  financing_env$a_data_africa,
   financing_env$a_data_csc,
-  adm_cov_env$b_vxrate_change_lw,
   .GlobalEnv$date_refresh
 )
-
-source("consolidate/last_month/run_last_month.r")
-source("consolidate/funding_tracker/run_funding_tracker.r")
-# last_month_env <- run_last_month()
- # funding_tracker_env <- run_funding_tracker()
 
 # EXPORT
 
@@ -148,16 +141,10 @@ print(" > Exporting data outputs from pipeline to Excel workbooks...")
 all_df <- list(
     "0_base_data" = eda_pin_env$a_data,
     "1_absorption_month" = adm_cov_env$d_absorption,
-    "1_absorption_month_country" = adm_cov_env$combined,
-    "1_cum_absorb_month_country" = adm_cov_env$d_absorption_country_new,
     "1_stock" = eda_adm_cov_env$timeseries,
-    "1_adm_all_long" = adm_cov_env$b_vxrate_pub,
+    "1_adm_all_long" = adm_cov_env$adm_tot_ts_daily,
     "1_delivery_doses" = supply_env$sup_rec_dose_prod,
     "1_funding_source" = finance_env$fin_del_sum_source,
-    "8_cov_com_hcw_all" = consolidate_env$e_cov_com_hcw_all,
-    "8_cov_com_60p_all" = consolidate_env$e_cov_com_60p_all,
-    "8_cov_com_hcw_csc" = consolidate_env$e_cov_com_hcw_csc,
-    "8_cov_com_60p_csc" = consolidate_env$e_cov_com_60p_csc,
     "9_values" = consolidate_env$z_values
 )
 

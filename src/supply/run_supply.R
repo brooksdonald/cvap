@@ -31,12 +31,13 @@ run_supply <- function(date_del, date_refresh, refresh_timeseries) {
     sup_rec_ts <- load_ts_sup_rec(path_ts)
     sup_sec_ts_add <- transform_sup_sec(sup_sec_ts)
     sup_rec_ts_add <- transform_sup_rec(sup_rec_ts)
-    merge_export_sup_ts(sup_sec_ts,
-                        sup_sec_ts_add,
-                        sup_rec_ts_add,
-                        sup_rec_ts)
+    sup_ts <- merge_export_sup_ts(sup_sec_ts,
+                                  sup_rec_ts_add,
+                                  sup_sec_ts_add,
+                                  sup_rec_ts)
+    sup_ts_wide <- sup_ts$wide
     
-    print("> Done - file exported to data/input/interim/supply.xlsx.")
+    print("> File exported to data/input/interim/supply.xlsx.")
     
   } else {
     print("> Importing supply timeseries from data/input/interim/supply.xlsx")
