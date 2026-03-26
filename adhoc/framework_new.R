@@ -9,7 +9,7 @@ gc()
 options(scipen = 999)
 
 # Set working directory
-setwd("C:/Users/brooksd/OneDrive - World Health Organization/Documents/GitHub/cvap") #Donald
+setwd("/Users/brooksdonald/Documents/GitHub/cvap/") #Donald
 
 # Load packages
 library("tidyverse")
@@ -17,7 +17,7 @@ library("readxl")
 library("writexl")
 library("lubridate")
 library("httr")
-library("jsonlite")
+library("jsonlite") 
 library("data.table")
 
 
@@ -33,7 +33,7 @@ raw_data_pop_groups <- data.frame(
   read.csv("data/data_export_WIISE_MT_REF_POPULATIONS_AGEGROUPS.csv"))
 
 raw_data_entity <- data.frame(
-  read_excel("data/input/static/base_entitydetails.xlsx",
+  read_excel("data/input/data_export_WIISE_REF_COUNTRIES.xlsx",
              sheet = "REF_COUNTRIES"))
 
 raw_data_adhoc <- data.frame(
@@ -1159,20 +1159,17 @@ data_policy_wide <- data_policy_long %>%
   spread(key = indicator,
          value = value) %>%
   mutate(status_policy = case_when(
-    policy_vacc == "YES" & policy_revacc == "YES" ~ "1) Periodic revaccination & primary vaccination recommended",
-    is.na(policy_vacc) & policy_revacc == "YES" ~ "1) Periodic revaccination & primary vaccination recommended",
-    policy_vacc == "YES" & policy_revacc == "NO" ~ "2) Vaccination recommended",
-    policy_vacc == "NO" & policy_revacc == "NO" ~ "3) Vaccination not recommended",
-    policy_vacc == "NO" & policy_revacc == "" ~ "3) Vaccination not recommended",
-    policy_vacc == "NO" & is.na(policy_revacc) ~ "3) Vaccination not recommended",
-    is.na(policy_vacc) & is.na(policy_revacc) ~ "4) No response provided",
-    policy_vacc == "YES" & is.na(policy_revacc) ~ "2) Vaccination recommended",
-    is.na(policy_vacc) & policy_revacc == "NO" ~ "3) Vaccination not recommended",
+    policy_vacc == "YES" & policy_revacc == "YES" ~ "Periodic revaccination & primary vaccination recommended",
+    is.na(policy_vacc) & policy_revacc == "YES" ~ "Periodic revaccination & primary vaccination recommended",
+    policy_vacc == "YES" & policy_revacc == "NO" ~ "Primary vaccination only recommended",
+    policy_vacc == "NO" & policy_revacc == "NO" ~ "(Re-) vaccination not recommended",
+    policy_vacc == "NO" & policy_revacc == "" ~ "(Re-) vaccination not recommended",
+    policy_vacc == "NO" & is.na(policy_revacc) ~ "(Re-) vaccination not recommended",
+    is.na(policy_vacc) & is.na(policy_revacc) ~ "No response provided",
+    policy_vacc == "YES" & is.na(policy_revacc) ~ "Primary vaccination only recommended",
+    is.na(policy_vacc) & policy_revacc == "NO" ~ "(Re-) vaccination not recommended",
     TRUE ~ NA
-  ),
-  ,
-  status_policy_visual = if_else(status_policy == "1) Periodic revaccination & primary vaccination recommended",
-                                 "Yes", NA)) %>%
+  )) %>%
   left_join(., entity_short, by = "iso")
 
 
@@ -1247,20 +1244,18 @@ data_policy_annual_wide <- data_policy_annual_long %>%
   spread(key = indicator,
          value = value) %>%
   mutate(status_policy = case_when(
-    policy_vacc == "YES" & policy_revacc == "YES" ~ "1) Periodic revaccination & primary vaccination recommended",
-    is.na(policy_vacc) & policy_revacc == "YES" ~ "1) Periodic revaccination & primary vaccination recommended",
-    policy_vacc == "NO" & policy_revacc == "YES" ~ "1) Periodic revaccination & primary vaccination recommended",
-    policy_vacc == "YES" & policy_revacc == "NO" ~ "2) Vaccination recommended",
-    policy_vacc == "NO" & policy_revacc == "NO" ~ "3) Vaccination not recommended",
-    policy_vacc == "NO" & policy_revacc == "" ~ "3) Vaccination not recommended",
-    policy_vacc == "NO" & is.na(policy_revacc) ~ "3) Vaccination not recommended",
-    is.na(policy_vacc) & is.na(policy_revacc) ~ "4) No response provided",
-    policy_vacc == "YES" & is.na(policy_revacc) ~ "2) Vaccination recommended",
-    is.na(policy_vacc) & policy_revacc == "NO" ~ "3) Vaccination not recommended",
+    policy_vacc == "YES" & policy_revacc == "YES" ~ "Periodic revaccination & primary vaccination recommended",
+    is.na(policy_vacc) & policy_revacc == "YES" ~ "Periodic revaccination & primary vaccination recommended",
+    policy_vacc == "NO" & policy_revacc == "YES" ~ "Periodic revaccination & primary vaccination recommended",
+    policy_vacc == "YES" & policy_revacc == "NO" ~ "Primary vaccination only recommended",
+    policy_vacc == "NO" & policy_revacc == "NO" ~ "(Re-) vaccination not recommended",
+    policy_vacc == "NO" & policy_revacc == "" ~ "(Re-) vaccination not recommended",
+    policy_vacc == "NO" & is.na(policy_revacc) ~ "(Re-) vaccination not recommended",
+    is.na(policy_vacc) & is.na(policy_revacc) ~ "No response provided",
+    policy_vacc == "YES" & is.na(policy_revacc) ~ "Primary vaccination only recommended",
+    is.na(policy_vacc) & policy_revacc == "NO" ~ "(Re-) vaccination not recommended",
     TRUE ~ NA
-  ),
-  status_policy_visual = if_else(status_policy == "1) Periodic revaccination & primary vaccination recommended",
-                                 "Yes", NA)) %>%
+  )) %>%
   left_join(., entity_short, by = "iso")
 
 
@@ -1310,6 +1305,16 @@ view_ind_wiise_dash <- data_policy_long %>%
     REPORTING_PERIOD == "12" ~ as.Date(paste0("2025","-", "01","-", "01"))
   )) %>%
   select(-REPORTING_PERIOD)
+
+policy_uptake <- data_policy_annual_wide %>%
+  select(iso,
+         group,
+         status_policy) %>%
+  filter(group == "Health and care workers" |
+           group == "Older adults") %>%
+  spread(key = group, value = status_policy) %>%
+  rename(pol_hcw = "Health and care workers",
+         pol_older = "Older adults")
 
 # Transform - products in use ---------------------------------------------
 
@@ -1520,6 +1525,18 @@ view_uptake_wiise_dash <- data_uptake_long %>%
 
 # Summarize - region, uptake view -----------------------------------------
 
+# Prepare sumamry across all countries for total uptake
+uptake_all_total <- view_uptake %>%
+  filter(is.na(cumulative_total_q4) == FALSE,
+         a_status_who == "Member State") %>%
+  summarize(adm_total_q1 = sum(adm_total_q1, na.rm = TRUE),
+            adm_total_q2 = sum(adm_total_q2, na.rm = TRUE),
+            adm_total_q3 = sum(adm_total_q3, na.rm = TRUE),
+            adm_total_q4 = sum(adm_total_q4, na.rm = TRUE),
+            cumulative_total_q4 = sum(cumulative_total_q4_adj, na.rm = TRUE),
+            pop_total_rep = sum(pop_total),
+            count_rep_total = n())
+
 # Prepare summary by region for total uptake
 uptake_region_total <- view_uptake %>%
   filter(is.na(cumulative_total_q4) == FALSE,
@@ -1707,8 +1724,8 @@ uptake_region <- uptake_region_total %>%
          prop_pop_total = pop_total_rep / pop_total_all,
          prop_pop_hcw = pop_hcw_rep / pop_hcw_all,
          prop_pop_old = pop_old_rep / pop_older_all) %>%
-  rename(grouping = a_region_who)
-
+  rename(grouping = a_region_who) %>%
+  mutate(type = "region")
 
 # Summarize - archive and current uptake ----------------------------------
 
@@ -2027,197 +2044,340 @@ uptake_income <- uptake_income_total %>%
          prop_pop_total = pop_total_rep / pop_total_all,
          prop_pop_hcw = pop_hcw_rep / pop_hcw_all,
          prop_pop_old = pop_old_rep / pop_older_all) %>%
-  rename(grouping = a_income_group)
+  rename(grouping = a_income_group) %>%
+  mutate(type = "income")
+
+
+# Summarize - policy category, uptake view --------------------------------
+
+uptake_policy <- view_uptake %>%
+  select(iso,
+         a_status_who,
+         pop_older,
+         pop_hcw,
+         cumulative_old_q4,
+         cumulative_old_q4_adj,
+         cumulative_hcw_q4,
+         cumulative_hcw_q4_adj) %>%
+  left_join(., policy_uptake, by = "iso")
+
+uptake_policy_hcw <- uptake_policy %>%
+  filter(is.na(cumulative_hcw_q4) == FALSE,
+         a_status_who == "Member State") %>%
+  group_by(pol_hcw) %>%
+  summarize(cumulative_hcw_q4 = sum(cumulative_hcw_q4_adj, na.rm = TRUE),
+            pop_hcw_rep = sum(pop_hcw),
+            count_rep_hcw = n()) %>%
+  rename(policy = pol_hcw) %>%
+  ungroup()
+
+uptake_policy_old <- uptake_policy %>%
+  filter(is.na(cumulative_old_q4) == FALSE,
+         a_status_who == "Member State") %>%
+  group_by(pol_older) %>%
+  summarize(cumulative_old_q4 = sum(cumulative_old_q4_adj, na.rm = TRUE),
+            pop_old_rep = sum(pop_older),
+            count_rep_older = n()) %>%
+  rename(policy = pol_older) %>%
+  ungroup()
+
+policy_hcw_pop <- entity %>%
+  select(-pop_hcw,
+         -pop_older,
+         -a_status_who) %>%
+  left_join(., uptake_policy, by = "iso") %>%
+  filter(a_status_who == "Member State",
+         is.na(pol_hcw) == FALSE) %>%
+  group_by(pol_hcw) %>%
+  summarize(pop_hcw_all = sum(pop_hcw, na.rm = TRUE),
+            count_hcw_all = n()) %>%
+  rename(policy = pol_hcw) %>%
+  ungroup()
+
+policy_old_pop <- entity %>%
+  select(-pop_hcw,
+         -pop_older,
+         -a_status_who) %>%
+  left_join(., uptake_policy, by = "iso") %>%
+  filter(a_status_who == "Member State",
+         is.na(pol_older) == FALSE) %>%
+  group_by(pol_older) %>%
+  summarize(pop_older_all = sum(pop_older, na.rm = TRUE),
+            count_older_all = n()) %>%
+  rename(policy = pol_older) %>%
+  ungroup()
+
+uptake_policy_sum <- uptake_policy_hcw %>%
+  full_join(., uptake_policy_old, by = "policy") %>%
+  full_join(., policy_hcw_pop, by = "policy") %>%
+  full_join(., policy_old_pop, by = "policy") %>%
+  mutate(cov_hcw = cumulative_hcw_q4 / pop_hcw_rep,
+         cov_older = cumulative_old_q4 / pop_old_rep,
+        prop_pop_hcw = pop_hcw_rep / pop_hcw_all,
+         prop_pop_old = pop_old_rep / pop_older_all) %>%
+  rename(grouping = policy) %>%
+  select(-count_older_all,
+         -count_hcw_all,
+         -pop_hcw_rep,
+         -pop_old_rep,
+         -pop_hcw_all,
+         -pop_older_all) %>%
+  mutate(type = "policy")
+
+
+
+# Summarize - global, uptake view -----------------------------------------
+
+uptake_global <- view_uptake %>%
+  select(iso,
+         a_status_who,
+         pop_older,
+         pop_hcw,
+         cumulative_old_q4,
+         cumulative_old_q4_adj,
+         cumulative_hcw_q4,
+         cumulative_hcw_q4_adj)
+
+uptake_global_hcw <- uptake_global %>%
+  filter(is.na(cumulative_hcw_q4) == FALSE,
+         a_status_who == "Member State") %>%
+  summarize(cumulative_hcw_q4 = sum(cumulative_hcw_q4_adj, na.rm = TRUE),
+            pop_hcw_rep = sum(pop_hcw),
+            count_rep_hcw = n()) %>%
+  mutate(grouping = "Global")
+
+uptake_global_old <- uptake_global %>%
+  filter(is.na(cumulative_old_q4) == FALSE,
+         a_status_who == "Member State") %>%
+  summarize(cumulative_old_q4 = sum(cumulative_old_q4_adj, na.rm = TRUE),
+            pop_old_rep = sum(pop_older),
+            count_rep_older = n()) %>%
+  mutate(grouping = "Global")
+
+global_pop <- entity %>%
+  filter(a_status_who == "Member State") %>%
+  summarize(pop_older_all = sum(pop_older, na.rm = TRUE),
+            pop_hcw_all = sum(pop_hcw, na.rm = TRUE),
+            count_all = n()) %>%
+  mutate(grouping = "Global")
+
+uptake_global <- uptake_global_hcw %>%
+  full_join(., uptake_global_old, by = "grouping") %>%
+  full_join(., global_pop, by = "grouping") %>%
+  mutate(cov_hcw = cumulative_hcw_q4 / pop_hcw_rep,
+         cov_older = cumulative_old_q4 / pop_old_rep,
+         prop_pop_hcw = pop_hcw_rep / pop_hcw_all,
+         prop_pop_old = pop_old_rep / pop_older_all) %>%
+  select(-pop_hcw_rep,
+         -pop_old_rep,
+         -pop_hcw_all,
+         -pop_older_all,
+         -count_all) %>%
+  mutate(type = "all")
 
 
 # WIISE preparation -------------------------------------------------------
 
-
-uptake_income_wiise <- uptake_income %>%
-  gather(key = "indicator", value = "value", -grouping)
-
-uptake_income_wiise_adm <- uptake_income_wiise %>%
-  filter(indicator == "adm_hcw_q1" |
-           indicator == "adm_hcw_q2" |
-           indicator == "adm_hcw_q3" |
-           indicator == "adm_hcw_q4" |           
-           indicator == "adm_old_q1" |
-           indicator == "adm_old_q2" |
-           indicator == "adm_old_q3" |
-           indicator == "adm_old_q4" |
-           indicator == "adm_total_q1" |
-           indicator == "adm_total_q2" |
-           indicator == "adm_total_q3" |
-           indicator == "adm_total_q4") %>%
-  mutate(DATE = case_when(
-    indicator == "adm_hcw_q1" ~ as.Date("2024-04-01"),
-    indicator == "adm_hcw_q2" ~ as.Date("2024-07-01"),
-    indicator == "adm_hcw_q3" ~ as.Date("2024-10-01"),
-    indicator == "adm_hcw_q4" ~ as.Date("2025-01-01"),    
-    indicator == "adm_old_q1" ~ as.Date("2024-04-01"),
-    indicator == "adm_old_q2" ~ as.Date("2024-07-01"),
-    indicator == "adm_old_q3" ~ as.Date("2024-10-01"),
-    indicator == "adm_old_q4" ~ as.Date("2025-01-01"),
-    indicator == "adm_total_q1" ~ as.Date("2024-04-01"),
-    indicator == "adm_total_q2" ~ as.Date("2024-07-01"),
-    indicator == "adm_total_q3" ~ as.Date("2024-10-01"),
-    indicator == "adm_total_q4" ~ as.Date("2024-01-01")
-  ),
-         GROUP = case_when(
-    indicator == "adm_hcw_q1" ~ "hcw",
-    indicator == "adm_hcw_q2" ~ "hcw",
-    indicator == "adm_hcw_q3" ~ "hcw",
-    indicator == "adm_hcw_q4" ~ "hcw",
-    indicator == "adm_old_q1" ~ "old",
-    indicator == "adm_old_q2" ~ "old",
-    indicator == "adm_old_q3" ~ "old",
-    indicator == "adm_old_q4" ~ "old",
-    indicator == "adm_total_q1" ~ "total",
-    indicator == "adm_total_q2" ~ "total",
-    indicator == "adm_total_q3" ~ "total",
-    indicator == "adm_total_q4" ~ "total"
-  ),
-  TYPE = "additive") %>%
-  rename(COVID_VACCINE_ADM_1D = value,
-         INCOME_GROUP = grouping) %>%
-  select(-indicator)
-
-uptake_income_wiise_cum <- uptake_income_wiise %>%
-  filter(indicator == "cumulative_hcw_q4" |
-           indicator == "cumulative_old_q4" |
-           indicator == "cumulative_total_q4") %>%
-  mutate(DATE = case_when(
-    indicator == "cumulative_hcw_q4" ~ as.Date("2025-01-01"),
-    indicator == "cumulative_old_q4" ~ as.Date("2025-01-01"),
-    indicator == "cumulative_total_q4" ~ as.Date("2025-01-01")
-  ),
-  GROUP = case_when(
-    indicator == "cumulative_hcw_q4" ~ "hcw",
-    indicator == "cumulative_old_q4" ~ "old",
-    indicator == "cumulative_total_q4" ~ "total"
-  ),
-  TYPE = "cumulative") %>%
-  rename(COVID_VACCINE_ADM_1D = value,
-         INCOME_GROUP = grouping) %>%
-  select(-indicator)
-
-uptake_income_wiise_all <- rbind(uptake_income_wiise_adm, uptake_income_wiise_cum)
-  
-
-uptake_income_wiise_pop <- uptake_income_wiise %>%
-  filter(indicator == "pop_old_rep" |
-           indicator == "pop_hcw_rep" |
-           indicator == "pop_total_rep") %>%
-  mutate(GROUP = case_when(
-    indicator == "pop_old_rep" ~ "old",
-    indicator == "pop_hcw_rep" ~ "hcw",
-    indicator == "pop_total_rep" ~ "total"
-  )) %>%
-  rename(POPULATION = value,
-         INCOME_GROUP = grouping) %>%
-  select(-indicator)
-
-uptake_income_wiise_all <- left_join(uptake_income_wiise_all, uptake_income_wiise_pop,
-                                     by = c("INCOME_GROUP", "GROUP"))
-
-uptake_income_wiise_all <- uptake_income_wiise_all %>%
-  mutate(COVID_VACCINE_COV_1D = COVID_VACCINE_ADM_1D / POPULATION)
-
-
-uptake_region_wiise <- uptake_region %>%
-  gather(key = "indicator", value = "value", -grouping)
-
-uptake_region_wiise_adm <- uptake_region_wiise %>%
-  filter(indicator == "adm_hcw_q1" |
-           indicator == "adm_hcw_q2" |
-           indicator == "adm_hcw_q3" |
-           indicator == "adm_hcw_q4" |
-           indicator == "adm_old_q1" |
-           indicator == "adm_old_q2" |
-           indicator == "adm_old_q3" |
-           indicator == "adm_old_q4" |           
-           indicator == "adm_total_q1" |
-           indicator == "adm_total_q2" | 
-           indicator == "adm_total_q3" |
-           indicator == "adm_total_q4") %>%
-  mutate(DATE = case_when(
-    indicator == "adm_hcw_q1" ~ as.Date("2024-04-01"),
-    indicator == "adm_hcw_q2" ~ as.Date("2024-07-01"),
-    indicator == "adm_hcw_q3" ~ as.Date("2024-10-01"),   
-    indicator == "adm_hcw_q4" ~ as.Date("2025-01-01"),   
-    indicator == "adm_old_q1" ~ as.Date("2024-04-01"),
-    indicator == "adm_old_q2" ~ as.Date("2024-07-01"),
-    indicator == "adm_old_q3" ~ as.Date("2024-10-01"),
-    indicator == "adm_old_q4" ~ as.Date("2025-01-01"),
-    indicator == "adm_total_q1" ~ as.Date("2024-04-01"),
-    indicator == "adm_total_q2" ~ as.Date("2024-07-01"),
-    indicator == "adm_total_q3" ~ as.Date("2024-10-01"),
-    indicator == "adm_total_q4" ~ as.Date("2025-01-01")
-  ),
-  GROUP = case_when(
-    indicator == "adm_hcw_q1" ~ "hcw",
-    indicator == "adm_hcw_q2" ~ "hcw",
-    indicator == "adm_hcw_q3" ~ "hcw",
-    indicator == "adm_hcw_q4" ~ "hcw",    
-    indicator == "adm_old_q1" ~ "old",
-    indicator == "adm_old_q2" ~ "old",
-    indicator == "adm_old_q3" ~ "old",
-    indicator == "adm_old_q4" ~ "old",
-    indicator == "adm_total_q1" ~ "total",
-    indicator == "adm_total_q2" ~ "total",
-    indicator == "adm_total_q3" ~ "total",
-    indicator == "adm_total_q4" ~ "total"
-  ),
-  TYPE = "additive") %>%
-  rename(COVID_VACCINE_ADM_1D = value,
-         REGION = grouping) %>%
-  select(-indicator)
-
-uptake_region_wiise_cum <- uptake_region_wiise %>%
-  filter(indicator == "cumulative_hcw_q4" |
-           indicator == "cumulative_old_q4" |
-           indicator == "cumulative_total_q4") %>%
-  mutate(DATE = case_when(
-    indicator == "cumulative_hcw_q4" ~ as.Date("2025-01-01"),
-    indicator == "cumulative_old_q4" ~ as.Date("2025-01-01"),
-    indicator == "cumulative_total_q4" ~ as.Date("2025-01-01")
-  ),
-  GROUP = case_when(
-    indicator == "cumulative_hcw_q4" ~ "hcw",
-    indicator == "cumulative_old_q4" ~ "old",
-    indicator == "cumulative_total_q4" ~ "total"
-  ),
-  TYPE = "cumulative") %>%
-  rename(COVID_VACCINE_ADM_1D = value,
-         REGION = grouping) %>%
-  select(-indicator)
-
-uptake_region_wiise_all <- rbind(uptake_region_wiise_adm, uptake_region_wiise_cum)
-
-
-uptake_region_wiise_pop <- uptake_region_wiise %>%
-  filter(indicator == "pop_old_rep" |
-           indicator == "pop_hcw_rep" |
-           indicator == "pop_total_rep") %>%
-  mutate(GROUP = case_when(
-    indicator == "pop_old_rep" ~ "old",
-    indicator == "pop_hcw_rep" ~ "hcw",
-    indicator == "pop_total_rep" ~ "total"
-  )) %>%
-  rename(POPULATION = value,
-         REGION = grouping) %>%
-  select(-indicator)
-
-uptake_region_wiise_all <- left_join(uptake_region_wiise_all, uptake_region_wiise_pop,
-                                     by = c("REGION", "GROUP"))
-
-uptake_region_wiise_all <- uptake_region_wiise_all %>%
-  mutate(COVID_VACCINE_COV_1D = COVID_VACCINE_ADM_1D / POPULATION)
+# 
+# uptake_income_wiise <- uptake_income %>%
+#   gather(key = "indicator", value = "value", -grouping)
+# 
+# uptake_income_wiise_adm <- uptake_income_wiise %>%
+#   filter(indicator == "adm_hcw_q1" |
+#            indicator == "adm_hcw_q2" |
+#            indicator == "adm_hcw_q3" |
+#            indicator == "adm_hcw_q4" |           
+#            indicator == "adm_old_q1" |
+#            indicator == "adm_old_q2" |
+#            indicator == "adm_old_q3" |
+#            indicator == "adm_old_q4" |
+#            indicator == "adm_total_q1" |
+#            indicator == "adm_total_q2" |
+#            indicator == "adm_total_q3" |
+#            indicator == "adm_total_q4") %>%
+#   mutate(DATE = case_when(
+#     indicator == "adm_hcw_q1" ~ as.Date("2024-04-01"),
+#     indicator == "adm_hcw_q2" ~ as.Date("2024-07-01"),
+#     indicator == "adm_hcw_q3" ~ as.Date("2024-10-01"),
+#     indicator == "adm_hcw_q4" ~ as.Date("2025-01-01"),    
+#     indicator == "adm_old_q1" ~ as.Date("2024-04-01"),
+#     indicator == "adm_old_q2" ~ as.Date("2024-07-01"),
+#     indicator == "adm_old_q3" ~ as.Date("2024-10-01"),
+#     indicator == "adm_old_q4" ~ as.Date("2025-01-01"),
+#     indicator == "adm_total_q1" ~ as.Date("2024-04-01"),
+#     indicator == "adm_total_q2" ~ as.Date("2024-07-01"),
+#     indicator == "adm_total_q3" ~ as.Date("2024-10-01"),
+#     indicator == "adm_total_q4" ~ as.Date("2024-01-01")
+#   ),
+#          GROUP = case_when(
+#     indicator == "adm_hcw_q1" ~ "hcw",
+#     indicator == "adm_hcw_q2" ~ "hcw",
+#     indicator == "adm_hcw_q3" ~ "hcw",
+#     indicator == "adm_hcw_q4" ~ "hcw",
+#     indicator == "adm_old_q1" ~ "old",
+#     indicator == "adm_old_q2" ~ "old",
+#     indicator == "adm_old_q3" ~ "old",
+#     indicator == "adm_old_q4" ~ "old",
+#     indicator == "adm_total_q1" ~ "total",
+#     indicator == "adm_total_q2" ~ "total",
+#     indicator == "adm_total_q3" ~ "total",
+#     indicator == "adm_total_q4" ~ "total"
+#   ),
+#   TYPE = "additive") %>%
+#   rename(COVID_VACCINE_ADM_1D = value,
+#          INCOME_GROUP = grouping) %>%
+#   select(-indicator)
+# 
+# uptake_income_wiise_cum <- uptake_income_wiise %>%
+#   filter(indicator == "cumulative_hcw_q4" |
+#            indicator == "cumulative_old_q4" |
+#            indicator == "cumulative_total_q4") %>%
+#   mutate(DATE = case_when(
+#     indicator == "cumulative_hcw_q4" ~ as.Date("2025-01-01"),
+#     indicator == "cumulative_old_q4" ~ as.Date("2025-01-01"),
+#     indicator == "cumulative_total_q4" ~ as.Date("2025-01-01")
+#   ),
+#   GROUP = case_when(
+#     indicator == "cumulative_hcw_q4" ~ "hcw",
+#     indicator == "cumulative_old_q4" ~ "old",
+#     indicator == "cumulative_total_q4" ~ "total"
+#   ),
+#   TYPE = "cumulative") %>%
+#   rename(COVID_VACCINE_ADM_1D = value,
+#          INCOME_GROUP = grouping) %>%
+#   select(-indicator)
+# 
+# uptake_income_wiise_all <- rbind(uptake_income_wiise_adm, uptake_income_wiise_cum)
+#   
+# 
+# uptake_income_wiise_pop <- uptake_income_wiise %>%
+#   filter(indicator == "pop_old_rep" |
+#            indicator == "pop_hcw_rep" |
+#            indicator == "pop_total_rep") %>%
+#   mutate(GROUP = case_when(
+#     indicator == "pop_old_rep" ~ "old",
+#     indicator == "pop_hcw_rep" ~ "hcw",
+#     indicator == "pop_total_rep" ~ "total"
+#   )) %>%
+#   rename(POPULATION = value,
+#          INCOME_GROUP = grouping) %>%
+#   select(-indicator)
+# 
+# uptake_income_wiise_all <- left_join(uptake_income_wiise_all, uptake_income_wiise_pop,
+#                                      by = c("INCOME_GROUP", "GROUP"))
+# 
+# uptake_income_wiise_all <- uptake_income_wiise_all %>%
+#   mutate(COVID_VACCINE_COV_1D = COVID_VACCINE_ADM_1D / POPULATION)
+# 
+# 
+# uptake_region_wiise <- uptake_region %>%
+#   gather(key = "indicator", value = "value", -grouping)
+# 
+# uptake_region_wiise_adm <- uptake_region_wiise %>%
+#   filter(indicator == "adm_hcw_q1" |
+#            indicator == "adm_hcw_q2" |
+#            indicator == "adm_hcw_q3" |
+#            indicator == "adm_hcw_q4" |
+#            indicator == "adm_old_q1" |
+#            indicator == "adm_old_q2" |
+#            indicator == "adm_old_q3" |
+#            indicator == "adm_old_q4" |           
+#            indicator == "adm_total_q1" |
+#            indicator == "adm_total_q2" | 
+#            indicator == "adm_total_q3" |
+#            indicator == "adm_total_q4") %>%
+#   mutate(DATE = case_when(
+#     indicator == "adm_hcw_q1" ~ as.Date("2024-04-01"),
+#     indicator == "adm_hcw_q2" ~ as.Date("2024-07-01"),
+#     indicator == "adm_hcw_q3" ~ as.Date("2024-10-01"),   
+#     indicator == "adm_hcw_q4" ~ as.Date("2025-01-01"),   
+#     indicator == "adm_old_q1" ~ as.Date("2024-04-01"),
+#     indicator == "adm_old_q2" ~ as.Date("2024-07-01"),
+#     indicator == "adm_old_q3" ~ as.Date("2024-10-01"),
+#     indicator == "adm_old_q4" ~ as.Date("2025-01-01"),
+#     indicator == "adm_total_q1" ~ as.Date("2024-04-01"),
+#     indicator == "adm_total_q2" ~ as.Date("2024-07-01"),
+#     indicator == "adm_total_q3" ~ as.Date("2024-10-01"),
+#     indicator == "adm_total_q4" ~ as.Date("2025-01-01")
+#   ),
+#   GROUP = case_when(
+#     indicator == "adm_hcw_q1" ~ "hcw",
+#     indicator == "adm_hcw_q2" ~ "hcw",
+#     indicator == "adm_hcw_q3" ~ "hcw",
+#     indicator == "adm_hcw_q4" ~ "hcw",    
+#     indicator == "adm_old_q1" ~ "old",
+#     indicator == "adm_old_q2" ~ "old",
+#     indicator == "adm_old_q3" ~ "old",
+#     indicator == "adm_old_q4" ~ "old",
+#     indicator == "adm_total_q1" ~ "total",
+#     indicator == "adm_total_q2" ~ "total",
+#     indicator == "adm_total_q3" ~ "total",
+#     indicator == "adm_total_q4" ~ "total"
+#   ),
+#   TYPE = "additive") %>%
+#   rename(COVID_VACCINE_ADM_1D = value,
+#          REGION = grouping) %>%
+#   select(-indicator)
+# 
+# uptake_region_wiise_cum <- uptake_region_wiise %>%
+#   filter(indicator == "cumulative_hcw_q4" |
+#            indicator == "cumulative_old_q4" |
+#            indicator == "cumulative_total_q4") %>%
+#   mutate(DATE = case_when(
+#     indicator == "cumulative_hcw_q4" ~ as.Date("2025-01-01"),
+#     indicator == "cumulative_old_q4" ~ as.Date("2025-01-01"),
+#     indicator == "cumulative_total_q4" ~ as.Date("2025-01-01")
+#   ),
+#   GROUP = case_when(
+#     indicator == "cumulative_hcw_q4" ~ "hcw",
+#     indicator == "cumulative_old_q4" ~ "old",
+#     indicator == "cumulative_total_q4" ~ "total"
+#   ),
+#   TYPE = "cumulative") %>%
+#   rename(COVID_VACCINE_ADM_1D = value,
+#          REGION = grouping) %>%
+#   select(-indicator)
+# 
+# uptake_region_wiise_all <- rbind(uptake_region_wiise_adm, uptake_region_wiise_cum)
+# 
+# 
+# uptake_region_wiise_pop <- uptake_region_wiise %>%
+#   filter(indicator == "pop_old_rep" |
+#            indicator == "pop_hcw_rep" |
+#            indicator == "pop_total_rep") %>%
+#   mutate(GROUP = case_when(
+#     indicator == "pop_old_rep" ~ "old",
+#     indicator == "pop_hcw_rep" ~ "hcw",
+#     indicator == "pop_total_rep" ~ "total"
+#   )) %>%
+#   rename(POPULATION = value,
+#          REGION = grouping) %>%
+#   select(-indicator)
+# 
+# uptake_region_wiise_all <- left_join(uptake_region_wiise_all, uptake_region_wiise_pop,
+#                                      by = c("REGION", "GROUP"))
+# 
+# uptake_region_wiise_all <- uptake_region_wiise_all %>%
+#   mutate(COVID_VACCINE_COV_1D = COVID_VACCINE_ADM_1D / POPULATION)
 
 
 # Combine - country groupings, uptake ---------------------------------------------
 
 uptake_groupings <- rbind(uptake_region, uptake_income)
+
+uptake_groupings_red <- uptake_groupings %>%
+  select(grouping,
+         type,
+         cumulative_hcw_q4,
+         cumulative_old_q4,
+         cov_hcw,
+         cov_older,
+         count_rep_hcw,
+         count_rep_older,
+         prop_pop_hcw,
+         prop_pop_old) %>%
+  rbind(., uptake_policy_sum) %>%
+  rbind(., uptake_global)
 
 values_static <- data.frame(as.Date("2024-12-31")) %>%
   rename(date_period = `as.Date..2024.12.31..`) %>%
@@ -2233,6 +2393,7 @@ test <- uptake_region %>%
 export <- list(
   "uptake_country_wide" = view_uptake,
   "uptake_grouping_wide" = uptake_groupings,
+  "uptake_grouping_wide_red" = uptake_groupings_red,
   "uptake_region_time" = uptake_quarterly,
   "uptake_region_cum_time" = uptake_time_old,
   "uptake_region_cum_time_hcw" = uptake_time_hcw,
@@ -2245,18 +2406,18 @@ export <- list(
   "values_static" = values_static
 )
 
-export_wiise <- list(
-  "COV_VAC_DASH_UPTAKE" = view_uptake_wiise_dash,
-  "COV_VAC_DASH_IND" = view_ind_wiise_dash,
-  "COV_VAC_DASH_UPTAKE_INCOME" = uptake_income_wiise_all,
-  "COV_VAC_DASH_UPTAKE_REGION" = uptake_region_wiise_all
-)
+# export_wiise <- list(
+#   "COV_VAC_DASH_UPTAKE" = view_uptake_wiise_dash,
+#   "COV_VAC_DASH_IND" = view_ind_wiise_dash,
+#   "COV_VAC_DASH_UPTAKE_INCOME" = uptake_income_wiise_all,
+#   "COV_VAC_DASH_UPTAKE_REGION" = uptake_region_wiise_all
+# )
 
 write_xlsx(export, "data/output/output_new.xlsx")
-write_xlsx(data_uptake_wide_cum_total_pre_mod, "data/output/uptake.xlsx")
-write_xlsx(data_uptake_wide_cum_old_premod, "data/output/uptake_old.xlsx")
-write_xlsx(data_uptake_wide_cum_hcw_premod, "data/output/uptake_hcw.xlsx")
-write_xlsx(export_wiise, "data/output/250718_output_wiise.xlsx")
+# write_xlsx(data_uptake_wide_cum_total_pre_mod, "data/output/uptake.xlsx")
+# write_xlsx(data_uptake_wide_cum_old_premod, "data/output/uptake_old.xlsx")
+# write_xlsx(data_uptake_wide_cum_hcw_premod, "data/output/uptake_hcw.xlsx")
+# write_xlsx(export_wiise, "data/output/250718_output_wiise.xlsx")
 
 
 

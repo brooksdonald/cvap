@@ -13,7 +13,6 @@ run_eda_adm_cov <- function(
     date_refresh,
     target_hcwold,
     combined_three,
-    overall_fin_cumul_long,
     adm_all_long,
     population_pin
 ) {
@@ -37,7 +36,7 @@ run_eda_adm_cov <- function(
         sup_rec,
         b_dp,
         sup_rec_jj,
-       fin_del_sum,
+        fin_del_sum,
         population_pin
     )
     print(" > Done.")
@@ -47,7 +46,7 @@ run_eda_adm_cov <- function(
     a_data <- datalist$a_data
     print(" > Done.")
     
-    timeseries <- merge_timeseries(a_data, combined_three, target_hcwold, overall_fin_cumul_long)
+    timeseries <- merge_timeseries(a_data, combined_three, target_hcwold)
     
     return(environment())
 }

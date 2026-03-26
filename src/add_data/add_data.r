@@ -7,28 +7,24 @@ load_base_data <- function(refresh_api) {
 load_who_dashboard <- function(refresh_api) {
     print(">> Loading WHO COVID-19 dashboard vaccination data...")
     folder <- "data/input/interim"
-    link <- "https://covid19.who.int/who-data/vaccination-data.csv"
+    link <- "https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/COV_VAC_UPTAKE_2021_2023.csv"
     storage_name <- paste0(folder, "/", sub(".*/", "", link))
     if (refresh_api | !file.exists(storage_name)) {
         who_dashboard <- fread(link)
         
         print(">> Selecting relevant data...")
-        who_dashboard <- select(
-            who_dashboard,
-            c(
-                "ISO3",
-                "NUMBER_VACCINES_TYPES_USED",
-                "FIRST_VACCINE_DATE",
-                "PERSONS_LAST_DOSE_PER100"
+        who_dashboard <- who_dashboard %>%
+          group_by(COUNTRY) %>%
+          filter(DATE == max(DATE)) %>%
+          ungroup() %>%
+          select(COUNTRY,
+                COVID_VACCINE_DATE_INTRO_FIRST
             )
-        )
 
         print(">> Renaming selected data...")
         colnames(who_dashboard) <- c(
             "a_iso",
-            "adm_prod_inuse",
-            "date_intro",
-            "cov_total_fv_per100_whodb"
+            "date_intro"
         )
 
         print(">> Data is stored for future API calls...")

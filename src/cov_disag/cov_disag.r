@@ -1,19 +1,21 @@
 
 load_population_uptake <- function(headers, refresh_api) {
     print(" >> Load target groups and gender...")
-    uptake_gender <- load_pop_target_gender(headers, refresh_api)
+    # uptake_gender <- load_pop_target_gender(headers, refresh_api)
     uptake_groups <- load_pop_target_groups(headers, refresh_api)
-    datalist <- list("uptake_gender" = uptake_gender,
+    datalist <- list(
+      # "uptake_gender" = uptake_gender,
         "uptake_groups" = uptake_groups)
     return(datalist)
 }
 
 transform_population_uptake <- function(uptake_gender, uptake_groups) {
     print(" >> Transform target groups and gender...")
-    uptake_genders <- transform_pop_target_gender(uptake_gender)
+    # uptake_genders <- transform_pop_target_gender(uptake_gender)
     uptake_groupss <- transform_pop_target_groups(uptake_groups)
 
-    df_to_append <- append(uptake_groupss, uptake_genders)
+    # df_to_append <- append(uptake_groupss) #, uptake_genders)
+    df_to_append <- uptake_groupss
 
     output <- helper_join_dataframe_list(
         df_to_append,
@@ -21,17 +23,27 @@ transform_population_uptake <- function(uptake_gender, uptake_groups) {
         ally = TRUE
     ) # full join
 
-    output$adm_date_gender <- output$adm_date_gender.x
-    output <- select(output, -c("adm_date_gender.y", "adm_date_gender.x"))
+    # output$adm_date_gender <- output$adm_date_gender.x
+    # output <- select(output, -c("adm_date_gender.y", "adm_date_gender.x"))
 
     return(output)
 }
 
 load_pop_target_gender <- function(headers, refresh_api) {
     print(">> Loading gender-disaggregated uptake data...")
-    uptake_gender <- helper_wiise_api(
-        "https://xmart-api-public.who.int/WIISE/V_COV_UPTAKE_GENDER_LAST_MONTH_LONG",
-        headers = FALSE, refresh_api)
+    # uptake_gender <- helper_wiise_api(
+    #     "https://xmart-api-public.who.int/WIISE/V_COV_UPTAKE_GENDER_LAST_MONTH_LONG",
+    #     headers = FALSE, refresh_api)
+  
+  uptake_gender_raw <-
+    GET(
+      'https://xmart-api-public.who.int/WIISE/V_COV_UPTAKE_GENDER_LAST_MONTH_LONG'
+    )
+  
+  uptake_gender_text <- content(uptake_gender_raw, "text")
+  uptake_gender_json <- fromJSON(uptake_gender_text, flatten = TRUE)
+  uptake_gender <- as.data.frame(uptake_gender_json)
+  names(uptake_gender) <- substring(names(uptake_gender), 7)
 
     print(">> Selecting & renaming relevant gender-dsaggregated uptake data...")
     uptake_gender <- uptake_gender %>%

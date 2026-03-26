@@ -73,7 +73,7 @@ load_adhoc_details <- function() {
   )
   
   print(">> Removing unnecessary adhoc detail variables...")
-  adhoc <- select(adhoc, -c(a_region_who))
+  adhoc <- select(adhoc, -c(a_region_who, a_status_ivb))
   
   print(">> Done.")
   return(adhoc)
@@ -112,26 +112,6 @@ transform_entity_details <- function(entity, adhoc) {
       map = c("HIC", "UMIC", "LMIC", "LIC"),
       na_fill = "Other"
     )
-  
-  entity_characteristics$a_income_group_vis <-
-    helper_replace_values_with_map(
-      data = entity_characteristics$a_income_group,
-      values = c("HIC", "UMIC", "LMIC", "LIC", "Other"),
-      map = c("4) HIC", "3) UMIC", "2) LMIC", "1) LIC", "5) Other"),
-      na_fill = "5) Other"
-    )
-  
-  print(">> Preparing income groups with seperated IND & IDN...")
-  entity_characteristics <- entity_characteristics %>%
-    mutate(a_income_group_ind = ifelse(
-      a_income_group_vis == "2) LMIC",
-      ifelse(
-        a_iso == "IND" | a_iso == "IDN",
-        "2) LMIC - India & Indonesia",
-        "2) LMIC excl. India & Indonesia"
-      ),
-      a_income_group_vis
-    ))
   
   print(">> Modifying African sub-regions...")
   entity_characteristics$a_continent_sub <-

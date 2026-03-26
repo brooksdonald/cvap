@@ -32,8 +32,19 @@ def import_data(throughput_data):
     who = throughput_data
     return who
 
+
 def convert_data_types(who):
     print(" > Converting data types")
+    INT32_MIN = np.iinfo(np.int32).min
+    cols = ["total_doses", "at_least_one_dose", "fully_vaccinated", "persons_booster_add_dose"]
+
+    # Convert leaked R NA_integer_ sentinel to true missing
+    who[cols] = who[cols].replace(INT32_MIN, np.nan)
+
+    # Now coerce to numeric safely
+    for c in cols:
+        who[c] = pd.to_numeric(who[c], errors="coerce")
+
     who["total_doses"] = who["total_doses"].astype(float)
     who["at_least_one_dose"] = who["at_least_one_dose"].astype(float)
     who["fully_vaccinated"] = who["fully_vaccinated"].astype(float)

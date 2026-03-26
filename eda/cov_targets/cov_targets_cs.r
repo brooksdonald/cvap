@@ -27,7 +27,7 @@ course_progress <- function(a_data, entity_characteristics, date_refresh) {
     print(" >>> Computing progress against country coverage targets...")
     a_data <- a_data %>%
     mutate(ndvp_goalmet = if_else(
-        cov_total_fv >= ndvp_target, 
+      cov_tot_cps >= ndvp_target, 
         "Yes", 
         "No")) %>%
     mutate(ndvp_target_active = if_else(
@@ -35,7 +35,7 @@ course_progress <- function(a_data, entity_characteristics, date_refresh) {
         NA_real_,
         ndvp_target)) %>%
     mutate(ndvp_rem =
-        pmax(ndvp_target - cov_total_fv, 0)) %>%
+        pmax(ndvp_target - cov_tot_cps, 0)) %>%
     mutate(ndvp_peratpace = 
         ((adm_tot_cps_homo + (dvr_4wk_fv * 
             as.numeric(as.Date(ndvp_deadline) - date_refresh)
@@ -47,12 +47,12 @@ course_progress <- function(a_data, entity_characteristics, date_refresh) {
         "Yes",
         "No")) %>%
     mutate(ndvp_timeto = round(if_else(is.infinite(
-        ((adm_pv + ((a_pop_ndvp - adm_pv - adm_tot_cps_homo) * 2)) / dvr_4wk_td)),
+        ((adm_tot_pv + ((a_pop_ndvp - adm_tot_pv - adm_tot_cps_homo) * 2)) / dvr_4wk_td)),
         NA_real_,
-        pmax((adm_pv + ((a_pop_ndvp - adm_pv - adm_tot_cps_homo) * 2)) / dvr_4wk_td,
+        pmax((adm_tot_pv + ((a_pop_ndvp - adm_tot_pv - adm_tot_cps_homo) * 2)) / dvr_4wk_td,
             0)))) %>%
     mutate(ndvp_ontrack = if_else(
-        ndvp_peratpace >= ndvp_target & cov_total_fv <= ndvp_target,
+        ndvp_peratpace >= ndvp_target & cov_tot_cps <= ndvp_target,
         "Yes",
         "No")) %>%
     mutate(ndvp_offtrack = if_else(

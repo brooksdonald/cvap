@@ -33,18 +33,9 @@ merge_supply_received_by_product <- function(a_data, supply_received_dose_prod) 
   a_data_temp <-
     select(a_data,
       c("a_iso",
-        "a_income_group",
-        "a_income_group_vis"
+        "a_income_group"
       )
     )
-  
-  a_data_temp <- a_data_temp %>%
-    mutate(a_income_group_ind = 
-             ifelse(a_income_group_vis == "2) LMIC",
-                    ifelse(a_iso == "IDN" | a_iso == "IND",
-                           "2) LMIC - India & Indonesia",
-                           "2) LMIC excl. India & Indonesia"),
-                    a_income_group_vis))
            
   supply_received_dose_prod<-merge(x=supply_received_dose_prod,y=a_data_temp, by="a_iso",all.x=TRUE)
   

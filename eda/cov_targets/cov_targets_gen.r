@@ -6,8 +6,8 @@ target_group_ten <- function(a_data, c_vxrate_sept_t10) {
 
   a_data <- a_data %>%
     mutate(t10_goalmet_sep = if_else(a_iso == "BDI", "No", t10_goalmet_sep)) %>%
-    mutate(t10_goalmet_after = if_else(cov_total_fv >= 0.1, "Yes", "No")) %>%
-    mutate(t10_notmet = if_else(cov_total_fv < 0.1, "Yes", "No")) %>%
+    mutate(t10_goalmet_after = if_else(cov_tot_cps >= 0.1, "Yes", "No")) %>%
+    mutate(t10_notmet = if_else(cov_tot_cps < 0.1, "Yes", "No")) %>%
     helper_goal_target_groups(10)
   return(a_data)
 
@@ -18,17 +18,17 @@ target_group_twenty_forty <- function(a_data, c_vxrate_dec_t2040) {
   a_data <- left_join(a_data, c_vxrate_dec_t2040, by = "a_iso")
 
   a_data <- a_data %>%
-    mutate(t20_goalmet_after = if_else(cov_total_fv >= 0.2, "Yes", "No")) %>%
-    mutate(t20_notmet = if_else(cov_total_fv < 0.2, "Yes", "No")) %>%
+    mutate(t20_goalmet_after = if_else(cov_tot_cps >= 0.2, "Yes", "No")) %>%
+    mutate(t20_notmet = if_else(cov_tot_cps < 0.2, "Yes", "No")) %>%
     helper_goal_target_groups(20)
 
   a_data <- a_data %>%
     mutate(t40_goalmet_dec = if_else(
-      is.na(t40_goalmet_dec) & cov_total_fv < 0.4,
+      is.na(t40_goalmet_dec) & cov_tot_cps < 0.4,
       "No", 
       t40_goalmet_dec)) %>%
-    mutate(t40_goalmet_after = if_else(cov_total_fv >= 0.4, "Yes", "No")) %>%
-    mutate(t40_notmet = if_else(cov_total_fv < 0.4, "Yes", "No")) %>%
+    mutate(t40_goalmet_after = if_else(cov_tot_cps >= 0.4, "Yes", "No")) %>%
+    mutate(t40_notmet = if_else(cov_tot_cps < 0.4, "Yes", "No")) %>%
     ## If not, at least automate the date
     helper_goal_target_groups(40)
     # mutate(t40_jun_willmeet = if_else(
@@ -49,8 +49,8 @@ target_group_seventy <- function(a_data, c_vxrate_jun_t70) {
                                              if_else(a_iso == "TUV", "No",
                                                      if_else(a_iso == "UKR", "No",
                                      t70_goalmet_jun))))) %>%
-    mutate(t70_goalmet_after = if_else(cov_total_fv >= 0.7,"Yes","No")) %>%
-    mutate(t70_notmet = if_else(cov_total_fv < 0.7,"Yes","No")) %>%
+    mutate(t70_goalmet_after = if_else(cov_tot_cps >= 0.7,"Yes","No")) %>%
+    mutate(t70_notmet = if_else(cov_tot_cps < 0.7,"Yes","No")) %>%
     helper_goal_target_groups(70)
 
   return(a_data)
@@ -59,7 +59,7 @@ target_group_seventy <- function(a_data, c_vxrate_jun_t70) {
 booster_doses <- function(a_data) {
   # Booster and additional doses
   a_data <- a_data %>%
-    mutate(cov_total_booster = adm_tot_boost / a_pop,
+    mutate(cov_tot_boost = adm_tot_boost / a_pop,
            adm_status_boost = if_else(adm_tot_boost > 0 | pol_boost == "Yes",
                                     "Yes", 
                                     if_else(is.na(adm_tot_boost) & pol_boost == "No",
@@ -69,7 +69,7 @@ booster_doses <- function(a_data) {
   tags <- c("0) Not reporting", "1) 0-0.9%",
     "2) 1-4.9%", "3) 5-9.9%", "4) >10%")
   a_data$cov_total_booster_cat <- cut(
-    a_data$cov_total_booster,
+    a_data$cov_tot_boost,
     breaks = breaks,
     right = TRUE,
     labels = tags,
@@ -79,19 +79,20 @@ booster_doses <- function(a_data) {
   a_data %>%
     mutate(cov_total_booster_cat =
       case_when(
-        cov_total_booster < 0 ~ NA_character_
+        cov_tot_boost < 0 ~ NA_character_
     ))
 
   # Calculate coverage differences
   a_data <- a_data %>%
-    mutate(cov_total_a1d_fv = if_else(
-      cov_total_a1d < cov_total_fv,
-      0,
-      cov_total_a1d - cov_total_fv)) %>%
-    mutate(cov_total_fv_booster = if_else(
-      cov_total_fv < cov_total_booster,
-      0,
-      cov_total_fv - cov_total_booster))
+    mutate(
+      cov_tot_a1d_cps = case_when(
+        cov_tot_a1d < cov_tot_cps ~ 0,
+        TRUE ~ cov_tot_a1d - cov_tot_cps),
+      
+      cov_tot_cps_boost = case_when(
+        cov_tot_cps < cov_tot_boost ~ 0,
+        TRUE ~ (cov_tot_cps - cov_tot_boost))
+      )
 
   return(a_data)
 }
